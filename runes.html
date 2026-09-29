@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <title>Legacy Rune Builder</title>
+    </head>
+    <body class="runes-page">
+        <header class="legacy-header">
+            <div class="header-title">Legacy LoL Calculator</div>
+            <nav class="header-tabs">
+                <a class="header-tab" href="index.html">Masteries</a>
+                <a class="header-tab active" href="runes.html">Runes</a>
+                <a class="header-tab" href="runes-reforged.html">Runes Reforged</a>
+            </nav>
+            <div class="header-right">
+                <label class="header-select-label">Season<select id="season-select" class="lol-select"></select></label>
+                <label class="header-select-label">Patch<select id="patch-select" class="lol-select"></select></label>
+                <a id="exportLink" href="#" title="Direct link to this rune page">Link</a>
+                <button id="share" class="header-action-btn" type="button" title="Copy shareable URL to clipboard">Share</button>
+            </div>
+            <div id="toast" role="status" aria-live="polite"></div>
+        </header>
+
+        <div class="legacy-app">
+
+            <!-- Three-column layout: rune library | slot canvas | statistics.
+                 The canvas crops the legacy parchment art to just the slot
+                 region (logical 240,110 - 830,580 of the 1024x615 image), so
+                 the side panels are ordinary DOM and can never drift off the
+                 painted art. -->
+            <div class="runes-layout">
+                <aside class="runes-panel runes-panel-left">
+                    <div class="rune-filter-row">
+                        <span class="filter-label">Runes:</span>
+                        <select id="rune-category-filter" class="rune-select">
+                            <option value="all">All</option>
+                            <option value="mark">Marks</option>
+                            <option value="seal">Seals</option>
+                            <option value="glyph">Glyphs</option>
+                            <option value="quintessence">Quintessences</option>
+                        </select>
+                    </div>
+                    <div class="tier-filters">
+                        <span class="tier-label">Tier:</span>
+                        <label class="checkbox-label"><input type="checkbox" value="1" checked="checked" /> 1</label>
+                        <label class="checkbox-label"><input type="checkbox" value="2" checked="checked" /> 2</label>
+                        <label class="checkbox-label"><input type="checkbox" value="3" checked="checked" /> 3</label>
+                    </div>
+                    <div id="runes-categories" class="rune-categories"></div>
+                </aside>
+
+                <div class="runes-canvas-crop">
+                    <div class="parchment-runes" id="parchment">
+                        <div class="rune-title">Rune Page</div>
+                        <div id="rune-slots" class="rune-slot-layer"></div>
+                    </div>
+                </div>
+
+                <aside class="runes-panel runes-panel-right">
+                    <div class="stats-title">Statistics</div>
+                    <div class="level-row">
+                        <label class="level-label" for="champ-level">Level <span id="champ-level-value">18</span></label>
+                        <input id="champ-level" type="range" min="1" max="18" step="1" value="18" title="Champion level — scaling runes recompute at this level" />
+                    </div>
+                    <div id="stats-list" class="stats-list"></div>
+                    <div class="action-buttons">
+                        <div class="action-btn" id="action-clear" title="Clear Page">
+                            <img class="action-btn-img" alt="Clear" src="images/runes/legacy_clear_runebutton.png" />
+                        </div>
+                        <div class="action-btn" id="action-save" title="Save">
+                            <img class="action-btn-img" alt="Save" src="images/runes/legacy_save_runebutton.png" />
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+        <script type="text/javascript" src="nav.js"></script>
+        <script type="text/javascript" src="runes-data.js"></script>
+        <script type="text/javascript" src="runes-calculator.js"></script>
+    </body>
+</html>
