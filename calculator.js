@@ -3,19 +3,33 @@ var treeNames = [
     "defense",
     "utility",
 ];
-var treeOffsets = [
-    0,
-    data[0].length,
-    data[0].length + data[1].length
-];
+var treeOffsets = [0, 0, 0];
 var MAX_POINTS = 30;
 var TREE_OFFSET = 305;
 var HEIGHT_GAP = 26;
 var BUTTON_SIZE = 56;
 var state = [{}, {}, {}];
 var totalPoints = 0;
+var activeDataSetId = null;
+var activeSpriteUrl = "images/button-icons.jpg";
 var buttonClasses = ["unavailable", "available", "full"];
 var rankClasses = ["num-unavailable", "num-available", "num-full"];
+
+// Recompute globals that depend on the active data set. Call this whenever
+// `data` is reassigned (i.e. when the season/patch dropdown changes).
+function syncDataSetGlobals(dataSet) {
+    data = dataSet.data;
+    MAX_POINTS = dataSet.maxPoints;
+    treeOffsets = [
+        0,
+        data[0].length,
+        data[0].length + data[1].length
+    ];
+    state = [{}, {}, {}];
+    totalPoints = 0;
+    activeDataSetId = dataSet.id;
+    activeSpriteUrl = dataSet.spriteUrl || "images/button-icons.jpg";
+}
 
 function drawCalculator() {
     for (var tree = 0; tree < 3; tree++)
@@ -59,10 +73,12 @@ function drawCalculator() {
                 )
         );
 
-    // mousemove event global since it follows tooltip visibility
+    // mousemove event global since it follows tooltip visibility. Namespaced
+    // so a redraw can replace the handler instead of stacking new ones.
     var anchor = $("#calculator");
     $(window)
-        .mousemove(function(event){
+        .off('mousemove.calc')
+        .on('mousemove.calc', function(event){
             if (tip.is(":visible")) {
                 // boundary checking for tooltip (right and bottom sides)
                 var pos = anchor.offset();
@@ -112,11 +128,14 @@ function drawButton(tree, index) {
             .addClass("button")
             .addClass(status)
             .data("parentLink", parentLink)
+            .attr("data-tree", tree)
+            .attr("data-index", index)
             .css({
                 left: buttonPos.x+"px",
                 top: buttonPos.y+"px",
+                backgroundImage: "url(" + activeSpriteUrl + ")",
                 // Sprite has two columns: 0px is color and -58px is black and white
-                backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " + 
+                backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " +
                                     (spritePos - 2) + "px",
             })
             .append(
@@ -171,13 +190,17 @@ function drawButton(tree, index) {
                 }
                 // change status class
                 if ( !$(this).hasClass(status) ) {
-                    $(this)
-                        .removeClass(buttonClasses.join(" "))
-                        .addClass(status)
-                        .css({
-                            backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " + 
+                    var $btn = $(this);
+                    $btn.removeClass(buttonClasses.join(" ")).addClass(status);
+                    // Sprite buttons use a two-column trick (color/B&W) so
+                    // we shift backgroundPosition. Data Dragon buttons are
+                    // single-image PNGs; CSS handles their grayscale state.
+                    if (!$btn.hasClass("ddragon")) {
+                        $btn.css({
+                            backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " +
                                                 (spritePos - 2) + "px",
                         });
+                    }
                 }
                 // adjust counter
                 var counter = $(this).find(".counter").text(rank + "/" + data[tree][index].ranks);
@@ -386,6 +409,13 @@ function setState(tree, index, rank, mod) {
 
 // If quiet flag is true, does not call updates
 function resetStates(quiet) {
+    // The keystone system keeps its own state — delegate.
+    var ds = getDataSet(activeDataSetId);
+    if (ds && ds.system === "keystone") {
+        if (typeof resetKeystones === "function") resetKeystones();
+        return;
+    }
+
     for (var tree=0; tree<3; tree++)
         resetTree(tree);
 
@@ -417,9 +447,17 @@ function updateLabels() {
 }
 
 function updateLink() {
-    var hash = exportMasteries();
-    // Do not show link for empty trees
-    if (hash.length <= 3) hash = '';
+    var code = exportMasteries();
+    // Hash format: "<dataset-id>|<mastery-code>". Old format (no pipe) is
+    // still accepted on import and treated as the default data set.
+    var hash;
+    if (code.length <= 3) {
+        // For empty/near-empty trees, still surface the data set so a fresh
+        // page load lands on the same season/patch the user picked.
+        hash = (activeDataSetId === DEFAULT_DATA_SET_ID) ? '' : activeDataSetId + '|';
+    } else {
+        hash = activeDataSetId + '|' + code;
+    }
     hash = '#' + hash;
 
     // Update link and url only if we have to
@@ -537,8 +575,8 @@ function importMasteries(str) {
         // check for bad input
         if (cur == undefined) 
             return;
-        // if the first bit is a 0, we know it's not a jump (using octal)
-        if ((cur & 040) == 0) {
+        // if the first bit is a 0, we know it's not a jump
+        if ((cur & 0x20) == 0) {
             // extract data
             var num = bitfit(tree, index, maxbits); // how many we can fit
             var sizes = [0, 1, 2, 3, 4] // an array of each mastery held in this char
@@ -555,7 +593,7 @@ function importMasteries(str) {
             }
         } else {
             // jump
-            var dist = cur & 037;
+            var dist = cur & 0x1f;
             index += dist;
         }
 
@@ -574,11 +612,195 @@ function importMasteries(str) {
     updateLink();
 }
 
+function parseHash(raw) {
+    // Hash format: "<dataset-id>|<mastery-code>" (current) or just
+    // "<mastery-code>" (legacy — assume default data set).
+    if (!raw) return { id: DEFAULT_DATA_SET_ID, code: "" };
+    var pipe = raw.indexOf('|');
+    if (pipe < 0) return { id: DEFAULT_DATA_SET_ID, code: raw };
+    return { id: raw.slice(0, pipe), code: raw.slice(pipe + 1) };
+}
+
 function updateMasteries() {
-    importMasteries(document.location.hash.slice(1));
+    var parsed = parseHash(document.location.hash.slice(1));
+    if (parsed.id !== activeDataSetId) {
+        // Switch silently — switchDataSet() will redraw and then we import
+        // the mastery code into the fresh state.
+        switchDataSet(parsed.id, { skipUpdates: true });
+    }
+    var ds = getDataSet(activeDataSetId);
+    if (ds && ds.system === "keystone") {
+        // Keystone builds use their own code format (keystone-calculator.js).
+        if (typeof importKeystones === "function") importKeystones(parsed.code);
+    } else {
+        importMasteries(parsed.code);
+    }
+}
+
+// Tear down and redraw the calculator. Called when switching seasons/patches.
+function redrawCalculator() {
+    $("#calculator").empty();
+    drawCalculator();
+    applyDdragonIcons(activeDataSetId);
+}
+
+// Cache of Data Dragon icon catalogs by data-set id. Each entry is a
+// { name -> imageUrl } map.
+var ddragonIconCache = {};
+
+// Kick off (or reuse) a Data Dragon mastery.json fetch for the given data
+// set, then overlay each button's background image with the matching icon.
+// Buttons keep their sprite-based backgroundPosition + color/B&W column
+// trick intact for unavailable state; only the image source changes.
+function applyDdragonIcons(dataSetId) {
+    var dataSet = getDataSet(dataSetId);
+    if (!dataSet || !dataSet.ddragonVersion) return;
+
+    if (ddragonIconCache[dataSetId]) {
+        decorateButtonsWithIcons(dataSetId, ddragonIconCache[dataSetId]);
+        return;
+    }
+
+    var version = dataSet.ddragonVersion;
+    var url = "https://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/mastery.json";
+    $.getJSON(url).done(function(json){
+        var map = {};
+        if (json && json.data) {
+            for (var id in json.data) {
+                var m = json.data[id];
+                if (m && m.name && m.image && m.image.full) {
+                    map[m.name] = "https://ddragon.leagueoflegends.com/cdn/" + version + "/img/mastery/" + m.image.full;
+                }
+            }
+        }
+        ddragonIconCache[dataSetId] = map;
+        decorateButtonsWithIcons(dataSetId, map);
+    });
+    // Silent fall back to sprite on failure — no error UI.
+}
+
+function decorateButtonsWithIcons(dataSetId, iconMap) {
+    if (activeDataSetId !== dataSetId) return; // user switched away while loading
+    $("#calculator .button").each(function(){
+        var $btn = $(this);
+        var tree = +$btn.attr("data-tree");
+        var index = +$btn.attr("data-index");
+        var entry = data[tree] && data[tree][index];
+        if (!entry) return;
+        var url = iconMap[entry.name];
+        if (!url) return;
+        // Data Dragon icons are single-state PNGs. Use a `ddragon` flag
+        // class so the available/unavailable visual switches to a CSS
+        // grayscale filter instead of the sprite's two-column trick.
+        $btn.addClass("ddragon").css({
+            backgroundImage: "url(" + url + ")",
+            backgroundPosition: "center center",
+            backgroundSize: "cover",
+        });
+    });
+}
+
+// Switch to a different season/patch snapshot. Resets state, redraws the
+// calculator, and re-syncs the panel UI.
+function switchDataSet(id, opts) {
+    opts = opts || {};
+    var dataSet = getDataSet(id);
+    if (!dataSet) return false;
+
+    var system = dataSet.system || "classic";
+    activeDataSetId = id;
+
+    // Toggle which calculator container is visible. The keystone system
+    // (V5.22 onwards) is structurally different and uses its own render
+    // path in keystone-calculator.js. CSS keys off `body.keystone-system`
+    // so the Points panel + Return button stay visible but the classic
+    // tree-summaries are hidden via the body class rules.
+    if (system === "keystone") {
+        $("body").addClass("keystone-system");
+        $("#tree-summaries").hide();
+        if (typeof drawKeystoneCalculator === "function") {
+            drawKeystoneCalculator(dataSet);
+        }
+    } else {
+        $("body").removeClass("keystone-system");
+        $("#tree-summaries").show();
+        syncDataSetGlobals(dataSet);
+        redrawCalculator();
+    }
+
+    // Reflect the active set in the season nav + patch dropdown (without
+    // re-firing change handlers).
+    refreshMasteriesSeasonNav(dataSet);
+    if ($("#patch-select").length) {
+        rebuildPatchSelect(dataSet.season, dataSet.id);
+    }
+
+    if (!opts.skipUpdates) {
+        if (system === "keystone") {
+            if (typeof updateKeystoneLink === "function") updateKeystoneLink();
+        } else {
+            updateLabels();
+            updateLink();
+        }
+    }
+    return true;
+}
+
+// Repopulate the Patch dropdown with the patches available for a given
+// season, then select the requested set id.
+function rebuildPatchSelect(season, selectedId) {
+    var $patch = $("#patch-select");
+    if (!$patch.length) return;
+    $patch.empty();
+    for (var i = 0; i < masteryDataSets.length; i++) {
+        var ds = masteryDataSets[i];
+        if (ds.season !== season) continue;
+        $patch.append($("<option>").attr("value", ds.id).text(ds.patchLabel));
+    }
+    if (selectedId) $patch.val(selectedId);
+}
+
+// Season dropdown + tabs come from the shared season-led nav (nav.js); the
+// patch dropdown stays page-local and lists this season's snapshots.
+function refreshMasteriesSeasonNav(dataSet) {
+    if (typeof buildSeasonNav !== "function") return;
+    buildSeasonNav({
+        page: "masteries",
+        seasonSelect: "#season-select",
+        currentKey: "s" + dataSet.season,
+        onSeason: function(def){
+            // Stay in-page: first dataset of the chosen season.
+            for (var i = 0; i < masteryDataSets.length; i++) {
+                if ("s" + masteryDataSets[i].season === def.key) {
+                    switchDataSet(masteryDataSets[i].id);
+                    return true;
+                }
+            }
+            return false;
+        }
+    });
+}
+
+function buildSeasonPatchSelectors() {
+    var active = getDataSet(activeDataSetId) || getDataSet(DEFAULT_DATA_SET_ID);
+    refreshMasteriesSeasonNav(active);
+    rebuildPatchSelect(active.season, active.id);
+    $("#patch-select").on("change", function(){
+        switchDataSet($(this).val());
+    });
 }
 
 $(function(){
+    // Bootstrap the active data set so treeOffsets/MAX_POINTS/state are sane
+    // before the first draw. Keystone datasets have a different data shape
+    // (an object with `trees`, not three arrays), so when the hash points at
+    // one we bootstrap the classic globals from the default classic set and
+    // let updateMasteries() below perform the actual switch.
+    var initial = parseHash(document.location.hash.slice(1));
+    var initialDs = getDataSet(initial.id) || getDataSet(DEFAULT_DATA_SET_ID);
+    var bootstrapDs = (initialDs.system === "keystone") ? getDataSet(DEFAULT_DATA_SET_ID) : initialDs;
+    syncDataSetGlobals(bootstrapDs);
+
     // Calculator
     drawCalculator();
 
@@ -613,6 +835,18 @@ $(function(){
         );
     }
 
+    buildSeasonPatchSelectors();
+
+    $("#share").click(function(){
+        var href = $("#exportLink").attr("href") || (document.location.pathname + document.location.hash);
+        var url = new URL(href, document.location.href).toString();
+        copyToClipboard(url).then(function(){
+            showToast("URL copied to clipboard");
+        }, function(){
+            showToast("Copy failed — here it is: " + url);
+        });
+    });
+
     // Once set up, load if hash present
     if (document.location.hash != "")
         updateMasteries();
@@ -620,3 +854,33 @@ $(function(){
     // Listen for hash changes
     $(window).bind('hashchange', updateMasteries);
 });
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    // Fallback for non-secure contexts (e.g. plain http on local server)
+    return new Promise(function(resolve, reject){
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            var ok = document.execCommand("copy");
+            ok ? resolve() : reject(new Error("execCommand returned false"));
+        } catch (e) {
+            reject(e);
+        } finally {
+            document.body.removeChild(ta);
+        }
+    });
+}
+
+var _toastTimer = null;
+function showToast(msg) {
+    var $t = $("#toast").text(msg).addClass("visible");
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function(){ $t.removeClass("visible"); }, 1800);
+}

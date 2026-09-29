@@ -2,9 +2,10 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" href="style.css" type="text/css" />
-        <title>League of Legends Season 2 Mastery Calculator</title>
-        <script type="type/javascript">
+        <title>Legacy LoL Mastery Calculator</title>
+        <script type="text/javascript">
             // Preload sprites
             (new Image()).src = "images/button-icons.jpg";
             (new Image()).src = "images/req-bars.png";
@@ -12,6 +13,22 @@
         </script>
     </head>
     <body>
+        <header class="legacy-header">
+            <div class="header-title">Legacy LoL Calculator</div>
+            <nav class="header-tabs">
+                <a class="header-tab active" href="index.html">Masteries</a>
+                <a class="header-tab" href="runes.html">Runes</a>
+                <a class="header-tab" href="runes-reforged.html">Runes Reforged</a>
+            </nav>
+            <div class="header-right">
+                <label class="header-select-label">Season<select id="season-select" class="lol-select"></select></label>
+                <label class="header-select-label">Patch<select id="patch-select" class="lol-select"></select></label>
+                <a id="exportLink" href="#" title="Direct link to this mastery page">Link</a>
+                <button id="share" class="header-action-btn" type="button" title="Copy shareable URL to clipboard">Share</button>
+            </div>
+            <div id="toast" role="status" aria-live="polite"></div>
+        </header>
+
         <div id="s2masteries">
             <div class="art-top"></div>
             <div class="art-bottom"></div>
@@ -21,20 +38,30 @@
                         <span>Points Available: </span><span class="count"></span>
                     </div>
                 </div>
-                <div class="center">
-                    <a id="exportLink" href="#">Link</a>
-                </div>
                 <div class="right">
                     <button id="return">Return Points</button>
                 </div>
                 <div id="tree-summaries"></div>
             </div>
             <div id="calculator"></div>
+            <!-- Alternate render target for the Ferocity/Cunning/Resolve
+                 keystone mastery system (V5.22 through V7.21). The active
+                 dataset's `system` field picks which container is visible. -->
+            <div id="keystone-calculator"></div>
         </div>
 
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+        <script type="text/javascript" src="nav.js"></script>
+        <script type="text/javascript" src="season1-data.js"></script>
+        <script type="text/javascript" src="season2-data.js"></script>
+        <script type="text/javascript" src="season4-data.js"></script>
+        <script type="text/javascript" src="season5-data.js"></script>
+        <script type="text/javascript" src="season6-keystone-data.js"></script>
+        <script type="text/javascript" src="preseason7-keystone-data.js"></script>
+        <script type="text/javascript" src="season7-keystone-data.js"></script>
         <script type="text/javascript" src="data.js"></script>
         <script type="text/javascript" src="calculator.js"></script>
+        <script type="text/javascript" src="keystone-calculator.js"></script>
     </body>
 </html>
     

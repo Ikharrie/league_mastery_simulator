@@ -1,4 +1,4 @@
-var data = [
+var season3CurrentData = [
     // offensive
     [
         {
@@ -35,7 +35,7 @@ var data = [
             ranks: 4,
             perlevel: 1,
             desc: "+# Attack Damage per level\n(# Attack Damage at champion level 18)",
-            rankInfo: [0.166, 0.333, 0.498, 0.664],
+            rankInfo: [0.17, 0.33, 0.5, 0.67],
         },
         {
             index: 7,
@@ -63,7 +63,7 @@ var data = [
             index: 10,
             name: "Weapon Expertise",
             ranks: 1,
-            desc: "+8% Armor Penetraton",
+            desc: "+8% Armor Penetration",
             rankInfo: [],
             parent: 4,
         },
@@ -117,7 +117,7 @@ var data = [
             name: "Sunder",
             ranks: 3,
             desc: "+# Armor Penetration",
-            rankInfo: [2, 4, 6],
+            rankInfo: [2, 3.5, 5],
         },
         {
             index: 19,
@@ -170,14 +170,14 @@ var data = [
             name: "Hardiness",
             ranks: 3,
             desc: "+# Armor",
-            rankInfo: [2, 4, 6],
+            rankInfo: [2, 3.5, 5],
         },
         {
             index: 6,
             name: "Resistance",
             ranks: 3,
             desc: "+# Magic Resist",
-            rankInfo: [2, 4, 6],
+            rankInfo: [2, 3.5, 5],
         },
         {
             index: 8,
@@ -327,7 +327,7 @@ var data = [
         },
         {
             index: 8,
-            name: "Artifacer",
+            name: "Artificer",
             ranks: 2,
             desc: "Reduces the cooldown of activated items by #%",
             rankInfo: [7.5, 15],
@@ -413,3 +413,145 @@ var data = [
         },
     ]
 ];
+
+// Versioned registry. Each entry is a season/patch snapshot of the mastery
+// trees. The Season + Patch dropdowns iterate this list, and the calculator
+// reads from whichever entry is active.
+//
+// Ordering: newest first within a season, newest season first. This makes the
+// most-recent snapshot the default.
+// `spriteUrl` is the per-(season,patch) icon strip used by the calculator
+// button backgrounds. The strip is a vertical column of 58px-tall icons in
+// the same order the masteries appear in `data` (concatenated across the
+// three trees). When a season has no dedicated sprite yet, we point it at
+// the Season 3 sprite as a placeholder — the calculator still works, but
+// the icons will be wrong until a real sprite is dropped in.
+var masteryDataSets = [
+    // ---- Season 7 (final pre-Runes-Reforged keystone snapshot) ----------
+    // V7.21 (Oct 25 2017) was the last patch on the Ferocity / Cunning /
+    // Resolve keystone tree before V7.22 deleted masteries and shipped
+    // Runes Reforged. 30 points total; each tree caps at 18 (5+1+5+1+5+1).
+    {
+        id: "s7-final",
+        season: 7,
+        seasonLabel: "Season 7",
+        patch: "V7.21",
+        patchLabel: "V7.21 (Final pre-Reforged — Keystone)",
+        system: "keystone",
+        maxPoints: 30,
+        data: season7KeystoneData,
+        ddragonVersion: "7.21.1",
+    },
+
+    // ---- Season 7 preseason (V6.22 "Assassins" update) -------------------
+    // Mid-era keystone snapshot: Courage of the Colossus replaced Strength
+    // of the Ages, Precision converted to Lethality, Fresh Blood / Battle
+    // Trance / Greenfather's Gift / Siegemaster / Fearless added, Oppressor
+    // removed. Warlord's is in its missing-health life-steal form.
+    {
+        id: "s7-preseason",
+        season: 7,
+        seasonLabel: "Season 7",
+        patch: "V6.22",
+        patchLabel: "V6.22 (Preseason 7 — Keystone)",
+        system: "keystone",
+        maxPoints: 30,
+        data: preseason7KeystoneData,
+        ddragonVersion: "6.22.1",
+    },
+
+    // ---- Season 6 (Preseason 6 keystone rework) -------------------------
+    // V5.22 (Nov 11 2015) replaced the 30-point Offense/Defense/Utility
+    // tree with the 18-point Ferocity / Cunning / Resolve keystone system.
+    // This entry uses `system: "keystone"` so the calculator switches to
+    // the keystone-calculator.js render path instead of the classic one.
+    {
+        id: "s6-launch",
+        season: 6,
+        seasonLabel: "Season 6",
+        patch: "V5.22",
+        patchLabel: "V5.22 (Preseason 6 — Keystone)",
+        system: "keystone",
+        maxPoints: 30,
+        data: season6KeystoneData,
+        ddragonVersion: "5.22.3",
+    },
+
+    // ---- Season 5 -------------------------------------------------------
+    {
+        id: "s5-final",
+        season: 5,
+        seasonLabel: "Season 5",
+        patch: "V5.21",
+        patchLabel: "V5.21 (Late Season 5)",
+        system: "classic",
+        maxPoints: 30,
+        data: season5FinalData,
+        spriteUrl: "images/button-icons.jpg",
+        ddragonVersion: "5.21.1",
+    },
+    // ---- Season 4 -------------------------------------------------------
+    {
+        id: "s4-final",
+        season: 4,
+        seasonLabel: "Season 4",
+        patch: "V4.20",
+        patchLabel: "V4.20 (Late Season 4)",
+        maxPoints: 30,
+        data: season4FinalData,
+        spriteUrl: "images/button-icons.jpg",
+        ddragonVersion: "4.20.2",
+    },
+    // ---- Season 3 -------------------------------------------------------
+    {
+        id: "s3-pbe",
+        season: 3,
+        seasonLabel: "Season 3",
+        patch: "V1.0.0.152",
+        patchLabel: "V1.0.0.152 (Preseason 3)",
+        maxPoints: 30,
+        data: season3CurrentData,
+        spriteUrl: "images/button-icons.jpg",
+        // Riot Data Dragon hosts S3+ mastery icons; we fetch the catalog at
+        // runtime and overlay icons onto buttons by mastery name. Seasons
+        // before this had no Data Dragon coverage.
+        ddragonVersion: "3.6.14",
+    },
+    // ---- Season 2 -------------------------------------------------------
+    {
+        id: "s2-ahri",
+        season: 2,
+        seasonLabel: "Season 2",
+        patch: "V1.0.0.131",
+        patchLabel: "V1.0.0.131 (Ahri patch)",
+        maxPoints: 30,
+        data: season2AhriPatchData,
+        // Placeholder sprite — replace with images/button-icons-s2.jpg once
+        // a Season 2 icon strip exists.
+        spriteUrl: "images/button-icons.jpg",
+    },
+    // ---- Season 1 -------------------------------------------------------
+    {
+        id: "s1-final",
+        season: 1,
+        seasonLabel: "Season 1",
+        patch: "V1.0.0.130",
+        patchLabel: "V1.0.0.130 (Late Season 1)",
+        maxPoints: 30,
+        data: season1Data,
+        // Placeholder sprite — replace with images/button-icons-s1.jpg.
+        spriteUrl: "images/button-icons.jpg",
+    },
+];
+
+var DEFAULT_DATA_SET_ID = "s3-pbe";
+
+function getDataSet(id) {
+    for (var i = 0; i < masteryDataSets.length; i++)
+        if (masteryDataSets[i].id === id) return masteryDataSets[i];
+    return null;
+}
+
+// `data` is what calculator.js reads from. It points at the active set's
+// `data` array. switchDataSet() in calculator.js reassigns this.
+var data = getDataSet(DEFAULT_DATA_SET_ID).data;
