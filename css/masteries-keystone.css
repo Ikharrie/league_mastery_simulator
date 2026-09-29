@@ -1,0 +1,175 @@
+/* --- Keystone mastery system (V5.22 -> V7.21) --------------------------- */
+/* Ferocity / Cunning / Resolve. Three vertical tree columns, each with 5
+   minor tiers stacked top-to-bottom and the keystone tier pinned to the
+   BOTTOM (the in-game LCU layout). Only one keystone may be active across
+   all three trees. Visual aesthetic borrows the dark blue + gold of the
+   legacy 2017 client. */
+#keystone-calculator {
+    display: none;
+    width: 920px;
+    min-height: 533px;
+    background: url(../images/masteries-background.jpg);
+    box-sizing: border-box;
+    padding: 18px 16px;
+    color: #f0e6d2;
+    font-family: "Roboto", Arial, sans-serif;
+}
+body.keystone-system #calculator { display: none; }
+body.keystone-system #keystone-calculator { display: flex; gap: 14px; }
+/* The 2016 client was a dark slate screen — swap out the classic parchment
+   tile and the red/blue/green tree art overlays while a keystone season is
+   active, and lift the panel text onto the dark background. */
+body.keystone-system .art-top,
+body.keystone-system .art-bottom { display: none; }
+body.keystone-system #s2masteries {
+    background: #010a13;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+body.keystone-system #panel,
+body.keystone-system #points,
+body.keystone-system #exportLink { color: #f0e6d2; }
+
+.keystone-tree {
+    flex: 1;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.7));
+    border: 1px solid var(--color-gold-dark);
+    border-radius: 4px;
+    padding: 10px 6px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
+    position: relative;
+}
+/* Tree signature colors match the 2016 client: Ferocity red, Cunning blue,
+   Resolve green. */
+.keystone-tree[data-tree="ferocity"] { border-color: #a92f25; box-shadow: inset 0 0 14px rgba(169, 47, 37, 0.18); }
+.keystone-tree[data-tree="cunning"]  { border-color: #2e7fb8; box-shadow: inset 0 0 14px rgba(46, 127, 184, 0.18); }
+.keystone-tree[data-tree="resolve"]  { border-color: #3f9e57; box-shadow: inset 0 0 14px rgba(63, 158, 87, 0.18); }
+
+.keystone-tree-title {
+    color: var(--color-gold-light);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(212,182,84,0.25);
+}
+.keystone-tree[data-tree="ferocity"] .keystone-tree-title { color: #f04030; }
+.keystone-tree[data-tree="cunning"]  .keystone-tree-title { color: #5fb3ee; }
+.keystone-tree[data-tree="resolve"]  .keystone-tree-title { color: #5fd47e; }
+.keystone-tree-title { display: flex; justify-content: space-between; align-items: baseline; padding-left: 8px; padding-right: 8px; }
+.keystone-tree-points { color: var(--color-gold-light); font-size: 12px; }
+
+.keystone-tier {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-bottom: 12px;
+}
+
+/* Keystone tier pinned to the BOTTOM of the column (in-game layout). */
+.keystone-tier.keystone-tier-keystone {
+    margin-top: auto;
+    margin-bottom: 0;
+    padding-top: 12px;
+    padding-bottom: 2px;
+    border-top: 1px solid rgba(212, 182, 84, 0.4);
+    gap: 4px;
+}
+
+/* Minor mastery tile — square icon button in the original dpatti/Pyroblasty
+   calculator language: 2px state-colored border (gray unavailable, green
+   available, gold maxed), rounded corners, rank counter badge overlapping
+   the bottom-right corner, all detail in the hover tooltip. */
+.keystone-pick {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    position: relative;
+    border: 2px solid #999;
+    border-radius: 8px;
+    background: #000;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: content-box;
+}
+.keystone-pick-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+    /* Unavailable = the classic sprite's B&W column: fully desaturated but
+       clearly visible, NOT darkened into a black box. */
+    filter: grayscale(100%) brightness(0.9);
+    transition: filter 120ms;
+}
+.keystone-pick.available .keystone-pick-icon,
+.keystone-pick.full .keystone-pick-icon { filter: none; }
+.keystone-pick.available:hover .keystone-pick-icon { filter: brightness(1.15); }
+
+/* Original state borders. */
+.keystone-pick.available { border-color: #00ff00; }
+.keystone-pick.full      { border-color: #d4b654; }
+.keystone-pick.full .keystone-pick-icon { filter: none; }
+.keystone-pick.locked,
+.keystone-pick.capped    { border-color: #999; cursor: default; }
+
+/* Rank counter badge — same .counter/.num-* classes as the classic page. */
+.keystone-pick .counter {
+    z-index: 2;
+    line-height: 1.3;
+    right: -6px;
+}
+
+/* Text fallback when no DDragon icon loaded. */
+.keystone-pick-name {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: #f0e6d2;
+    padding: 2px;
+    line-height: 1.1;
+}
+.keystone-pick.has-icon .keystone-pick-name { display: none; }
+
+/* Keystone tier tiles — larger gold-rimmed hexes at the column bottom,
+   matching the 2016 client's keystone row. */
+.keystone-tier-keystone .keystone-pick {
+    width: 62px;
+    height: 62px;
+    border-color: var(--color-gold-dark);
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    padding: 2px;
+}
+.keystone-tier-keystone .keystone-pick-icon {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+}
+.keystone-tier-keystone .keystone-pick::after {
+    /* Hex rim drawn as an outline layer so the state color reads clearly. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%,
+                       50% 6%, 12% 27%, 12% 73%, 50% 94%, 88% 73%, 88% 27%, 50% 6%);
+    background: #999;
+    pointer-events: none;
+}
+.keystone-tier-keystone .keystone-pick.available::after { background: #00ff00; }
+.keystone-tier-keystone .keystone-pick.full::after      { background: #d4b654; }
+.keystone-tier-keystone .keystone-pick.full {
+    filter: drop-shadow(0 0 8px rgba(212, 182, 84, 0.8));
+}

@@ -1,0 +1,276 @@
+/* --- Runes Reforged (V7.22 -> V14.19+) ---------------------------------- */
+/* Two-column picker: primary path on the left (keystone row + 3 minor
+   rows), secondary on the right (3 minor rows, keystone row absent), with
+   the stat-shard block stacked beneath the secondary column. Catalog data
+   is fetched at runtime from Riot Data Dragon's runesReforged.json. */
+#reforged-calculator {
+    max-width: 1080px;
+    margin: 30px auto;
+    background: linear-gradient(to bottom, rgba(8, 18, 32, 0.96), rgba(2, 9, 19, 0.96)),
+                url(../images/masteries-background.jpg);
+    background-blend-mode: multiply;
+    color: #f0e6d2;
+    font-family: "Roboto", Arial, sans-serif;
+    padding: 28px;
+    border: 1px solid var(--color-gold-dark);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    min-height: 520px;
+}
+.reforged-loading {
+    text-align: center;
+    color: var(--color-gold-light);
+    padding: 60px 0;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+.reforged-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.reforged-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.reforged-col-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(212, 182, 84, 0.3);
+}
+.reforged-col-label {
+    color: var(--color-gold-base);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Path strip — 5 path icons across the top of each column. */
+.reforged-path-strip {
+    display: flex;
+    gap: 8px;
+}
+.reforged-path-btn {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: rgba(15, 50, 91, 0.4);
+    border: 1px solid #2a3a55;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 120ms, background 120ms, transform 120ms;
+}
+.reforged-path-btn img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: grayscale(0.4) brightness(0.85);
+    transition: filter 120ms;
+}
+.reforged-path-btn .reforged-path-name {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: #b8a888;
+}
+.reforged-path-btn:hover {
+    border-color: var(--color-gold-base);
+    transform: translateY(-1px);
+}
+.reforged-path-btn:hover img {
+    filter: none;
+}
+.reforged-path-btn.active {
+    border-color: var(--color-gold-light);
+    background: rgba(212, 182, 84, 0.18);
+}
+.reforged-path-btn.active img {
+    filter: none;
+}
+.reforged-path-btn.active .reforged-path-name {
+    color: var(--color-gold-light);
+}
+.reforged-path-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Per-path tint on the active button. */
+.reforged-path-btn.active[data-path="Precision"]   { box-shadow: 0 0 8px rgba(232, 188, 124, 0.55); }
+.reforged-path-btn.active[data-path="Domination"]  { box-shadow: 0 0 8px rgba(202, 65, 65, 0.55); }
+.reforged-path-btn.active[data-path="Sorcery"]     { box-shadow: 0 0 8px rgba(165, 102, 222, 0.55); }
+.reforged-path-btn.active[data-path="Resolve"]     { box-shadow: 0 0 8px rgba(95, 167, 238, 0.55); }
+.reforged-path-btn.active[data-path="Inspiration"] { box-shadow: 0 0 8px rgba(73, 199, 184, 0.55); }
+
+/* Rune slot rows — each row holds the alternatives for one slot. */
+.reforged-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.reforged-slot-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.reforged-slot-row.reforged-keystone-row {
+    padding: 10px 4px;
+    background: linear-gradient(to bottom, rgba(15, 50, 91, 0.5), rgba(0, 0, 0, 0.35));
+    border: 1px solid rgba(212, 182, 84, 0.3);
+}
+
+/* Rune tile. */
+.reforged-rune {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: transform 120ms, background 120ms;
+}
+.reforged-rune img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    filter: grayscale(0.55) brightness(0.7);
+    transition: filter 120ms;
+}
+.reforged-rune .reforged-rune-name {
+    font-size: 9.5px;
+    color: #b8a888;
+    text-align: center;
+    line-height: 1.1;
+}
+.reforged-rune:hover {
+    transform: translateY(-1px);
+    background: rgba(212, 182, 84, 0.08);
+}
+.reforged-rune:hover img {
+    filter: none;
+}
+.reforged-rune.selected img {
+    filter: none;
+    box-shadow: 0 0 10px rgba(212, 182, 84, 0.6);
+}
+.reforged-rune.selected .reforged-rune-name {
+    color: var(--color-gold-light);
+    font-weight: bold;
+}
+.reforged-rune.locked {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.reforged-rune-keystone img {
+    width: 56px;
+    height: 56px;
+}
+.reforged-rune-keystone .reforged-rune-name {
+    font-size: 10px;
+}
+
+.reforged-hint {
+    color: rgba(240, 230, 210, 0.45);
+    font-size: 11px;
+    text-align: center;
+    padding: 30px 0;
+    font-style: italic;
+}
+
+/* Stat shards — three rows of three, one pick per row. */
+.reforged-shards {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(212, 182, 84, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.reforged-shards-label {
+    color: var(--color-gold-base);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.reforged-shard-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 4px 2px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+.reforged-shard {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 2px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 120ms;
+}
+.reforged-shard img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: grayscale(0.6) brightness(0.7);
+    transition: filter 120ms;
+}
+.reforged-shard .reforged-shard-name {
+    font-size: 8.5px;
+    color: #b8a888;
+    text-align: center;
+    line-height: 1;
+}
+.reforged-shard:hover img { filter: none; }
+.reforged-shard.selected img {
+    filter: none;
+    box-shadow: 0 0 6px rgba(212, 182, 84, 0.55);
+}
+.reforged-shard.selected .reforged-shard-name {
+    color: var(--color-gold-light);
+    font-weight: bold;
+}
+
+#reforged-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 50, 91, 0.95);
+    color: var(--color-gold-light);
+    padding: 8px 16px;
+    border: 1px solid var(--color-gold-base);
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms;
+    z-index: 1000;
+}
+#reforged-toast.show { opacity: 1; }
+
+/* Responsive — collapse to one column on narrow viewports. */
+@media (max-width: 880px) {
+    .reforged-page { grid-template-columns: 1fr; }
+    #reforged-calculator { margin: 16px; padding: 18px; }
+}

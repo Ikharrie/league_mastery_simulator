@@ -1,0 +1,330 @@
+/* --- Runes page ---------------------------------------------------------- */
+/* 1:1 reconstruction of the legacy LoL client's Runes tab, based on the
+   DOM + CSS shipped by legacy-lol-client.vercel.app. Slot coordinates,
+   hex dimensions, parchment background, and color palette are matched to
+   the original. */
+
+body.runes-page {
+    background: var(--color-bg-darker);
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-text-main);
+}
+body.runes-page #s2masteries { display: none; }
+
+/* Three-column rune builder layout: library panel | slot canvas | stats.
+   The canvas shows a CROP of the legacy parchment art — just the slot
+   region, logical (240,110)-(830,580) of the 1024x615 image — so the side
+   panels are normal flex children and can never drift off the painted art.
+   Slot positions stay percentages of the FULL art (.parchment-runes). */
+.runes-layout {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    padding: 0 12px;
+    box-sizing: border-box;
+    margin-bottom: 30px;
+}
+.runes-panel {
+    background: linear-gradient(to bottom, #f0e4bd, #e2d2a2);
+    border: 1px solid #b3976b;
+    border-radius: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 8px;
+    min-height: 0;
+}
+.runes-panel-left  { width: 265px; flex: none; }
+.runes-panel-right { width: 205px; flex: none; }
+
+.runes-canvas-crop {
+    flex: 1;
+    min-width: 0;
+    aspect-ratio: 590 / 470;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #b3976b;
+    border-radius: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    align-self: center;
+}
+.parchment-runes {
+    box-sizing: border-box;
+    color: var(--color-parchment-text);
+    user-select: none;
+    background-image: url(../images/runes/summoners_runes_bg.jpg);
+    background-size: 100% 100%;
+    position: absolute;
+    /* Full 1024x615 art relative to the 590x470 crop window. */
+    width: 173.559%;
+    height: 130.851%;
+    left: -40.678%;
+    top: -23.404%;
+}
+
+/* --- Rune builder: positioned absolutely within the parchment ----------- */
+/* All overlay panels use PERCENTAGE geometry measured against the painted
+   panels in summoners_runes_bg.jpg (1024x615 logical space), so they stay
+   glued to the art at any parchment scale. Painted boxes (logical px):
+   left sidebar x 33-235 / y 131-567; header band y 134-167 centered on the
+   middle column (x 244-842); stats box x 846-999 / y 134-520 with a small
+   action-button box below it at y 529-567. */
+
+.rune-title {
+    position: absolute;
+    top: 24.5%;
+    left: 53%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-serif);
+    color: var(--color-parchment-red);
+    font-size: 22px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.rune-filter-row, .tier-filters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px;
+}
+.filter-label, .tier-label {
+    color: var(--color-parchment-red);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.checkbox-label {
+    color: #3b2f21;
+    cursor: pointer;
+    align-items: center;
+    gap: 2px;
+    font-size: 9px;
+    display: flex;
+}
+.checkbox-label input { width: 11px; height: 11px; }
+.rune-select {
+    color: #3b2f21;
+    background: #fff;
+    border: 1px solid #b3976b;
+    outline: none;
+    padding: 1px 3px;
+    font-size: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.rune-categories {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.rune-categories::-webkit-scrollbar { width: 8px; }
+.rune-categories::-webkit-scrollbar-thumb { background: #b3976b; border-radius: 3px; }
+.rune-categories::-webkit-scrollbar-track { background: #0000001a; }
+
+.category-group { margin-bottom: 2px; }
+.category-header {
+    color: #f0e6d2;
+    cursor: pointer;
+    background: linear-gradient(#1e457c, #0a1b35);
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+}
+.category-header.header-mark         { color: #f33; }
+.category-header.header-seal         { color: #ff3; }
+.category-header.header-glyph        { color: #3af; }
+.category-header.header-quintessence { color: #c3f; }
+.category-arrow { opacity: 0.8; font-size: 8px; transition: transform 100ms; }
+.category-group.open .category-arrow { transform: rotate(90deg); }
+.rune-items {
+    background: #ffffffe6;
+    flex-direction: column;
+    gap: 1px;
+    padding: 2px;
+    display: none;
+}
+.category-group.open .rune-items { display: flex; }
+.rune-item {
+    cursor: pointer;
+    border: 1px solid transparent;
+    align-items: center;
+    gap: 6px;
+    padding: 3px;
+    transition: background 100ms;
+    display: flex;
+}
+.rune-item:hover { background: #fff9; border-color: var(--color-gold-base); }
+.rune-item.selected { background: #fff; border-color: var(--color-parchment-red); }
+.rune-icon-small { width: 24px; height: 24px; object-fit: contain; flex: none; }
+.rune-info { flex-direction: column; min-width: 0; line-height: 1.1; display: flex; }
+.rune-name { color: #111; font-size: 10px; font-weight: 700; }
+.rune-stats-inline { color: #777; margin-top: 1px; font-size: 9px; }
+
+.stats-title {
+    color: var(--color-parchment-red);
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-bottom: 1px solid rgba(97,12,12,0.3);
+    margin-bottom: 4px;
+}
+.level-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-bottom: 1px solid rgba(97,12,12,0.2);
+}
+.level-label { color: #3b2f21; font-size: 9px; font-weight: 700; flex: none; white-space: nowrap; }
+.level-row input[type="range"] { flex: 1; min-width: 0; height: 12px; cursor: pointer; accent-color: var(--color-parchment-red); }
+.rune-items-empty { color: #777; font-style: italic; padding: 6px 8px; font-size: 8px; }
+.stats-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 8px;
+}
+.stat-row {
+    display: flex;
+    flex-direction: column;
+    padding: 2px 0;
+    border-bottom: 1px solid #0000001a;
+    margin-bottom: 2px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-name { color: #3b2f21; font-size: 10px; font-weight: 700; }
+.stat-value { color: #111; font-size: 11px; margin-top: 0; }
+.stats-empty { color: #777; font-style: italic; padding: 10px 0; text-align: center; font-size: 9px; }
+
+.action-buttons {
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding: 6px 8px 2px;
+    display: flex;
+    border-top: 1px solid rgba(97, 12, 12, 0.25);
+}
+.action-btn {
+    cursor: pointer;
+    background: linear-gradient(#f3e9d8, #d8c5a1);
+    border: 1px solid #b3976b;
+    border-radius: 2px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 1px #ffffff80;
+}
+.action-btn:hover { background: #fff; filter: brightness(1.05); }
+.action-btn-img { width: 16px; height: 16px; object-fit: contain; }
+
+/* --- The slot grid is its own absolute layer over the parchment --------- */
+.rune-slot-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;  /* slots themselves opt in */
+}
+.rune-slot {
+    position: absolute;
+    cursor: pointer;
+    pointer-events: auto;
+    /* Sizes are percentages of the parchment so they scale fluidly without
+       transform-based rounding. The image analysis (detect-indents.py)
+       measured indent bounding-boxes at ~50x55 in 1024x615 logical coords;
+       a tiny extra margin keeps the slot frame from sitting flush against
+       the painted indent edge. Width 5.1% = ~52 logical px; aspect 50:55. */
+    width: 5.1%;
+    aspect-ratio: 50 / 55;
+    transform: translate(-50%, -50%);
+    transition: filter 100ms;
+    z-index: 10;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rune-slot.large-slot {
+    /* Quintessence: bigger purple hex on parchment ~80x80 logical = 7.8%. */
+    clip-path: none;
+    -webkit-clip-path: none;
+    width: 7.8%;
+    aspect-ratio: 1 / 1;
+    background: transparent;
+    overflow: hidden;
+}
+.rune-slot:hover { filter: brightness(1.15) drop-shadow(0 0 6px rgba(255,255,255,0.5)); }
+.rune-slot.selected { filter: brightness(1.25) drop-shadow(0 0 8px #fff); }
+
+.slot-indicator {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(255,255,255,0.25);
+}
+.rune-slot.large-slot .slot-indicator { border: none; }
+.slot-indicator::before {
+    content: "";
+    opacity: 0.4;
+    filter: blur(8px);
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.rune-slot.slot-mark         .slot-indicator { border-color: #ff32004d; }
+.rune-slot.slot-mark         .slot-indicator::before { background: radial-gradient(circle, #ff3200cc 0%, transparent 60%); }
+.rune-slot.slot-seal         .slot-indicator { border-color: #ffff004d; }
+.rune-slot.slot-seal         .slot-indicator::before { background: radial-gradient(circle, #ffff00cc 0%, transparent 60%); }
+.rune-slot.slot-glyph        .slot-indicator { border-color: #0096ff4d; }
+.rune-slot.slot-glyph        .slot-indicator::before { background: radial-gradient(circle, #0096ffcc 0%, transparent 60%); }
+.rune-slot.slot-quintessence .slot-indicator { border-color: #c800ff66; }
+.rune-slot.slot-quintessence .slot-indicator::before { background: radial-gradient(circle, #c800ffcc 0%, transparent 60%); }
+
+.placed-rune {
+    /* Rune art assets have transparent padding around the hex content, so a
+       scale-up makes the visible hex match the slot frame edges. The parent
+       slot has clip-path / overflow:hidden, so any overflow is cropped to
+       the hex shape — no visible bleed into neighbouring slots. */
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px #0006);
+    width: 100%;
+    height: 100%;
+    transform: scale(1.22);
+}
+.rune-slot.slot-quintessence .placed-rune { transform: scale(1.28); }
+
+.slot-glow {
+    pointer-events: none;
+    z-index: 5;
+    filter: blur(11px);
+    mix-blend-mode: screen;
+    border-radius: 50%;
+    width: 7%;
+    aspect-ratio: 1 / 1;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+.slot-glow.large-glow { filter: blur(18px); width: 11%; }
+.slot-glow.glow-mark         { background: radial-gradient(circle, #ff7878 20%, #ff2828b3 50%, transparent 80%); }
+.slot-glow.glow-seal         { background: radial-gradient(circle, #ffffb4 20%, #ffd228b3 50%, transparent 80%); }
+.slot-glow.glow-glyph        { background: radial-gradient(circle, #a0e6ff 20%, #28a0ffb3 50%, transparent 80%); }
+.slot-glow.glow-quintessence { background: radial-gradient(circle, #f0a0ff 20%, #d228ffb3 50%, transparent 80%); }
