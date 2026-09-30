@@ -763,6 +763,7 @@ function rebuildPatchSelect(season, selectedId) {
 // Season dropdown + tabs come from the shared season-led nav (nav.js); the
 // patch dropdown stays page-local and lists this season's snapshots.
 function refreshMasteriesSeasonNav(dataSet) {
+    if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
     if (typeof buildSeasonNav !== "function") return;
     buildSeasonNav({
         page: "masteries",
@@ -880,6 +881,7 @@ function copyToClipboard(text) {
 
 var _toastTimer = null;
 function showToast(msg) {
+    if (window.LolToast) return LolToast.show(msg);
     var $t = $("#toast").text(msg).addClass("visible");
     if (_toastTimer) clearTimeout(_toastTimer);
     _toastTimer = setTimeout(function(){ $t.removeClass("visible"); }, 1800);

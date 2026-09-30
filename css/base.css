@@ -1,99 +1,90 @@
-/* Shared chrome: palette tokens, header, dropdowns, tooltips.
-   Loaded first on every page. */
-body {
-    background-color: #000;
-}
+/* ==========================================================================
+   base.css — shared shell for every page (index.html, runes.html,
+   runes-reforged.html). Loaded first. Holds ONLY:
+     1. tokens (LCU hextech --hx-*, AIR --air-*, fonts)
+     2. page shell (body, era backdrop, main, footer)
+     3. stage scale-to-fit wrapper
+     4. site header (LCU nav)
+     5. LCU primitives (flat button, circle button, framed dropdown,
+        display link, gold divider)
+     6. AIR primitives (navy button, page chips, AIR sans)
+     7. tooltip component (one element, data-skin)
+     8. toast
+     9. legacy compat blocks (to be removed as surfaces migrate)
 
-/* --- Season / Patch dropdowns --- */
-.lol-select-label {
-    display: inline-flex;
-    flex-direction: column;
-    font-size: 10px;
-    color: #d4b654;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    line-height: 1.2;
-}
-.lol-select {
-    cursor: pointer;
-    margin-top: 2px;
-    min-width: 130px;
-    padding: 3px 24px 3px 10px;
-    font: 13px Arial, Helvetica, sans-serif;
-    color: #fff;
-    border: 1px outset #3467A7;
-    border-radius: 4px;
-    background-color: #0F325B;
-    background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><polygon points='0,0 10,0 5,6' fill='%23d4b654'/></svg>"),
-        linear-gradient(to bottom, #3467A7 0%, #143964 50%, #0E2848 100%);
-    background-position: right 8px center, 0 0;
-    background-size: 10px 6px, 100% 100%;
-    background-repeat: no-repeat, no-repeat;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-.lol-select:hover {
-    border-color: #5679A5;
-}
-.lol-select:focus {
-    outline: none;
-    border-color: #d4b654;
-}
-.lol-select option {
-    background-color: #0F325B;
-    color: #fff;
-}
+   Client era: nav.js sets body[data-client="air"|"lcu"] from the active
+   dataset (DECISIONS.md §1). Key every era-specific look off it; never
+   invent per-surface era classes.
 
-/* --- Shared floating tooltip (original client style) ---------------------- */
-/* Used by the keystone mastery trees and the Runes Reforged picker. Mirrors
-   the classic #tooltip look: black panel, steel border, gold accents. */
-.lol-tooltip {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    width: 260px;
-    padding: 8px 10px;
-    box-sizing: border-box;
-    background: #010a13;
-    border: 2px solid #323635;
-    color: #f0e6d2;
-    font-family: "Roboto", Arial, sans-serif;
-    font-size: 11px;
-    line-height: 1.35;
-    pointer-events: none;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-}
-.lol-tooltip-title { font-size: 13px; font-weight: bold; color: var(--color-gold-light); margin-bottom: 3px; }
-.lol-tooltip-sub   { color: var(--color-gold-base); font-size: 10px; margin-bottom: 4px; }
-.lol-tooltip-req   { color: #ff4040; font-size: 10px; margin-bottom: 4px; }
-.lol-tooltip-body  { color: #c8d2da; }
-.lol-tooltip-body hr { border: none; border-top: 1px solid rgba(200, 170, 110, 0.35); margin: 5px 0; }
-.lol-tooltip-body i  { color: #8a8a7a; }
-.lol-tooltip-body b  { color: #f0e6d2; }
-
-/* --- Cross-page navigation ------------------------------------------------ */
-.page-nav {
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 6px;
-}
-.page-nav a {
-    color: #143964;
-    text-decoration: none;
-}
-.page-nav a:hover {
-    color: #d4b654;
-}
-.page-nav strong {
-    color: #d4b654;
-}
-.page-nav .sep {
-    color: #777;
-}
+   Values quoted from Riot's LCU 7.22 uikit (rcp-fe-lol-uikit main.css /
+   init.js) unless marked [sampled]. LCU native size is 1280x720; px 1:1.
+   ========================================================================== */
 
 :root {
+    /* --- Fonts (one Google Fonts <link> in all 3 HTML files) ------------- */
+    /* Beaufort for LoL stand-in. Spectral SC is ALL-CAPS/small-caps only:
+       use it with text-transform:uppercase. Mixed case → the -mixed variant
+       (Spectral 700). Never use Cinzel for mixed case (no lowercase). */
+    --font-lcu-display: "Spectral SC", "Spectral", "Times New Roman", Georgia, serif;
+    --font-lcu-display-mixed: "Spectral", "Times New Roman", Georgia, serif;
+    /* Spiegel stand-in. */
+    --font-lcu-body: "Inter", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    /* Friz Quadrata stand-in: ONLY AIR tree labels ("OFFENSE: 21") and
+       period headings. -sc = the small-caps cut. */
+    --font-air-display: "Marcellus", "Marcellus SC", Georgia, serif;
+    --font-air-display-sc: "Marcellus SC", "Marcellus", Georgia, serif;
+    /* The AIR client's Myriad-like sans (sidebar, tooltips, lists). */
+    --font-air-body: "Source Sans 3", "Myriad Pro", "PT Sans", Arial, sans-serif;
+
+    /* --- LCU hextech colours ------------------------------------------- */
+    --hx-black: #010a13;          /* page, header, tooltip, list bg */
+    --hx-black-v13: #1a1c21;      /* tooltip bg from V13.10 */
+    --hx-grey-3: #1e2328;         /* button face, option hover */
+    --hx-grey-cool: #1e282d;      /* circle-button face */
+    --hx-grey-2: #3c3c41;         /* disabled dropdown */
+    --hx-grey-15: #5c5b57;        /* disabled / pressed text + border */
+    --hx-grey-1: #a09b8c;         /* body text, labels */
+    --hx-gold-1: #f0e6d2;         /* headings, active/hover text */
+    --hx-gold-text: #cdbe91;      /* idle nav, button, option text */
+    --hx-gold-2: #c8aa6e;         /* wordmark, gradient tops */
+    --hx-gold-3: #c89b3c;         /* pressed nav, hover gradient bottom */
+    --hx-gold-4: #785a28;         /* 2px top rule */
+    --hx-gold-5: #463714;         /* tooltip border, open dropdown */
+    --hx-gold-tt: #614a1f;        /* tooltip border near the caret */
+    --hx-disabled: #888;          /* disabled nav item / option */
+    --hx-rule: rgba(240, 230, 210, 0.25);  /* header / footer hairline */
+    --hx-divider: #3c4650;        /* content dividers [sampled] */
+    --hx-opt-sep: #1f2123;        /* dropdown option separators */
+    --hx-blue-1: #cdfafa;
+    --hx-blue-2: #0ac8b9;
+    --hx-blue-3: #0596aa;
+    --hx-blue-4: #005a82;
+    --hx-blue-5: #0a323c;
+    --hx-blue-6: #091428;
+    --hx-btn-border: linear-gradient(to top, #785b28 0%, #c89c3c 55%, #c8a355 71%, #c8aa6e 100%);
+    --hx-btn-border-hover: linear-gradient(to top, #c89c3c 0%, #dcc188 50%, #e1c998 71%, #f0e6d8 100%);
+    --hx-btn-bg-hover: linear-gradient(to bottom, #1e232a 0%, #1e232a 40%, rgba(118, 97, 51, 0.8) 140%);
+    --hx-dropdown-border: linear-gradient(to top, #695625 0%, #a9852d 23%, #b88d35 93%, #c8aa6e 100%);
+    --hx-dropdown-border-hover: linear-gradient(to top, #c89b3c, #f0e6d2);
+    --hx-ring: linear-gradient(to top, #463714 4%, #785a28 23%, #c89b3c 90%, #c8aa6e 100%);
+
+    /* --- AIR client (2009-2016), only inside AIR-era surfaces ----------- */
+    --air-backdrop: #010101;      /* surround of the parchment [sampled] */
+    --air-btn: linear-gradient(to bottom, #4476b5 0%, #2c64af 15%, #1e549a 35%, #0f3461 65%, #03294e 100%);
+    --air-btn-edge: #172e50;
+    --air-btn-text: #efeffb;
+    --air-btn-disabled: linear-gradient(to bottom, #aea699 0%, #5e6b57 100%);
+    --air-btn-disabled-edge: #56604f;
+    --air-btn-disabled-text: #e6e2d8;
+    --air-chip-selected: linear-gradient(to bottom, #1b3a62 0%, #132f51 45%, #0d2644 100%);
+    --air-chip-hover: linear-gradient(to bottom, #81a7ce 0%, #536f93 40%, #415671 100%);
+    --air-points: #6e1206;        /* "Points Available" red */
+    --air-tt-border: #4b4b4d;
+    --air-tt-rank: #e1e89a;       /* tooltip "Rank: 2/3" line [sampled S3] */
+    --air-tt-req: #ff0000;        /* tooltip requirement line */
+
+    /* --- Deprecated aliases (still referenced by surface CSS; migrate to
+           the tokens above, then delete) -------------------------------- */
     --color-bg-dark: #010a13;
     --color-bg-darker: #000;
     --color-bg-panel: #010a13d9;
@@ -104,234 +95,1068 @@ body {
     --color-text-muted: #a09b8c;
     --color-parchment-text: #3b2f21;
     --color-parchment-red: #610c0c;
-    --font-serif: "EB Garamond", "Garamond", serif;
-    --font-sans: "Roboto", Arial, Helvetica, sans-serif;
+    --font-serif: var(--font-lcu-display-mixed);
+    --font-sans: var(--font-lcu-body);
 }
 
-/* Header controls (link, share button, toast). These used to live in the
-   classic page CSS and leaked into the header on every page. */
-#exportLink {
-    font-size: 18px;
-    margin-right: 8px;
-    color: #000;
-}
-#share {
-    width: auto;
-    padding: 3px 12px;
-    font-size: 13px;
-    vertical-align: middle;
-}
-#toast {
-    position: fixed;
-    left: 50%;
-    bottom: 36px;
-    transform: translateX(-50%);
-    padding: 10px 18px;
-    font-size: 13px;
-    color: #fefefe;
-    background: rgba(0,0,0,0.92);
-    border: 2px solid #d4b654;
-    border-radius: 5px;
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 200ms ease-out;
-}
-#toast.visible {
-    opacity: 1;
-}
-
-button {
-    cursor: pointer;
-    width: 130px;
-    padding: 3px;
-    font-size: 16px;
-    color: #fff;
+/* ==========================================================================
+   2. Page shell
+   body is a flex column: header → main.site-main → footer. The backdrop is
+   ONE fixed layer (body::before) chosen by era; it sits above the canvas
+   so page CSS that paints body (e.g. body.runes-page) cannot hide it.
+   ========================================================================== */
+body {
     margin: 0;
-    border: 1px outset #3467A7;
-    border-radius: 4px;
-    background-color: #0F325B;
-}
-button:hover {
-    background: -moz-linear-gradient(top, rgba(86,121,165,1) 1%, rgba(20,57,100,1) 50%, rgba(14,40,72,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(86,121,165,1)), color-stop(50%,rgba(20,57,100,1)), color-stop(100%,rgba(14,40,72,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(86,121,165,1) 1%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(86,121,165,1) 1%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, rgba(86,121,165,1) 1%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* IE10+ */
-    background: linear-gradient(top, rgba(86,121,165,1) 1%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5679a5', endColorstr='#0e2848',GradientType=0 ); /* IE6-9 */
-}
-button,
-button:active {
-    background: -moz-linear-gradient(top, rgba(52,103,167,1) 0%, rgba(20,57,100,1) 50%, rgba(14,40,72,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(52,103,167,1)), color-stop(50%,rgba(20,57,100,1)), color-stop(100%,rgba(14,40,72,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(52,103,167,1) 0%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(52,103,167,1) 0%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, rgba(52,103,167,1) 0%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* IE10+ */
-    background: linear-gradient(top, rgba(52,103,167,1) 0%,rgba(20,57,100,1) 50%,rgba(14,40,72,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3467a7', endColorstr='#0e2848',GradientType=0 ); /* IE6-9 */
-}
-button:active {
-    border-style: inset;
-}
-
-/* --- Shared header (Masteries / Runes / Runes Reforged) ----------------- */
-/* Single component so the page tabs, dropdowns and share button are
-   visually identical across all three calculators. Styled in the dark
-   navy + gold LoL client palette. */
-.legacy-header {
-    width: 100%;
-    background: linear-gradient(to bottom, #061a34 0%, #010a13 100%);
-    border-bottom: 2px solid var(--color-gold-base);
-    padding: 10px 30px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    font-family: var(--font-sans);
-    color: var(--color-text-main);
-    box-sizing: border-box;
-    flex-wrap: wrap;
-    row-gap: 8px;
-}
-@media (max-width: 720px) {
-    .legacy-header { padding: 8px 14px; gap: 14px; }
-    .legacy-header .header-title { display: none; }
-    .legacy-header .header-tab { padding: 4px 10px; font-size: 11px; }
-    .legacy-header .header-select-label { font-size: 8px; }
-    .legacy-header .lol-select { min-width: 110px; font-size: 11px; padding: 3px 22px 3px 6px; }
-}
-@media (max-width: 480px) {
-    .legacy-header { padding: 6px 10px; }
-    .legacy-header .header-right { width: 100%; flex-wrap: wrap; gap: 8px; margin-left: 0; }
-    .legacy-header .lol-select { flex: 1; min-width: 0; }
-}
-.legacy-header .header-title {
-    color: var(--color-gold-base);
-    font-family: var(--font-serif);
-    font-size: 18px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    text-shadow: 0 0 8px rgba(200,170,110,0.3);
-}
-.legacy-header .header-tabs {
-    display: flex;
-    gap: 4px;
-}
-.legacy-header .header-tab {
-    color: var(--color-text-muted);
-    text-decoration: none;
-    padding: 6px 16px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    border-bottom: 2px solid transparent;
-    transition: color 120ms, border-color 120ms;
-}
-.legacy-header .header-tab:hover {
-    color: var(--color-gold-light);
-}
-.legacy-header .header-tab.active {
-    color: var(--color-gold-base);
-    border-bottom-color: var(--color-gold-base);
-}
-.legacy-header .header-tab.disabled {
-    color: #555;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-.legacy-header .header-right {
-    margin-left: auto;
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-}
-.legacy-header .header-select-label {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--color-gold-base);
+    background: var(--hx-black);
+    color: var(--hx-grey-1);
+    font-family: var(--font-lcu-body);
 }
-.legacy-header .lol-select {
-    color: var(--color-text-main);
-    background-color: rgba(1,10,19,0.7);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><polygon points='0,0 10,0 5,6' fill='%23c8aa6e'/></svg>");
-    background-position: right 8px center;
-    background-repeat: no-repeat;
-    background-size: 10px 6px;
-    border: 1px solid var(--color-gold-dark);
-    border-radius: 0;
-    padding: 4px 24px 4px 8px;
-    font-size: 12px;
-    font-family: var(--font-sans);
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--air-backdrop);          /* AIR: near-black, no wisps */
+}
+body[data-client="lcu"]::before {
+    /* LCU: backdrop-magic (7.22 uikit), teal wisps bottom-left/right. */
+    background: var(--hx-black) url(../images/lcu/backdrop-magic.jpg) no-repeat center bottom / cover;
+}
+
+.site-main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 24px 24px 32px;   /* calculator top edge = 24px below the rule */
+}
+
+.site-footer {
+    flex: none;
+    box-sizing: border-box;
+    min-height: 40px;
+    padding: 12px 24px;
+    border-top: 1px solid var(--hx-rule);
+    /* Transparent: the LCU wisps run to the window edge as in the client;
+       on AIR pages it is the same #010101 surround as the sheet's. */
+    background: transparent;
+    font: 400 11px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-grey-15);
+    text-align: center;
+}
+.site-footer p { margin: 0 auto; max-width: 980px; }
+.site-footer p + p { margin-top: 4px; }
+.site-footer a { color: var(--hx-gold-text); text-decoration: none; }
+.site-footer a:hover { color: var(--hx-gold-1); }
+
+@media (max-width: 719px) {
+    .site-main { padding: 16px 16px 24px; }
+    .site-footer { padding: 12px 16px; }
+}
+
+/* ==========================================================================
+   3. Stage scale-to-fit
+   Usage:
+     <div class="lol-stage" [data-stage-width="1012"] [data-stage-height="704"]
+          [data-stage-min-scale="0.5"]>
+       <div class="lol-stage-inner"> …fixed-size calculator… </div>
+     </div>
+   nav.js lays the inner box out at data-stage-width px (or its own
+   max-content width when the attribute is absent), then scales it
+   down with transform:scale(s) (s ≤ 1, never up) so it fits the width of
+   .lol-stage's parent. The stage box gets the scaled size so the page flows
+   normally. Inside, px math is untouched (offsets from getBoundingClientRect
+   are visual px: divide by LolStage.scale(el) when mixing the two).
+   Height is measured (ResizeObserver); data-stage-height is a minimum.
+   Gutter first, then scale: a stage wider than the padded column may use
+   the parent's side padding down to a 4px gutter at scale 1 (1270px AIR
+   sheet at 1280) before any scaling starts.
+   Pan mode: below data-stage-min-scale (default 0.5) the stage keeps that
+   scale and becomes a horizontal pan well (.is-panning) the width of the
+   column, so phones get usable targets and the page never h-scrolls.
+   ========================================================================== */
+.lol-stage {
+    position: relative;
+    flex: none;
+    margin: 0 auto;
+}
+.lol-stage.is-panning {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hx-gold-4) transparent;
+}
+/* Out of flow, so the pan extent is the SCALED box (an in-flow inner would
+   keep its unscaled layout width as scrollable overflow). */
+.lol-stage.is-panning > .lol-stage-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.lol-stage:not(.is-fitted) {       /* before JS: never cause h-scroll */
+    max-width: 100%;
+    overflow: hidden;
+}
+.lol-stage-inner {
+    position: relative;
+    display: flow-root;             /* keep child margins inside the box */
+    width: max-content;
+    transform-origin: 0 0;
+}
+
+/* Stage adapters (temporary): the calculators' outer boxes still carry the
+   old page margins. Inside a stage the stage owns spacing. Surface owners:
+   fold these into your own CSS, then delete here. */
+.lol-stage-inner > #s2masteries,
+.lol-stage-inner > .legacy-app,
+.lol-stage-inner > #reforged-calculator {
+    margin: 0;
+}
+.lol-stage-inner > #s2masteries { color: #000; }   /* body text is LCU grey now */
+.lol-stage-inner > #reforged-calculator { padding: 28px; }
+.lol-stage-inner .reforged-page { grid-template-columns: 1fr 1fr; }
+
+/* ==========================================================================
+   4. Site header — LCU nav bar, identical on every page.
+   Markup (ids differ per page; style ONLY by class):
+     header.legacy-header                    rules + background; query container
+       div.header-bar                        the row(s)
+         a.header-brand > img.header-brand-mark + span.header-title
+         nav.header-tabs > a.header-tab[.active] | span.header-tab.disabled
+         div.header-right
+           div.header-controls
+             label.header-select-label > span.header-select-text + select.lcu-select
+             a.header-link.lcu-link > span.lcu-link-text
+           button.header-share.lcu-btn
+   64px tall: 2px #785a28 top rule, 61px bar, 1px rgba(240,230,210,.25)
+   bottom rule; every child centred on one midline.
+
+   Breakpoints are CONTAINER queries on the header, so they track the width
+   the header really has (viewport minus a classic scrollbar), not 100vw.
+   Tiers (measured with the web fonts; index.html has the widest tabs):
+     A  ≥1264  wordmark + SEASON/PATCH labels
+     B  1100-1263  wordmark, labels visually hidden (the values say it)
+     C  960-1099   icon-only brand, labels back
+     D  <960   two rows: 61px (brand, tabs, SHARE) + 48px (selects, icon link)
+     E  <560   D with the labels hidden and tighter tabs
+   The selects are fixed-basis flex items (season 190, patch 320) that only
+   shrink when the bar is short of room, down to per-tier minimums. The tabs
+   reserve the width of the widest tab set (MASTERIES RUNES), so a given
+   width renders the same strip on all three pages.
+   ========================================================================== */
+.legacy-header {
+    --hdr-tab-pad: 15px;
+    position: relative;
+    z-index: 100;
+    flex: none;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-top: 2px solid var(--hx-gold-4);
+    border-bottom: 1px solid var(--hx-rule);
+    /* Opaque so the strip is pixel-identical over AIR and LCU backdrops. */
+    background: linear-gradient(to bottom, #020d17 0%, var(--hx-black) 70%);
+    color: var(--hx-grey-1);
+    font-family: var(--font-lcu-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    container: lolhdr / inline-size;
+    /* Own compositing layer: the strip rasterises the same way whatever
+       the page below does (blend modes / scaled stages changed gradient
+       dithering by ±1 level between pages). */
+    will-change: transform;
+}
+.header-bar {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    box-sizing: border-box;
+    height: 61px;
+    padding: 0 24px;
+}
+
+/* Brand: 24px gold RunesIcon + wordmark (reads like an LCU h5 in caps). */
+.header-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    height: 32px;
+    text-decoration: none;
+    outline: none;
+}
+.header-brand-mark {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+.header-title {
+    font: 700 16px/1 var(--font-lcu-display);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--hx-gold-2);
+    transition: color 0.3s ease-in-out;
+}
+.header-brand:hover .header-title,
+.header-brand:focus-visible .header-title { color: var(--hx-gold-1); }
+
+/* Primary nav items. Full bar height so the active pointer can hang from
+   the top rule and the glow can sit on the bottom rule. min-width reserves
+   the MASTERIES + RUNES set (151px of text at 14px) on every page. */
+.header-tabs {
+    display: flex;
+    align-self: stretch;
+    flex: none;
+    min-width: calc(152px + 4 * var(--hdr-tab-pad));
+    margin: 0;
+}
+.header-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--hdr-tab-pad);
+    font: 700 14px/1 var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--hx-gold-text);
+    text-decoration: none;
     cursor: pointer;
-    min-width: 140px;
+    outline: none;
+    transition: color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
+.header-tab::after {                 /* nav-highlight glow + baseline */
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 150px;
+    height: 45px;
+    margin-left: -75px;
+    background: url(../images/lcu/nav-highlight.png) no-repeat center bottom / 150px 45px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+}
+.header-tab:hover,
+.header-tab:focus-visible { color: var(--hx-gold-1); }
+.header-tab:hover::after,
+.header-tab:focus-visible::after { opacity: 1; }
+.header-tab:active { color: var(--hx-gold-3); }
+.header-tab.active {
+    color: var(--hx-gold-1);
+    cursor: default;
+}
+.header-tab.active::after { opacity: 1; }
+.header-tab.active::before {         /* nav-pointer chevron on the top rule */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    width: 30px;
+    height: 15px;
+    margin-left: -15px;
+    background: url(../images/lcu/nav-pointer.png) no-repeat center top / contain;
+    pointer-events: none;
+}
+.header-tab.disabled,
+.header-tab.disabled:hover,
+.header-tab.disabled:active {
+    color: var(--hx-disabled);
+    cursor: default;
+}
+.header-tab.disabled::after { display: none; }
+
+/* Right-hand controls. The <label> wrappers are display:contents so the
+   selects are direct flex items (they keep the label association). */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 1 auto;
+    margin-left: auto;
+    min-width: 0;
+}
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+.header-select-label { display: contents; }
+.header-select-text {
+    flex: none;
+    margin-right: -4px;               /* 8px label → select */
+    font: 400 11px/16px var(--font-lcu-body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--hx-grey-1);
+}
+/* Basis fits the longest season ("Season 2026 (Current)", 137px of text)
+   and most patch labels (≤278px); the patch select gives up room first. */
+.legacy-header .lcu-select.header-season { flex: 0 0.25 190px; width: 190px; min-width: 160px; }
+.legacy-header .lcu-select.header-patch  { flex: 0 2 320px; width: 320px; min-width: 190px; }
+.header-link,
+.header-share { flex: none; }
+
+/* B: 1100-1263 — keep the wordmark, drop the inline labels. */
+@container lolhdr (max-width: 1263px) {
+    .legacy-header .header-bar { gap: 24px; }
+    .legacy-header .header-tabs { --hdr-tab-pad: 12px; }
+    .legacy-header .lcu-select.header-season { min-width: 150px; }
+    .legacy-header .lcu-select.header-patch  { min-width: 180px; }
+}
+@container lolhdr (min-width: 1100px) and (max-width: 1263px) {
+    .header-select-text {
+        position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden;
+        clip: rect(0 0 0 0); white-space: nowrap;
+    }
+}
+/* C: 960-1099 — icon-only brand, labels back. */
+@container lolhdr (max-width: 1099px) {
+    .legacy-header .header-bar { gap: 20px; }
+    .legacy-header .header-tabs { --hdr-tab-pad: 10px; }
+    .header-title { display: none; }
+}
+/* D: <960 — two rows. Row 1 (61px): icon, tabs, SHARE. Row 2 (48px incl.
+   its 1px top rule): Season + Patch (flex) and an icon-only permalink.
+   2 + 61 + 48 + 1 = 112px. */
+@container lolhdr (max-width: 959px) {
+    .legacy-header .header-bar {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-rows: 61px 48px;
+        column-gap: 16px;
+        row-gap: 0;
+        height: auto;
+        padding: 0 16px;
+    }
+    .header-brand  { grid-row: 1; grid-column: 1; }
+    .legacy-header .header-tabs { grid-row: 1; grid-column: 2; min-width: 0; }
+    .header-right  { display: contents; }
+    .header-share  { grid-row: 1; grid-column: 3; }
+    .header-controls {
+        grid-row: 2;
+        grid-column: 1 / -1;
+        align-self: stretch;
+        box-sizing: border-box;
+        height: 48px;
+        margin: 0 -16px;
+        padding: 0 16px;
+        border-top: 1px solid var(--hx-rule);
+        gap: 12px;
+    }
+    .legacy-header .lcu-select.header-season,
+    .legacy-header .lcu-select.header-patch { flex: 1 1 0; width: auto; min-width: 0; }
+    .header-link .lcu-link-text {
+        position: absolute; width: 1px; height: 1px; overflow: hidden;
+        clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    .header-link { width: 32px; justify-content: center; flex: none; }
+    .header-link::after { width: 12px; height: 12px; margin: 0; }
+}
+/* E: <560 — phones. */
+@container lolhdr (max-width: 559px) {
+    .header-select-text {
+        position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden;
+        clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    .header-controls { gap: 8px; }
+    .legacy-header .header-tabs { --hdr-tab-pad: 9px; }
+    .header-tab { font-size: 13px; }
+    .header-share.lcu-btn { padding: 5px 1em; }
+}
+
+/* ==========================================================================
+   5. LCU primitives — reuse these; do not re-implement per surface.
+   ========================================================================== */
+
+/* --- 5a. Flat button (lol-uikit-flat-button: SAVE / SHARE / CREATE NEW) --
+   <button class="lcu-btn" type="button">Save</button>
+   States: :hover (gold-white border, bg fade-in 400ms, one-shot 600ms glow),
+   :active = "down" (#5c5b57), .is-click (added by nav.js on click: white
+   border, scale .94→1 130ms, sheen sweep 330ms), :disabled / .disabled.
+   Size: min-height 32px, auto width, padding 5px 1.3em. Radius 0. */
+.lcu-btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: auto;
+    min-height: 32px;
+    margin: 0;
+    padding: 5px 1.3em;
+    border: 2px solid transparent;
+    border-image: var(--hx-btn-border) 1;
+    border-radius: 0;
+    background: var(--hx-grey-3);
+    box-shadow: 0 0 1px 1px var(--hx-black), inset 0 0 1px 1px var(--hx-black);
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--hx-gold-text);
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+    transition: color 100ms linear;
+}
+.lcu-btn::before {                   /* hover background (+ click sheen) */
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
+    opacity: 0;
+    background-image: var(--hx-btn-bg-hover);
+    transition: opacity 400ms cubic-bezier(0, 0, 0.33, 1);
+    pointer-events: none;
+}
+.lcu-btn::after {                    /* hover border (fades over the idle one) */
+    content: "";
+    position: absolute;
+    top: -2px; right: -2px; bottom: -2px; left: -2px;
+    border: 2px solid transparent;
+    border-image: var(--hx-btn-border-hover) 1;
+    opacity: 0;
+    transition: opacity 300ms linear;
+    pointer-events: none;
+}
+.lcu-btn:hover,
+.lcu-btn:focus-visible {
+    color: var(--hx-gold-1);
+    animation: lcuBtnGlow 600ms cubic-bezier(0, 0, 0.33, 1) 1, lcuBtnText 600ms cubic-bezier(0, 0, 0.33, 1) 1;
+}
+.lcu-btn:hover::before, .lcu-btn:focus-visible::before,
+.lcu-btn:hover::after,  .lcu-btn:focus-visible::after { opacity: 1; }
+.lcu-btn:active { color: var(--hx-grey-15); animation: none; }
+.lcu-btn.is-click {
+    color: #e4e1d8;
+    border-image: linear-gradient(#fff, #fff) 1;
+    animation: lcuBtnClick 130ms linear 1, lcuBtnText 400ms linear 1;
+}
+.lcu-btn.is-click::after { opacity: 1; transition: opacity 400ms linear; }
+.lcu-btn.is-click::before {
+    opacity: 1;
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 92%, rgba(255,255,255,0) 100%),
+        var(--hx-btn-bg-hover);
+    background-size: 100% 150%, 100% 100%;
+    background-repeat: no-repeat;
+    animation: lcuBtnSheen 330ms linear 1;
+}
+.lcu-btn:disabled,
+.lcu-btn.disabled,
+.lcu-btn:disabled:hover,
+.lcu-btn.disabled:hover {
+    color: var(--hx-grey-15);
+    background: var(--hx-grey-3);
+    border: 2px solid var(--hx-grey-15);
+    border-image: none;
+    cursor: default;
+    animation: none;
+    transition: all 300ms linear;
+}
+.lcu-btn:disabled::before, .lcu-btn.disabled::before,
+.lcu-btn:disabled::after,  .lcu-btn.disabled::after { display: none; }
+@keyframes lcuBtnGlow {
+    0%   { box-shadow: 0 0 5px 4px rgba(240,230,216,0.5), inset 0 0 2px 1px rgba(240,230,216,0.5); }
+    100% { box-shadow: 0 0 1px 1px #010a13, inset 0 0 1px 1px #010a13; }
+}
+@keyframes lcuBtnText {
+    0%   { text-shadow: 0 0 4px rgba(240,230,216,1); }
+    100% { text-shadow: 0 0 0 rgba(240,230,216,0); }
+}
+@keyframes lcuBtnClick {
+    0%   { transform: scale(0.94); }
+    100% { transform: scale(1); }
+}
+@keyframes lcuBtnSheen {
+    0%   { background-position: 0 300%, 0 0; }
+    100% { background-position: 0 -300%, 0 0; }
+}
+
+/* --- 5b. Circle button, 28px gold ring (lol-uikit-close-button) ---------
+   <button class="lcu-circle-btn" type="button" aria-label="Clear"></button>
+   The glyph is an alpha mask painted in the state colour. Default glyph is
+   the uikit x-icon (10px). Swap it per use:
+     .my-clear.lcu-circle-btn::after { -webkit-mask-image: url(…/icon-clearall.png);
+                                       mask-image: url(…); --lcu-icon-size: 14px; }
+   States: :hover (ring #c89b3c→#f0e6d2, face #3c3c41→#1e2328, glyph
+   #f0e6d2), :active (ring #785a28→#463714, glyph #785a28), :disabled. */
+.lcu-circle-btn {
+    --lcu-icon-size: 10px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hx-ring);
+    cursor: pointer;
+    outline: none;
+}
+.lcu-circle-btn::before {            /* 24px face */
+    content: "";
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--hx-grey-cool);
+    transition: box-shadow 150ms ease-out;
+}
+.lcu-circle-btn::after {             /* glyph */
+    content: "";
+    position: relative;
+    width: 24px;
+    height: 24px;
+    -webkit-mask: url(../images/lcu/x-icon.png) no-repeat center / var(--lcu-icon-size);
+    mask: url(../images/lcu/x-icon.png) no-repeat center / var(--lcu-icon-size);
+    background-color: var(--hx-gold-text);
+}
+.lcu-circle-btn:hover,
+.lcu-circle-btn:focus-visible { background: linear-gradient(to top, #c89b3c 0%, #f0e6d2 100%); }
+.lcu-circle-btn:hover::before,
+.lcu-circle-btn:focus-visible::before { background: linear-gradient(to top, #3c3c41 0%, #1e2328 100%); }
+.lcu-circle-btn:hover::after,
+.lcu-circle-btn:focus-visible::after { background-color: var(--hx-gold-1); }
+.lcu-circle-btn:active { background: linear-gradient(to top, #785a28 0%, #463714 100%); }
+.lcu-circle-btn:active::before { background: var(--hx-grey-cool); box-shadow: none; transition: none; }
+.lcu-circle-btn:active::after { background-color: var(--hx-gold-4); }
+.lcu-circle-btn:disabled,
+.lcu-circle-btn.disabled { background: #5b5a56; cursor: default; }
+.lcu-circle-btn:disabled::before,
+.lcu-circle-btn.disabled::before { background: var(--hx-grey-cool); }
+.lcu-circle-btn:disabled::after,
+.lcu-circle-btn.disabled::after { background-color: #5b5a56; }
+
+/* --- 5c. Framed dropdown (lol-uikit-framed-dropdown) ----------------------
+   <select class="lcu-select">…</select>   (32px tall; set your own width)
+   Closed state is the native <select> restyled. On mouse pointers nav.js
+   replaces the native popup with an LCU option list (.lcu-dropdown-list)
+   mirroring the <select>; it sets .value and fires a bubbling "change",
+   so existing change handlers keep working. Touch devices and keyboard
+   users keep the native picker (options styled where the OS allows).
+   States: :hover/:focus (gold-white frame + warm fill), .is-open (frame
+   #463714, text #463714, locked arrow), :disabled (#3c3c41). */
+.lcu-select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-}
-.legacy-header .lol-select:hover {
-    border-color: var(--color-gold-base);
-}
-.legacy-header .lol-select:focus {
-    outline: none;
-    border-color: var(--color-gold-light);
-}
-.legacy-header .lol-select option {
-    background: #010a13;
-    color: var(--color-text-main);
-}
-.legacy-header .header-action-btn {
-    background: linear-gradient(to bottom, #1e457c, #061a34);
-    border: 1px solid var(--color-gold-base);
-    color: var(--color-gold-light);
-    padding: 6px 18px;
-    font-size: 12px;
-    font-family: var(--font-sans);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    box-sizing: border-box;
+    height: 32px;
+    min-width: 0;
+    margin: 0;
+    padding: 0 28px 0 12px;
+    border: 1px solid transparent;
+    border-image: var(--hx-dropdown-border) 1;
+    border-radius: 0;
+    background: rgba(30, 35, 40, 0.5) url(../images/lcu/up-down-arrow.png) no-repeat right 8px center / 13px 18px;
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-gold-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     cursor: pointer;
-    transition: filter 120ms;
+    outline: none;
 }
-.legacy-header .header-action-btn:hover {
-    filter: brightness(1.25);
+.lcu-select:hover,
+.lcu-select:focus-visible {
+    border-image: var(--hx-dropdown-border-hover) 1;
+    background:
+        url(../images/lcu/up-down-arrow.png) no-repeat right 8px center / 13px 18px,
+        linear-gradient(to top, rgba(88, 83, 66, 0.5), rgba(30, 35, 40, 0.5));
 }
-.legacy-header #exportLink {
-    color: var(--color-gold-base);
-    font-size: 11px;
-    text-decoration: underline;
-    padding: 0 8px;
+.lcu-select.is-open,
+.lcu-select.is-open:hover {
+    border: 1px solid var(--hx-gold-5);
+    border-image: none;
+    color: var(--hx-gold-5);
+    background: rgba(30, 35, 40, 0.5) url(../images/lcu/up-down-arrow-locked.png) no-repeat right 8px center / 13px 18px;
 }
-.legacy-header #exportLink:hover {
-    color: var(--color-gold-light);
+.lcu-select:disabled {
+    border: 1px solid var(--hx-grey-2);
+    border-image: none;
+    color: var(--hx-grey-2);
+    background-image: url(../images/lcu/up-down-arrow-locked.png);
+    cursor: default;
+}
+.lcu-select option {                 /* native popup fallback */
+    background: var(--hx-black);
+    color: var(--hx-gold-text);
+}
+.lcu-dropdown-list {                 /* open list (built by nav.js) */
+    position: fixed;
+    z-index: 3000;
+    box-sizing: border-box;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid transparent;
+    border-image: linear-gradient(to top, #695625, #463714) 1;
+    background: var(--hx-black);
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-gold-text);
+    scrollbar-width: thin;
+    scrollbar-color: var(--hx-gold-4) transparent;
+    animation: lcuListOpen 200ms ease-out 1;
+    -webkit-font-smoothing: antialiased;
+}
+.lcu-dropdown-option {
+    position: relative;
+    box-sizing: border-box;
+    min-height: 30px;
+    padding: 7px 9px 7px 12px;
+    border-top: 1px solid var(--hx-opt-sep);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.lcu-dropdown-option:first-child { border-top: 0; }
+.lcu-dropdown-option:hover,
+.lcu-dropdown-option.is-active { color: var(--hx-gold-1); background: var(--hx-grey-3); }
+.lcu-dropdown-option:active { color: var(--hx-gold-5); background: rgba(30, 35, 40, 0.5); }
+.lcu-dropdown-option.is-selected { padding-right: 31px; }
+.lcu-dropdown-option.is-selected::after {
+    content: "";
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    width: 14px;
+    height: 11px;
+    margin-top: -5px;
+    background: url(../images/lcu/dropdown-check.png) no-repeat center;
+}
+.lcu-dropdown-option.is-disabled,
+.lcu-dropdown-option.is-disabled:hover { color: var(--hx-disabled); background: transparent; cursor: default; }
+@keyframes lcuListOpen {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
-.legacy-app {
-    /* Responsive: max 1229px (= 1024 logical * 1.2 scale), fills viewport
-       on narrower screens. The parchment scale below uses clamp() to
-       shrink-to-fit on smaller viewports, all the way down to phones. */
-    max-width: 1229px;
-    width: 100%;
-    margin: 20px auto;
-    box-sizing: border-box;
-}
-.legacy-app-panel {
-    background: var(--color-bg-panel);
-    border: 1px solid var(--color-gold-dark);
-    border-radius: 4px;
-    padding: 8px 12px;
-    margin: 0 auto 12px;
+/* --- 5d. Display link (permalink) -------------------------------------
+   <a class="lcu-link" href="…"><span class="lcu-link-text">Link</span></a>
+   Display 700 12px .1em caps #cdbe91 + 9x9 external-link glyph; hover
+   #f0e6d2, active #c89b3c. Colour lives in --lcu-link-color so stray id
+   rules that set `color` on the anchor cannot recolour it. */
+.lcu-link {
+    --lcu-link-color: var(--hx-gold-text);
     position: relative;
-    height: 50px;
-    width: 1024px;
-    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    height: 32px;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
 }
-.legacy-app-panel .page-nav { color: var(--color-text-main); }
-.legacy-app-panel .page-nav a { color: var(--color-gold-base); }
-.legacy-app-panel .page-nav a:hover { color: var(--color-gold-light); }
-.legacy-app-panel .page-nav strong { color: var(--color-gold-light); }
-.legacy-app-panel #exportLink { color: var(--color-gold-light); }
-.legacy-app-panel .lol-select-label { color: var(--color-gold-base); }
+.lcu-link-text {
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--lcu-link-color);
+    transition: color 0.3s ease-in-out;
+}
+.lcu-link::after {
+    content: "";
+    display: block;
+    width: 9px;
+    height: 9px;
+    margin: -5px 0 0 5px;
+    -webkit-mask: url(../images/lcu/external-link-mask.png) no-repeat center / contain;
+    mask: url(../images/lcu/external-link-mask.png) no-repeat center / contain;
+    background-color: var(--lcu-link-color);
+    transition: background-color 0.3s ease-in-out;
+}
+.lcu-link:hover,
+.lcu-link:focus-visible { --lcu-link-color: var(--hx-gold-1); }
+.lcu-link:active { --lcu-link-color: var(--hx-gold-3); }
+
+/* --- 5e. Gold divider -------------------------------------------------
+   <hr class="lcu-divider">          gold fade (uikit title_divider, 4px)
+   <hr class="lcu-divider is-rule">  1px content rule (#3c4650) */
+.lcu-divider {
+    display: block;
+    height: 4px;
+    margin: 8px 0;
+    border: 0;
+    background: url(../images/lcu/title-divider.png) no-repeat center / 100% 4px;
+}
+.lcu-divider.is-rule {
+    height: 0;
+    border-top: 1px solid var(--hx-divider);
+    background: none;
+}
+
+/* ==========================================================================
+   6. AIR primitives (inside AIR-era sheets only). AIR state changes are
+   instant — no transitions. Surfaces set parchment colour/font themselves.
+   ========================================================================== */
+
+/* --- 6a. Navy AIR button ----------------------------------------------
+   <button class="air-btn" type="button">Save Masteries</button>
+   Disabled (nothing to save / revert): :disabled or .disabled → grey. */
+.air-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: 25px;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid var(--air-btn-edge);
+    border-radius: 3px;
+    background: var(--air-btn);
+    box-shadow: inset 0 1px 0 rgba(160, 200, 255, 0.35), 0 1px 2px rgba(70, 50, 0, 0.45);
+    font: 400 14px/1 var(--font-air-body);
+    color: var(--air-btn-text);
+    text-shadow: 0 -1px 0 rgba(0, 10, 30, 0.45);
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+}
+.air-btn:hover { filter: brightness(1.12); }
+.air-btn:active {
+    filter: none;
+    background: var(--air-chip-selected);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+.air-btn:disabled,
+.air-btn.disabled {
+    filter: none;
+    border-color: var(--air-btn-disabled-edge);
+    background: var(--air-btn-disabled);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(70, 50, 0, 0.35);
+    color: var(--air-btn-disabled-text);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    cursor: default;
+}
+
+/* --- 6b. AIR page chips (mastery page bar / rune page tabs) -------------
+   <div class="air-chips">
+     <button class="air-chip is-selected">1</button><button class="air-chip">2</button>
+     <button class="air-chip air-chip-add" aria-label="New page"></button>
+   </div>
+   Selected = darker pressed navy (#132f51); hover = slate #81a7ce→#415671. */
+.air-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.air-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 26px;
+    height: 26px;
+    margin: 0;
+    padding: 0 4px;
+    border: 1px solid #0a1f3a;
+    border-radius: 3px;
+    background: var(--air-btn);
+    box-shadow: inset 0 1px 0 rgba(160, 200, 255, 0.35);
+    font: 600 13px/1 var(--font-air-body);
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+}
+.air-chip:hover { background: var(--air-chip-hover); }
+.air-chip.is-selected,
+.air-chip[aria-selected="true"] {
+    background: var(--air-chip-selected);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+    cursor: default;
+}
+.air-chip-add::before {              /* lime-yellow plus */
+    content: "";
+    width: 12px;
+    height: 12px;
+    background:
+        linear-gradient(#e9f07a, #e9f07a) center / 12px 4px no-repeat,
+        linear-gradient(#e9f07a, #e9f07a) center / 4px 12px no-repeat;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5));
+}
+
+/* --- 6c. AIR sans utility --------------------------------------------- */
+.air-sans { font-family: var(--font-air-body); }
+
+/* ==========================================================================
+   7. Tooltip — ONE element (#lol-tt), skinned with data-skin. API in nav.js:
+     LolTooltip.show(anchorOrEvent, html, skin, opts)  skin: air-mastery |
+                    air-rune | lcu (default: from body[data-client])
+     LolTooltip.move(evt)  LolTooltip.hide()
+   AIR skins follow the cursor (instant); lcu anchors to the element with
+   a caret (opacity 150ms). Surfaces supply only content, using:
+     .tt-title .tt-sub .tt-rank .tt-req .tt-body .tt-next .tt-row
+     .tt-tier .tt-kind .tt-name .tt-desc .tt-divider .tt-value
+   Title colour per tree/path: style="--tt-title-color:#46a3ee".
+   ========================================================================== */
+.lol-tt {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2500;
+    box-sizing: border-box;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    -webkit-font-smoothing: antialiased;
+}
+.lol-tt.is-visible { visibility: visible; opacity: 1; }
+.lol-tt-caret, .lol-tt-sub { display: none; position: absolute; pointer-events: none; }
+.lol-tt p { margin: 0; }
+
+/* --- air-mastery: #000, 1px #4b4b4d, square, sans title in tree colour -- */
+.lol-tt[data-skin^="air"] {
+    min-width: 180px;
+    max-width: 274px;                 /* 2012 capture: ~273px, wraps at ~250 */
+    padding: 6px 9px 7px;
+    border: 1px solid var(--air-tt-border);
+    border-radius: 0;
+    background: #000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    font: 400 12px/1.35 var(--font-air-body);
+    color: #fff;
+    text-align: left;
+}
+.lol-tt[data-skin^="air"] .tt-title {   /* regular weight, ~1.2x body */
+    font: 400 14px/1.3 var(--font-air-body);
+    color: var(--tt-title-color, #fff);
+}
+.lol-tt[data-skin^="air"] .tt-rank { color: var(--air-tt-rank); font-size: 12px; }
+.lol-tt[data-skin^="air"] .tt-req  { color: var(--air-tt-req); }
+.lol-tt[data-skin^="air"] .tt-body { margin-top: 0.9em; color: #fff; }
+.lol-tt[data-skin^="air"] .tt-next { margin-top: 0.9em; }
+.lol-tt[data-skin^="air"] .tt-value { color: var(--air-tt-rank); }
+/* --- air-rune: same frame, 4px radius, Tier / Primary row, centred name - */
+.lol-tt[data-skin="air-rune"] {
+    min-width: 300px;                 /* 2015 capture: ~300x71 */
+    padding: 5px 8px 7px;
+    border-radius: 4px;
+    text-align: center;
+}
+.lol-tt[data-skin="air-rune"] .tt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 11px;
+    line-height: 14px;
+    text-align: left;
+}
+.lol-tt[data-skin="air-rune"] .tt-tier { color: #c8602c; }
+.lol-tt[data-skin="air-rune"] .tt-kind { color: var(--tt-title-color, #c8602c); }
+.lol-tt[data-skin="air-rune"] .tt-name {
+    margin-top: 8px;
+    font: 400 15px/1.25 var(--font-air-body);
+    color: var(--tt-title-color, #fff);
+}
+.lol-tt[data-skin="air-rune"] .tt-desc {
+    margin-top: 4px;
+    font: 600 13px/1.3 var(--font-air-body);
+    color: #fff;
+}
+
+/* --- lcu: lol-uikit-tooltip. 2px border-image brightest toward the caret,
+       caret 24x15, sub-border strip on the caret edge (≤V12.x). -------- */
+.lol-tt[data-skin="lcu"] {
+    --tt-bg: var(--hx-black);
+    min-width: 166px;
+    max-width: 266px;
+    padding: var(--lol-tt-pad, 18px);
+    border: 2px solid transparent;
+    border-image: linear-gradient(to top, var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%) 1 stretch;
+    background: var(--tt-bg);
+    box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.48), 0 0 10px 1px rgba(0, 0, 0, 0.5);
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-grey-1);
+    text-align: left;
+    transition: opacity 150ms ease-out, visibility 0s linear 150ms;
+}
+.lol-tt[data-skin="lcu"].is-visible { transition: opacity 150ms ease-out, visibility 0s; }
+.lol-tt[data-skin="lcu"][data-pos="bottom"] { border-image-source: linear-gradient(to bottom, var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%); }
+.lol-tt[data-skin="lcu"][data-pos="right"]  { border-image-source: linear-gradient(to right,  var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%); }
+.lol-tt[data-skin="lcu"][data-pos="left"]   { border-image-source: linear-gradient(to left,   var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%); }
+.lol-tt[data-skin="lcu"][data-variant="v13"] { --tt-bg: var(--hx-black-v13); }
+.lol-tt[data-skin="lcu"].is-system {
+    --lol-tt-pad: 9px 12px;
+    min-width: 0;
+    max-width: 320px;
+    white-space: nowrap;
+    color: var(--hx-gold-1);
+}
+.lol-tt[data-skin="lcu"] .tt-title {
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--tt-title-color, var(--hx-gold-1));
+}
+.lol-tt[data-skin="lcu"] .tt-sub   { margin-top: 2px; color: var(--hx-grey-1); }
+.lol-tt[data-skin="lcu"] .tt-rank  { color: var(--hx-grey-1); }
+.lol-tt[data-skin="lcu"] .tt-req   { margin-top: 4px; color: #be1e37; }
+.lol-tt[data-skin="lcu"] .tt-body  { margin-top: 6px; color: var(--hx-grey-1); }
+.lol-tt[data-skin="lcu"] .tt-body b,
+.lol-tt[data-skin="lcu"] .tt-value { color: var(--hx-gold-1); font-weight: 600; }
+/* Short hints (data-lol-tip: header controls, disabled tabs) read like the
+   7.20 PRESET PAGES / CREATE NEW tips: centred, 12px/16px caps title
+   (8px cap height), body straight under it. */
+.lol-tt[data-skin="lcu"].is-hint { text-align: center; }
+.lol-tt[data-skin="lcu"].is-hint .tt-title {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.05em;
+}
+.lol-tt[data-skin="lcu"].is-hint .tt-body { margin-top: 0; }
+.lol-tt[data-skin="lcu"] .tt-divider {
+    height: 4px;
+    margin: 8px 0;
+    border: 0;
+    background: url(../images/lcu/title-divider.png) no-repeat center / 100% 4px;
+}
+/* Caret: hangs outside the frame, overlapping the 2px border it touches.
+   --tt-caret = offset of the caret along the edge (set by nav.js). */
+.lol-tt[data-skin="lcu"].has-caret .lol-tt-caret {
+    display: block;
+    width: 24px;
+    height: 15px;
+    background: url(../images/lcu/tooltip-caret.png) no-repeat center / 24px 15px;
+}
+.lol-tt[data-skin="lcu"][data-variant="v13"].has-caret .lol-tt-caret { background-image: url(../images/lcu/tooltip-caret-v13.png); }
+.lol-tt[data-skin="lcu"].is-system.has-caret .lol-tt-caret {
+    width: 16px;
+    height: 11px;
+    background: url(../images/lcu/tooltip-system-caret.png) no-repeat center / 16px 11px;
+}
+.lol-tt[data-skin="lcu"][data-variant="v13"].is-system.has-caret .lol-tt-caret { background-image: url(../images/lcu/tooltip-system-caret-v13.png); }
+.lol-tt[data-pos="top"]    .lol-tt-caret { top: 100%;    left: var(--tt-caret, 50%); }
+.lol-tt[data-pos="bottom"] .lol-tt-caret { bottom: 100%; left: var(--tt-caret, 50%); transform: rotate(180deg); }
+.lol-tt[data-pos="right"]  .lol-tt-caret { top: var(--tt-caret, 50%); left: -19.5px; transform: rotate(90deg); }
+.lol-tt[data-pos="left"]   .lol-tt-caret { top: var(--tt-caret, 50%); left: calc(100% - 4.5px); transform: rotate(-90deg); }
+.lol-tt.is-system[data-pos="right"] .lol-tt-caret { left: -13.5px; }
+.lol-tt.is-system[data-pos="left"]  .lol-tt-caret { left: calc(100% - 2.5px); }
+/* Sub-border: the second gold line under the caret edge (gone from V13). */
+.lol-tt[data-skin="lcu"].has-caret:not(.is-system):not([data-variant="v13"]) .lol-tt-sub { display: block; }
+.lol-tt[data-pos="top"] .lol-tt-sub,
+.lol-tt[data-pos="bottom"] .lol-tt-sub {
+    left: 5px;
+    right: 5px;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 4px 0 4px;
+    border-image: url(../images/lcu/tooltip-sub-border-horizontal.png) 4 4 0 4 stretch;
+}
+.lol-tt[data-pos="top"]    .lol-tt-sub { top: calc(100% + 2px); }
+.lol-tt[data-pos="bottom"] .lol-tt-sub { bottom: calc(100% + 2px); transform: rotate(180deg); }
+.lol-tt[data-pos="right"] .lol-tt-sub,
+.lol-tt[data-pos="left"] .lol-tt-sub {
+    top: 5px;
+    bottom: 5px;
+    width: 0;
+    border-style: solid;
+    border-width: 4px 4px 4px 0;
+    border-image: url(../images/lcu/tooltip-sub-border-vertical.png) 4 4 4 0 stretch;
+}
+.lol-tt[data-pos="right"] .lol-tt-sub { right: calc(100% + 2px); }
+.lol-tt[data-pos="left"]  .lol-tt-sub { left: calc(100% + 2px); transform: rotate(180deg); }
+
+/* ==========================================================================
+   8. Toast — ONE element (#toast.lol-toast) for all pages.
+   LolToast.show("URL copied to clipboard")  (nav.js). LCU system-tooltip
+   frame, bottom-centre, 200ms fade in, holds ~1.8s. `.visible` = shown.
+   ========================================================================== */
+.lol-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    z-index: 9999;
+    box-sizing: border-box;
+    max-width: calc(100vw - 32px);
+    padding: 9px 16px;
+    border: 2px solid transparent;
+    border-image: linear-gradient(to top, var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%) 1 stretch;
+    background: var(--hx-black);
+    box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.48), 0 0 10px 1px rgba(0, 0, 0, 0.5);
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-gold-1);
+    text-align: center;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+    -webkit-font-smoothing: antialiased;
+}
+.lol-toast.visible { opacity: 1; }
+
+/* ==========================================================================
+   9. Legacy compat — kept so existing surfaces keep working until they
+   migrate. Do not build on these.
+   ========================================================================== */
+
+/* Old floating tooltip of keystone-calculator.js / runes-reforged.js
+   (#keystone-tooltip, #reforged-tooltip). Migrate to LolTooltip. */
+.lol-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    width: 260px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    background: #010a13;
+    border: 2px solid #323635;
+    color: #f0e6d2;
+    font-family: var(--font-lcu-body);
+    font-size: 11px;
+    line-height: 1.35;
+    pointer-events: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+.lol-tooltip-title { font-size: 13px; font-weight: bold; color: var(--hx-gold-1); margin-bottom: 3px; }
+.lol-tooltip-sub   { color: var(--hx-gold-2); font-size: 10px; margin-bottom: 4px; }
+.lol-tooltip-req   { color: #ff4040; font-size: 10px; margin-bottom: 4px; }
+.lol-tooltip-body  { color: #c8d2da; }
+.lol-tooltip-body hr { border: none; border-top: 1px solid rgba(200, 170, 110, 0.35); margin: 5px 0; }
+.lol-tooltip-body i  { color: #8a8a7a; }
+.lol-tooltip-body b  { color: #f0e6d2; }
+
+/* The classic page's "Return Points" button used to be styled by a global
+   `button` rule here. Scoped to the classic sheet until masteries-classic
+   moves to .air-btn. */
+#s2masteries button:not(.air-btn):not(.lcu-btn) {
+    cursor: pointer;
+    width: 130px;
+    margin: 0;
+    padding: 3px;
+    border: 1px outset #3467a7;
+    border-radius: 4px;
+    background: linear-gradient(to bottom, #3467a7 0%, #143964 50%, #0e2848 100%);
+    font-size: 16px;
+    color: #fff;
+}
+#s2masteries button:not(.air-btn):not(.lcu-btn):hover {
+    background: linear-gradient(to bottom, #5679a5 1%, #143964 50%, #0e2848 100%);
+}
+#s2masteries button:not(.air-btn):not(.lcu-btn):active { border-style: inset; }

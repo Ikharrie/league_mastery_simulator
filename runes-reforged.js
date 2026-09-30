@@ -98,6 +98,7 @@ function attachReforgedTooltip($el, title, sub, descHtml) {
 }
 
 function reforgedToast(msg) {
+    if (window.LolToast) return LolToast.show(msg);
     var $t = $("#reforged-toast");
     if (!$t.length) return;
     $t.text(msg).addClass("show");
@@ -116,6 +117,7 @@ function activateReforgedDataSet(id) {
     var ds = getReforgedDataSet(id);
     if (!ds) return;
     reforgedState.dataSetId = id;
+    if (typeof setClientEra === "function") setClientEra(clientEraFor(id));
     refreshReforgedSeasonNav(ds);
     rebuildReforgedPatchSelect(ds.season, ds.id);
     $(".reforged-page").attr("hidden", "hidden");

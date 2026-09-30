@@ -1,0 +1,517 @@
+/* ==========================================================================
+   air-sheet.css — the AIR client (2009-2016) summoner-profile sheet.
+   ONE component shared by classic masteries (S1-S5), keystone AIR masteries
+   (V5.22, V6.22) and legacy rune pages (V3.14-V6.24), so they look like the
+   same client screen (DECISIONS §5 "AIR profile sheet"). Only active while
+   body[data-client="air"]; with "lcu" the sheet chrome is hidden.
+
+   Measured on the client captures (native 1280x800 client px):
+     2010 masteries   refs/masteries-classic/wb-riot-2010-masteries.jpg
+     Dec 2012 S3      refs/masteries-classic/yt-uOygL_Bof5Q.jpg
+     Apr 2015 runes   refs/runes-legacy/fandom_PVP.net_Summoner_profile_05.jpg
+     Apr 2015 mast.   refs/runes-legacy/fandom_PVP.net_Summoner_profile_06.jpg
+   Art: images/air/sheet.jpg = images/runes/summoners_runes_bg.jpg (1618x972
+   art px) with the painted rune panels replaced by plain parchment
+   (scratchpad make_sheet.py). 1 native px = 1.40 art px.
+
+   Units. Everything scales with --air-k (native client px -> CSS px):
+     --u  = 1 native px     --a  = 1 art px (= 0.71384 native px)
+   Default k 1.1 = the classic tree art (masteries-background.jpg is the
+   S2-S5 trees at 1.10x). Override --air-k on .air-sheet to rescale; also
+   redeclare --u/--a there (custom props resolve where declared).
+
+   Markup contract (see index.html / runes.html):
+     .air-sheet[data-air-page=masteries|runes][data-air-season][data-air-period]
+       .air-sheet-head
+         .air-sheet-tabrow   .air-name-tab > .air-name | .air-folder-tab |
+                             .air-btn.air-sheet-cta | .air-search.air-search-top
+         nav.air-subtabs     .air-subtab[.is-active|.is-link|.is-disabled|
+                             .is-unavailable]… + .air-search
+       .air-sheet-body       (9-slice variant) the tan folder frame; flex row:
+         [.air-sheet-side]   optional left column (classic/keystone sidebar)
+         .air-sheet-main     .air-sheet-toolbar > .air-chips.air-page-chips,
+                             then the calculator
+     .air-sheet.air-sheet--painted   (runes) no 9-slice: the page's own
+                             full-art #parchment paints the sheet; head and
+                             .air-sheet-toolbar are overlaid on its bands.
+   data-air-period (air-sheet.js, from the season): 2010 = S1 look (crimson
+   active pill, slate folder, no page bar); 2012 / 2013 / 2014 = cream pills,
+   tan frame, page chips (labels differ per period).
+   ========================================================================== */
+
+.air-sheet {
+    --air-k: 1.1;
+    --air-s: calc(var(--air-k) * 0.71384);
+    --u: calc(1px * var(--air-k));
+    --a: calc(1px * var(--air-s));
+    --air-line: #ad9552;            /* tan folder / strip lines [sampled #ab955b #ad9646 #b0954e] */
+    --air-ink: #2e2210;             /* default text on parchment */
+}
+
+/* ==========================================================================
+   1. Sheet box (9-slice parchment). Outer size = the painted art's size
+      (1618x972 art px = 1155x694 native) unless the content needs more.
+   ========================================================================== */
+body[data-client="air"] .air-sheet {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: max-content;
+    min-width: calc(1618 * var(--a));
+    min-height: calc(972 * var(--a));
+    margin: 0;
+    padding: calc(25 * var(--u)) calc(44 * var(--u)) calc(58 * var(--u)) calc(40 * var(--u));
+    color: var(--air-ink);
+    font: 400 calc(12 * var(--u))/1.3 var(--font-air-body);
+    text-align: left;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+/* Beat masteries-keystone.css (body.keystone-system #s2masteries → slate box)
+   while the keystone AIR skin is on the parchment. */
+body[data-client="air"] #s2masteries.air-sheet {
+    background: none;
+    box-shadow: none;
+}
+body[data-client="air"] .air-sheet::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-style: solid;
+    border-width: calc(155 * var(--a)) calc(69 * var(--a)) calc(90 * var(--a)) calc(64 * var(--a));
+    border-image: url(../images/air/sheet.jpg) 155 69 90 64 fill stretch;
+}
+
+/* ==========================================================================
+   2. Head: summoner-name folder tab row + sub-tab strip.
+      S2+ native geometry (Apr 2015): tab row 40 tall; name tab 236x40 at
+      2px right of the strip line; "Ranked Teams" 236x36 3px further;
+      navy CTA 176x26 10px further; strip 45 tall incl. its two lines,
+      pills 114x38 with 2px gaps, "Find Summoner" 130x27 at the right.
+   ========================================================================== */
+body[data-client="air"] .air-sheet-head {
+    position: relative;
+    z-index: 2;
+    flex: none;
+    min-width: calc(1071 * var(--u));
+}
+body[data-client="air"] .air-sheet-tabrow {
+    display: flex;
+    align-items: flex-end;
+    height: calc(40 * var(--u));
+}
+body[data-client="air"] .air-name-tab {
+    flex: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(236 * var(--u));
+    height: calc(40 * var(--u));
+    margin-left: calc(2 * var(--u));
+    border: 1px solid #ab974f;
+    border-top-color: #ad9555;
+    border-right-color: #c2ae79;
+    border-bottom: 0;
+    border-radius: calc(2 * var(--u)) calc(2 * var(--u)) 0 0;
+    background: linear-gradient(to bottom, #f1e5cb 0, #f3efe6 3%, #eeeae1 18%, #ebe5d4 34%, #e7dfc6 50%, #e4d8b8 66%, #e2d4ae 86%, #e7d2a3 95%, #ebd397 100%);
+    white-space: nowrap;
+}
+body[data-client="air"] .air-name {
+    font: 400 calc(21 * var(--u))/1 var(--font-air-display);
+    color: #551006;                /* [sampled: darkest #480c02, stroke core ≈#5a1207] */
+    -webkit-text-stroke: 0.25px currentColor;   /* Friz is heavier than Marcellus */
+}
+body[data-client="air"] .air-folder-tab {
+    flex: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(236 * var(--u));
+    height: calc(36 * var(--u));
+    margin-left: calc(3 * var(--u));
+    border: 1px solid #bba262;
+    border-top-color: #bfa35a;
+    border-bottom: 0;
+    border-radius: calc(2 * var(--u)) calc(2 * var(--u)) 0 0;
+    background: linear-gradient(to bottom, #e9d8a2 0, #dccc9d 5%, #dcca98 22%, #decc9c 50%, #e0cfa3 72%, #dbc9a1 82%, #cbb991 92%, #c5b081 100%);
+    font: 400 calc(15 * var(--u))/1 var(--font-air-body);
+    color: #1a0e02;
+    white-space: nowrap;
+}
+/* Dec 2012 client: the second tab is the ranked-team DROPDOWN ("Da Go Go
+   Power Rangers ▼" in yt-uOygL_Bof5Q): flat tan face, label centred on the
+   tab, dark-red ▼ 10u from the right edge [sampled core #3e0b00, 15x13u]. */
+body[data-client="air"] .air-sheet[data-air-period="2012"] .air-folder-tab {
+    position: relative;
+    background: linear-gradient(to bottom, #eddaa6 0, #e6d29d 12%, #e4cf9d 50%, #e8d4a2 88%, #dcc795 100%);
+}
+body[data-client="air"] .air-sheet[data-air-period="2012"] .air-folder-tab::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: calc(10 * var(--u));
+    width: 0;
+    height: 0;
+    margin-top: calc(-6 * var(--u));
+    border-style: solid;
+    border-width: calc(12 * var(--u)) calc(7.5 * var(--u)) 0 calc(7.5 * var(--u));
+    border-color: #4a0f02 transparent transparent transparent;
+    filter: drop-shadow(0 1px 0 rgba(255, 244, 214, 0.5));
+}
+body[data-client="air"] .air-sheet .air-btn.air-sheet-cta {
+    flex: none;
+    align-self: flex-start;
+    width: calc(176 * var(--u));
+    height: calc(26 * var(--u));
+    margin: calc(8 * var(--u)) 0 0 calc(10 * var(--u));
+    padding: 0;
+    cursor: default;
+}
+body[data-client="air"] .air-sheet .air-btn.air-sheet-cta:hover { filter: none; }
+body[data-client="air"] .air-sheet .air-btn.air-sheet-cta:active {
+    background: var(--air-btn);
+    box-shadow: inset 0 1px 0 rgba(160, 200, 245, 0.45), 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(60, 45, 15, 0.45);
+}
+
+/* Inert "Find Summoner" field (S2+: right end of the strip). */
+body[data-client="air"] .air-search {
+    flex: none;
+    box-sizing: border-box;
+    display: block;
+    width: calc(130 * var(--u));
+    height: calc(27 * var(--u));
+    margin: 0 calc(3 * var(--u)) 0 auto;
+    align-self: center;
+    padding: 0 calc(5 * var(--u));
+    border: 1px solid #463f35;
+    border-top-color: #1e1a14;
+    background: #fff;
+    font: 400 calc(14 * var(--u))/calc(25 * var(--u)) var(--font-air-body);
+    letter-spacing: 0.02em;
+    color: #9c9c9c;                 /* [sampled] */
+    white-space: nowrap;
+    overflow: hidden;
+}
+body[data-client="air"] .air-search.air-search-top { display: none; }
+
+/* --- Sub-tab strip ------------------------------------------------------- */
+body[data-client="air"] .air-subtabs {
+    display: flex;
+    align-items: stretch;
+    gap: calc(2 * var(--u));
+    box-sizing: border-box;
+    margin: 0;
+    padding: calc(2 * var(--u)) 0 calc(3 * var(--u)) calc(3 * var(--u));
+    border: 1px solid var(--air-line);
+    background: linear-gradient(to bottom, #ecddb5 0, #e6d7ad 6%, #e3cf9c 45%, #e1cc97 88%, #efd798 100%);
+}
+body[data-client="air"] .air-subtab {
+    flex: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(114 * var(--u));
+    height: calc(38 * var(--u));
+    margin: 0;
+    padding: 0 calc(4 * var(--u));
+    border: 1px solid #baa264;
+    border-top-color: #b6a26f;
+    border-radius: calc(2 * var(--u));
+    background: linear-gradient(to bottom, #fff4c6 0, #f8f0d9 3%, #f2efe0 6%, #efe7d2 20%, #e9ddc0 36%, #e3d5b0 52%, #dfd0a5 66%, #decc9d 80%, #d9cb9c 91%, #e0cf9b 94%, #efd696 100%);
+    font: 400 calc(15.5 * var(--u))/1 var(--font-air-body);
+    color: #3a2e12;                 /* [sampled #382c10] */
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: default;
+    outline: none;
+}
+body[data-client="air"] .air-subtab.is-link { cursor: pointer; }
+body[data-client="air"] .air-subtab.is-link:hover,
+body[data-client="air"] .air-subtab.is-link:focus-visible {
+    background: linear-gradient(to bottom, #fff7d4 0, #fbf5e4 4%, #f6f1e5 10%, #f1eadb 30%, #ebe1c8 52%, #e6d9b8 72%, #e2d4ab 90%, #ead59f 95%, #f3dc9c 100%);
+    color: #22190a;
+}
+body[data-client="air"] .air-subtab.is-link:focus-visible { box-shadow: inset 0 0 0 1px rgba(110, 18, 6, 0.55); }
+body[data-client="air"] .air-subtab.is-active {
+    border-color: #bea15f;
+    border-bottom-color: #b8a266;
+    background: linear-gradient(to bottom, #e8cb87 0, #eedeab 3%, #fef2ca 6%, #fbeecb 20%, #f9ebc6 36%, #f7e8c1 50%, #f5e3b6 70%, #f2e0b3 88%, #fde6ba 94%, #ffedb4 100%);
+    color: #3c1f05;                 /* [sampled] */
+}
+body[data-client="air"] .air-subtab.is-disabled { color: #c9bd9c; }
+/* Masteries / Runes pill with no calculator for this season (S1/S2 runes):
+   looks like an ordinary pill (runes did exist), explains itself on hover. */
+body[data-client="air"] .air-subtab.is-unavailable { cursor: help; }
+
+/* ==========================================================================
+   3. Body (9-slice variant): the tan folder frame under the strip, then the
+      calculator. Page chips sit on the toolbar row above the calculator:
+      27x27 chips, 5px apart, 9px under the frame's top line, trees 40px
+      below it (Apr 2015). Surfaces may add .air-sheet-side (≈220u).
+   ========================================================================== */
+body[data-client="air"] .air-sheet-body {
+    position: relative;
+    z-index: 1;
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: calc(12 * var(--u));
+    box-sizing: border-box;
+    padding: 0 calc(10 * var(--u)) calc(4 * var(--u)) calc(8 * var(--u));
+    border: 1px solid var(--air-line);
+    border-top: 0;
+}
+body[data-client="air"] .air-sheet-side { flex: none; width: calc(220 * var(--u)); }
+body[data-client="air"] .air-sheet-main { flex: none; min-width: 0; }
+body[data-client="air"] .air-sheet-toolbar {
+    box-sizing: border-box;
+    height: calc(40 * var(--u));
+    padding-top: calc(8 * var(--u));
+}
+body[data-client="air"] .air-sheet-toolbar:empty,
+body[data-client="air"] .air-sheet[data-air-chips="0"] .air-sheet-toolbar { visibility: hidden; }
+
+/* Old masteries panel text: masteries-keystone.css lifts it to cream for
+   the slate box; on parchment it must stay dark (surface CSS restyles it). */
+body[data-client="air"] .air-sheet #panel,
+body[data-client="air"] .air-sheet #points { color: var(--air-ink); }
+
+/* ==========================================================================
+   4. AIR page chips at sheet scale (base.css .air-chip = the component;
+      selected = pressed navy, hover = slate, both from base.css tokens).
+      .air-chips--rune = the rune-page tabs (30 wide, larger digits).
+   ========================================================================== */
+body[data-client="air"] .air-sheet .air-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: calc(5 * var(--u));
+}
+body[data-client="air"] .air-sheet .air-chip {
+    min-width: calc(27 * var(--u));
+    height: calc(27 * var(--u));
+    padding: 0 calc(3 * var(--u));
+    border: 1px solid #34506a;
+    border-top-color: #4d6d95;
+    border-bottom-color: #1a2c42;
+    border-radius: calc(3 * var(--u));
+    box-shadow: inset 0 1px 0 rgba(140, 185, 240, 0.5), 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(50, 40, 15, 0.45);
+    font: 400 calc(15 * var(--u))/1 var(--font-air-body);
+    color: #fff;
+    cursor: default;
+}
+body[data-client="air"] .air-sheet .air-chip.is-selected {
+    border-color: #0d1d30;
+    border-top-color: #09141f;
+    background: var(--air-chip-selected);
+    box-shadow: inset 0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.55), 0 1px 1px rgba(50, 40, 15, 0.3);
+}
+body[data-client="air"] .air-sheet .air-chip-add::before {
+    width: calc(13 * var(--u));
+    height: calc(13 * var(--u));
+    background-size: calc(13 * var(--u)) calc(4 * var(--u)), calc(4 * var(--u)) calc(13 * var(--u));
+}
+/* 2014+ clients: cream-gold "+" (2012: lime-yellow, base.css). */
+body[data-client="air"] .air-sheet[data-air-period="2014"] .air-chip-add::before {
+    background-image: linear-gradient(#fdf3c4, #f0cd6c), linear-gradient(#fdf3c4, #f0cd6c);
+    filter: drop-shadow(0 1px 0 rgba(90, 45, 0, 0.6));
+}
+body[data-client="air"] .air-sheet .air-chips--rune .air-chip {
+    min-width: calc(30 * var(--u));
+    font-size: calc(16.5 * var(--u));
+    color: #dfe9f4;
+}
+
+/* ==========================================================================
+   5. AIR buttons at sheet scale (base.css .air-btn / :disabled = navy / grey).
+      Sizes from the Apr 2015 sidebar: 175x24 block, 78x24 half, rune-page
+      icon buttons 36x27.
+        <button class="air-btn is-block">Save Masteries</button>
+        <button class="air-btn is-half" disabled>Revert</button>
+        <button class="air-btn is-icon" aria-label="Clear">…</button>
+   ========================================================================== */
+body[data-client="air"] .air-sheet .air-btn {
+    height: calc(24 * var(--u));
+    padding: 0 calc(10 * var(--u));
+    border-radius: calc(3 * var(--u));
+    box-shadow: inset 0 1px 0 rgba(160, 200, 245, 0.45), 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(60, 45, 15, 0.45);
+    font: 400 calc(13 * var(--u))/1 var(--font-air-body);
+}
+body[data-client="air"] .air-sheet .air-btn:disabled,
+body[data-client="air"] .air-sheet .air-btn.disabled {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(60, 45, 15, 0.35);
+}
+body[data-client="air"] .air-sheet .air-btn.is-block { display: flex; width: 100%; }
+body[data-client="air"] .air-sheet .air-btn.is-half { width: calc(78 * var(--u)); }
+body[data-client="air"] .air-sheet .air-btn.is-icon {
+    width: calc(36 * var(--u));
+    height: calc(27 * var(--u));
+    padding: 0;
+}
+
+/* ==========================================================================
+   6. Season 1 (2010) look: slate folder outline, the name tab flows into
+      the strip panel, rounded 126x28 pills 4px apart with teal text, the
+      crimson active pill with a 1px gold ring, search box top-right, no
+      "Ranked Teams" / CTA, no content frame, no page bar.
+   ========================================================================== */
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-tabrow { height: calc(29 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-name-tab {
+    position: relative;
+    z-index: 1;
+    height: calc(29 * var(--u) + 1px);
+    margin: 0 0 -1px 0;
+    border-color: #5f6a6e;
+    border-radius: calc(6 * var(--u)) calc(6 * var(--u)) 0 0;
+    background: linear-gradient(to bottom, #e1d4aa 0, #d9c68f 12%, #dac693 22%, #dcca98 45%, #dfcea2 75%, #e0d1a6 100%);
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-name {
+    font-size: calc(20 * var(--u));
+    color: #43120f;                 /* [sampled #3f1104] */
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-folder-tab,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-cta,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtabs .air-search { display: none; }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-search.air-search-top {
+    display: block;
+    align-self: flex-start;
+    width: calc(200 * var(--u));
+    height: calc(22 * var(--u));
+    margin: calc(3 * var(--u)) 0 0 auto;
+    border-color: #5a5f60;
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtabs {
+    gap: calc(4 * var(--u));
+    padding: calc(11 * var(--u)) 0 calc(10 * var(--u)) calc(15 * var(--u));
+    border-color: #5f6a6e;
+    background: linear-gradient(to bottom, #eaddbd 0, #e1d2a8 4%, #e1d2aa 76%, #e6dbb9 79%, #ebe2c6 96%, #efe6d2 100%);
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab {
+    width: calc(126 * var(--u));
+    height: calc(28 * var(--u));
+    border-color: #a17e6a;
+    border-top-color: #896454;
+    border-bottom-color: #9d7d70;
+    border-radius: calc(5 * var(--u));
+    background: linear-gradient(to bottom, #eee7d5 0, #f2eed5 10%, #efe8ce 30%, #ebdfbe 48%, #e5d7b0 64%, #e1d1a0 80%, #dacb94 93%, #ceb28b 100%);
+    font-size: calc(13 * var(--u));
+    color: #23506d;                 /* [sampled #25405e-#23506d] */
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-link:hover,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-link:focus-visible {
+    background: linear-gradient(to bottom, #f6f1e3 0, #f7f3e0 10%, #f3eddb 30%, #efe5cb 48%, #eadec0 64%, #e6d8b0 80%, #e0d3a3 93%, #d4bc98 100%);
+    color: #173b53;
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-active {
+    border-color: #4a1510;
+    border-top-color: #602b23;
+    border-bottom-color: #2c0a09;
+    background: linear-gradient(to bottom, #800d0a 0, #7c0c0b 22%, #700b0b 40%, #600a09 56%, #500809 72%, #420607 86%, #3c0908 100%);
+    box-shadow: 0 0 0 1px #e9a93a;  /* gold ring [sampled #eba62f / #e7b14d] */
+    color: #fdfcf9;
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-disabled { color: #b3b7b5; }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-body {
+    border: 0;
+    padding-top: calc(4 * var(--u));
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-toolbar { display: none; }
+
+/* ==========================================================================
+   7. Painted variant (runes.html): the sheet IS the full 1618x972 art that
+      #parchment already paints (runes-calculator.js sets its image). The
+      head overlays the art's empty band (y 11-155), the rune-page tabs sit
+      in its toolbar band at art (384,167), and the old three-column layout
+      is pinned onto the painted panels (library x 68-377, page 384-1303,
+      stats 1308-1543, y 216-877). #parchment spans the whole sheet, so the
+      crop window and its seams are gone; slot % positions are unchanged.
+      Panel internals are untouched (runes-legacy.css / runes surface).
+   ========================================================================== */
+body[data-client="air"] .air-sheet.air-sheet--painted {
+    display: block;
+    width: calc(1618 * var(--a));
+    height: calc(972 * var(--a));
+    min-width: 0;
+    min-height: 0;
+    padding: calc(216 * var(--a)) calc(75 * var(--a)) calc(95 * var(--a)) calc(68 * var(--a));
+    overflow: hidden;
+}
+body[data-client="air"] .air-sheet--painted::before { content: none; }
+body[data-client="air"] .air-sheet--painted .air-sheet-head {
+    position: absolute;
+    top: calc(25 * var(--u));
+    left: calc(40 * var(--u));
+    width: calc(1071 * var(--u));
+}
+body[data-client="air"] .air-sheet--painted .air-sheet-toolbar {
+    position: absolute;
+    z-index: 2;
+    top: calc(167 * var(--a));
+    left: calc(384 * var(--a));
+    height: auto;
+    padding: 0;
+}
+body[data-client="air"] .air-sheet--painted .runes-layout {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+body[data-client="air"] .air-sheet--painted .runes-panel {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    height: 100%;
+}
+body[data-client="air"] .air-sheet--painted .runes-panel-left  { width: calc(309 * var(--a)); }
+body[data-client="air"] .air-sheet--painted .runes-panel-right { width: calc(235 * var(--a)); }
+body[data-client="air"] .air-sheet--painted .runes-canvas-crop {
+    position: static;
+    flex: none;
+    align-self: stretch;
+    width: calc(919 * var(--a));
+    margin: 0 calc(5 * var(--a)) 0 calc(7 * var(--a));
+    aspect-ratio: auto;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+body[data-client="air"] .air-sheet--painted .parchment-runes {
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==========================================================================
+   8. LCU era (V7.21 masteries / runes): no sheet. The 2017 LCU masteries
+      screen puts the trees straight on the backdrop (refs/keystone/
+      Masteries2017.png), so the old slate web box of masteries-keystone.css
+      (#010a13 fill + 40px shadow) is cancelled here; the keystone LCU skin
+      adds its own uikit panel dividers. Runes keep their LCU-era layout.
+   ========================================================================== */
+body[data-client="lcu"] .air-sheet-head,
+body[data-client="lcu"] .air-sheet-toolbar { display: none; }
+body[data-client="lcu"] #s2masteries.air-sheet {
+    position: relative;
+    box-sizing: content-box;
+    width: 932px;
+    min-height: 624px;
+    padding: 40px;
+    background: none;
+    box-shadow: none;
+}

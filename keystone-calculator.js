@@ -176,6 +176,7 @@ function drawKeystoneCalculator(dataSet) {
     if (dataSet && keystoneActiveDataSetId !== dataSet.id) {
         keystoneActiveDataSetId = dataSet.id;
         keystoneActiveDataSet = dataSet;
+        if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
         initKeystoneState(dataSet);
     }
     var $area = $("#keystone-calculator").empty();

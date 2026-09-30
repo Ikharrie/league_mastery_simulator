@@ -1,5 +1,59 @@
-// Season-led navigation, shared by all three pages (index.html, runes.html,
-// runes-reforged.html). The Season dropdown in the header is the primary
+// nav.js — shared shell for all three pages (index.html, runes.html,
+// runes-reforged.html). Loaded in <head>, before jQuery: nothing here may
+// touch the DOM or `$` at load time; DOM work waits for DOMContentLoaded
+// (which fires before jQuery's ready handlers in the calculators).
+//
+// Public API
+//   clientEraFor(datasetId)      -> "air" | "lcu"
+//   setClientEra(era)            sets body[data-client] (and html[data-client])
+//   buildSeasonNav(opts)         season dropdown + header tabs
+//   lolBootHeader()              inline after </header>: deep-link prefill
+//   LolTooltip.show(anchorOrEvent, html, skin, opts) / .move(evt) / .hide()
+//   LolTooltip.attach(target, htmlOrFn, skin, opts)
+//   LolToast.show(msg, opts)
+//   LolStage.fit() / LolStage.scale(el)
+//   LolDropdown.close()
+
+// ---------------------------------------------------------------------------
+// 1. Client era (DECISIONS.md §1)
+//   air: every S1-S5 mastery set, V5.22 (s6-launch), V6.22 (s7-preseason),
+//        rune pages V3.14 / V4.20 / V5.21 / V6.24.
+//   lcu: V7.21 masteries (s7-final), V7.21 runes, every Runes Reforged patch.
+// ---------------------------------------------------------------------------
+
+var LCU_ERA_DATASETS = { "s7-final": true, "preReforged-V7.21": true };
+
+function clientEraFor(datasetId) {
+    var id = String(datasetId || "");
+    if (id === "air" || id === "lcu") return id;
+    if (/^rr-/.test(id)) return "lcu";
+    return LCU_ERA_DATASETS[id] ? "lcu" : "air";
+}
+
+function setClientEra(era) {
+    era = clientEraFor(era);
+    var html = document.documentElement, body = document.body;
+    var prev = body ? body.getAttribute("data-client") : html.getAttribute("data-client");
+    html.setAttribute("data-client", era);
+    if (body) body.setAttribute("data-client", era);
+    if (prev !== era && typeof CustomEvent === "function") {
+        document.dispatchEvent(new CustomEvent("lol:client-era", { detail: { era: era, previous: prev } }));
+    }
+    return era;
+}
+
+// Called from an inline <script> right after <body>, so the first paint
+// already has the right backdrop for deep links. Only trusts a hash that
+// starts with a dataset id; otherwise the static body attribute (the page's
+// default dataset era) stands until the calculator activates its dataset.
+function lolBootClientEra() {
+    var first = String(location.hash || "").replace(/^#/, "").split("|")[0];
+    if (/^(s\d+-|preReforged-|rr-)/.test(first)) setClientEra(clientEraFor(first));
+    else if (document.body) setClientEra(document.body.getAttribute("data-client") || "air");
+}
+
+// ---------------------------------------------------------------------------
+// 2. Season-led navigation. The Season dropdown in the header is the primary
 // control: it lists every covered season, and the page tabs adapt to what
 // existed in that era —
 //   Seasons 1-7 (separate systems):  [Masteries] [Runes]
@@ -7,6 +61,7 @@
 // Each entry carries the default dataset id per page so cross-page jumps
 // land on the right season. A null page means "did not exist / no catalog
 // yet" and renders as a disabled tab.
+// ---------------------------------------------------------------------------
 
 var SEASON_NAV = [
     { key: "s1",    label: "Season 1",           masteries: "s1-final",    runes: null },
@@ -26,6 +81,16 @@ var SEASON_NAV = [
     { key: "s2025", label: "Season 2025",        reforged: "rr-v25-24" },
     { key: "s2026", label: "Season 2026 (Current)", reforged: "rr-v26-13" },
 ];
+
+var SEASON_NAV_PAGE_NAMES = { masteries: "Masteries", runes: "Runes", reforged: "Runes Reforged" };
+
+// Why a tab is disabled, shown in the LCU tooltip on hover/focus.
+var SEASON_NAV_DISABLED_TIPS = {
+    runes: {
+        title: "No rune catalog",
+        body: "Runes existed from Season 1, but this calculator's rune catalog starts at V3.14 (Season 3)."
+    }
+};
 
 function seasonNavFind(key) {
     for (var i = 0; i < SEASON_NAV.length; i++)
@@ -49,25 +114,32 @@ function seasonNavPrimaryUrl(def) {
         || "index.html";
 }
 
+// Header tabs for a season (plain DOM: also used by lolBootHeader before
+// jQuery has loaded).
 function renderSeasonNavTabs(opts, def) {
-    var $tabs = $(".header-tabs");
-    if (!$tabs.length || !def) return;
-    $tabs.empty();
+    var tabs = document.querySelector(".header-tabs");
+    if (!tabs || !def) return;
+    while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
     var addTab = function(label, page) {
-        var url = seasonNavUrl(def, page);
+        var url = seasonNavUrl(def, page), node;
         if (url) {
-            $tabs.append($("<a>")
-                .addClass("header-tab")
-                .toggleClass("active", opts.page === page)
-                .attr("href", url)
-                .text(label));
+            node = document.createElement("a");
+            node.className = "header-tab" + (opts.page === page ? " active" : "");
+            node.setAttribute("href", url);
         } else {
-            $tabs.append($("<span>")
-                .addClass("header-tab")
-                .addClass("disabled")
-                .attr("title", "No " + label.toLowerCase() + " catalog for this season yet")
-                .text(label));
+            var tip = SEASON_NAV_DISABLED_TIPS[page] || {
+                title: label, body: "No " + label.toLowerCase() + " catalog for this season yet."
+            };
+            node = document.createElement("span");
+            node.className = "header-tab disabled";
+            node.setAttribute("aria-disabled", "true");
+            node.setAttribute("tabindex", "0");
+            node.setAttribute("data-lol-tip-title", tip.title);
+            node.setAttribute("data-lol-tip", tip.body);
+            node.setAttribute("data-lol-tip-pos", "bottom");
         }
+        node.textContent = label;
+        tabs.appendChild(node);
     };
     if (def.reforged) {
         addTab("Runes Reforged", "reforged");
@@ -75,6 +147,56 @@ function renderSeasonNavTabs(opts, def) {
         addTab("Masteries", "masteries");
         addTab("Runes", "runes");
     }
+}
+
+function seasonNavTitle(def, page) {
+    document.title = def.label.replace(/\s*\(.*\)$/, "") + " "
+        + (SEASON_NAV_PAGE_NAMES[page] || "") + " · Legacy LoL Calculator";
+}
+
+// SEASON_NAV key of a dataset id ("s5-final" → s5, "preReforged-V5.21" →
+// s5, "rr-v14-19" → s14, "rr-v26-13" → s2026), or null.
+function seasonKeyForDataset(id) {
+    id = String(id || "");
+    var m = /^s(\d+)-/.exec(id) || /^preReforged-V(\d+)\./.exec(id);
+    if (m) return "s" + m[1];
+    m = /^rr-v(\d+)-/.exec(id);
+    if (m) { var n = parseInt(m[1], 10); return "s" + (n >= 25 ? 2000 + n : n); }
+    return null;
+}
+
+function lolPageType() {
+    var p = location.pathname || "";
+    if (/runes-reforged\.html$/i.test(p)) return "reforged";
+    if (/runes\.html$/i.test(p)) return "runes";
+    return "masteries";
+}
+
+// Inline right after </header>: make the static header match a deep link
+// before the calculators (and the jQuery CDN) arrive, so a slow load never
+// shows "Season 3" over an #s5-final page. The calculator's buildSeasonNav
+// replaces all of it once it runs.
+function lolBootHeader() {
+    var id = String(location.hash || "").replace(/^#/, "").split("|")[0];
+    var key = seasonKeyForDataset(id), def = key ? seasonNavFind(key) : null;
+    var page = lolPageType();
+    if (!def || !def[page]) return;
+    var season = document.querySelector(".legacy-header select.header-season");
+    var patch = document.querySelector(".legacy-header select.header-patch");
+    var only = function(sel, value, text) {
+        if (!sel) return;
+        while (sel.firstChild) sel.removeChild(sel.firstChild);
+        var o = document.createElement("option");
+        o.value = value; o.textContent = text; o.selected = true;
+        sel.appendChild(o);
+    };
+    if (season && season.value !== key) only(season, key, def.label);
+    if (patch && patch.value !== id) {
+        var v = /V(\d+\.\d+)$/.exec(id), r = /^rr-v(\d+)-(\d+)$/.exec(id);
+        only(patch, id, v ? "V" + v[1] : r ? "V" + r[1] + "." + r[2] : "…");
+    }
+    renderSeasonNavTabs({ page: page }, def);
+    seasonNavTitle(def, page);
 }
 
 // (Re)build the season dropdown + tabs. `opts`:
@@ -92,7 +214,9 @@ function buildSeasonNav(opts) {
         $season.append($("<option>").attr("value", def.key).text(def.label));
     });
     $season.val(opts.currentKey);
-    renderSeasonNavTabs(opts, seasonNavFind(opts.currentKey));
+    var current = seasonNavFind(opts.currentKey);
+    renderSeasonNavTabs(opts, current);
+    if (current) seasonNavTitle(current, opts.page);
 
     $season.off("change.nav").on("change.nav", function(){
         var def = seasonNavFind($(this).val());
@@ -101,3 +225,516 @@ function buildSeasonNav(opts) {
         document.location.href = seasonNavPrimaryUrl(def);
     });
 }
+
+// ---------------------------------------------------------------------------
+// Small DOM helpers (no jQuery: this file runs before it loads).
+// ---------------------------------------------------------------------------
+
+function lolClosest(node, selector) {
+    while (node && node.nodeType === 1) {
+        if ((node.matches || node.msMatchesSelector).call(node, selector)) return node;
+        node = node.parentNode;
+    }
+    return null;
+}
+
+function lolEscapeHtml(s) {
+    return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function lolOnReady(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+}
+
+// ---------------------------------------------------------------------------
+// 3. LolTooltip — ONE tooltip element for every surface (DECISIONS §5).
+//   LolTooltip.show(anchorOrEvent, html, skin, opts)
+//     anchorOrEvent  DOM element, jQuery object, or a mouse event (native or
+//                    jQuery). AIR skins follow the cursor when given an event;
+//                    "lcu" always anchors to the element (event.currentTarget).
+//     html           string of HTML (or a DOM node) — the content template.
+//     skin           "air-mastery" | "air-rune" | "lcu". Default follows
+//                    body[data-client]: lcu → "lcu", air → "air-mastery".
+//     opts.position  lcu: "top" (default) | "bottom" | "right" | "left" |
+//                    "auto"; flips when it does not fit.
+//     opts.variant   "v13" → #1a1c21 background (Reforged V13.10+).
+//     opts.system    true → one-line LCU system tooltip (small caret).
+//     opts.caret     false → no caret (lcu).
+//     opts.width     fixed px width.   opts.className  extra class(es).
+//   LolTooltip.move(evt)  reposition a cursor-following tooltip.
+//   LolTooltip.hide()
+//   LolTooltip.attach(target, htmlOrFn(el), skin, opts) — binds hover/focus.
+//   Markup attributes (no JS needed): data-lol-tip="text" [data-lol-tip-title]
+//   [data-lol-tip-pos] [data-lol-tip-skin].
+// ---------------------------------------------------------------------------
+
+var LolTooltip = window.LolTooltip = (function(){
+    var el = null, content = null, caret = null, sub = null;
+    var state = { mode: null, anchor: null, visible: false };
+    var MARGIN = 8, CURSOR_DX = 16, CURSOR_DY = 16;
+
+    function ensure() {
+        if (el) return el;
+        el = document.createElement("div");
+        el.id = "lol-tt";
+        el.className = "lol-tt";
+        el.setAttribute("role", "tooltip");
+        el.setAttribute("aria-hidden", "true");
+        content = document.createElement("div");
+        content.className = "lol-tt-content";
+        sub = document.createElement("span");
+        sub.className = "lol-tt-sub";
+        caret = document.createElement("span");
+        caret.className = "lol-tt-caret";
+        el.appendChild(content);
+        el.appendChild(sub);
+        el.appendChild(caret);
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function toElement(x) {
+        if (!x) return null;
+        if (x.jquery) return x[0] || null;
+        if (x.nodeType === 1) return x;
+        return null;
+    }
+    function isEvent(x) { return !!x && typeof x.clientX === "number"; }
+    function defaultSkin() {
+        return document.body && document.body.getAttribute("data-client") === "lcu" ? "lcu" : "air-mastery";
+    }
+    function viewport() {
+        return { w: document.documentElement.clientWidth || window.innerWidth, h: window.innerHeight };
+    }
+
+    function placeAtCursor(evt) {
+        var vp = viewport(), w = el.offsetWidth, h = el.offsetHeight;
+        var x = evt.clientX + CURSOR_DX, y = evt.clientY + CURSOR_DY;
+        if (x + w > vp.w - MARGIN) x = evt.clientX - w - 12;
+        if (y + h > vp.h - MARGIN) y = evt.clientY - h - 12;
+        el.style.left = Math.max(4, Math.round(x)) + "px";
+        el.style.top = Math.max(4, Math.round(y)) + "px";
+    }
+
+    function placeAnchored(anchor, pref, withCaret, isAir) {
+        var vp = viewport(), w = el.offsetWidth, h = el.offsetHeight;
+        var r = anchor.getBoundingClientRect();
+        if (isAir) {                       // AIR: below-right of the element, flip at edges
+            var ax = r.right + 4, ay = r.bottom + 4;
+            if (ax + w > vp.w - MARGIN) ax = r.left - w - 4;
+            if (ay + h > vp.h - MARGIN) ay = r.top - h - 4;
+            el.style.left = Math.max(4, Math.round(ax)) + "px";
+            el.style.top = Math.max(4, Math.round(ay)) + "px";
+            return;
+        }
+        var system = el.classList.contains("is-system");
+        var gap = withCaret ? (system ? 10 : 14) : 6;
+        var fits = {
+            top: r.top - gap - h >= MARGIN,
+            bottom: r.bottom + gap + h <= vp.h - MARGIN,
+            right: r.right + gap + w <= vp.w - MARGIN,
+            left: r.left - gap - w >= MARGIN
+        };
+        var opposite = { top: "bottom", bottom: "top", left: "right", right: "left" };
+        var order = (pref === "auto" || !opposite[pref])
+            ? ["top", "bottom", "right", "left"]
+            : [pref, opposite[pref], "top", "bottom", "right", "left"];
+        var pos = order[0];
+        for (var i = 0; i < order.length; i++) if (fits[order[i]]) { pos = order[i]; break; }
+
+        var x, y, caretOff;
+        var caretLen = system ? 16 : 24;
+        if (pos === "top" || pos === "bottom") {
+            x = r.left + r.width / 2 - w / 2;
+            x = Math.min(Math.max(MARGIN, x), vp.w - w - MARGIN);
+            y = pos === "top" ? r.top - gap - h : r.bottom + gap;
+            caretOff = r.left + r.width / 2 - x - 2 - caretLen / 2;          // padding-box coords
+            caretOff = Math.min(Math.max(6, caretOff), w - 4 - caretLen - 6);
+        } else {
+            y = r.top + r.height / 2 - h / 2;
+            y = Math.min(Math.max(MARGIN, y), vp.h - h - MARGIN);
+            x = pos === "right" ? r.right + gap : r.left - gap - w;
+            // rotated caret: its box is caretLen wide before rotation; centre on the anchor
+            caretOff = r.top + r.height / 2 - y - 2 - (system ? 5.5 : 7.5);
+            caretOff = Math.min(Math.max(6, caretOff), h - 4 - caretLen);
+        }
+        el.setAttribute("data-pos", pos);
+        el.style.setProperty("--tt-caret", Math.round(caretOff) + "px");
+        el.style.left = Math.round(x) + "px";
+        el.style.top = Math.round(y) + "px";
+    }
+
+    function show(anchorOrEvent, html, skin, opts) {
+        opts = opts || {};
+        ensure();
+        skin = skin || defaultSkin();
+        var anchor = toElement(anchorOrEvent);
+        var evt = !anchor && isEvent(anchorOrEvent) ? anchorOrEvent : null;
+        var isAir = skin !== "lcu";
+        if (!isAir && !anchor && evt) {
+            var ct = evt.currentTarget;
+            anchor = (ct && ct.nodeType === 1) ? ct : (evt.target && evt.target.nodeType === 1 ? evt.target : null);
+        }
+        state.mode = (isAir && evt && opts.follow !== false) ? "cursor" : (anchor ? "anchor" : "cursor");
+        state.anchor = anchor;
+
+        var withCaret = !isAir && state.mode === "anchor" && opts.caret !== false;
+        el.className = "lol-tt" + (opts.system ? " is-system" : "") + (withCaret ? " has-caret" : "")
+            + (opts.className ? " " + opts.className : "") + (state.visible ? " is-visible" : "");
+        el.setAttribute("data-skin", skin);
+        if (opts.variant) el.setAttribute("data-variant", opts.variant); else el.removeAttribute("data-variant");
+        el.setAttribute("data-pos", opts.position && opts.position !== "auto" ? opts.position : "top");
+        el.style.width = opts.width ? opts.width + "px" : "";
+        if (html && html.nodeType) { content.innerHTML = ""; content.appendChild(html); }
+        else content.innerHTML = html == null ? "" : String(html);
+
+        if (state.mode === "cursor" && evt) placeAtCursor(evt);
+        else if (anchor) placeAnchored(anchor, opts.position || (isAir ? "bottom" : "top"), withCaret, isAir);
+
+        el.classList.add("is-visible");
+        el.setAttribute("aria-hidden", "false");
+        state.visible = true;
+        return el;
+    }
+
+    function move(evt) {
+        if (!state.visible || state.mode !== "cursor" || !isEvent(evt)) return;
+        placeAtCursor(evt);
+    }
+
+    function hide() {
+        if (!el) return;
+        el.classList.remove("is-visible");
+        el.setAttribute("aria-hidden", "true");
+        state.visible = false;
+        state.anchor = null;
+    }
+
+    function attach(target, htmlOrFn, skin, opts) {
+        var nodes = target && target.jquery ? target.toArray()
+            : (target && target.length !== undefined && !target.nodeType ? Array.prototype.slice.call(target) : [target]);
+        nodes.forEach(function(node){
+            if (!node || node.nodeType !== 1) return;
+            var render = function(e){
+                var html = typeof htmlOrFn === "function" ? htmlOrFn(node, e) : htmlOrFn;
+                if (html == null || html === false) return;
+                show(e && e.type !== "focus" ? e : node, html, skin, opts);
+            };
+            node.addEventListener("mouseenter", render);
+            node.addEventListener("focus", render);
+            node.addEventListener("mousemove", function(e){ move(e); });
+            node.addEventListener("mouseleave", hide);
+            node.addEventListener("blur", hide);
+        });
+    }
+
+    return {
+        show: show, move: move, hide: hide, attach: attach,
+        element: function(){ return ensure(); },
+        isVisible: function(){ return state.visible; }
+    };
+})();
+
+// data-lol-tip="…" hover hints (header controls, disabled tabs). Markup only.
+function lolTipHtmlFor(node) {
+    var title = node.getAttribute("data-lol-tip-title");
+    var body = node.getAttribute("data-lol-tip");
+    if (title) return '<div class="tt-title">' + lolEscapeHtml(title) + '</div><div class="tt-body">' + lolEscapeHtml(body) + "</div>";
+    return lolEscapeHtml(body);
+}
+function lolInitTipAttributes() {
+    var current = null;
+    var showFor = function(node){
+        current = node;
+        LolTooltip.show(node, lolTipHtmlFor(node), node.getAttribute("data-lol-tip-skin") || "lcu", {
+            position: node.getAttribute("data-lol-tip-pos") || "bottom",
+            system: !node.getAttribute("data-lol-tip-title"),
+            className: "is-hint"                              // centred, 12px title (LCU hints)
+        });
+    };
+    document.addEventListener("mouseover", function(e){
+        var node = lolClosest(e.target, "[data-lol-tip]");
+        if (node && node !== current) showFor(node);
+    });
+    document.addEventListener("mouseout", function(e){
+        if (!current) return;
+        var to = e.relatedTarget;
+        if (to && current.contains(to)) return;
+        if (lolClosest(e.target, "[data-lol-tip]") !== current) return;
+        current = null;
+        LolTooltip.hide();
+    });
+    document.addEventListener("focusin", function(e){
+        var node = lolClosest(e.target, "[data-lol-tip]");
+        if (node) showFor(node);
+    });
+    document.addEventListener("focusout", function(e){
+        if (current && lolClosest(e.target, "[data-lol-tip]") === current) { current = null; LolTooltip.hide(); }
+    });
+    document.addEventListener("mousedown", function(){
+        if (current) { current = null; LolTooltip.hide(); }
+    }, true);
+}
+
+// ---------------------------------------------------------------------------
+// 4. LolToast — ONE toast for every page. LolToast.show(msg[, {duration}])
+// Uses #toast.lol-toast from the page (or creates it). Shared wording:
+// LolToast.COPIED / LolToast.COPY_FAILED; older per-page strings are mapped
+// onto them so every page says the same thing.
+// ---------------------------------------------------------------------------
+
+var LolToast = window.LolToast = (function(){
+    var timer = null;
+    var COPIED = "URL copied to clipboard", COPY_FAILED = "Copy failed";
+    var ALIASES = { "URL copied": COPIED, "Link copied": COPIED, "Copied": COPIED };
+    function ensure() {
+        var el = document.getElementById("toast");
+        if (!el) {
+            el = document.createElement("div");
+            el.id = "toast";
+            el.setAttribute("role", "status");
+            el.setAttribute("aria-live", "polite");
+            document.body.appendChild(el);
+        }
+        if (!el.classList.contains("lol-toast")) el.classList.add("lol-toast");
+        return el;
+    }
+    function show(msg, opts) {
+        var el = ensure();
+        msg = msg == null ? "" : String(msg);
+        el.textContent = ALIASES.hasOwnProperty(msg) ? ALIASES[msg] : msg;
+        el.classList.add("visible");
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function(){ el.classList.remove("visible"); }, (opts && opts.duration) || 2000);
+    }
+    function hide() {
+        var el = document.getElementById("toast");
+        if (el) el.classList.remove("visible");
+    }
+    return { show: show, hide: hide, COPIED: COPIED, COPY_FAILED: COPY_FAILED };
+})();
+
+// ---------------------------------------------------------------------------
+// 5. LCU framed-dropdown option list. Mouse users get the LCU list instead of
+// the native popup for select.lcu-select; the <select> stays the source of
+// truth (value + bubbling "change"), so jQuery handlers keep working.
+// ---------------------------------------------------------------------------
+
+var LolDropdown = window.LolDropdown = (function(){
+    var list = null, openSel = null;
+    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+
+    function close() {
+        if (list && list.parentNode) list.parentNode.removeChild(list);
+        if (openSel) openSel.classList.remove("is-open");
+        list = null;
+        openSel = null;
+    }
+
+    function choose(sel, index) {
+        var changed = sel.selectedIndex !== index;
+        close();
+        if (!changed) return;
+        sel.selectedIndex = index;
+        var ev;
+        try { ev = new Event("change", { bubbles: true }); }
+        catch (e) { ev = document.createEvent("HTMLEvents"); ev.initEvent("change", true, false); }
+        sel.dispatchEvent(ev);
+    }
+
+    function open(sel) {
+        close();
+        var r = sel.getBoundingClientRect();
+        list = document.createElement("div");
+        list.className = "lcu-dropdown-list";
+        list.setAttribute("role", "listbox");
+        for (var i = 0; i < sel.options.length; i++) {
+            var o = sel.options[i];
+            var row = document.createElement("div");
+            row.className = "lcu-dropdown-option"
+                + (i === sel.selectedIndex ? " is-selected" : "")
+                + (o.disabled ? " is-disabled" : "");
+            row.setAttribute("role", "option");
+            row.setAttribute("data-index", i);
+            row.textContent = o.text;
+            list.appendChild(row);
+        }
+        document.body.appendChild(list);
+        list.style.minWidth = Math.round(r.width) + "px";
+        var vpw = document.documentElement.clientWidth, vph = window.innerHeight;
+        var lw = list.offsetWidth, lh = list.offsetHeight;
+        var left = Math.min(r.left, vpw - lw - 4);
+        var top = r.bottom - 1;
+        if (top + lh > vph - 4 && r.top - lh > 4) top = r.top - lh + 1;
+        list.style.left = Math.max(4, Math.round(left)) + "px";
+        list.style.top = Math.round(top) + "px";
+        var selRow = list.querySelector(".is-selected");
+        if (selRow) list.scrollTop = Math.max(0, selRow.offsetTop - (list.clientHeight - selRow.offsetHeight) / 2);
+        list.addEventListener("mousedown", function(e){ e.preventDefault(); });
+        list.addEventListener("click", function(e){
+            var row = lolClosest(e.target, ".lcu-dropdown-option");
+            if (!row || row.classList.contains("is-disabled")) return;
+            choose(sel, parseInt(row.getAttribute("data-index"), 10));
+        });
+        sel.classList.add("is-open");
+        openSel = sel;
+    }
+
+    function init() {
+        if (coarse) return;                                  // native picker on touch
+        document.addEventListener("mousedown", function(e){
+            var sel = lolClosest(e.target, "select.lcu-select");
+            if (list && !sel && !lolClosest(e.target, ".lcu-dropdown-list")) close();
+            if (!sel || e.button !== 0 || sel.disabled || sel.multiple) return;
+            e.preventDefault();
+            if (openSel === sel) { close(); return; }
+            sel.focus();
+            open(sel);
+        });
+        document.addEventListener("keydown", function(e){
+            if (!list) return;
+            if (e.key === "Escape") { e.preventDefault(); close(); return; }
+            close();                                          // keyboard → native behaviour
+        });
+        window.addEventListener("resize", close);
+        window.addEventListener("scroll", function(e){
+            if (list && e.target !== list && !(list.contains && list.contains(e.target))) close();
+        }, true);
+        window.addEventListener("blur", close);
+    }
+
+    return { init: init, close: close, isOpen: function(){ return !!list; } };
+})();
+
+// ---------------------------------------------------------------------------
+// 6. Stage scale-to-fit. <div class="lol-stage" [data-stage-width="1012"]
+// [data-stage-height] [data-stage-min-scale="0.5"]> wraps a fixed-size
+// calculator (no width attribute = its own laid-out width). Order of
+// resort when it is too wide: spill into the parent's side padding (down
+// to a 4px gutter) at scale 1, then scale down (never up), and below the
+// min scale pan horizontally inside the column (.is-panning). base.css §3.
+// ---------------------------------------------------------------------------
+
+var LolStage = window.LolStage = (function(){
+    var observer = null, pending = false;
+
+    function innerOf(stage) {
+        var inner = null;
+        for (var c = stage.firstElementChild; c; c = c.nextElementSibling)
+            if (c.classList.contains("lol-stage-inner")) { inner = c; break; }
+        if (!inner) {
+            inner = document.createElement("div");
+            inner.className = "lol-stage-inner";
+            while (stage.firstChild) inner.appendChild(stage.firstChild);
+            stage.appendChild(inner);
+        }
+        return inner;
+    }
+
+    var MIN_GUTTER = 4;          // px kept free at each side before scaling
+    var DEFAULT_MIN_SCALE = 0.5; // below this the stage pans instead
+
+    function fitOne(stage) {
+        var inner = innerOf(stage);
+        var W = parseFloat(stage.getAttribute("data-stage-width")) || 0;
+        var H = parseFloat(stage.getAttribute("data-stage-height")) || 0;
+        var minScale = parseFloat(stage.getAttribute("data-stage-min-scale"));
+        if (!(minScale > 0 && minScale <= 1)) minScale = DEFAULT_MIN_SCALE;
+        if (W) inner.style.width = W + "px";
+        var parent = stage.parentNode;
+        var cs = window.getComputedStyle(parent);
+        var padL = parseFloat(cs.paddingLeft) || 0, padR = parseFloat(cs.paddingRight) || 0;
+        var full = parent.clientWidth;                       // incl. padding
+        var column = full - padL - padR;                     // padded column
+        var w = W || inner.offsetWidth;
+        var h = Math.max(H, inner.offsetHeight);
+        // Gutter first: the stage may spill into the parent's side padding
+        // (down to MIN_GUTTER a side) at scale 1; only then does it scale.
+        var room = Math.max(column, full - 2 * MIN_GUTTER);
+        var s = w > 0 && room > 0 ? Math.min(1, room / w) : 1;
+        var panning = s < minScale;
+        if (panning) s = minScale;
+        var vw = Math.floor(w * s), vh = Math.ceil(h * s);
+        inner.style.transform = s < 1 ? "scale(" + s + ")" : "";
+        stage.classList.toggle("is-panning", panning);
+        if (panning) {
+            // Pan well the width of the padded column; the page never h-scrolls.
+            stage.style.width = Math.max(0, Math.floor(column)) + "px";
+            stage.style.marginLeft = stage.style.marginRight = "";
+            stage.style.height = vh + "px";
+            var bar = stage.offsetHeight - stage.clientHeight;  // classic scrollbar
+            if (bar > 0) stage.style.height = (vh + bar) + "px";
+        } else {
+            var spill = Math.max(0, vw - column);
+            stage.style.width = vw + "px";
+            stage.style.height = vh + "px";
+            stage.style.marginLeft = stage.style.marginRight = spill ? (-spill / 2) + "px" : "";
+        }
+        stage.style.setProperty("--lol-stage-scale", s);
+        stage.setAttribute("data-stage-scale", s.toFixed(4));
+        stage.classList.add("is-fitted");
+    }
+
+    function fit() {
+        pending = false;
+        var stages = document.querySelectorAll(".lol-stage");
+        for (var i = 0; i < stages.length; i++) fitOne(stages[i]);
+    }
+
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        (window.requestAnimationFrame || setTimeout)(fit);
+    }
+
+    function init() {
+        fit();
+        window.addEventListener("resize", schedule);
+        if (window.ResizeObserver) {
+            observer = new ResizeObserver(schedule);
+            var stages = document.querySelectorAll(".lol-stage");
+            for (var i = 0; i < stages.length; i++) observer.observe(innerOf(stages[i]));
+        }
+        window.addEventListener("load", schedule);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    }
+
+    // Current scale of the stage containing `el` (1 when not staged).
+    function scale(el) {
+        var stage = el && el.nodeType === 1 ? lolClosest(el, ".lol-stage") : null;
+        return stage ? (parseFloat(stage.getAttribute("data-stage-scale")) || 1) : 1;
+    }
+
+    return { init: init, fit: fit, scale: scale };
+})();
+
+// ---------------------------------------------------------------------------
+// 7. LCU flat-button click animation (.is-click for 450ms).
+// ---------------------------------------------------------------------------
+
+function lolInitFlatButtons() {
+    document.addEventListener("click", function(e){
+        var btn = lolClosest(e.target, ".lcu-btn");
+        if (!btn || btn.disabled || btn.classList.contains("disabled")) return;
+        btn.classList.remove("is-click");
+        void btn.offsetWidth;                                  // restart the animation
+        btn.classList.add("is-click");
+        clearTimeout(btn._lolClickTimer);
+        btn._lolClickTimer = setTimeout(function(){ btn.classList.remove("is-click"); }, 450);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Boot. DOMContentLoaded listeners registered here run before the jQuery
+// ready handlers of the calculators (nav.js loads first).
+// ---------------------------------------------------------------------------
+
+lolOnReady(function(){
+    if (!document.body.getAttribute("data-client")) setClientEra("air");
+    LolStage.init();
+    LolDropdown.init();
+    lolInitTipAttributes();
+    lolInitFlatButtons();
+});

@@ -3,10 +3,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Masteries · Legacy LoL Calculator</title>
+        <link rel="icon" type="image/png" href="images/lcu/runes-icon-32.png" />
+        <script type="text/javascript" src="nav.js"></script>
+        <script type="text/javascript" src="air-sheet.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Marcellus&amp;family=Marcellus+SC&amp;family=Source+Sans+3:wght@400;600;700&amp;family=Spectral+SC:wght@500;600;700&amp;family=Spectral:wght@500;600;700&amp;display=swap" />
         <link rel="stylesheet" href="css/base.css" type="text/css" />
         <link rel="stylesheet" href="css/masteries-classic.css" type="text/css" />
         <link rel="stylesheet" href="css/masteries-keystone.css" type="text/css" />
-        <title>Legacy LoL Mastery Calculator</title>
+        <link rel="stylesheet" href="css/air-sheet.css" type="text/css" />
         <script type="text/javascript">
             // Preload sprites
             (new Image()).src = "images/button-icons.jpg";
@@ -14,26 +22,57 @@
             (new Image()).src = "images/tree-icons.png";
         </script>
     </head>
-    <body>
+    <body data-client="air">
+        <script type="text/javascript">lolBootClientEra();</script>
         <header class="legacy-header">
-            <div class="header-title">Legacy LoL Calculator</div>
-            <nav class="header-tabs">
-                <a class="header-tab active" href="index.html">Masteries</a>
-                <a class="header-tab" href="runes.html">Runes</a>
-                <a class="header-tab" href="runes-reforged.html">Runes Reforged</a>
-            </nav>
-            <div class="header-right">
-                <label class="header-select-label">Season<select id="season-select" class="lol-select"></select></label>
-                <label class="header-select-label">Patch<select id="patch-select" class="lol-select"></select></label>
-                <a id="exportLink" href="#" title="Direct link to this mastery page">Link</a>
-                <button id="share" class="header-action-btn" type="button" title="Copy shareable URL to clipboard">Share</button>
+            <div class="header-bar">
+                <a class="header-brand" href="index.html"><img class="header-brand-mark" src="images/lcu/runes-icon-32.png" width="24" height="24" alt="" /><span class="header-title">Legacy LoL Calculator</span></a>
+                <nav class="header-tabs">
+                    <a class="header-tab active" href="index.html#s3-pbe|">Masteries</a>
+                    <a class="header-tab" href="runes.html#preReforged-V3.14|">Runes</a>
+                </nav>
+                <div class="header-right">
+                    <div class="header-controls">
+                        <label class="header-select-label"><span class="header-select-text">Season</span><select id="season-select" class="lol-select lcu-select header-season"><option value="s3" selected="selected">Season 3</option></select></label>
+                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="patch-select" class="lol-select lcu-select header-patch"><option value="s3-pbe" selected="selected">V1.0.0.152 (Preseason 3)</option></select></label>
+                        <a id="exportLink" class="header-link lcu-link" href="#" aria-label="Direct link to this mastery page" data-lol-tip="Direct link to this mastery page"><span class="lcu-link-text">Link</span></a>
+                    </div>
+                    <button id="share" class="lcu-btn header-share" type="button" aria-label="Copy shareable URL to clipboard" data-lol-tip="Copy a shareable link to the clipboard">Share</button>
+                </div>
             </div>
-            <div id="toast" role="status" aria-live="polite"></div>
         </header>
+        <script type="text/javascript">lolBootHeader();</script>
 
-        <div id="s2masteries">
-            <div class="art-top"></div>
-            <div class="art-bottom"></div>
+        <main class="site-main">
+        <div class="lol-stage"><div class="lol-stage-inner">
+        <!-- AIR profile sheet (css/air-sheet.css, air-sheet.js). The same
+             sheet wraps runes.html. body[data-client="lcu"] hides the sheet
+             chrome and #s2masteries falls back to the plain keystone box. -->
+        <div id="s2masteries" class="air-sheet" data-air-page="masteries" data-air-season="s3" data-air-period="2012">
+            <div class="air-sheet-head">
+                <div class="air-sheet-tabrow" aria-hidden="true">
+                    <div class="air-name-tab"><span class="air-name">Summoner</span></div>
+                    <span class="air-folder-tab">Ranked Teams</span>
+                    <span class="air-btn air-sheet-cta">Create a Ranked Team</span>
+                    <span class="air-search air-search-top"></span>
+                </div>
+                <nav class="air-subtabs" aria-label="Summoner profile">
+                    <span class="air-subtab" aria-hidden="true">Profile</span>
+                    <span class="air-subtab" aria-hidden="true">Ranked Stats</span>
+                    <span class="air-subtab" aria-hidden="true">Match History</span>
+                    <span class="air-subtab" aria-hidden="true">Champions</span>
+                    <a class="air-subtab is-link" data-air-link="runes" href="runes.html#preReforged-V3.14|">Runes</a>
+                    <span class="air-subtab is-active" data-air-link="masteries" aria-current="page">Masteries</span>
+                    <span class="air-subtab" aria-hidden="true">Spells</span>
+                    <span class="air-subtab is-disabled" aria-hidden="true">Achievements</span>
+                    <span class="air-search" aria-hidden="true">Find Summoner</span>
+                </nav>
+            </div>
+            <div class="air-sheet-body">
+            <div class="air-sheet-main">
+            <div class="air-sheet-toolbar" aria-hidden="true">
+                <div class="air-chips air-page-chips"><span class="air-chip is-selected">1</span><span class="air-chip">2</span><span class="air-chip">3</span><span class="air-chip">4</span><span class="air-chip">5</span><span class="air-chip">6</span><span class="air-chip">7</span><span class="air-chip">8</span><span class="air-chip">9</span><span class="air-chip">10</span><span class="air-chip air-chip-add"></span></div>
+            </div>
             <div id="panel">
                 <div class="left">
                     <div id="points">
@@ -50,10 +89,20 @@
                  keystone mastery system (V5.22 through V7.21). The active
                  dataset's `system` field picks which container is visible. -->
             <div id="keystone-calculator"></div>
+            </div>
+            </div>
         </div>
+        <script type="text/javascript">AirSheet.boot();</script>
+        </div></div>
+        </main>
 
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-        <script type="text/javascript" src="nav.js"></script>
+        <footer class="site-footer">
+            <p>Legacy LoL Calculator isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+            <p>A fan-made historical calculator. Game data and art: <a href="https://developer.riotgames.com/docs/lol#data-dragon">Riot Data Dragon</a> · <a href="https://www.communitydragon.org/">CommunityDragon</a>.</p>
+        </footer>
+        <div id="toast" class="lol-toast" role="status" aria-live="polite"></div>
+
+        <script type="text/javascript" src="vendor/jquery-1.7.0.min.js"></script>
         <script type="text/javascript" src="season1-data.js"></script>
         <script type="text/javascript" src="season2-data.js"></script>
         <script type="text/javascript" src="season4-data.js"></script>
@@ -66,4 +115,3 @@
         <script type="text/javascript" src="keystone-calculator.js"></script>
     </body>
 </html>
-    

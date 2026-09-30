@@ -471,6 +471,7 @@ function rebuildRunePatchSelect(season, selectedId) {
 // Season dropdown + tabs come from the shared season-led nav (nav.js); the
 // patch dropdown stays page-local and lists this season's snapshots.
 function refreshRunesSeasonNav(dataSet) {
+    if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
     if (typeof buildSeasonNav !== "function") return;
     buildSeasonNav({
         page: "runes",
@@ -517,6 +518,7 @@ function copyToClipboard(text) {
 }
 
 function showToast(msg) {
+    if (window.LolToast) return LolToast.show(msg);
     var $t = $("#toast").text(msg).addClass("visible");
     if (_runeToastTimer) clearTimeout(_runeToastTimer);
     _runeToastTimer = setTimeout(function(){ $t.removeClass("visible"); }, 1800);

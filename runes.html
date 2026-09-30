@@ -3,34 +3,73 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Runes · Legacy LoL Calculator</title>
+        <link rel="icon" type="image/png" href="images/lcu/runes-icon-32.png" />
+        <script type="text/javascript" src="nav.js"></script>
+        <script type="text/javascript" src="air-sheet.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Marcellus&amp;family=Marcellus+SC&amp;family=Source+Sans+3:wght@400;600;700&amp;family=Spectral+SC:wght@500;600;700&amp;family=Spectral:wght@500;600;700&amp;display=swap" />
         <link rel="stylesheet" href="css/base.css" type="text/css" />
         <link rel="stylesheet" href="css/runes-legacy.css" type="text/css" />
-        <title>Legacy Rune Builder</title>
+        <link rel="stylesheet" href="css/air-sheet.css" type="text/css" />
     </head>
-    <body class="runes-page">
+    <body class="runes-page" data-client="lcu">
+        <script type="text/javascript">lolBootClientEra();</script>
         <header class="legacy-header">
-            <div class="header-title">Legacy LoL Calculator</div>
-            <nav class="header-tabs">
-                <a class="header-tab" href="index.html">Masteries</a>
-                <a class="header-tab active" href="runes.html">Runes</a>
-                <a class="header-tab" href="runes-reforged.html">Runes Reforged</a>
-            </nav>
-            <div class="header-right">
-                <label class="header-select-label">Season<select id="season-select" class="lol-select"></select></label>
-                <label class="header-select-label">Patch<select id="patch-select" class="lol-select"></select></label>
-                <a id="exportLink" href="#" title="Direct link to this rune page">Link</a>
-                <button id="share" class="header-action-btn" type="button" title="Copy shareable URL to clipboard">Share</button>
+            <div class="header-bar">
+                <a class="header-brand" href="index.html"><img class="header-brand-mark" src="images/lcu/runes-icon-32.png" width="24" height="24" alt="" /><span class="header-title">Legacy LoL Calculator</span></a>
+                <nav class="header-tabs">
+                    <a class="header-tab" href="index.html#s7-final|">Masteries</a>
+                    <a class="header-tab active" href="runes.html#preReforged-V7.21|">Runes</a>
+                </nav>
+                <div class="header-right">
+                    <div class="header-controls">
+                        <label class="header-select-label"><span class="header-select-text">Season</span><select id="season-select" class="lol-select lcu-select header-season"><option value="s7" selected="selected">Season 7</option></select></label>
+                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="patch-select" class="lol-select lcu-select header-patch"><option value="preReforged-V7.21" selected="selected">V7.21 (Final pre-Reforged)</option></select></label>
+                        <a id="exportLink" class="header-link lcu-link" href="#" aria-label="Direct link to this rune page" data-lol-tip="Direct link to this rune page"><span class="lcu-link-text">Link</span></a>
+                    </div>
+                    <button id="share" class="lcu-btn header-share" type="button" aria-label="Copy shareable URL to clipboard" data-lol-tip="Copy a shareable link to the clipboard">Share</button>
+                </div>
             </div>
-            <div id="toast" role="status" aria-live="polite"></div>
         </header>
+        <script type="text/javascript">lolBootHeader();</script>
 
-        <div class="legacy-app">
+        <main class="site-main">
+        <div class="lol-stage" data-stage-width="1271"><div class="lol-stage-inner">
+        <!-- AIR profile sheet (css/air-sheet.css, air-sheet.js), painted
+             variant: the sheet IS #parchment's full art; the head overlays
+             its empty band (art y 11-155). Hidden when body[data-client=lcu]. -->
+        <div class="legacy-app air-sheet air-sheet--painted" data-air-page="runes" data-air-season="s7" data-air-period="2014">
+            <div class="air-sheet-head">
+                <div class="air-sheet-tabrow" aria-hidden="true">
+                    <div class="air-name-tab"><span class="air-name">Summoner</span></div>
+                    <span class="air-folder-tab">Ranked Teams</span>
+                    <span class="air-btn air-sheet-cta">Create a Ranked Team</span>
+                    <span class="air-search air-search-top"></span>
+                </div>
+                <nav class="air-subtabs" aria-label="Summoner profile">
+                    <span class="air-subtab" aria-hidden="true">Profile</span>
+                    <span class="air-subtab" aria-hidden="true">Leagues</span>
+                    <span class="air-subtab" aria-hidden="true">Match History</span>
+                    <span class="air-subtab" aria-hidden="true">Champions</span>
+                    <span class="air-subtab is-active" data-air-link="runes" aria-current="page">Runes</span>
+                    <a class="air-subtab is-link" data-air-link="masteries" href="index.html#s7-final|">Masteries</a>
+                    <span class="air-subtab" aria-hidden="true">Spells</span>
+                    <span class="air-subtab" aria-hidden="true">Item Sets</span>
+                    <span class="air-search" aria-hidden="true">Find Summoner</span>
+                </nav>
+            </div>
+            <div class="air-sheet-toolbar" aria-hidden="true">
+                <div class="air-chips air-page-chips air-chips--rune"><span class="air-chip is-selected">1</span><span class="air-chip">2</span><span class="air-chip">3</span><span class="air-chip">4</span><span class="air-chip">5</span><span class="air-chip">6</span></div>
+            </div>
 
             <!-- Three-column layout: rune library | slot canvas | statistics.
-                 The canvas crops the legacy parchment art to just the slot
-                 region (logical 240,110 - 830,580 of the 1024x615 image), so
-                 the side panels are ordinary DOM and can never drift off the
-                 painted art. -->
+                 AIR (V3.14-V6.24): air-sheet.css pins the columns onto the
+                 painted panels and #parchment spans the whole sheet (no crop).
+                 LCU (V7.21): the canvas still crops the art to the slot
+                 region (logical 240,110 - 830,580 of the 1024x615 image). -->
             <div class="runes-layout">
                 <aside class="runes-panel runes-panel-left">
                     <div class="rune-filter-row">
@@ -77,9 +116,17 @@
                 </aside>
             </div>
         </div>
+        <script type="text/javascript">AirSheet.boot();</script>
+        </div></div>
+        </main>
 
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-        <script type="text/javascript" src="nav.js"></script>
+        <footer class="site-footer">
+            <p>Legacy LoL Calculator isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+            <p>A fan-made historical calculator. Game data and art: <a href="https://developer.riotgames.com/docs/lol#data-dragon">Riot Data Dragon</a> · <a href="https://www.communitydragon.org/">CommunityDragon</a>.</p>
+        </footer>
+        <div id="toast" class="lol-toast" role="status" aria-live="polite"></div>
+
+        <script type="text/javascript" src="vendor/jquery-1.7.0.min.js"></script>
         <script type="text/javascript" src="runes-data.js"></script>
         <script type="text/javascript" src="runes-calculator.js"></script>
     </body>
