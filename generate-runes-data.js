@@ -6,12 +6,14 @@
 // The catalogs are the machine-readable source of truth for each pre-Reforged
 // season we ship: names, tiers, stats, and icon filenames all come straight
 // from Riot's data. The final pre-Reforged patch (V7.21) is generated first
-// and stays the default; older seasons (V5.21, V4.20) follow. The only values
-// not present in a rune's `stats` block are the Lethality amounts (Data Dragon
-// never grew a lethality stat key), which we parse out of the description text
-// on catalogs new enough to carry them (V6.22+). Older catalogs express
-// physical penetration as flat armor penetration (rFlatArmorPenetrationMod),
-// which we map to the "arpen" stat rather than lethality.
+// and stays the default; the other seasons follow in DATASETS order. The only
+// values not present in a rune's `stats` block are the Lethality amounts
+// (Data Dragon never grew a lethality stat key), which we parse out of the
+// description text on catalogs new enough to carry them (V6.22+). Older
+// catalogs express physical penetration as flat armor penetration
+// (rFlatArmorPenetrationMod), which we map to the "arpen" stat rather than
+// lethality. Where Data Dragon's text is wrong, a cited DESC_FIXES entry
+// replaces it before parsing (see there).
 
 const fs = require("fs");
 const path = require("path");
@@ -120,6 +122,28 @@ const STAT_MAP = {
 // standard runes with unique art; sorted to the end of each category.
 const isEventRune = (id) => Number(id) >= 8000;
 
+// Description text Data Dragon gets wrong, keyed by rune id. A fix applies
+// only while the catalog still carries the exact bad text (`was`), so a
+// catalog without it is left alone. The fixed text is then parsed like any
+// other description.
+//   5401 Mark of Precision (V6.22-V7.21 catalogs): "+0.7 Leth / +0.48 M.Pen"
+//   is stale short text, not an abbreviated lethality value. It kept the
+//   pre-V6.22 Mark of Hybrid Penetration amount (+0.7 flat armor pen; the
+//   V6.5-V6.21 catalogs say "+0.7 AMP / +0.48 MP"). The League Client's own
+//   rune data (CommunityDragon plugins/rcp-be-lol-game-data runes.json,
+//   7.1-7.21) has stats {rPhysicalLethality: 0.88, rFlatMagicPenetrationMod:
+//   0.48} and description "+0.88 Lethality / +0.48 Magic Penetration"; the
+//   V6.22 notes convert hybrid pen x1.2556 (Greater Mark 0.9 -> 1.13), which
+//   gives 0.7 -> 0.88 too. 5400 / 5402 already carry the converted values.
+const DESC_FIXES = {
+    "5401": { was: "+0.7 Leth / +0.48 M.Pen", desc: "+0.88 Lethality / +0.48 Magic Penetration" },
+};
+
+function runeDescription(id, entry) {
+    const fix = DESC_FIXES[id];
+    return fix && entry.description === fix.was ? fix.desc : entry.description;
+}
+
 function round4(v) {
     return Math.round(v * 10000) / 10000;
 }
@@ -137,12 +161,19 @@ function convertStats(id, entry) {
     // Some values live only in the description text: Lethality (V6.22+),
     // and in the V3.14 catalog Energy, Energy Regen, Life Steal, and Spell
     // Vamp shipped with empty stats blocks. Regen descs are already per-5s.
-    const desc = entry.description;
+    // A description value only fills a stat the stats block lacks; the
+    // stats block stays authoritative. Short stat text ("Leth") is not
+    // trusted: the one case seen was stale (DESC_FIXES 5401), so a new one
+    // stops the run instead of shipping a guessed value.
+    const desc = runeDescription(id, entry);
+    if (/\bLeth\b/i.test(desc))
+        throw new Error(`Rune ${id} (${entry.name}): short lethality text "${desc}"; check it against the client data and add a DESC_FIXES entry`);
     const descStat = (re, key, target = base) => {
         const m = re.exec(desc);
         if (m && !(key in target)) target[key] = round4(parseFloat(m[1]));
     };
-    descStat(/([\d.]+)\s+lethality/i, "lethality");
+    descStat(/\+([\d.]+)\s+lethality\b/i, "lethality");
+    descStat(/\+([\d.]+)\s+magic\s+penetration\b/i, "mpen");
     descStat(/\+([\d.]+)%\s+life\s?steal/i, "ls");
     descStat(/\+([\d.]+)%\s+spell\s?vamp/i, "sv");
     descStat(/\+([\d.]+)\s+Energy regen\/5 sec per level/i, "energyRegen", perLevel);
@@ -166,7 +197,7 @@ function parseCatalog(catalog) {
             category: category,
             tier: Number(entry.rune.tier),
             icon: entry.image.full,
-            desc: entry.description,
+            desc: runeDescription(id, entry),
             event: isEventRune(id),
             base: base,
             perLevel: perLevel,
@@ -230,19 +261,29 @@ function main() {
         summary.push({ id: cfg.id, version: catalog.version, count: runes.length, byCat });
     }
 
+    // Header lists, built from DATASETS so a regenerate keeps them current.
+    const wrap = (text, prefix) => {
+        const lines = [];
+        let line = prefix;
+        for (const word of text.split(" ")) {
+            if (line.length + word.length + 1 > 79 && line.trim() !== "//") { lines.push(line); line = "//"; }
+            line += " " + word;
+        }
+        lines.push(line);
+        return lines.join("\n");
+    };
+    const andList = (items) => items.length < 2 ? items.join("") : items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+    const snapshots = DATASETS.map((cfg) => cfg.patchLabel);
+    const catalogs = DATASETS.map((cfg) => cfg.catalog);
+    const fixedIds = Object.keys(DESC_FIXES).join(", ");
     const out = `// Pre-Runes-Reforged rune catalogs (the system retired with patch V7.22 on
-// 2017-11-08). Ships one dataset per pre-Reforged season we support: the final
-// pre-Reforged patch (V7.21, the default) plus late-season snapshots of
-// Season 5 (V5.21) and Season 4 (V4.20).
+// 2017-11-08). Ships one dataset per pre-Reforged snapshot we support, the
+${wrap(`first being the default: ${andList(snapshots)}.`, "//")}
 //
 // GENERATED FILE — do not edit by hand. Regenerate with:
 //     node generate-runes-data.js
 // Sources of truth: the Riot Data Dragon rune.json catalogs under data/
-// (runes-V7.21.1.json, runes-V5.21.1.json, runes-V4.20.2.json). Stats, names,
-// tiers, and icon filenames come straight from Riot's data; Lethality values
-// are parsed from description text on catalogs that carry them (V6.22+). Older
-// catalogs express physical penetration as flat armor penetration and are
-// mapped to the "arpen" stat instead.
+${wrap(`(${catalogs.join(", ")}). Stats, names, tiers, and icon filenames come straight from Riot's data; Lethality values are parsed from description text on catalogs that carry them (V6.22+). Older catalogs express physical penetration as flat armor penetration and are mapped to the "arpen" stat instead. Description text Data Dragon gets wrong is replaced by a cited fix in the generator's DESC_FIXES before parsing (rune ${fixedIds}).`, "//")}
 //
 // Each rune entry has:
 //   id          Riot's numeric rune id (stable; used in shareable URLs)

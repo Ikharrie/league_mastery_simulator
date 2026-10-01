@@ -1,16 +1,18 @@
 // Pre-Runes-Reforged rune catalogs (the system retired with patch V7.22 on
-// 2017-11-08). Ships one dataset per pre-Reforged season we support: the final
-// pre-Reforged patch (V7.21, the default) plus late-season snapshots of
-// Season 5 (V5.21) and Season 4 (V4.20).
+// 2017-11-08). Ships one dataset per pre-Reforged snapshot we support, the
+// first being the default: V7.21 (Final pre-Reforged), V6.24 (Late Season 6),
+// V5.21 (Late Season 5), V4.20 (Late Season 4) and V3.14 (Late Season 3).
 //
 // GENERATED FILE — do not edit by hand. Regenerate with:
 //     node generate-runes-data.js
 // Sources of truth: the Riot Data Dragon rune.json catalogs under data/
-// (runes-V7.21.1.json, runes-V5.21.1.json, runes-V4.20.2.json). Stats, names,
-// tiers, and icon filenames come straight from Riot's data; Lethality values
-// are parsed from description text on catalogs that carry them (V6.22+). Older
-// catalogs express physical penetration as flat armor penetration and are
-// mapped to the "arpen" stat instead.
+// (runes-V7.21.1.json, runes-V6.24.1.json, runes-V5.21.1.json,
+// runes-V4.20.2.json, runes-V3.14.41.json). Stats, names, tiers, and icon
+// filenames come straight from Riot's data; Lethality values are parsed from
+// description text on catalogs that carry them (V6.22+). Older catalogs
+// express physical penetration as flat armor penetration and are mapped to the
+// "arpen" stat instead. Description text Data Dragon gets wrong is replaced by
+// a cited fix in the generator's DESC_FIXES before parsing (rune 5401).
 //
 // Each rune entry has:
 //   id          Riot's numeric rune id (stable; used in shareable URLs)
@@ -74,7 +76,7 @@ var runeDataSets = [
             { id: "5137", name: "Mark of Magic Resist", category: "mark", tier: 2, icon: "r_3_2.png", desc: "+0.6 magic resist", base: {mr: 0.6} },
             { id: "5147", name: "Mark of Mana", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+4.59 mana", base: {mp: 4.5938} },
             { id: "5149", name: "Mark of Mana Regeneration", category: "mark", tier: 2, icon: "r_3_2.png", desc: "+0.2 mana regen / 5 sec.", base: {mpRegen: 0.204} },
-            { id: "5401", name: "Mark of Precision", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+0.7 Leth / +0.48 M.Pen", base: {mpen: 0.48} },
+            { id: "5401", name: "Mark of Precision", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+0.88 Lethality / +0.48 Magic Penetration", base: {mpen: 0.48, lethality: 0.88} },
             { id: "5146", name: "Mark of Scaling Ability Power", category: "mark", tier: 2, icon: "r_4_2.png", desc: "+0.08 ability power per level (+1.44 at champion level 18)", perLevel: {ap: 0.0808} },
             { id: "5124", name: "Mark of Scaling Attack Damage", category: "mark", tier: 2, icon: "r_2_2.png", desc: "+0.1 attack damage per level (+1.89 at champion level 18)", perLevel: {ad: 0.105} },
             { id: "5134", name: "Mark of Scaling Health", category: "mark", tier: 2, icon: "r_4_2.png", desc: "+0.42 health per level (+7.56 at champion level 18)", perLevel: {hp: 0.4207} },
@@ -383,7 +385,7 @@ var runeDataSets = [
             { id: "5137", name: "Mark of Magic Resist", category: "mark", tier: 2, icon: "r_3_2.png", desc: "+0.6 magic resist", base: {mr: 0.6} },
             { id: "5147", name: "Mark of Mana", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+4.59 mana", base: {mp: 4.5938} },
             { id: "5149", name: "Mark of Mana Regeneration", category: "mark", tier: 2, icon: "r_3_2.png", desc: "+0.2 mana regen / 5 sec.", base: {mpRegen: 0.2042} },
-            { id: "5401", name: "Mark of Precision", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+0.7 Leth / +0.48 M.Pen", base: {mpen: 0.48} },
+            { id: "5401", name: "Mark of Precision", category: "mark", tier: 2, icon: "r_1_2.png", desc: "+0.88 Lethality / +0.48 Magic Penetration", base: {mpen: 0.48, lethality: 0.88} },
             { id: "5146", name: "Mark of Scaling Ability Power", category: "mark", tier: 2, icon: "r_4_2.png", desc: "+0.08 ability power per level (+1.44 at champion level 18)", perLevel: {ap: 0.0808} },
             { id: "5124", name: "Mark of Scaling Attack Damage", category: "mark", tier: 2, icon: "r_2_2.png", desc: "+0.1 attack damage per level (+1.89 at champion level 18)", perLevel: {ad: 0.105} },
             { id: "5134", name: "Mark of Scaling Health", category: "mark", tier: 2, icon: "r_4_2.png", desc: "+0.42 health per level (+7.56 at champion level 18)", perLevel: {hp: 0.4207} },
