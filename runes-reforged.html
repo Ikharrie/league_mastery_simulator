@@ -34,29 +34,12 @@
         <script type="text/javascript">lolBootHeader();</script>
 
         <main class="site-main">
-        <div class="lol-stage" data-stage-width="1138"><div class="lol-stage-inner">
-        <div id="reforged-calculator">
-            <div class="reforged-loading">Loading runes catalog…</div>
-            <div class="reforged-page" hidden="hidden">
-                <!-- Two-column layout: primary path on the left, secondary
-                     path on the right, with shards spanning across the
-                     bottom. Renders dynamically from runesReforged.json. -->
-                <section class="reforged-column reforged-primary">
-                    <header class="reforged-col-header">
-                        <div class="reforged-col-label">Primary Path</div>
-                        <div class="reforged-path-strip" id="reforged-primary-strip"></div>
-                    </header>
-                    <div class="reforged-slots" id="reforged-primary-slots"></div>
-                </section>
-                <section class="reforged-column reforged-secondary">
-                    <header class="reforged-col-header">
-                        <div class="reforged-col-label">Secondary Path</div>
-                        <div class="reforged-path-strip" id="reforged-secondary-strip"></div>
-                    </header>
-                    <div class="reforged-slots" id="reforged-secondary-slots"></div>
-                    <div class="reforged-shards" id="reforged-shards"></div>
-                </section>
-            </div>
+        <div class="lol-stage" data-stage-width="1055" data-stage-height="635"><div class="lol-stage-inner">
+        <!-- The League Client rune page editor (1055x635 perks panel).
+             runes-reforged.js builds the scene, columns, page-name row and
+             settings inside; css/runes-reforged.css holds the geometry. -->
+        <div id="reforged-calculator" class="rr" data-mode="grid">
+            <div class="rr-loading" role="status">Loading runes catalog…</div>
         </div>
         </div></div>
         </main>

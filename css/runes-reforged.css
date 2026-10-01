@@ -1,276 +1,1115 @@
-/* --- Runes Reforged (V7.22 -> V14.19+) ---------------------------------- */
-/* Two-column picker: primary path on the left (keystone row + 3 minor
-   rows), secondary on the right (3 minor rows, keystone row absent), with
-   the stat-shard block stacked beneath the secondary column. Catalog data
-   is fetched at runtime from Riot Data Dragon's runesReforged.json. */
-#reforged-calculator {
-    max-width: 1080px;
-    margin: 30px auto;
-    background: linear-gradient(to bottom, rgba(8, 18, 32, 0.96), rgba(2, 9, 19, 0.96)),
-                url(../images/masteries-background.jpg);
-    background-blend-mode: multiply;
+/* ==========================================================================
+   runes-reforged.css — the League Client rune page editor (Runes Reforged,
+   V7.22 → today). One look for every patch: Riot's rcp-fe-lol-perks plugin
+   (moved unchanged into rcp-fe-lol-collections) is the source of every
+   value below unless marked [sampled] (V13.7 / PBE 2017 captures).
+
+   Stage: 1055 x 635 panel (.perks-body), scaled to fit by the shared
+   .lol-stage wrapper. All coordinates are panel px.
+     scene     environment.jpg (-1,-80) · second/<sub>.webp + construct.webp
+               (461,-80) · keystones/<ks>.webp (511,-55)
+     top row   y 28-68: pencil · page name · SAVE · + · trash (V13+: y 32-72)
+     columns   primary x 35, secondary x 360, 275 wide, choices from y 68
+               (V13+: 72 — .perks-body-content padding-top 28 → 32 in 13.1)
+               style row 131 · keystone 107 · minor 88/88/88 (primary)
+               grid rows 78 (secondary, first at 116) · shards 44 (348)
+     options   198px track at column x 77, flex space-around
+     settings  left 35, bottom 27 (V13+: 18): list/grid toggle + long-desc checkbox
+   Per-path colour pairs live on [data-style] as --rr-light / --rr-dark.
+
+   Markup (runes-reforged.js builds it inside #reforged-calculator):
+     .rr[data-mode=grid|list][data-page-variant=v7|v13]
+       .rr-scene > .rr-layer.rr-env|rr-splash|rr-construct|rr-keystone
+       .rr-body > .rr-toprow, .rr-col.rr-col--primary|--secondary
+       .rr-settings, .rr-picker (style picker, no primary yet), .rr-loading
+   ========================================================================== */
+
+/* --- colour pairs (perk-icon-button / progress-bar :host([style-name])) --- */
+.rr, .rr [data-style] {
+    --rr-light: #cdbe91;
+    --rr-dark: #785a28;
+}
+.rr [data-style="neutral"],
+.rr-col--secondary:not([data-style]) {
+    --rr-light: #dfe5e5; --rr-dark: #adb2b2;
+    --rr-light-rgb: 223, 229, 229; --rr-dark-rgb: 173, 178, 178;
+}
+.rr [data-style="precision"] {
+    --rr-light: #aea789; --rr-dark: #c8aa6e;
+    --rr-light-rgb: 174, 167, 137; --rr-dark-rgb: 200, 170, 110;
+    --rr-glow-blend: hard-light;
+}
+.rr [data-style="domination"] {
+    --rr-light: #d44242; --rr-dark: #dc4747;
+    --rr-light-rgb: 212, 66, 66; --rr-dark-rgb: 220, 71, 71;
+    --rr-glow-blend: normal;
+    --rr-glow-color: rgba(212, 66, 66, 0.75);
+}
+.rr [data-style="sorcery"] {
+    --rr-light: #9faafc; --rr-dark: #6c75f5;
+    --rr-light-rgb: 159, 170, 252; --rr-dark-rgb: 108, 117, 245;
+}
+.rr [data-style="resolve"] {
+    --rr-light: #a1d586; --rr-dark: #a4d08d;
+    --rr-light-rgb: 161, 213, 134; --rr-dark-rgb: 164, 208, 141;
+}
+.rr [data-style="inspiration"] {
+    --rr-light: #49aab9; --rr-dark: #48b4be;
+    --rr-light-rgb: 73, 170, 185; --rr-dark-rgb: 72, 180, 190;
+}
+.rr [data-style="stat-shard"] {
+    --rr-light: #cebe83; --rr-dark: #dbb062;
+    --rr-light-rgb: 206, 190, 131; --rr-dark-rgb: 219, 176, 98;
+}
+
+/* Path glyphs (images/<path>/<path>_icon.svg, runes.svg), inlined so the
+   masks also work from file:// (mask images are CORS-mode fetches). */
+.rr [data-glyph="precision"] {
+    --rr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'%3E%3Cpolygon points='14,6 12,3 10,6 12,12.1'/%3E%3Cpath d='M9,8L8,7C6,8,5,8,4,7.2C3.6,6.9,3.2,6.5,3,6H0l6,5C6.6,9.7,7.7,8.6,9,8z'/%3E%3Cpath d='M20.8,13.1L22,10l-6,3.9l1,1.1v1l-4-2l2.2,3.8c-0.7,0.5-1.4,0.9-2.2,1.2l-1,7l-1-7c-0.7-0.2-1.4-0.6-2-1l2-4l-4,2v-1l1-1.1 L2,10l1,3c1.2,0.5,2.1,1.7,2,3l1,1H4l-1,2l2,1l2-1c0.4,0.4,0.8,0.2,2,1l2,8l1,2l1-2l2-8c1.2-0.8,1.6-0.6,2-1l2,1l2-1l-1-2h-1.6 l0.6-1C19,14.8,19.7,13.7,20.8,13.1z'/%3E%3Cpath d='M18,11l6-5h-3c-0.2,0.5-0.6,0.9-1,1.2C19,8,18,8,16,6.4L15,8C16.3,8.6,17.4,9.7,18,11z'/%3E%3C/svg%3E");
+}
+.rr [data-glyph="domination"] {
+    --rr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'%3E%3Cpath d='M15,15.9c0,0-2-1.1-2-1.9c-0.1-0.4,0.2-0.9,0.7-0.9c0.1,0,0.2,0,0.3,0c0.7,0.1,1.4,0.5,2,0.9c-2.9-9.3-4-13-4-13 c-0.5,2.4-1.5,4.6-3,6.5c0,0,2-0.7,2,0.9c0.1,1.3-0.8,2.5-2,2.8L8,14c0.6-0.5,1.3-0.8,2-0.9c0.9,0,1,0.1,1,0.9c0,1.6-2,1.9-2,1.9 c0.1,0.8-0.1,1.6-0.4,2.4c1.4,1.2,2.5,2.6,3.4,4.1c0.9-1.6,2-3.1,3.4-4.3C14.8,16.6,15,17.2,15,15.9z M2,25.1l1-1.9 c-1.2-1.4-2.2-3-3-4.6v-2.8c1.7,0,2.7-2.7,1-2.8c1.7-2.4,3.1-3.2,4-5.6v3.7c-0.8,1.5-1.4,3.1-2,4.6c0,1.6,0,4.1,2,4.6 c2.1,0.6,2-1.9,2-1.9C9.5,20,11,24,11,24v3l-1-0.9c0,0-0.9-3.6-2-3.7c-0.5,0-0.9,0.4-1,0.9c0.2,0.7,0.5,1.3,1,1.9 c0.5,0.5,0.5,1.3,0,1.9c-2.5-2.3-2.8-1.9-3.6-1.9S2,25.1,2,25.1z M22,25.1l-1-1.9c1.2-1.4,2.2-3,3-4.6v-2.8c-1.7,0-2.7-2.7-1-2.8 c-1.7-2.4-3.1-3.2-4-5.6v3.7c0.8,1.5,1.4,3.1,2,4.6c0,1.6,0,4.1-2,4.6c-2.1,0.6-2-1.9-2-1.9C14.5,20,13,24,13,24v3l1-0.9 c0,0,0.9-3.6,2-3.7c0.5,0,0.9,0.4,1,0.9c-0.2,0.7-0.5,1.3-1,1.9c-0.5,0.5-0.5,1.3,0,1.9c2.5-2.3,2.8-1.9,3.6-1.9S22,25.1,22,25.1z'/%3E%3C/svg%3E");
+}
+.rr [data-glyph="sorcery"] {
+    --rr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'%3E%3Cpath d='M12.5,2.6c-0.3,0-1,0-1,0c-0.7,1.2-1.4,3.6-2,4l1,2c0,0,1.9,0.2,3,3c0,0,0-0.7,1,2h5l1-1c-1.8-0.7-3.5-1.7-5-3 c-1-1.1-1.4-2.6-1-4l-1.2-1L12.5,2.6z M14.5,15.6l2,1c0,0-0.3,0.2,4,1l1-1l-2-1H14.5z M14.5,17.6c0.7,0.3,1.4,0.6,2,1 c0.9,0.7,1.9,1,3,1l-2,2c-0.8,0-1.5,0.3-2,1v1c-0.9-0.8-2.8-0.6-2-4C13.8,18.9,14.1,18.2,14.5,17.6z M3.5,10.6l2,2 c1.2,0.2,2.3,0.9,3,2v1l-3-1l-2-1V10.6z M6.5,8.6v2l4,2c0,0,0.1-0.3-1-2c-0.5-0.8-1.2-1.4-2-2H6.5z M3.5,17.6c-0.1-0.3-0.1-0.7,0-1 c0.2,0,5.8,1.8,6,2l2,2c0,0-0.6,2.7,3,5l-2,3l-3-2c0.1-2.4-1.6-4.6-4-5C5.5,20,4.8,18.6,3.5,17.6z'/%3E%3C/svg%3E");
+}
+.rr [data-glyph="resolve"] {
+    --rr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'%3E%3Cpath d='M22,12V8.1L19,5v3l-3-1V4l-2-2v3l-2-1l-2,1V2L8,4v3L5,8V5L2,8.1V12l1,1v7l-1,1v2l10,7l10-7v-2l-1-1v-7L22,12z M8,23l-3-2v-8l3-2V23z M14,24l-2,2l-2-2V10l2-2l2,2V24z M19,21l-3,2V11l3,2V21z'/%3E%3C/svg%3E");
+}
+.rr [data-glyph="inspiration"] {
+    --rr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'%3E%3Cpath d='M15,21c-3.8,0-6.1-3.7-7-5l2-2c0.8,1.4,1.8,2.8,3,4c1,1,5,2,5,2C17.1,20.7,16.1,21,15,21z M18,27 c-1.1-0.2-2.1-0.5-3-1c-0.9,0.5-1.9,0.8-3,1c-3.2,0.1-6.2-1.4-8-4v-5c0.5,1.1,1.2,2.1,2,3v1c1.5,1.7,3.7,2.7,6,2.9 c0,0-6.6-4.8-9-11.9c0-0.1-1,2-1,7c-0.5-1.6-0.8-3.3-1-5c-0.1-1.4,0.2-2.8,1-4V8c0-3,2-5,4-5h4C9.2,3.1,8.5,3.5,8,4H5 C4.2,4,3,5.2,3,8c0.1,1.8,0.7,3.6,1.8,5.1L5,13c0.7-1.5,2.9-5.4,6-7l0,0C7.7,6,5,9,5,9L4,8c2-2.4,4.9-3.9,8-4c1.4,0.1,2.7,0.4,4,1 c-1,0.2-2,0.5-3,1c0,0,2.8,1.1,6,6c2.7,4.1-1,6-1,6c0.8-2,0.4-4.3-1-6c-1.5-1.8-3.2-3.5-5-5c-2.8,2.4-4.9,5.5-6,9c0,0,7,10,13,10 c0.7,0,2.7-0.2,2.7-3.2c-0.1-0.5-0.2-1-0.4-1.5c0,0-1.3,2.7-3.3,2.7c-0.4-0.2-2-1-2-1s5.7-1.9,5.7-7.7c0-5-5.1-8.7-5.1-8.7l0.9-0.9 c0,0,5.5,3.7,5.5,9.2c0.1,1.4-0.1,2.8-0.5,4.1c0.4,1,0.6,2.1,0.5,3.3C23,27,18.9,27,18,27z M16,18c-3-5-5-6-5-6l1-1c0,0,3,1,5,6 L16,18z'/%3E%3C/svg%3E");
+}
+
+/* Rings = a gradient fill masked to an N px circle stroke (lol-perks-
+   gradient-ring builds the same thing from an SVG <circle> mask). */
+.rr {
+    --rr-ring-2: radial-gradient(closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px));
+    --rr-ring-3: radial-gradient(closest-side, transparent calc(100% - 3.5px), #000 calc(100% - 2.5px));
+}
+
+/* ==========================================================================
+   1. Stage + scene
+   ========================================================================== */
+.lol-stage .lol-stage-inner > #reforged-calculator.rr {       /* beats the base.css stage adapter */
+    padding: 0;
+    margin: 0;
+}
+#reforged-calculator.rr {
+    position: relative;
+    box-sizing: border-box;
+    width: 1055px;
+    height: 635px;
+    overflow: hidden;
+    background: #010a13;
+    color: #a09b8c;
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    text-align: left;
+    -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none;
+    user-select: none;
+    isolation: isolate;
+}
+.rr[data-primary="precision"]   { background-color: #2c2128; }
+.rr[data-primary="domination"]  { background-color: #0f0b12; }
+.rr[data-primary="sorcery"]     { background-color: #181e29; }
+.rr[data-primary="inspiration"] { background-color: #0d2542; }
+.rr[data-primary="resolve"]     { background-color: #182a3b; }
+
+.rr-scene {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1055px;
+    height: 635px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+.rr-layer {
+    position: absolute;
+    background: no-repeat 0 0 / 100% 100%;
+    will-change: opacity, transform;
+}
+.rr-env       { left: -1px;  top: -80px; width: 1162px; height: 720px; }
+.rr-splash,
+.rr-construct { left: 461px; top: -80px; width: 700px;  height: 720px; }
+.rr-keystone  { left: 511px; top: -55px; width: 600px;  height: 670px; transform-origin: 50% 38.5%; }
+.rr-layer.is-empty { opacity: 0; }
+
+/* GSAP intros of the construct-minspec, simplified. */
+.rr-env.is-in       { animation: rrFade 0.45s ease-out both; }
+.rr-construct.is-in { animation: rrConstructIn 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) both; }
+.rr-splash.is-in    { animation: rrFade 0.5s ease-out both; }
+.rr-keystone.is-in  { animation: rrKeystoneIn 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) both; }
+@keyframes rrFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rrConstructIn {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes rrKeystoneIn {
+    0%   { opacity: 0; transform: scale(1); }
+    35%  { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.rr-loading {
+    position: absolute;
+    left: 35px;
+    top: 38px;
+    z-index: 5;
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: #a09b8c;
+}
+.rr-loading.is-error { color: #be1e37; max-width: 560px; text-transform: none; font-family: var(--font-lcu-body); font-weight: 400; }
+
+.rr-body {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1055px;
+    height: 635px;
+    z-index: 1;
+}
+.rr-body[hidden], .rr-picker[hidden], .rr-settings[hidden] { display: none; }
+
+/* ==========================================================================
+   2. Top row: pencil · name · SAVE · + · trash  (perks-body-column-top)
+   ========================================================================== */
+.rr-toprow {
+    position: absolute;
+    left: 35px;
+    top: 28px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+.rr-toprow .lcu-circle-btn { flex: none; }
+.rr-toprow .lcu-circle-btn::after {
+    -webkit-mask-size: var(--rr-icon-w) var(--rr-icon-h);
+    mask-size: var(--rr-icon-w) var(--rr-icon-h);
+}
+.rr-btn-edit::after   { --rr-icon-w: 14.5px; --rr-icon-h: 13.25px; -webkit-mask-image: url(../images/runes-reforged/icons/edit.png);   mask-image: url(../images/runes-reforged/icons/edit.png); }
+.rr-btn-add::after    { --rr-icon-w: 10px;   --rr-icon-h: 10px;    -webkit-mask-image: url(../images/runes-reforged/icons/plus.png);   mask-image: url(../images/runes-reforged/icons/plus.png); }
+.rr-btn-delete::after { --rr-icon-w: 12.5px; --rr-icon-h: 14.5px;  -webkit-mask-image: url(../images/runes-reforged/icons/delete.png); mask-image: url(../images/runes-reforged/icons/delete.png); }
+.rr-btn-edit { margin-right: 7px; }                    /* .perks-edit-btn */
+.rr-btn-add, .rr-btn-delete { margin-left: 10px; }     /* .add-page / .perks-delete-page-button */
+
+.rr-name {
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 32px;
+    margin-left: 3px;                                   /* .perks-dropdown-input */
+    font: 600 17px/22px var(--font-lcu-display-mixed);  /* LCU 18px/700 Beaufort; Spectral runs wider + heavier */
+    letter-spacing: 0.05em;
     color: #f0e6d2;
-    font-family: "Roboto", Arial, sans-serif;
-    padding: 28px;
-    border: 1px solid var(--color-gold-dark);
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    min-height: 520px;
 }
-.reforged-loading {
-    text-align: center;
-    color: var(--color-gold-light);
-    padding: 60px 0;
-    font-size: 14px;
-    letter-spacing: 1px;
+.rr-name-text, .rr-name-input {
+    box-sizing: border-box;
+    height: 32px;
+    margin: 0;
+    padding: 5px 5px 5px 12px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.reforged-page {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+.rr-name-text { display: block; padding-top: 5px; cursor: default; }
+.rr-name-input { display: none; width: 100%; -webkit-user-select: text; user-select: text; }
+.rr-name-input::selection { background: #785a28; color: #f0e6d2; }
+.rr-name.is-editing .rr-name-text { display: none; }
+.rr-name.is-editing .rr-name-input { display: block; }
+
+/* 2017-V12: the page dropdown — name + ⌃⌄ chevron, SAVE free-standing. */
+.rr[data-page-variant="v7"] .rr-name { width: 280px; }
+.rr[data-page-variant="v7"] .rr-name-text { max-width: 250px; }
+.rr[data-page-variant="v7"] .rr-name::after {
+    content: "";
+    flex: none;
+    width: 13px;
+    height: 18px;
+    margin-left: 6px;
+    background: url(../images/lcu/up-down-arrow.png) no-repeat center / 13px 18px;
+}
+.rr[data-page-variant="v7"] .rr-name.is-editing::after { display: none; }
+.rr[data-page-variant="v7"] .rr-name.is-editing {
+    background: rgba(1, 10, 19, 0.6);
+    box-shadow: inset 0 0 0 1px #5c5b57;
+}
+/* PBE capture: SAVE box x 360-437, + at 448, trash at 486. The LCU's
+   auto width (padding 1.3em round Beaufort "SAVE") is 78px; Spectral SC
+   runs wider, so pin the box and centre the word. */
+.rr[data-page-variant="v7"] .rr-save {
+    width: 78px;
+    margin-left: 7px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
-.reforged-column {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+/* V13+: the name is an inset text field with SAVE attached. [sampled] */
+.rr[data-page-variant="v13"] .rr-btn-edit { margin-right: 0; }
+.rr[data-page-variant="v13"] .rr-name {
+    width: 225px;
+    margin-left: 4px;
+    border: 1px solid rgba(92, 91, 87, 0.8);
+    border-right: 0;
+    background: rgba(1, 10, 19, 0.72);
 }
-.reforged-col-header {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(212, 182, 84, 0.3);
+.rr[data-page-variant="v13"] .rr-name-text,
+.rr[data-page-variant="v13"] .rr-name-input { width: 100%; padding: 6px 8px 3px 12px; }
+.rr[data-page-variant="v13"] .rr-name.is-editing { border-color: #785a28; }
+.rr[data-page-variant="v13"] .rr-save {
+    width: 76px;
+    min-height: 32px;
+    height: 32px;
+    padding: 5px 0;
 }
-.reforged-col-label {
-    color: var(--color-gold-base);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Path strip — 5 path icons across the top of each column. */
-.reforged-path-strip {
-    display: flex;
-    gap: 8px;
-}
-.reforged-path-btn {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 4px;
-    background: rgba(15, 50, 91, 0.4);
-    border: 1px solid #2a3a55;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: border-color 120ms, background 120ms, transform 120ms;
-}
-.reforged-path-btn img {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-    filter: grayscale(0.4) brightness(0.85);
-    transition: filter 120ms;
-}
-.reforged-path-btn .reforged-path-name {
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    color: #b8a888;
-}
-.reforged-path-btn:hover {
-    border-color: var(--color-gold-base);
-    transform: translateY(-1px);
-}
-.reforged-path-btn:hover img {
-    filter: none;
-}
-.reforged-path-btn.active {
-    border-color: var(--color-gold-light);
-    background: rgba(212, 182, 84, 0.18);
-}
-.reforged-path-btn.active img {
-    filter: none;
-}
-.reforged-path-btn.active .reforged-path-name {
-    color: var(--color-gold-light);
-}
-.reforged-path-btn.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+.rr[data-page-variant="v13"] .rr-save:disabled {
+    border-width: 1px;
+    background: rgba(30, 35, 40, 0.55);
 }
 
-/* Per-path tint on the active button. */
-.reforged-path-btn.active[data-path="Precision"]   { box-shadow: 0 0 8px rgba(232, 188, 124, 0.55); }
-.reforged-path-btn.active[data-path="Domination"]  { box-shadow: 0 0 8px rgba(202, 65, 65, 0.55); }
-.reforged-path-btn.active[data-path="Sorcery"]     { box-shadow: 0 0 8px rgba(165, 102, 222, 0.55); }
-.reforged-path-btn.active[data-path="Resolve"]     { box-shadow: 0 0 8px rgba(95, 167, 238, 0.55); }
-.reforged-path-btn.active[data-path="Inspiration"] { box-shadow: 0 0 8px rgba(73, 199, 184, 0.55); }
-
-/* Rune slot rows — each row holds the alternatives for one slot. */
-.reforged-slots {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* ==========================================================================
+   3. Columns, rows, tracks
+   ========================================================================== */
+.rr-col {
+    position: absolute;
+    top: 68px;
+    width: 275px;
+    height: 560px;
 }
-.reforged-slot-row {
+.rr-col--primary   { left: 35px; }
+.rr-col--secondary { left: 360px; }
+/* V13.1+: .perks-body-content padding went from 28px to 32px 0 0 35px when
+   the name row moved into .perks-body-header, so the name row and both
+   columns sit 4px lower (12.23 vs 13.1 collections CSS). */
+.rr[data-page-variant="v13"] .rr-toprow { top: 32px; }
+.rr[data-page-variant="v13"] .rr-col    { top: 72px; }
+
+.rr-row {
+    position: absolute;
+    left: 0;
+    width: 275px;
+}
+.rr-row--style    { top: 0;   height: 131px; }
+.rr-row--keystone { top: 131px; height: 107px; }
+.rr-row--m1       { top: 238px; height: 88px; }
+.rr-row--m2       { top: 326px; height: 88px; }
+.rr-row--m3       { top: 414px; height: 88px; }
+.rr-row--s1       { top: 116px; height: 78px; }
+.rr-row--s2       { top: 194px; height: 78px; }
+.rr-row--s3       { top: 272px; height: 78px; }
+.rr-row--sh1      { top: 348px; height: 44px; }
+.rr-row--sh2      { top: 392px; height: 44px; }
+.rr-row--sh3      { top: 436px; height: 44px; }
+
+.rr-track {
+    position: absolute;
+    left: 77px;
+    top: 0;
+    width: 198px;
+    height: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    gap: 10px;
-    padding: 6px 4px;
-    background: rgba(0, 0, 0, 0.35);
-    border-radius: 4px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-.reforged-slot-row.reforged-keystone-row {
-    padding: 10px 4px;
-    background: linear-gradient(to bottom, rgba(15, 50, 91, 0.5), rgba(0, 0, 0, 0.35));
-    border: 1px solid rgba(212, 182, 84, 0.3);
 }
 
-/* Rune tile. */
-.reforged-rune {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: transform 120ms, background 120ms;
+/* Keystone row flourish: two 286x9 polylines (keystone-border.svg) in a
+   transparent → dark → transparent gradient, bottom one flipped. */
+.rr-row--keystone::before,
+.rr-row--keystone::after {
+    content: "";
+    position: absolute;
+    left: -15px;
+    width: 286px;
+    height: 9px;
+    background: linear-gradient(to right, transparent 0%, var(--rr-dark) 50%, transparent 100%);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 286 9' width='286' height='9'%3E%3Cg fill='none' stroke='%23000'%3E%3Cpolyline points='0,4.5 193,4.5 197,8.5'/%3E%3Cpolyline points='286,8.5 62,8.5 55,0.5 20,0.5 16,4.5'/%3E%3C/g%3E%3C/svg%3E") no-repeat 0 0 / 286px 9px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 286 9' width='286' height='9'%3E%3Cg fill='none' stroke='%23000'%3E%3Cpolyline points='0,4.5 193,4.5 197,8.5'/%3E%3Cpolyline points='286,8.5 62,8.5 55,0.5 20,0.5 16,4.5'/%3E%3C/g%3E%3C/svg%3E") no-repeat 0 0 / 286px 9px;
+    pointer-events: none;
 }
-.reforged-rune img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-    filter: grayscale(0.55) brightness(0.7);
-    transition: filter 120ms;
-}
-.reforged-rune .reforged-rune-name {
-    font-size: 9.5px;
-    color: #b8a888;
-    text-align: center;
-    line-height: 1.1;
-}
-.reforged-rune:hover {
-    transform: translateY(-1px);
-    background: rgba(212, 182, 84, 0.08);
-}
-.reforged-rune:hover img {
-    filter: none;
-}
-.reforged-rune.selected img {
-    filter: none;
-    box-shadow: 0 0 10px rgba(212, 182, 84, 0.6);
-}
-.reforged-rune.selected .reforged-rune-name {
-    color: var(--color-gold-light);
-    font-weight: bold;
-}
-.reforged-rune.locked {
-    opacity: 0.35;
-    cursor: not-allowed;
-}
-
-.reforged-rune-keystone img {
-    width: 56px;
-    height: 56px;
-}
-.reforged-rune-keystone .reforged-rune-name {
-    font-size: 10px;
-}
-
-.reforged-hint {
-    color: rgba(240, 230, 210, 0.45);
-    font-size: 11px;
-    text-align: center;
-    padding: 30px 0;
-    font-style: italic;
-}
-
-/* Stat shards — three rows of three, one pick per row. */
-.reforged-shards {
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(212, 182, 84, 0.3);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.reforged-shards-label {
-    color: var(--color-gold-base);
+.rr-row--keystone::before { top: -5px; }
+.rr-row--keystone::after  { bottom: -5px; transform: scaleY(-1); }
+.rr-ks-label {
+    position: absolute;
+    top: -19px;
+    left: 77px;
+    font: 700 9px/12px var(--font-lcu-display);   /* LCU 10px Beaufort; Spectral SC runs ~12% wider */
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 11px;
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-.reforged-shard-row {
-    display: flex;
-    justify-content: space-around;
-    gap: 8px;
-    padding: 4px 2px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-}
-.reforged-shard {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 4px 2px;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: background 120ms;
-}
-.reforged-shard img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-    filter: grayscale(0.6) brightness(0.7);
-    transition: filter 120ms;
-}
-.reforged-shard .reforged-shard-name {
-    font-size: 8.5px;
-    color: #b8a888;
-    text-align: center;
-    line-height: 1;
-}
-.reforged-shard:hover img { filter: none; }
-.reforged-shard.selected img {
-    filter: none;
-    box-shadow: 0 0 6px rgba(212, 182, 84, 0.55);
-}
-.reforged-shard.selected .reforged-shard-name {
-    color: var(--color-gold-light);
-    font-weight: bold;
+    color: var(--rr-dark);
+    white-space: nowrap;
 }
 
-#reforged-toast {
-    position: fixed;
-    bottom: 24px;
+/* Drawer flourishes (lol-perks-drawer .flourish): #614a25 hairline across
+   the track with 5px outlined diamonds at both ends. */
+.rr-sep {
+    position: absolute;
+    left: 77px;
+    top: 0;
+    width: 198px;
+    height: 0;
+    pointer-events: none;
+}
+.rr-sep::before {                                       /* the line (margin 0 3px) */
+    content: "";
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: 0;
+    border-top: 1px solid #614a25;
+}
+.rr-sep i::before, .rr-sep i::after {                  /* the diamonds */
+    content: "";
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+    width: 5px;
+    height: 5px;
+    border: 1px solid #614a25;
+    transform: translate(-50%, calc(-50% + 0.5px)) rotate(45deg);
+}
+.rr-sep i::before { left: 0; }
+.rr-sep i::after  { left: 100%; }
+
+/* ==========================================================================
+   4. Rune button (lol-perks-perk-icon-button), 47px; shards 28px
+   ========================================================================== */
+.rr-perk {
+    --d: 47px;
+    --rr-grad: linear-gradient(to bottom, #cdbe91 0%, #785a28 100%);
+    position: relative;
+    flex: none;
+    width: var(--d);
+    height: var(--d);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #1e2328;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.rr-perk.is-shard { --d: 28px; }
+/* From V8.5 the grid options shrink to 38px (.perk-icon-button and
+   .splashed_perk_option { --diameter: 38px }); V7.22-8.4 keep 47px. */
+.rr[data-rune-size="38"] .rr-track .rr-perk:not(.is-shard) { --d: 38px; }
+.rr-perk > i {                                          /* #opacity */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: opacity 0.15s, filter 0.15s;
+    pointer-events: none;
+}
+.rr-perk b, .rr-perk s, .rr-perk u {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    text-decoration: none;
+}
+.rr-perk s {                                            /* #border */
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 7px 2px #000, 0 0 1px #000;
+}
+.rr-perk s::before, .rr-perk u::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    background: var(--rr-grad);
+    -webkit-mask: var(--rr-ring-2);
+    mask: var(--rr-ring-2);
+}
+.rr-perk u {                                            /* #hover, 3px at inset -7px */
+    top: -7px; left: -7px;
+    width: calc(100% + 14px);
+    height: calc(100% + 14px);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: opacity 0.15s, visibility 0.15s, transform 0.15s;
+}
+.rr-perk u::before { -webkit-mask: var(--rr-ring-3); mask: var(--rr-ring-3); }
+.rr-perk b {                                            /* #img */
+    top: 0; left: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    background: no-repeat center / cover;
+    background-origin: padding-box;
+    background-clip: padding-box;
+    transition: opacity 0.15s, transform 0.15s, filter 0.15s;
+}
+.rr-perk[data-style] { --rr-grad: linear-gradient(to bottom, var(--rr-light) 0%, var(--rr-dark) 100%); }
+.rr-perk:hover u,
+.rr-perk:focus-visible u { opacity: 0.5; visibility: visible; transform: scale(1); }
+.rr-perk.is-faded:not(:hover):not(:focus-visible) > i { opacity: 0.5; filter: grayscale(100%); }
+
+/* Keystones: 175% art over the usual disc + ring (both show through the
+   art's transparent parts), dimmed until hovered ([img-hover]). */
+.rr-perk.is-keystone b {
+    width: 175%;
+    height: 175%;
+    left: -37.5%;
+    top: -37.5%;
+    border: 0;
+    border-radius: 0;
+}
+.rr-perk.is-keystone:not(:hover):not(:focus-visible) b { filter: brightness(0.7); }
+
+/* ==========================================================================
+   5. Style row: big selected-style icon (64px) + path options (45px)
+   ========================================================================== */
+.rr-bigicon {
+    --rr-arc: linear-gradient(to bottom, #cdbe91 0%, transparent 70%);
+    position: absolute;
+    left: -8.5px;
+    top: 33.5px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 0;
+    transition: filter 0.2s;
+}
+.rr-bigicon[data-style]:not([data-style="neutral"]) { --rr-arc: linear-gradient(to bottom, var(--rr-light) 0%, transparent 70%); }
+.rr-bigicon:hover { filter: brightness(1.3); }
+.rr-bigicon .rr-glyph {
+    position: relative;
+    width: 55%;
+    height: 55%;
+    background: linear-gradient(to bottom, var(--rr-light) 0%, var(--rr-dark) 100%);
+    -webkit-mask: var(--rr-glyph) no-repeat 50% 50% / contain;
+    mask: var(--rr-glyph) no-repeat 50% 50% / contain;
+}
+.rr-bigicon .rr-arcring {                              /* .ring: 64px box, pushed 6% down */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(6%);
+}
+.rr-bigicon .rr-arcring + .rr-arcring { transform: rotate(120deg) translateY(6%); }
+.rr-bigicon .rr-arcring + .rr-arcring + .rr-arcring { transform: rotate(240deg) translateY(6%); }
+.rr-bigicon .rr-arc, .rr-bigicon .rr-comet {           /* 54px .small-box contents */
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    transform: rotate(120deg);
+    transition: transform 0.2s, opacity 0.2s, visibility 0.2s;
+}
+.rr-bigicon .rr-arc {
+    background: var(--rr-arc);
+    -webkit-mask: var(--rr-ring-2);
+    mask: var(--rr-ring-2);
+}
+/* Spinning (grid mode, no path chosen yet): arcs grow, white comets show. */
+.rr-bigicon .rr-comet { opacity: 0; visibility: hidden; }
+.rr-bigicon.is-spinning .rr-arc,
+.rr-bigicon.is-spinning .rr-comet { transform: scale(1.18) rotate(120deg); }
+.rr-bigicon.is-spinning .rr-comet { opacity: 1; visibility: visible; }
+.rr-comet::before {                                     /* semicircle, white → transparent */
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #fff 0%, transparent 100%);
+    -webkit-mask: var(--rr-ring-2);
+    mask: var(--rr-ring-2);
+    -webkit-clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%);
+    clip-path: polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%);
+}
+.rr-comet::after {                                      /* #head */
+    content: "";
+    position: absolute;
     left: 50%;
+    top: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6.67px #fff, 0 0 6.67px #fff, 0 0 6.67px #fff;
+    transform: translate(-50%, calc(-50% + 1px));
+}
+.rr-bigicon.is-spinning .rr-comet::before,
+.rr-bigicon.is-spinning .rr-comet::after { animation: rrSpin 2s linear infinite; transform-origin: 50% 27px; }
+.rr-bigicon.is-spinning .rr-comet::before { transform-origin: 50% 50%; }
+.rr-bigicon.is-spinning .rr-comet::after  { transform-origin: 0 27px; animation-name: rrSpinHead; }
+@keyframes rrSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes rrSpinHead {
+    from { transform: translate(-50%, calc(-50% + 1px)) rotate(0deg); }
+    to   { transform: translate(-50%, calc(-50% + 1px)) rotate(360deg); }
+}
+
+/* lol-perks-switch host: 45x45 with the default flex-shrink, so five
+   options in the 198px track shrink to 39.6px (centres 96.8 / 136.4 / 176 /
+   215.6 / 255.2); four keep 45px with space-around. The ring stays 45px,
+   centred on the shrunk host. */
+.rr-styleopt {
+    position: relative;
+    flex: 0 1 45px;
+    min-width: 0;
+    box-sizing: border-box;
+    width: 45px;
+    height: 45px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+}
+.rr-styleopt > i {                                      /* #hover: holds #icon AND the ring */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+.rr-styleopt:hover > i, .rr-styleopt:focus-visible > i { opacity: 0.8; }
+.rr-styleopt b {                                        /* #icon: 22px glyph in the path gradient */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--rr-light) 0%, var(--rr-dark) 100%);
+    -webkit-mask: var(--rr-glyph) no-repeat 50% 50% / 22px;
+    mask: var(--rr-glyph) no-repeat 50% 50% / 22px;
+}
+.rr-styleopt s {                                        /* selected ring, #785a28/#c8aa6e/#785a28,
+                                                           inside #hover so it follows .5 → .8 */
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 45px;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #785a28 0%, #c8aa6e 50%, #785a28 100%);
+    -webkit-mask: var(--rr-ring-2);
+    mask: var(--rr-ring-2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) scale(1.15);
+    transition: opacity 0.15s, visibility 0.15s, transform 0.15s;
+}
+.rr-styleopt.is-selected s { opacity: 1; visibility: visible; transform: translateX(-50%); }
+
+/* ==========================================================================
+   6. Progress spine (lol-perks-progress-bar) and nodes
+   ========================================================================== */
+.rr-spine {
+    --rr-glow-blend: color-dodge;
+    position: absolute;
+    left: 17.5px;
+    top: 103.5px;
+    box-sizing: border-box;
+    width: 12px;
+    padding: 2px;
+    border: 2px solid rgba(61, 61, 61, 0.4);
+    border-top-color: transparent;
+    transition: border-color 0.2s;
+    pointer-events: none;
+}
+.rr-spine[data-style="precision"] { --rr-glow-blend: hard-light; }
+.rr-spine[data-style="domination"] { --rr-glow-blend: normal; }
+.rr-spine::before, .rr-spine::after {                  /* the small V notch under the icon */
+    content: "";
+    position: absolute;
+    top: -2px;
+    border: solid transparent;
+    border-top-color: var(--rr-light);
+    border-width: 4px 2px;
+}
+.rr-spine::after  { border-left-color: var(--rr-light); left: 50%; transform: skew(0deg, -30deg); }
+.rr-spine::before { border-right-color: var(--rr-light); right: 50%; transform: skew(0deg, 30deg); z-index: 1; }
+.rr-spine .rr-smile {                                   /* 84px ring, only its bottom shows */
+    position: absolute;
+    left: calc(50% - 42px);
+    top: -84px;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, transparent 85%, var(--rr-dark) 100%);
+    -webkit-mask: var(--rr-ring-2);
+    mask: var(--rr-ring-2);
+}
+.rr-spine.no-ring::before, .rr-spine.no-ring::after, .rr-spine.no-ring .rr-smile { display: none; }
+/* Stat-shard bar: bottom 18px of the 480px choices holder → fill 370-458. */
+.rr-spine--shards { top: 366px; }
+.rr-fill {
+    position: relative;
+    width: 4px;
+    background: rgba(var(--rr-dark-rgb), 0.2);
+    box-shadow: inset 0 0 1px rgba(var(--rr-light-rgb), 0.3);
+    transition: filter 0.2s;
+}
+.rr-glow {
+    position: relative;
+    mix-blend-mode: var(--rr-glow-blend);
+    filter: drop-shadow(0 0 5px var(--rr-glow-color, var(--rr-light))) drop-shadow(0 0 5px var(--rr-glow-color, var(--rr-light)));
+    transition: opacity 0.2s;
+}
+.rr-spine[data-style="neutral"] .rr-glow { filter: none; mix-blend-mode: normal; }
+.rr-progress {
+    position: relative;
+    overflow: hidden;
+    height: 0;
+    background: rgba(var(--rr-dark-rgb), 0.4);
+    box-shadow: inset 0 0 1px rgba(var(--rr-light-rgb), 0.6);
+    transition: height 0.2s;
+}
+.rr-pulse {
+    background-image: repeating-linear-gradient(0deg, rgba(var(--rr-light-rgb), 0), var(--rr-light) 90px, rgba(var(--rr-light-rgb), 0) 180px);
+    background-size: 100% 180px;
+    animation: rrPulse 0.7s linear infinite;
+}
+.rr-spine[data-style="neutral"] .rr-pulse { background-image: none; }
+@keyframes rrPulse {
+    from { transform: translateY(-180px); }
+    to   { transform: translateY(0); }
+}
+.rr-flash {                                             /* #brightness: flash when the path completes */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    background: var(--rr-light);
+    filter: drop-shadow(0 0 5px var(--rr-glow-color, var(--rr-light))) drop-shadow(0 0 5px var(--rr-glow-color, var(--rr-light))) brightness(2);
+}
+.rr-fill.is-shoot .rr-flash { animation: rrFlash 1s linear 1; }
+/* A completed path: the comet shoots down the bar, then the glow settles
+   at 30% (#fill.shoot). */
+.rr-fill.is-complete .rr-glow { opacity: 0.3; transition: opacity 0.2s 1s; }
+.rr-cmask {                                             /* #comet-mask */
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 60px;
+    height: 100%;
+    overflow: hidden;
     transform: translateX(-50%);
-    background: rgba(15, 50, 91, 0.95);
-    color: var(--color-gold-light);
-    padding: 8px 16px;
-    border: 1px solid var(--color-gold-base);
-    border-radius: 4px;
-    font-size: 12px;
+}
+.rr-cmover { height: 100%; }
+.rr-fill.is-complete .rr-cmover { transform: translateY(calc(100% + 200px)); transition: transform 0.5s ease-in; }
+.rr-cometbar {                                          /* #comet */
+    position: absolute;
+    left: calc(50% - 4px);
+    top: -200px;
+    width: 8px;
+    height: 200px;
+    border-radius: calc(100% - 100px) calc(100% - 100px) 4px 4px;
+    background: linear-gradient(to bottom, transparent 0%, #fff calc(100% - 4px));
+    filter: blur(1px);
+}
+@keyframes rrFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+.rr-node {                                              /* lol-perks-progress-icon-button */
+    --o: 24px;
+    --rr-grad: linear-gradient(to bottom, #cdbe91 0%, #785a28 100%);
+    position: absolute;
+    left: 23.5px;
+    width: var(--o);
+    height: var(--o);
+    margin: calc(var(--o) / -2) 0 0 calc(var(--o) / -2);
+    pointer-events: none;
+}
+.rr-node.is-large { --o: 32px; }
+.rr-node[data-style]:not([data-style="neutral"]) { --rr-grad: linear-gradient(to bottom, var(--rr-light) 0%, var(--rr-dark) 100%); }
+.rr-node::before {                                      /* gradient ring on a #1e2328 disc */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--rr-grad), #1e2328;
+    background-clip: border-box;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+}
+.rr-node::after {                                       /* the ring's inner disc */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50%;
+    background: #1e2328;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+}
+.rr-node i {                                            /* #dot */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #fff 0%, var(--rr-light) 100%);
+    filter: drop-shadow(0 0 3px var(--rr-light));
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.rr-node.is-large i { width: 10px; height: 10px; }
+.rr-node.is-filled::before { width: 75%; height: 75%; }
+.rr-node.is-filled::after  { width: calc(75% - 4px); height: calc(75% - 4px); }
+.rr-node.is-filled i { opacity: 1; }
+
+/* ==========================================================================
+   7. List mode: the selected rune sits on the spine, name + description
+      to the right; hovering a row opens its drawer of options.
+   ========================================================================== */
+.rr-text {
+    position: absolute;
+    left: 77px;
+    width: 198px;
+    top: calc((88px - 47px) / 2 - 3px);
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+.rr-text-title {                                        /* LCU 12px Beaufort; Spectral SC runs ~10% wider */
+    margin-bottom: 3px;
+    font: 700 11px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--rr-light);
+}
+.rr-text-desc {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    color: #a09b8c;
+}
+.rr-text-desc b, .rr-text-desc .rr-kw { color: #fff; font-weight: 700; }
+/* The 18px/22px style-title rule is overridden later in the plugin CSS by
+   the shared 12px/16px title rule; only its margin-top survives. */
+.rr-row--style .rr-text-title { margin-top: 13px; }
+.rr-row--keystone .rr-text { top: calc((107px - 62px) / 2 - 4px); }
+.rr-row--keystone .rr-text-title { font-size: 13px; line-height: 18px; }
+.rr-row--sh1 .rr-text, .rr-row--sh2 .rr-text, .rr-row--sh3 .rr-text { top: 4px; }
+.rr-row--sh1 .rr-text-desc, .rr-row--sh2 .rr-text-desc, .rr-row--sh3 .rr-text-desc { display: block; overflow: visible; white-space: nowrap; }
+.rr-row .rr-text.is-hint .rr-text-title { color: #f0e6d2; }
+
+.rr[data-mode="grid"] .rr-text,
+.rr[data-mode="grid"] .rr-pick,
+.rr[data-mode="grid"] .rr-drawer-fx { display: none; }
+.rr[data-mode="list"] .rr-sep { display: none; }
+
+/* The selected rune on the spine (list mode) */
+.rr-pick {
+    position: absolute;
+    left: 23.5px;
+    top: 50%;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+}
+.rr-row--keystone .rr-pick .rr-perk { --d: 62px; }
+.rr-pick .rr-perk { cursor: default; }
+
+/* Drawer: options slide in, the text slides out, a gold sweep runs. */
+.rr[data-mode="list"] .rr-track > * {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 200ms ease-out, transform 200ms ease-out;
+    pointer-events: none;
+}
+.rr[data-mode="list"] .rr-row.is-open .rr-track > * { opacity: 1; transform: none; pointer-events: auto; }
+.rr[data-mode="list"] .rr-row.is-open .rr-track > :nth-last-child(2) { transition-delay: 40ms; }
+.rr[data-mode="list"] .rr-row.is-open .rr-track > :nth-last-child(3) { transition-delay: 80ms; }
+.rr[data-mode="list"] .rr-row.is-open .rr-track > :nth-last-child(4) { transition-delay: 120ms; }
+.rr[data-mode="list"] .rr-row.is-open .rr-track > :nth-last-child(5) { transition-delay: 160ms; }
+.rr[data-mode="list"] .rr-row.is-open .rr-text { opacity: 0; transform: translateX(10px); }
+.rr-drawer-fx {                                          /* lol-perks-drawer, 198x78 */
+    position: absolute;
+    left: 77px;
+    top: 50%;
+    width: 198px;
+    height: 78px;
+    margin-top: -39px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 150ms;
-    z-index: 1000;
 }
-#reforged-toast.show { opacity: 1; }
+.rr-radial {                                            /* #radial-mask > #radial */
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
+}
+.rr-radial::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse closest-side at center, #ffdc7c 0%, rgba(255, 220, 124, 0) 100%);
+    transform: translateX(100%);
+}
+.rr-drawer-fx .rr-sep--top { top: 0; left: 0; }
+.rr-drawer-fx .rr-sep--bottom { top: 100%; left: 0; margin-top: -1px; }
+.rr-row.is-open .rr-drawer-fx { opacity: 1; }
+.rr-row.is-open .rr-radial::before { animation: rrSweep 0.5s ease-out 1 both; }
+@keyframes rrSweep {
+    from { transform: translateX(100%); opacity: 0.35; }
+    to   { transform: translateX(-100%); opacity: 0; }
+}
+.rr-row--style .rr-drawer-fx .rr-sep, .rr-row--shard .rr-drawer-fx .rr-sep { display: none; }
 
-/* Responsive — collapse to one column on narrow viewports. */
-@media (max-width: 880px) {
-    .reforged-page { grid-template-columns: 1fr; }
-    #reforged-calculator { margin: 16px; padding: 18px; }
+/* List-mode secondary: two pick slots (107 + 88) replace the grid rows;
+   hovering the slots opens all three rows. */
+.rr[data-mode="list"] .rr-col--secondary .rr-row--grid { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.rr[data-mode="list"] .rr-col--secondary.is-open .rr-row--grid { opacity: 1; pointer-events: auto; }
+.rr[data-mode="list"] .rr-col--secondary.is-open .rr-row--grid .rr-track > * { opacity: 1; transform: none; pointer-events: auto; }
+.rr[data-mode="list"] .rr-col--secondary.is-open .rr-row--grid .rr-sep { display: block; }
+.rr[data-mode="list"] .rr-col--secondary.is-open .rr-slot .rr-text { opacity: 0; transform: translateX(10px); }
+.rr-slot { position: absolute; left: 0; width: 275px; pointer-events: none; }
+.rr-slot--1 { top: 131px; height: 107px; }
+.rr-slot--2 { top: 238px; height: 88px; }
+.rr-slot--1 .rr-pick { margin-top: -5px; }
+.rr-slot--1 .rr-text { top: 21px; }
+.rr[data-mode="grid"] .rr-slot { display: none; }
+.rr-slot-hit { position: absolute; left: 60px; top: 116px; width: 230px; height: 234px; }
+.rr[data-mode="grid"] .rr-slot-hit { display: none; }
+.rr[data-mode="list"] .rr-col--secondary.is-open .rr-slot-hit { display: none; }
+.rr[data-mode="list"] .rr-col--secondary .rr-row--grid { z-index: 2; }
+
+/* ==========================================================================
+   8. Bottom-left settings (list / grid toggle, detailed descriptions)
+   ========================================================================== */
+.rr-settings {
+    position: absolute;
+    left: 35px;
+    bottom: 27px;              /* .perks-settings, 7.22-13.1 (PBE capture: box top 584) */
+    z-index: 3;
+    display: flex;
+    align-items: center;
+}
+/* 13.7+: .perks-settings lost position:absolute and sits in the flex
+   column's flow, below the columns [sampled, V13.7 capture]. */
+.rr[data-page-variant="v13"] .rr-settings { bottom: 18px; }
+.rr-modes {
+    display: flex;
+    line-height: 0;
+    margin-right: 26px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.rr-modes:hover { opacity: 1; }
+.rr-mode {
+    display: block;
+    margin: 0;
+    padding: 5px;
+    border: 1px solid #010a13;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.rr-mode + .rr-mode { margin-left: -1px; border-left-color: #585342; }
+.rr-mode svg { display: block; fill: #f0e6d2; }
+.rr-mode path { opacity: 0.5; transition: opacity 0.2s; }
+.rr-mode.is-checked { border-color: #585342; }
+.rr-mode.is-checked path { opacity: 1; }
+.rr-check {                                             /* lol-uikit-flat-checkbox */
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font: 400 11px/16px var(--font-lcu-body);   /* LCU 12px Spiegel; Inter runs ~10% wider: */
+    letter-spacing: 0.02em;                      /* the label spans ~337px as in V13.7 */
+    color: #a09b8c;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.rr-check input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.rr-check-box {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    background: url(../images/lcu/checkbox-spritesheet.png) no-repeat 0 0 / 14px 56px;
+}
+.rr-check:hover .rr-check-box { background-position: 0 -14px; }
+.rr-check input:checked + .rr-check-box { background-position: 0 -28px; }
+.rr-check:hover input:checked + .rr-check-box { background-position: 0 -42px; }
+.rr-check:hover { color: #f0e6d2; }
+
+/* ==========================================================================
+   9. Style picker (new page, no primary path yet): 5 columns of 211x635
+   ========================================================================== */
+.rr-picker {
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 4;
+    display: flex;
+    width: 1055px;
+    height: 635px;
+    background: #010a13;
+}
+.rr-pcol {
+    position: relative;
+    flex: 0 0 211px;
+    width: 211px;
+    height: 635px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.85);
+    font-family: var(--font-lcu-body);
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    filter: saturate(0);
+    transition: filter 0.25s ease-out 0.15s;
+}
+.rr-pcol:hover, .rr-pcol:focus-visible { filter: none; }
+.rr-pcol-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 211px;
+    height: 639px;
+    opacity: 0;
+    background-repeat: no-repeat;
+}
+.rr-pcol-lines { background-image: url(../images/runes-reforged/style-picker/lines.png); transition: opacity 0.1s ease-out 0.05s; }
+.rr-pcol-glow  { transition: opacity 0.25s ease-out 0.15s; }
+.rr-pcol[data-style="precision"]   .rr-pcol-glow { background-image: url(../images/runes-reforged/style-picker/glow-p.png); }
+.rr-pcol[data-style="domination"]  .rr-pcol-glow { background-image: url(../images/runes-reforged/style-picker/glow-d.png); }
+.rr-pcol[data-style="sorcery"]     .rr-pcol-glow { background-image: url(../images/runes-reforged/style-picker/glow-s.png); }
+.rr-pcol[data-style="resolve"]     .rr-pcol-glow { background-image: url(../images/runes-reforged/style-picker/glow-r.png); }
+.rr-pcol[data-style="inspiration"] .rr-pcol-glow { background-image: url(../images/runes-reforged/style-picker/glow-i.png); }
+.rr-pcol:hover .rr-pcol-bg, .rr-pcol:focus-visible .rr-pcol-bg { opacity: 0.7; }
+.rr-pcol-content { position: absolute; top: 0; left: 0; width: 211px; }
+.rr-pcol-lockup { position: relative; height: 246px; margin: 30px 0 56px; }
+.rr-pcol-lockup img { position: absolute; top: 0; left: 0; width: 211px; height: 246px; }
+.rr-pcol-ring { transition: filter 0.15s ease-out; }
+.rr-pcol[data-style="domination"]  .rr-pcol-ring { filter: hue-rotate(0deg) grayscale(100%); }
+.rr-pcol[data-style="inspiration"] .rr-pcol-ring { filter: hue-rotate(245deg) grayscale(100%); }
+.rr-pcol[data-style="precision"]   .rr-pcol-ring { filter: hue-rotate(65deg) grayscale(100%); }
+.rr-pcol[data-style="resolve"]     .rr-pcol-ring { filter: hue-rotate(165deg) grayscale(100%); }
+.rr-pcol[data-style="sorcery"]     .rr-pcol-ring { filter: hue-rotate(285deg) grayscale(100%); }
+.rr-pcol[data-style="domination"]:hover  .rr-pcol-ring { filter: hue-rotate(0deg) grayscale(0%); }
+.rr-pcol[data-style="inspiration"]:hover .rr-pcol-ring { filter: hue-rotate(245deg) grayscale(0%); }
+.rr-pcol[data-style="precision"]:hover   .rr-pcol-ring { filter: hue-rotate(65deg) grayscale(0%); }
+.rr-pcol[data-style="resolve"]:hover     .rr-pcol-ring { filter: hue-rotate(165deg) grayscale(0%); }
+.rr-pcol[data-style="sorcery"]:hover     .rr-pcol-ring { filter: hue-rotate(285deg) grayscale(0%); }
+.rr-pcol-logo { opacity: 0.7; filter: grayscale(100%); transition: filter 0.15s ease-out, opacity 0.15s ease-out; }
+.rr-pcol:hover .rr-pcol-logo, .rr-pcol:focus-visible .rr-pcol-logo { opacity: 1; filter: grayscale(0%); }
+.rr-pcol-vfx { opacity: 0; transition: opacity 0.25s ease-out; }
+.rr-pcol:hover .rr-pcol-vfx, .rr-pcol:focus-visible .rr-pcol-vfx { opacity: 1; }
+.rr-pcol-header { position: absolute; bottom: 10px; left: 0; width: 211px; }
+.rr-pcol-name {
+    margin-bottom: 4px;
+    font: 400 16px/19.2px var(--font-lcu-display);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #727271;
+    transition: color 0.15s ease-out;
+}
+.rr-pcol:hover .rr-pcol-name { color: var(--rr-light); }
+.rr-pcol-summary {
+    font: 400 10px/14px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: #ddd;
+}
+.rr-pcol .rr-desc-fade { opacity: 0.2; transition: opacity 0.15s ease-out; }
+.rr-pcol:hover .rr-desc-fade, .rr-pcol:focus-visible .rr-desc-fade { opacity: 1; }
+.rr-pcol-keystones { position: relative; padding: 0 6px; font-size: 0; line-height: 0; }
+.rr-pcol-keystones img {
+    display: inline-block;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+}
+.rr-pcol-keystones img + img { margin-left: 6px; }
+.rr-pcol-keystones img:nth-child(3) { margin-left: 0; }
+.rr-pcol-keystones img:nth-child(4) { margin-left: 6px; }
+.rr-pcol-desc {
+    margin: 22px;
+    font: 400 11px/14px var(--font-lcu-body);
+    letter-spacing: 0.05em;
+    color: #ddd;
+}
+
+/* ==========================================================================
+   10. Tooltip content (LolTooltip skin "lcu", className rr-tt): the
+       perks-tooltip layout — 280 wide (200 for shards), no frame padding.
+   ========================================================================== */
+.lol-tt[data-skin="lcu"].rr-tt { --lol-tt-pad: 0; min-width: 0; max-width: none; }
+.rr-tt .rr-tt-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px 10px;
+}
+.rr-tt .rr-tt-head .tt-title { color: #f0e6d2; }
+.rr-tt .rr-tt-points { color: #a09b8c; font: 700 14px/18px var(--font-lcu-display); }
+.rr-tt .rr-tt-desc {
+    margin: 0;
+    padding: 0 15px 15px;
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: #a09b8c;
+}
+.rr-tt .rr-tt-desc b, .rr-tt .rr-tt-desc strong { color: #f0e6d2; font-weight: 700; }
+.rr-tt .rr-kw { font-weight: 700; color: #f0e6d2; }
+.rr-tt .rr-kw font { filter: brightness(1.15); }
+.rr-tt .rr-tt-desc i, .rr-tt .rr-tt-desc .rr-rules { color: #a09b8c; font-style: italic; }
+.rr-tt .rr-tt-desc hr {
+    height: 1px;
+    margin: 10px 0;
+    border: 0;
+    background: #3c4650;
+}
+.rr-tt .rr-tt-line + .rr-tt-line { margin-top: 10px; }
+.rr-tt .rr-tt-locked {
+    padding: 5px 15px;
+    background: #1e2328;
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: #a09b8c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rr-layer.is-in, .rr-pulse, .rr-fill.is-shoot .rr-flash,
+    .rr-bigicon.is-spinning .rr-comet::before, .rr-bigicon.is-spinning .rr-comet::after,
+    .rr-row.is-open .rr-radial::before { animation: none; }
 }
