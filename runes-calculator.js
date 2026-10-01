@@ -21,7 +21,6 @@ var CATEGORY_LABEL = {
     glyph: "Glyphs",
     quintessence: "Quintessences"
 };
-var CATEGORY_SINGULAR = { mark: "Mark", seal: "Seal", glyph: "Glyph", quintessence: "Quintessence" };
 
 // AIR rune tooltip name colour per category. Mark red and glyph blue are
 // sampled (Apr 2012 / Nov 2015 captures); seal and quint are inferred.
@@ -77,41 +76,75 @@ var SLOT_LEGACY = [
 // round each quint position (192x192 art px each, side by side) with the
 // painted socket's runic ring removed, so the ring (painted off-centre in
 // the fan art) does not peek out past the quint's frame. Top-left corner
-// of each patch relative to the slot centre, in art px (made by
-// scratchpad fix2/make_quint_patches.py; regenerate if a quint moves).
+// of each patch relative to the slot centre, in art px (regenerate the
+// underlay image if a quint moves).
 var QUINT_UNDERLAY = [ [ -96.244, -95.799 ], [ -95.875, -95.932 ], [ -95.951, -96.298 ] ];
 var PARCHMENT_LOGICAL_W = 1024;
 var PARCHMENT_LOGICAL_H = 615;
 
-// LCU (V7.21) socket centres on the 670x560 rune board, measured on the
-// Dec 2016 capture (refs/runes-legacy/fandom_LCU_Rune_page.png; the gold
-// ring = images/runes-lcu/rune_circle.png drawn 1:1 at (20,40)). Three
-// arcs of nine between the three quint sockets. Which arc holds which
-// colour is not visible in the (empty) capture: marks take the left arc,
-// seals the top, glyphs the right (clockwise, like the AIR page's
-// marks → seals → glyphs sweep).
+// LCU (V7.21) socket centres on the 670x560 rune board (the gold ring =
+// images/runes-lcu/rune_circle.png drawn 1:1 at (20,40), as on the Dec 2016
+// capture Fandom File:LCU_Rune_page.png). Taken from the 7.21
+// client's own CSS (CommunityDragon rcp-fe-lol-runes, runes.js): .rune-position-<slotId> {left; top} for a
+// 50px (small) / 105px (large) box, inside a wrapper that sits at (4,39)
+// from the ring, so centre = (left + 29, top + 64) / (left + 56.5, top +
+// 91.5). Slot ids 1-9 are red (marks, left arc), 10-18 yellow (seals, top),
+// 19-27 blue (glyphs, right), 28-30 black (quints). Array order = slot id:
+// the client places a picked rune in the first empty slot of its colour.
 var LCU_BOARD_W = 670;
 var LCU_BOARD_H = 560;
 var LCU_SOCKETS = {
-    mark:  [ [ 246, 489.5 ], [ 190, 452.5 ], [ 252, 434.5 ], [ 148, 400.5 ], [ 209, 397.5 ],
-             [ 124, 338.5 ], [ 181, 348.5 ], [ 119, 270.5 ], [ 171, 291.5 ] ],
-    seal:  [ [ 206, 118.5 ], [ 250, 152.5 ], [ 268, 87.5 ], [ 305, 132.5 ], [ 334, 78.5 ],
-             [ 361, 132.5 ], [ 399, 88.5 ], [ 416, 152.5 ], [ 461, 118.5 ] ],
-    glyph: [ [ 549, 270.5 ], [ 497, 291.5 ], [ 544, 338.5 ], [ 487, 348.5 ], [ 520, 400.5 ],
-             [ 459, 397.5 ], [ 478, 452.5 ], [ 415, 434.5 ], [ 422, 488.5 ] ],
-    quintessence: [ [ 158.5, 194 ], [ 508.5, 194 ], [ 333.5, 502 ] ]
+    mark:  [ [ 119, 271 ], [ 171, 292 ], [ 124, 339 ], [ 181, 349 ], [ 148, 401 ],
+             [ 209, 398 ], [ 190, 453 ], [ 252, 435 ], [ 246, 490 ] ],
+    seal:  [ [ 206, 119 ], [ 250, 153 ], [ 268, 88 ], [ 305, 133 ], [ 334, 79 ],
+             [ 361, 133 ], [ 399, 89 ], [ 416, 153 ], [ 461, 119 ] ],
+    glyph: [ [ 497, 292 ], [ 549, 271 ], [ 487, 349 ], [ 544, 339 ], [ 459, 398 ],
+             [ 520, 401 ], [ 478, 453 ], [ 415, 435 ], [ 422, 489 ] ],
+    quintessence: [ [ 158.5, 193.5 ], [ 508.5, 193.5 ], [ 333.5, 501.5 ] ]
 };
-// Socket sprite frames: images/runes-lcu/rune_base_small.png (10 frames)
-// and rune_base_large.png (4 frames), cut from CommunityDragon 7.21
-// rcp-fe-lol-runes rune_base_small/large.png (frames 1-4, 9, 13, 17, 21,
-// 25, 29 / 1, 3, 5, 9): empty, colour-hinted hover, filled, filled hover.
+// Socket / inventory-icon sprite frames. images/runes-lcu/rune_base_small.png
+// (28 frames) and rune_base_large.png (10 frames) are the 7.21
+// rune_base_small/large.png sheets (32 / 12 frames) minus the unused ones
+//. Per colour and tier the client keeps
+// four frames in a row: inventory icon, inventory hover, socket, socket
+// hover (.rune-inventory-icon / .rune-circle-* .tier-N[.tier-hover]):
+//   small  0 empty, 1-3 droppable red / blue / yellow (our empty-socket
+//          hover hint), then red t1-2 4-7, red t3 8-11, blue 12-15 / 16-19,
+//          yellow 20-23 / 24-27
+//   large  0 empty, 1 droppable, t1-2 2-5, t3 6-9
 var LCU_FRAME = {
-    empty: 0,
-    mark:  { hover: 1, filled: 4, filledHover: 5 },
-    glyph: { hover: 2, filled: 6, filledHover: 7 },
-    seal:  { hover: 3, filled: 8, filledHover: 9 },
-    quintessence: { empty: 0, hover: 1, filled: 2, filledHover: 3 }
+    small: { empty: 0, avail: { mark: 1, glyph: 2, seal: 3 }, base: { mark: 4, glyph: 12, seal: 20 } },
+    large: { empty: 0, avail: 1, base: 2 }
 };
+// Rune stat → the client's per-stat icon name (rcp-fe-lol-runes stat map,
+// keyed by our runes-data.js stat keys; scaling stats get "PerLevel", two
+// stats are joined with "+" in sorted order). File =
+// images/runes-lcu/icons/icon_runes_<name>_<mark|seal|glyph|large>.png.
+// Lethality is the client's rPhysicalLethality (→ armor_pen);
+// Precision = lethality + magic pen (→ hybrid_pen).
+var LCU_STAT_ICON = {
+    ad: "attack_damage", adPerLevel: "scaling_attack_damage",
+    ap: "ability_power", apPerLevel: "scaling_ability_power",
+    as: "attack_speed", crit: "critical_chance", critDmg: "critical_damage",
+    armor: "armor", armorPerLevel: "scaling_armor",
+    mr: "magic_resist", mrPerLevel: "scaling_magic_resist",
+    hp: "health", hpPerLevel: "scaling_health",
+    mp: "mana", mpPerLevel: "scaling_mana",
+    hpRegen: "health_regen", hpRegenPerLevel: "scaling_health_regen",
+    mpRegen: "mana_regen", mpRegenPerLevel: "scaling_mana_regen",
+    cdr: "cooldown", cdrPerLevel: "scaling_cooldown",
+    energy: "energy", energyPerLevel: "scaling_energy",
+    energyRegen: "energy_regen", energyRegenPerLevel: "scaling_energy_regen",
+    lethality: "armor_pen", arpen: "armor_pen", mpen: "magic_pen",
+    "lethality+mpen": "hybrid_pen", "arpen+mpen": "hybrid_pen",
+    hpPercent: "percent_health", gold: "gold", ms: "movement_speed",
+    ls: "life_steal", sv: "spellvamp", xp: "experience", timeDead: "revival"
+};
+// Mark of Precision (5401): Riot's text is abbreviated ("+0.7 Leth / +0.48
+// M.Pen"), so the catalogue only parsed its magic pen; it is a hybrid.
+var LCU_ICON_BY_ID = { "5401": "hybrid_pen" };
+var LCU_ICON_SUFFIX = { mark: "mark", seal: "seal", glyph: "glyph", quintessence: "large" };
+var LCU_ICON_DEFAULT = { mark: "attack_damage", seal: "armor", glyph: "magic_resist", quintessence: "attack_damage" };
 
 // ---------- Client stat strings ---------------------------------------------
 // The AIR list shows the SHORT client stat string, not the rune name
@@ -215,11 +248,39 @@ function runeEra() {
     return (document.body && document.body.getAttribute("data-client")) || "air";
 }
 
+// AIR: the Data Dragon hex art (hi-res client art where we have it).
 function runeIconSrc(rune, placed) {
     if (placed && rune.icon && HIRES_ICON[rune.icon]) return HIRES_ICON[rune.icon];
     if (rune.icon && activeRuneDataSet && activeRuneDataSet.iconBasePath)
         return activeRuneDataSet.iconBasePath + rune.icon;
     return CATEGORY_ART[rune.category];
+}
+
+// LCU: the client draws no rune art, only a per-stat glyph sprite on the
+// socket frame of the rune's colour and tier (see LCU_FRAME).
+function lcuStatIconName(rune) {
+    if (LCU_ICON_BY_ID[rune.id]) return LCU_ICON_BY_ID[rune.id];
+    var keys = [];
+    var k;
+    for (k in (rune.base || {})) if (rune.base[k]) keys.push(k);
+    for (k in (rune.perLevel || {})) if (rune.perLevel[k]) keys.push(k + "PerLevel");
+    keys.sort();
+    return LCU_STAT_ICON[keys.join("+")] || LCU_ICON_DEFAULT[rune.category];
+}
+function lcuGlyphSrc(rune) {
+    return "images/runes-lcu/icons/icon_runes_" + lcuStatIconName(rune) + "_" + LCU_ICON_SUFFIX[rune.category] + ".png";
+}
+// Frame of the colour + tier group: +0 inventory, +1 inventory hover,
+// +2 socket, +3 socket hover; tier 3 is the next group of four.
+function lcuTierFrame(rune, socket, hover) {
+    var group = rune.tier === 3 ? 4 : 0;
+    var base = rune.category === "quintessence" ? LCU_FRAME.large.base : LCU_FRAME.small.base[rune.category];
+    return base + group + (socket ? 2 : 0) + (hover ? 1 : 0);
+}
+function lcuGlyph(rune, cls) {
+    var $g = $("<span>").addClass(cls + " rl-lcu-glyph " + (rune.tier === 3 ? "is-t3" : "is-t12"));
+    $g[0].style.backgroundImage = "url(" + lcuGlyphSrc(rune) + ")";
+    return $g;
 }
 
 function categoryOfSlot(slotIndex) { return slotMeta[slotIndex].category; }
@@ -349,9 +410,10 @@ function slotPosition(slotIndex, era) {
     return { left: (q[0] / PARCHMENT_LOGICAL_W * 100) + "%", top: (q[1] / PARCHMENT_LOGICAL_H * 100) + "%" };
 }
 
-function lcuFrame(cat, state) {
-    var set = LCU_FRAME[cat] || LCU_FRAME.mark;
-    return state === "empty" ? (set.empty || LCU_FRAME.empty) : set[state];
+// Empty socket: rest frame + the colour-hinted "droppable" frame on hover.
+function lcuEmptyFrames(cat) {
+    if (cat === "quintessence") return [LCU_FRAME.large.empty, LCU_FRAME.large.avail];
+    return [LCU_FRAME.small.empty, LCU_FRAME.small.avail[cat]];
 }
 
 function drawRuneSlots() {
@@ -367,9 +429,10 @@ function drawRuneSlots() {
             .attr("data-slot", i)
             .css(slotPosition(i, era));
         if (era === "lcu") {
-            // Sprite frame (rest / hover) for css/runes-legacy.css §B.
-            $slot[0].style.setProperty("--f", lcuFrame(cat, rune ? "filled" : "empty"));
-            $slot[0].style.setProperty("--fh", lcuFrame(cat, rune ? "filledHover" : "hover"));
+            // Sprite frame (rest / hover) for css/runes-legacy.css §B1.
+            var fr = rune ? [lcuTierFrame(rune, true, false), lcuTierFrame(rune, true, true)] : lcuEmptyFrames(cat);
+            $slot[0].style.setProperty("--f", fr[0]);
+            $slot[0].style.setProperty("--fh", fr[1]);
         } else if (rune && cat === "quintessence" && QUINT_UNDERLAY[slotMeta[i].indexInCategory]) {
             // Ring-free art patch under the quint, before every slot so
             // placed neighbours paint over it (css §A1).
@@ -380,7 +443,9 @@ function drawRuneSlots() {
             $ul[0].style.setProperty("--ul-dy", ul[1]);
             $area.prepend($ul);
         }
-        if (rune) {
+        if (rune && era === "lcu") {
+            $slot.append(lcuGlyph(rune, "placed-rune").attr({ role: "img", "aria-label": rune.name }));
+        } else if (rune) {
             var src = runeIconSrc(rune, true);
             $slot.append($("<img>").addClass("placed-rune")
                 .toggleClass("is-hires", src.indexOf("/legacy_") >= 0)
@@ -408,6 +473,7 @@ function nextEmptySlotIndex(category) {
 // ---------- Library (category accordion + rune rows) ------------------------
 
 function buildCategoriesSidebar() {
+    var era = runeEra();
     var $cats = $("#runes-categories");
     var keep = $cats.scrollTop();
     $cats.empty();
@@ -430,12 +496,28 @@ function buildCategoriesSidebar() {
                 var left = max - placedCount(rune.id);
                 if (left <= 0) continue;          // the client lists owned-minus-placed
                 shown++;
-                $items.append($("<div>").addClass("rl-rune tier-" + rune.tier)
+                var $row = $("<div>").addClass("rl-rune tier-" + rune.tier)
                     .attr({ "data-rune": rune.id, tabindex: "0", role: "button",
-                            "aria-label": rune.name + ", " + left + " left" })
-                    .append($("<img>").addClass("rl-rune-icon").attr({ src: runeIconSrc(rune, false), alt: "", draggable: "false" }))
-                    .append($("<span>").addClass("rl-rune-text").text(runeShortText(rune)))
-                    .append($("<span>").addClass("rl-rune-count").text("x" + left)));
+                            "aria-label": rune.name + ", " + left + " left" });
+                if (era === "lcu") {
+                    // The client's inventory item (rcp-fe-lol-runes): "x9",
+                    // the socket-framed glyph, then name over description.
+                    var $icon = $("<span>").addClass("rl-rune-icon rl-lcu-icon")
+                        .toggleClass("is-large", cat === "quintessence")
+                        .append(lcuGlyph(rune, "rl-rune-glyph"));
+                    $icon[0].style.setProperty("--f", lcuTierFrame(rune, false, false));
+                    $icon[0].style.setProperty("--fh", lcuTierFrame(rune, false, true));
+                    $row.append($("<span>").addClass("rl-rune-count").text("x" + left))
+                        .append($icon)
+                        .append($("<span>").addClass("rl-rune-text")
+                            .append($("<span>").addClass("rl-rune-name").text(rune.name))
+                            .append($("<span>").addClass("rl-rune-desc").text(rune.desc || runeShortText(rune))));
+                } else {
+                    $row.append($("<img>").addClass("rl-rune-icon").attr({ src: runeIconSrc(rune, false), alt: "", draggable: "false" }))
+                        .append($("<span>").addClass("rl-rune-text").text(runeShortText(rune)))
+                        .append($("<span>").addClass("rl-rune-count").text("x" + left));
+                }
+                $items.append($row);
             }
             if (!shown) $items.append($("<div>").addClass("rl-rune-none").text("No runes match the tier filter."));
             $group.append($items);
@@ -565,11 +647,11 @@ function runeTooltipHtml(rune, era) {
     var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
     var kind = runeIsPrimary(rune) ? "Primary" : "Secondary";
     if (era === "lcu") {
+        // The client's rune-slot tooltip: <h6> name + <p> description
+        // (tooltip-small, 180-300px; css §B6).
         return '<div class="rl-tt-lcu">'
             + '<p class="tt-title">' + esc(rune.name) + '</p>'
-            + '<p class="tt-sub">Tier ' + rune.tier + ' ' + esc(CATEGORY_SINGULAR[rune.category]) + ' · ' + kind + '</p>'
-            + '<hr class="tt-divider" />'
-            + '<p class="tt-body"><b>' + esc(rune.desc || runeShortText(rune)) + '</b></p>'
+            + '<p class="tt-body">' + esc(rune.desc || runeShortText(rune)) + '</p>'
             + '</div>';
     }
     return '<div class="rl-tt" style="--tt-title-color:' + CATEGORY_TT_COLOR[rune.category] + '">'
@@ -582,7 +664,7 @@ function runeTooltipHtml(rune, era) {
 function showRuneTip(e, rune, el) {
     if (!window.LolTooltip || !rune) return;
     var era = runeEra();
-    if (era === "lcu") LolTooltip.show(el, runeTooltipHtml(rune, era), "lcu", { position: "top" });
+    if (era === "lcu") LolTooltip.show(el, runeTooltipHtml(rune, era), "lcu", { position: "top", className: "rl-tt-lcu-box" });
     // rl-tt-air: the tip at the sheet's 1.1x client scale (css A7).
     else LolTooltip.show(e && e.type !== "focusin" && e.type !== "focus" ? (e.originalEvent || e) : el,
                          runeTooltipHtml(rune, era), "air-rune", { className: "rl-tt-air" });

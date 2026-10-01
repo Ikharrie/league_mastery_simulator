@@ -1,7 +1,8 @@
 /* ==========================================================================
    runes-legacy.css — pre-Reforged rune page (runes.html, V3.14-V7.21).
    Markup: runes.html .legacy-app (the AIR sheet root) holds, as siblings:
-     .rl-board#parchment > #rune-slots (.rune-slot[.filled] > img.placed-rune)
+     .rl-board#parchment > #rune-slots (.rune-slot[.filled] > .placed-rune:
+                  img on AIR, span.rl-lcu-glyph on LCU)
      .rl-pagebar > #rune-page-name
      .rl-typebar  "Runes Type:" + select#rune-category-filter
      .rl-library  .rl-tiers + .rl-well > #runes-categories.rl-list
@@ -17,15 +18,18 @@
       Everything is overlaid on the painted panels of the full sheet art
       (images/runes/summoners_runes_bg.jpg, 1618x972 art px) that #parchment
       paints. air-sheet.css §7 sizes the sheet and places the head and the
-      page chips; it still pins the retired .runes-layout columns, which
-      this markup no longer uses. Units: --a = 1 art px, --u = 1 native
+      page chips; it loads before this file, so equal-specificity rules
+      here win over the shared sheet. Units: --a = 1 art px, --u = 1 native
       client px (air-sheet.css; k = 1.1). Measured on the Apr 2015 capture
-      refs/runes-legacy/fandom_PVP.net_Summoner_profile_05.jpg (native px;
+      Fandom File:PVP.net_Summoner_profile_05.jpg (native px;
       native = art * 0.7138 - 5, +4 on y) unless noted.
    §B LCU (body[data-client=lcu], V7.21): the League Client's legacy rune
-      page (refs/runes-legacy/fandom_LCU_Rune_page.png, Dec 2016): gold
+      page (Fandom File:LCU_Rune_page.png, Dec 2016): gold
       rune circle with 30 dark hex sockets, clear-all + SAVE, on the LCU
       backdrop; inventory and stats in LCU uikit chrome (base.css §5).
+      Sockets, placed runes, inventory items and the rune tooltip follow
+      the 7.21 client's own CSS (CommunityDragon rcp-fe-lol-runes,
+      runes.js); art in images/runes-lcu/.
    ========================================================================== */
 
 .legacy-app { box-sizing: border-box; }
@@ -39,13 +43,10 @@ body[data-client="lcu"] .rl-air-only { display: none !important; }
 .rl-library-title, .rl-board-emblem { display: none; }
 
 /* ==========================================================================
-   §A  AIR client (V3.14-V6.24)
+   §A  AIR client (V3.14-V6.24). Ink and base font come from the sheet
+   (air-sheet.css .air-sheet, loaded before this file).
    ========================================================================== */
-body[data-client="air"] .legacy-app {
-    color: #1a120a;
-    font: 400 calc(12 * var(--u))/1.25 var(--font-air-body);
-    -webkit-font-smoothing: antialiased;
-}
+body[data-client="air"] .legacy-app { -webkit-font-smoothing: antialiased; }
 
 /* --- A1. Board: the whole painted sheet; slots use % of the full art ---- */
 body[data-client="air"] .rl-board {
@@ -230,6 +231,26 @@ body[data-client="air"] .rl-type-select {
 }
 body[data-client="air"] .rl-type-select:focus-visible { box-shadow: 0 0 0 1px #6b2410, 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(70, 50, 10, 0.35); }
 body[data-client="air"] .rl-type-select option { font: 400 14px var(--font-air-body); color: #111; background: #fff; }
+
+/* Rune page tabs: the SELECTED tab is drawn LIGHTER, a flat slate-blue
+   tile, not the pressed dark navy of the masteries bar (DECISIONS §5 / critic
+   C3 rest on mastery captures). Three rune-tab captures agree:
+     Apr 2015 Fandom File:PVP.net_Summoner_profile_05.jpg, tab 1, column
+       x 279: border #7f97a1 / top line #84a9d3 / #618cc3 (y125) #5778a5
+       (130) #506d8d (135) #466081 (140) #415671 (145), sides ~#697979;
+     Nov 2015 refs crop_phreak_2015.png, tab 8 of "8. Jungle Tank", the
+       cursor far away on a glyph (so not hover);
+     May 2013 refs sb_2013_runepage_frame.png, tab 2 avg rgb(100,121,133)
+       vs (46,75,88) / (56,80,106) for tabs 1 and 3.
+   Rune tabs only (.air-chips--rune); the masteries bar keeps its look. */
+body[data-client="air"] .air-chips--rune .air-chip.is-selected {
+    border-color: #687a86;
+    border-top-color: #7f97a1;
+    border-bottom-color: #5d6a72;
+    background: linear-gradient(to bottom, #618cc3 0%, #5778a5 25%, #506d8d 46%, #466081 66%, #415671 88%, #435873 100%);
+    box-shadow: inset 0 1px 0 #84a9d3, 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(50, 40, 15, 0.45);
+    color: #e3ebf4;
+}
 
 /* --- A4. Library (painted panel x 71-376, tier band y 217-267, olive
        well 268-875). List 199u + 1u line + 18u Flex scrollbar. -------- */
@@ -636,7 +657,7 @@ body[data-client="air"] .rl-actions {
     gap: calc(5.5 * var(--u));
     padding-top: calc(1 * var(--u));
 }
-body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn {
+body[data-client="air"] .rl-actions .air-btn.rl-btn {
     position: relative;
     flex: none;
     width: calc(35 * var(--u));
@@ -649,7 +670,7 @@ body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn {
     box-shadow: inset 0 1px 0 rgba(150, 195, 250, 0.45), 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(50, 35, 5, 0.55);
     color: #fff;
 }
-body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn::before {
+body[data-client="air"] .rl-actions .air-btn.rl-btn::before {
     content: "";
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
@@ -657,13 +678,13 @@ body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn::before {
     -webkit-mask: var(--rl-glyph) no-repeat center / var(--rl-glyph-size, 100%) var(--rl-glyph-size, 100%);
     mask: var(--rl-glyph) no-repeat center / var(--rl-glyph-size, 100%) var(--rl-glyph-size, 100%);
 }
-body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:hover { filter: brightness(1.12); }
-body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:active {
+body[data-client="air"] .rl-actions .air-btn.rl-btn:hover { filter: brightness(1.12); }
+body[data-client="air"] .rl-actions .air-btn.rl-btn:active {
     filter: none;
     background: var(--air-chip-selected);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
 }
-body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:disabled {
+body[data-client="air"] .rl-actions .air-btn.rl-btn:disabled {
     border-color: #6d6b6c;
     border-bottom-color: #4e4f4d;
     background: linear-gradient(to bottom, #c7c3c4 0, #a6a1a7 6%, #99969d 22%, #8c8a8b 45%, #7c7a7b 65%, #6e6c6d 82%, #646763 100%);
@@ -755,39 +776,53 @@ body[data-client="lcu"] .rl-board-emblem {
     pointer-events: none;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='308 224 53 44'%3E%3Cg fill='none' stroke='%233d3833' stroke-width='2.2' stroke-linejoin='miter'%3E%3Cpath d='M321 233.5L334.5 247L348 233.5L356.5 242L334.5 264L312.5 242Z'/%3E%3Cpath d='M334.5 228.5L339.2 233.2L334.5 237.9L329.8 233.2Z'/%3E%3C/g%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
 }
+/* Sockets and placed runes as the 7.21 client draws them (rcp-fe-lol-runes
+   CSS, runes.js): no rune art, only
+     .rune-circle-small:before  68px frame of rune_base_small (empty, or the
+                                socket frame of the rune's colour + tier)
+     .rune-circle-small:after   28px per-stat glyph sprite
+     .rune-circle-large         152px frame of rune_base_large + 60px glyph.
+   Glyph sprite (images/runes-lcu/icons, 3 frames): 0 = tier 3, 1 = hover
+   (.circle-hover), 2 = tier 1-2; the large glyph is frame 0 at every tier.
+   Frame numbers (--f rest, --fh hover) come from runes-calculator.js
+   LCU_FRAME: 28 frames small, 10 large. */
 body[data-client="lcu"] .rune-slot {
-    width: 67px;
-    height: 67px;
-    background: url(../images/runes-lcu/rune_base_small.png) no-repeat 0 calc(var(--f, 0) * 100% / 9) / 100% 1000%;
+    width: 68px;
+    height: 68px;
+    background: url(../images/runes-lcu/rune_base_small.png) no-repeat 0 calc(var(--f, 0) * 100% / 27) / 100% 2800%;
 }
-body[data-client="lcu"] .rune-slot:hover { background-position: 0 calc(var(--fh, 0) * 100% / 9); }
+body[data-client="lcu"] .rune-slot:hover { background-position: 0 calc(var(--fh, 0) * 100% / 27); }
 body[data-client="lcu"] .rune-slot.slot-quintessence {
-    width: 151px;
-    height: 151px;
+    width: 152px;
+    height: 152px;
     background-image: url(../images/runes-lcu/rune_base_large.png);
-    background-size: 100% 400%;
-    background-position: 0 calc(var(--f, 0) * 100% / 3);
+    background-size: 100% 1000%;
+    background-position: 0 calc(var(--f, 0) * 100% / 9);
 }
-body[data-client="lcu"] .rune-slot.slot-quintessence:hover { background-position: 0 calc(var(--fh, 0) * 100% / 3); }
-/* The rune art sits inside the socket's coloured rim: its own metal rim is
-   trimmed off by an inset hex clip, so only the socket frames it. */
+body[data-client="lcu"] .rune-slot.slot-quintessence:hover { background-position: 0 calc(var(--fh, 0) * 100% / 9); }
+.rl-lcu-glyph {
+    display: block;
+    background-repeat: no-repeat;
+    background-size: 100% 300%;
+    background-position: 0 0;
+    pointer-events: none;
+}
+.rl-lcu-glyph.is-t12 { background-position: 0 100%; }
 body[data-client="lcu"] .rune-slot .placed-rune {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 46px;
-    height: 46px;
-    margin: -23px 0 0 -23px;
-    -webkit-clip-path: polygon(50% 14%, 85% 32%, 85% 68%, 50% 86%, 15% 68%, 15% 32%);
-    clip-path: polygon(50% 14%, 85% 32%, 85% 68%, 50% 86%, 15% 68%, 15% 32%);
-    transition: filter 200ms ease-out;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
 }
 body[data-client="lcu"] .rune-slot.slot-quintessence .placed-rune {
-    width: 108px;
-    height: 108px;
-    margin: -54px 0 0 -54px;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    background-position: 0 0;
 }
-body[data-client="lcu"] .rune-slot.filled:hover .placed-rune { filter: brightness(1.15); }
+body[data-client="lcu"] .rune-slot.filled:hover .placed-rune { background-position: 0 50%; }
 
 /* --- B2. Page toolbar (in the board frame): page name left, clear-all
        circle button + SAVE right (capture: clear at x 481, SAVE 530-642,
@@ -819,11 +854,14 @@ body[data-client="lcu"] .rl-lcu-clear.lcu-circle-btn::after {
     -webkit-mask-image: url(../images/lcu/icon-clearall.png);
     mask-image: url(../images/lcu/icon-clearall.png);
 }
+/* SAVE: 112x32 uikit flat button. Spectral SC caps run wider than
+   Beaufort's, so the client's 0.075em tracking is cut until the word spans
+   the capture's 36px (Dec 2016, x 568-603 on the 1:1 board). */
 body[data-client="lcu"] .rl-lcu-save.lcu-btn {
     min-width: 112px;
     height: 32px;
     font: 700 14px/18px var(--font-lcu-display);
-    letter-spacing: 0.075em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
 }
 
@@ -922,88 +960,107 @@ body[data-client="lcu"] .rl-list {
     scrollbar-width: none;
     outline: none;
 }
+/* Inventory as the 7.21 client lays it out (rcp-fe-lol-runes
+   .rune-inventory-*): a 26px #1e2328 header bar (5px 10px padding, 12px
+   display caps #a09b8c, a 6x6 triangle at (10,10) turned 90deg when open,
+   text 12px further in), 10px under each header and between categories
+   (a closed one clips to 34px); 52px items: "x9" (14px display, #f0e6d2,
+   6px in, 15px down), the 52px socket-framed icon (-3px, -3px) with a 20px
+   glyph, then name (#f0e6d2) over description (#a09b8c), 7px down. No row
+   separators or row highlight: hover lights the icon (inventory hover
+   frame + glyph glow). */
+body[data-client="lcu"] .rl-cat { margin-bottom: 10px; }
 body[data-client="lcu"] .rl-cat-header {
     position: relative;
-    display: flex;
-    align-items: center;
-    height: 36px;
-    padding: 0 12px 0 30px;
-    border-bottom: 1px solid var(--hx-opt-sep);
-    background: linear-gradient(to bottom, #1e2328, #141a1f);
+    height: 26px;
+    margin-bottom: 8px;
+    padding: 5px 10px 5px 22px;
+    background: #1e2328;
     font: 700 12px/16px var(--font-lcu-display);
     letter-spacing: 0.075em;
     text-transform: uppercase;
-    color: var(--hx-gold-text);
+    color: var(--hx-grey-1);
     cursor: pointer;
     outline: none;
-    transition: color 150ms ease-out;
 }
-body[data-client="lcu"] .rl-cat-header::before {            /* caret */
+body[data-client="lcu"] .rl-cat.is-open .rl-cat-header { margin-bottom: 10px; }
+body[data-client="lcu"] .rl-cat-header::before {            /* triangle */
     content: "";
     position: absolute;
-    left: 13px;
-    top: 50%;
-    width: 6px;
-    height: 6px;
-    margin-top: -4px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(-45deg);
-    transition: transform 150ms ease-out;
+    left: 10px;
+    top: 10px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 3px 0 3px 6px;
+    border-color: transparent transparent transparent currentColor;
+    transition: transform 0.5s ease;
 }
-body[data-client="lcu"] .rl-cat.is-open .rl-cat-header::before { transform: rotate(45deg); margin-top: -6px; }
-body[data-client="lcu"] .rl-cat-header::after {             /* category pip */
-    content: "";
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    width: 8px;
-    height: 9px;
-    margin-top: -4.5px;
-    -webkit-clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-}
-body[data-client="lcu"] .cat-mark .rl-cat-header::after         { background: #be1e37; }
-body[data-client="lcu"] .cat-seal .rl-cat-header::after         { background: #c89b3c; }
-body[data-client="lcu"] .cat-glyph .rl-cat-header::after        { background: #0596aa; }
-body[data-client="lcu"] .cat-quintessence .rl-cat-header::after { background: #a45ac8; }
-body[data-client="lcu"] .rl-cat-header:hover,
-body[data-client="lcu"] .rl-cat-header:focus-visible,
-body[data-client="lcu"] .rl-cat.is-open .rl-cat-header { color: var(--hx-gold-1); }
+body[data-client="lcu"] .rl-cat.is-open .rl-cat-header::before { transform: rotate(90deg); }
+body[data-client="lcu"] .rl-cat-header:focus-visible { box-shadow: inset 0 0 0 1px var(--hx-gold-4); }
 body[data-client="lcu"] .rl-rune {
     position: relative;
     display: flex;
-    align-items: center;
-    min-height: 48px;
-    padding: 6px 44px 6px 54px;
-    border-bottom: 1px solid var(--hx-opt-sep);
+    align-items: flex-start;
+    height: 52px;
+    overflow: hidden;
     cursor: pointer;
     outline: none;
-    transition: background-color 150ms ease-out;
 }
-body[data-client="lcu"] .rl-rune:hover,
-body[data-client="lcu"] .rl-rune:focus-visible { background: var(--hx-grey-3); }
-body[data-client="lcu"] .rl-rune-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    width: 34px;
-    height: 34px;
-    margin-top: -17px;
-    -webkit-clip-path: polygon(50% 5%, 91% 27%, 91% 73%, 50% 95%, 9% 73%, 9% 27%);
-    clip-path: polygon(50% 5%, 91% 27%, 91% 73%, 50% 95%, 9% 73%, 9% 27%);
-}
-body[data-client="lcu"] .rl-rune-text { color: var(--hx-grey-1); white-space: pre-line; }
-body[data-client="lcu"] .rl-rune:hover .rl-rune-text { color: var(--hx-gold-1); }
 body[data-client="lcu"] .rl-rune-count {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    margin-top: -8px;
-    font: 600 12px/16px var(--font-lcu-body);
+    flex: none;
+    position: relative;
+    top: 15px;
+    padding-left: 6px;
+    font: 700 14px/18px var(--font-lcu-display-mixed);
+    letter-spacing: 0.0375em;
     color: var(--hx-gold-1);
 }
-body[data-client="lcu"] .rl-rune-none { padding: 12px; color: var(--hx-grey-15); }
+body[data-client="lcu"] .rl-rune-icon {
+    flex: none;
+    position: relative;
+    left: -3px;
+    top: -3px;
+    width: 52px;
+    height: 52px;
+    background: url(../images/runes-lcu/rune_base_small.png) no-repeat 0 calc(var(--f, 0) * 100% / 27) / 100% 2800%;
+}
+body[data-client="lcu"] .rl-rune-icon.is-large {
+    background-image: url(../images/runes-lcu/rune_base_large.png);
+    background-size: 100% 1000%;
+    background-position: 0 calc(var(--f, 0) * 100% / 9);
+}
+body[data-client="lcu"] .rl-rune-glyph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+}
+body[data-client="lcu"] .rl-rune:hover .rl-rune-icon,
+body[data-client="lcu"] .rl-rune:focus-visible .rl-rune-icon { background-position: 0 calc(var(--fh, 0) * 100% / 27); }
+body[data-client="lcu"] .rl-rune:hover .rl-rune-icon.is-large,
+body[data-client="lcu"] .rl-rune:focus-visible .rl-rune-icon.is-large { background-position: 0 calc(var(--fh, 0) * 100% / 9); }
+body[data-client="lcu"] .rl-rune:hover .rl-rune-glyph,
+body[data-client="lcu"] .rl-rune:focus-visible .rl-rune-glyph { background-position: 0 50%; }
+body[data-client="lcu"] .rl-rune-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+    left: -2px;
+    margin-top: 7px;
+}
+body[data-client="lcu"] .rl-rune-name,
+body[data-client="lcu"] .rl-rune-desc {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body[data-client="lcu"] .rl-rune-name { color: var(--hx-gold-1); }
+body[data-client="lcu"] .rl-rune-desc { color: var(--hx-grey-1); }
+body[data-client="lcu"] .rl-rune-none { padding: 4px 12px 12px; color: var(--hx-grey-15); }
 /* uikit scrollable: a thin bar in the well's right gutter. */
 body[data-client="lcu"] .rl-scroll {
     position: absolute;
@@ -1173,5 +1230,28 @@ body[data-client="lcu"] [data-rl-layout="stack"] .rl-library { left: 24px; top: 
 body[data-client="lcu"] [data-rl-layout="stack"] .rl-typebar { left: 24px; top: 468px; width: 472px; }
 body[data-client="lcu"] [data-rl-layout="stack"] .rl-stats { left: 24px; top: 900px; width: 472px; height: 360px; }
 
-/* LCU rune tooltip content (base.css .lol-tt[data-skin=lcu]). */
-.rl-tt-lcu .tt-sub { color: var(--hx-grey-1); }
+/* --- B6. Rune tooltip (base.css .lol-tt[data-skin=lcu] + .rl-tt-lcu-box):
+       the client's rune-slot tooltip is a tooltip-small content block,
+       180-300px, holding <h6 class="rune-slot-tooltip-title"> (display
+       face, 12px/16px 700, #f0e6d2, 0.0375em, NOT uppercased) and a <p>
+       with the description. -------------------------------------------- */
+.lol-tt.rl-tt-lcu-box[data-skin="lcu"] { min-width: 180px; max-width: 300px; }
+.lol-tt[data-skin="lcu"] .rl-tt-lcu .tt-title {
+    font: 700 12px/16px var(--font-lcu-display-mixed);
+    letter-spacing: 0.0375em;
+    text-transform: none;
+    color: var(--hx-gold-1);
+    white-space: nowrap;
+}
+.lol-tt[data-skin="lcu"] .rl-tt-lcu .tt-body { margin-top: 4px; color: var(--hx-grey-1); }
+
+/* Lining figures wherever a Spectral stand-in shows digits ("LEVEL 18",
+   "Rune Page 1", "x9"): Spectral SC defaults to old-style figures ("18"
+   reads as a small-cap "ı8"); Beaufort (LCU) and the AIR faces use lining
+   ones. Set per element: the font shorthand on each of them resets it. */
+body[data-client] .legacy-app .rl-level-label,
+body[data-client] .legacy-app .rl-page-name,
+body[data-client] .legacy-app .rl-rune-count,
+.lol-tt[data-skin="lcu"] .rl-tt-lcu .tt-title {
+    font-feature-settings: "lnum" 1;
+}
