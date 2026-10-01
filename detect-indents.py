@@ -2,10 +2,12 @@
 # outputs a SLOT_LEGACY array in 1024x615 logical coords, ordered by the
 # in-game fill order (Mark 1, 4, 7, 11, 14, 17, 21, 24, 27 etc.).
 
+import os
 import sys
 from PIL import Image
 
-IMG_PATH    = r"c:\Git repos\league_mastery_simulator\images\runes\summoners_runes_bg.jpg"
+HERE        = os.path.dirname(os.path.abspath(__file__))
+IMG_PATH    = os.path.join(HERE, "images", "runes", "summoners_runes_bg.jpg")
 LOGICAL_W   = 1024
 LOGICAL_H   = 615
 DARK_THRESH = 110      # captures the lighter quint hexes too
@@ -183,7 +185,7 @@ lines.append("];")
 print("\n" + "\n".join(lines))
 
 # Save to a file for easy paste-back
-out_path = r"c:\Git repos\league_mastery_simulator\detect-indents-output.js"
+out_path = os.path.join(HERE, "detect-indents-output.js")
 with open(out_path, "w") as f:
     f.write("\n".join(lines))
 print(f"\nAlso written to {out_path}")
