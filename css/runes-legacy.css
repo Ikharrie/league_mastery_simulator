@@ -739,14 +739,21 @@ body[data-client="air"] .rl-actions .air-btn.rl-btn:disabled {
 }
 
 /* ==========================================================================
-   §B  LCU client (V7.21): the League Client's legacy rune page.
-       Stage 1271 wide, 24px side margins: rune board 670x560 at x 24 (the
-       Dec 2016 capture's frame: clear-all + SAVE top-right, gold circle
-       1:1 at (20,40)) | inventory x 714-1018 | statistics x 1042-1247.
+   §B  LCU client (V7.21): the League Client's legacy rune page, laid out
+       as the 7.21 client's collections runebook (rcp-fe-lol-runes CSS):
+       .collections-runebook-left-container 350px (page name + 331px rune
+       inventory) | 7px | .collections-runebook-right-container 635px (the
+       rune circle, 560px tall, clear-all + SAVE top-right), with the stats
+       (.rune-circle-stats, 195px at (220,175)) INSIDE the circle and, on an
+       empty page, the centre emblem + hint instead.
+       Stage 1040 wide (24px margins): inventory x 24-355; rune board
+       670x560 at (365,10) = the Dec 2016 capture's frame (Fandom
+       File:LCU_Rune_page.png: gold circle 1:1 at (20,40), so the client's
+       right container starts 16px inside the board); stats x 601-796.
    ========================================================================== */
 body[data-client="lcu"] .legacy-app {
     position: relative;
-    width: 1271px;
+    width: 1040px;
     height: 580px;
     color: var(--hx-grey-1);
     font: 400 12px/16px var(--font-lcu-body);
@@ -758,16 +765,20 @@ body[data-client="lcu"] .legacy-app {
 body[data-client="lcu"] .rl-board {
     position: absolute;
     top: 10px;
-    left: 24px;
+    left: 365px;
     width: 670px;
     height: 560px;
     background: url(../images/runes-lcu/rune_circle.png) no-repeat 20px 40px / 626px 528px;
 }
-/* Centre mark (empty page), traced 1:1 off the Dec 2016 capture (board =
-   capture px): a 45-degree chevron outline (wing tips y 242, notch 247,
-   apex 264) with a detached diamond above the notch; warm grey #3c3732. */
+/* Centre mark, ONLY on an empty page (7.21 .rune-stats-empty-img in the
+   .rune-circle-stats-empty block, which swaps with the stats at 0.3s),
+   traced 1:1 off the Dec 2016 capture (board = capture px): a 45-degree
+   chevron outline (wing tips y 242, notch 247, apex 264) with a detached
+   diamond above the notch; warm grey #3c3732. runes-calculator.js
+   refreshPageState sets .legacy-app[data-rl-empty]. */
 body[data-client="lcu"] .rl-board-emblem {
     display: block;
+    opacity: 0;
     position: absolute;
     left: 308px;
     top: 224px;
@@ -776,6 +787,7 @@ body[data-client="lcu"] .rl-board-emblem {
     pointer-events: none;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='308 224 53 44'%3E%3Cg fill='none' stroke='%233d3833' stroke-width='2.2' stroke-linejoin='miter'%3E%3Cpath d='M321 233.5L334.5 247L348 233.5L356.5 242L334.5 264L312.5 242Z'/%3E%3Cpath d='M334.5 228.5L339.2 233.2L334.5 237.9L329.8 233.2Z'/%3E%3C/g%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
 }
+body[data-client="lcu"] .legacy-app[data-rl-empty] .rl-board-emblem { opacity: 1; }
 /* Sockets and placed runes as the 7.21 client draws them (rcp-fe-lol-runes
    CSS, runes.js): no rune art, only
      .rune-circle-small:before  68px frame of rune_base_small (empty, or the
@@ -824,13 +836,16 @@ body[data-client="lcu"] .rune-slot.slot-quintessence .placed-rune {
 }
 body[data-client="lcu"] .rune-slot.filled:hover .placed-rune { background-position: 0 50%; }
 
-/* --- B2. Page toolbar (in the board frame): page name left, clear-all
-       circle button + SAVE right (capture: clear at x 481, SAVE 530-642,
-       y 4-36). ------------------------------------------------------------ */
+/* --- B2. Page toolbar: the page name heads the inventory column (the
+       7.21 page dropdown, .rune-page-dropdown-item-text: 14px display 700
+       #f0e6d2), on the line of the clear-all circle button + SAVE, which
+       sit top-right in the board frame (capture: clear at x 481, SAVE
+       530-642, y 4-36; 7.21 .rune-circle-buttons right 10px, top 6px). --- */
 body[data-client="lcu"] .rl-pagebar {
     position: absolute;
-    left: 48px;
+    left: 24px;
     top: 14px;
+    width: 331px;
     height: 32px;
     display: flex;
     align-items: center;
@@ -840,10 +855,12 @@ body[data-client="lcu"] .rl-page-name {
     letter-spacing: 0.0375em;
     color: var(--hx-gold-1);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 body[data-client="lcu"] .rl-lcu-actions {
     position: absolute;
-    left: 505px;
+    left: 846px;
     top: 14px;
     display: flex;
     align-items: center;
@@ -865,54 +882,51 @@ body[data-client="lcu"] .rl-lcu-save.lcu-btn {
     text-transform: uppercase;
 }
 
-/* --- B3. Inventory (right of the board) -------------------------------- */
+/* --- B3. Inventory (left of the board; 7.21 .collections-runebook-
+       inventory-wrapper, 331px): the "RUNE INVENTORY" header (8px 0 7px,
+       14px display caps #a09b8c, no rule), our filter row (Runes Type
+       dropdown + tier checkboxes, where the client had its search / tier
+       filter buttons) and the scrolling list (455px in the client, 437px
+       here). ------------------------------------------------------------- */
 body[data-client="lcu"] .rl-library {
     position: absolute;
-    left: 714px;
-    top: 10px;
-    width: 304px;
-    height: 560px;
+    left: 24px;
+    top: 56px;
+    width: 331px;
+    height: 514px;
 }
-body[data-client="lcu"] .rl-library-title,
-body[data-client="lcu"] .rl-stats-title {
+body[data-client="lcu"] .rl-library-title {
     display: block;
-    height: 36px;
-    padding-top: 12px;
+    height: 33px;
+    padding: 8px 0 7px;
     font: 700 14px/18px var(--font-lcu-display);
     letter-spacing: 0.075em;
     text-transform: uppercase;
-    color: var(--hx-gold-1);
-}
-body[data-client="lcu"] .rl-library-title::after,
-body[data-client="lcu"] .rl-stats-title::after {
-    content: "";
-    display: block;
-    height: 4px;
-    margin-top: 8px;
-    background: url(../images/lcu/title-divider.png) no-repeat left center / 100% 4px;
+    color: var(--hx-grey-1);
 }
 body[data-client="lcu"] .rl-typebar {
     position: absolute;
-    left: 714px;
-    top: 58px;
-    width: 304px;
+    left: 24px;
+    top: 93px;
+    width: 156px;
     display: flex;
     align-items: center;
-    gap: 10px;
 }
-body[data-client="lcu"] .rl-type-label {
-    flex: none;
-    font: 700 12px/16px var(--font-lcu-display);
-    letter-spacing: 0.075em;
-    text-transform: uppercase;
-    color: var(--hx-gold-text);
+body[data-client="lcu"] .rl-type-label {          /* kept for assistive tech */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
-body[data-client="lcu"] .rl-type-select { flex: 1 1 auto; width: auto; }
+body[data-client="lcu"] .rl-type-select { flex: 1 1 auto; width: auto; min-width: 0; }
 body[data-client="lcu"] .rl-tiers {
     position: absolute;
-    left: 0;
-    top: 90px;
-    height: 20px;
+    right: 0;
+    top: 37px;
+    height: 32px;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -943,7 +957,7 @@ body[data-client="lcu"] .rl-well {
     position: absolute;
     left: 0;
     right: 0;
-    top: 122px;
+    top: 77px;
     bottom: 0;
     border: 1px solid transparent;
     border-image: linear-gradient(to top, #695625, #463714) 1;
@@ -1084,20 +1098,78 @@ body[data-client="lcu"] .rl-scroll-thumb {
 body[data-client="lcu"] .rl-scroll-thumb:hover { background: var(--hx-gold-3); }
 body[data-client="lcu"] .rl-scroll.is-scrollable .rl-scroll-thumb { display: block; }
 
-/* --- B4. Statistics ---------------------------------------------------- */
+/* --- B4. Statistics, INSIDE the rune circle (7.21 .rune-circle-stats:
+       195px wide at (220,175) of the 635px circle container = board
+       (236,176), centred; "STATS" (14px display caps #f0e6d2) over a 1px
+       rgba(160,155,140,.25) rule, 18px gap, then a 170px scrolling uikit
+       list table: amount | name, both 12px/16px #a09b8c (0.1em), rows
+       split by 1px #1d1e1f, cells 7px 0 6px 12px, first / last row flush).
+       Our level slider (not in the client, which always read "at level
+       18") sits under the list, still inside the circle. Empty page
+       (.legacy-app[data-rl-empty]): the block fades out (0.3s) for the
+       client's hint under the board's emblem (.rune-circle-stats-empty:
+       166px wide, 12px #a09b8c, at board y 292). The block lets clicks
+       through to the sockets round it; only the list and slider take
+       them. ------------------------------------------------------------- */
 body[data-client="lcu"] .rl-stats {
     position: absolute;
-    left: 1042px;
-    top: 10px;
-    width: 205px;
-    height: 560px;
+    left: 601px;
+    top: 186px;
+    width: 195px;
+    height: 241px;
+    text-align: center;
+    pointer-events: none;
+}
+body[data-client="lcu"] .rl-stats-view,
+body[data-client="lcu"] .rl-level-range { pointer-events: auto; }
+/* The swap animates only once the page has rendered (runes-calculator.js
+   sets [data-rl-anim] after the first paint), so a page never fades in. */
+body[data-client="lcu"] .legacy-app[data-rl-anim] .rl-board-emblem,
+body[data-client="lcu"] .legacy-app[data-rl-anim] .rl-stats-title,
+body[data-client="lcu"] .legacy-app[data-rl-anim] .rl-stats-view,
+body[data-client="lcu"] .legacy-app[data-rl-anim] .rl-level,
+body[data-client="lcu"] .legacy-app[data-rl-anim] .rl-stats-empty {
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+body[data-client="lcu"] .legacy-app[data-rl-empty] .rl-stats-title,
+body[data-client="lcu"] .legacy-app[data-rl-empty] .rl-stats-view,
+body[data-client="lcu"] .legacy-app[data-rl-empty] .rl-level,
+body[data-client="lcu"] .legacy-app:not([data-rl-empty]) .rl-stats-empty {
+    opacity: 0;
+    visibility: hidden;
+}
+body[data-client="lcu"] .rl-stats-empty {
+    position: absolute;
+    left: 14.5px;
+    top: 116px;
+    width: 166px;
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.03em;         /* client 0.1em on Spiegel; Inter runs */
+    color: var(--hx-grey-1);        /* ~10% wider, so the lines keep its width */
+}
+.rl-stats-empty p { margin: 0; }
+.rl-stats-empty p + p { margin-top: 12px; }
+body[data-client="lcu"] .rl-stats-title {
+    display: block;
+    margin-bottom: 18px;
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-1);
+}
+body[data-client="lcu"] .rl-stats-title::after {
+    content: "";
+    display: block;
+    height: 1px;
+    margin-top: 8px;
+    background: rgba(160, 155, 140, 0.25);
 }
 body[data-client="lcu"] .rl-stats-view {
     position: absolute;
-    top: 58px;
+    top: 45px;
     left: 0;
     right: 0;
-    bottom: 56px;
+    height: 170px;
 }
 body[data-client="lcu"] .rl-stats-list {
     position: absolute;
@@ -1123,47 +1195,37 @@ body[data-client="lcu"] .has-scroll > .rl-stats-list {
 }
 body[data-client="lcu"] .has-scroll > .at-top { --fade-t: 0px; }
 body[data-client="lcu"] .has-scroll > .at-end { --fade-b: 0px; }
-body[data-client="lcu"] .rl-stat {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px 0 7px;
-    border-bottom: 1px solid var(--hx-divider);
+/* runes-calculator.js lcuStatsTable: table.rl-stats-table > tr.rl-stat >
+   td.rl-stat-value + td.rl-stat-name. The amount column shrinks to fit. */
+.rl-stats-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    text-align: left;
 }
-/* One line per label ("Cooldown Reduction %" fits; ellipsis only as a
-   last resort); a scaling row carries "at level N" as a dimmer sub-line,
-   so every scaling row is two lines and every flat row one. */
-body[data-client="lcu"] .rl-stat { align-items: flex-start; }
-body[data-client="lcu"] .rl-stat-name {
-    flex: 1 1 auto;
-    min-width: 0;
+body[data-client="lcu"] .rl-stat { border-top: 1px solid #1d1e1f; }
+body[data-client="lcu"] .rl-stat:first-child { border-top: none; }
+body[data-client="lcu"] .rl-stat > td {
+    vertical-align: top;
+    padding: 7px 0 6px 12px;
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.03em;         /* as .rl-stats-empty */
     color: var(--hx-grey-1);
-    letter-spacing: 0;
 }
-body[data-client="lcu"] .rl-stat-label {
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-body[data-client="lcu"] .rl-stat-at {
-    display: block;
-    font-size: 11px;
-    line-height: 14px;
-    color: var(--hx-grey-1);
-    opacity: 0.72;
-}
-body[data-client="lcu"] .rl-stat-value {
-    flex: none;
-    font: 600 13px/16px var(--font-lcu-body);
-    color: var(--hx-gold-1);
-}
+body[data-client="lcu"] .rl-stat > td.rl-stat-value { width: 1%; padding-left: 0; white-space: nowrap; }
+body[data-client="lcu"] .rl-stat:first-child > td { padding-top: 0; }
+body[data-client="lcu"] .rl-stat:last-child > td { padding-bottom: 0; }
+/* The row ends 52px short of the block's right edge: the glyph socket under
+   the block's bottom-right corner (client slot 26 = data-slot 25, board
+   (415,435), 68px hit box from x 381) reaches up into the row, and the
+   range input there would take that socket's clicks. The label may overlap
+   the mark socket on the left; it lets clicks through. */
 body[data-client="lcu"] .rl-level {
     position: absolute;
     left: 0;
-    right: 0;
-    bottom: 12px;
+    right: 52px;
+    top: 225px;
+    height: 16px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1213,22 +1275,28 @@ body[data-client="lcu"] .rl-level-range::-moz-range-thumb {
     background: var(--hx-grey-cool);
 }
 body[data-client="lcu"] .rl-level-range:hover::-webkit-slider-thumb { border-color: var(--hx-gold-1); }
+body[data-client="lcu"] .rl-level-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px rgba(200, 170, 110, 0.5); }
 
-/* --- B5. Narrow screens (runes-calculator.js applyLcuLayout, below 834px):
+/* --- B5. Narrow screens (runes-calculator.js applyLcuLayout, below 684px):
        board / inventory / statistics stacked in a 520px stage, the board
-       drawn at 0.7045 (670 -> 472px), page toolbar above the gold ring. */
-body[data-client="lcu"] .legacy-app[data-rl-layout="stack"] { width: 520px; height: 1270px; }
+       drawn at 0.7045 (670 -> 472px), page toolbar above the gold ring.
+       The stats leave the circle (at 0.7045 x the phone's stage scale its
+       12px text would drop to ~6px) for a full-width block under the
+       inventory; the empty-page hint heads that block. ----------------- */
+body[data-client="lcu"] .legacy-app[data-rl-layout="stack"] { width: 520px; height: 1160px; }
 body[data-client="lcu"] [data-rl-layout="stack"] .rl-board {
     top: 14px;
     left: 24px;
     transform: scale(0.7045);
     transform-origin: 0 0;
 }
-body[data-client="lcu"] [data-rl-layout="stack"] .rl-pagebar { left: 24px; top: 10px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-pagebar { left: 24px; top: 10px; width: 260px; }
 body[data-client="lcu"] [data-rl-layout="stack"] .rl-lcu-actions { left: auto; right: 24px; top: 10px; gap: 16px; }
 body[data-client="lcu"] [data-rl-layout="stack"] .rl-library { left: 24px; top: 420px; width: 472px; height: 460px; }
-body[data-client="lcu"] [data-rl-layout="stack"] .rl-typebar { left: 24px; top: 468px; width: 472px; }
-body[data-client="lcu"] [data-rl-layout="stack"] .rl-stats { left: 24px; top: 900px; width: 472px; height: 360px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-typebar { left: 24px; top: 457px; width: 200px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-stats { left: 24px; top: 900px; width: 472px; height: 241px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-stats-empty { left: 0; top: 0; width: 100%; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-level { right: 0; }   /* no sockets out here */
 
 /* --- B6. Rune tooltip (base.css .lol-tt[data-skin=lcu] + .rl-tt-lcu-box):
        the client's rune-slot tooltip is a tooltip-small content block,

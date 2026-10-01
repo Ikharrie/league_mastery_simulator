@@ -70,7 +70,9 @@
                  panels of the full-sheet art that #parchment paints
                  (library well | page | stats well | button box).
                  LCU (V7.21): the same widgets re-laid as the League Client's
-                 legacy rune page (gold rune circle, inventory, stats). -->
+                 legacy rune page: inventory | gold rune circle, with the
+                 stats (or, on an empty page, the emblem + hint) in the
+                 circle's centre. -->
             <div class="rl-board" id="parchment">
                 <div id="rune-slots" class="rune-slot-layer"></div>
                 <span class="rl-board-emblem" aria-hidden="true"></span>
@@ -92,7 +94,7 @@
             </div>
 
             <aside class="rl-library" aria-label="Rune library">
-                <div class="rl-library-title" aria-hidden="true">Runes</div>
+                <div class="rl-library-title" aria-hidden="true">Rune Inventory</div>
                 <div class="rl-tiers">
                     <span class="rl-tier-label">Tier:</span>
                     <label class="rl-tier"><input type="checkbox" value="1" checked="checked" /><span>1</span></label>
@@ -110,7 +112,13 @@
             </aside>
 
             <aside class="rl-stats" aria-label="Statistics">
-                <div class="rl-stats-title">Statistics</div>
+                <!-- LCU empty page (7.21 .rune-circle-stats-empty): hint
+                     under the board's centre emblem. -->
+                <div class="rl-stats-empty rl-lcu-only">
+                    <p>Click runes in your inventory to gain their bonuses.</p>
+                    <p>Shift-click a rune to fill the page.</p>
+                </div>
+                <div class="rl-stats-title"><span class="rl-air-only">Statistics</span><span class="rl-lcu-only">Stats</span></div>
                 <div class="rl-stats-view">
                     <div id="stats-list" class="rl-stats-list" tabindex="-1"></div>
                     <div class="rl-scroll" aria-hidden="true">

@@ -4,8 +4,9 @@
 //   air  V3.14-V6.24  the AIR client's Runes tab: every widget sits on the
 //                     painted panels of the full burnt-parchment art
 //                     (css/runes-legacy.css §A).
-//   lcu  V7.21        the League Client's legacy rune page: gold rune
-//                     circle, 30 hex sockets, inventory + stats (§B).
+//   lcu  V7.21        the League Client's legacy rune page: inventory left
+//                     of the gold rune circle (30 hex sockets), stats in
+//                     the circle's centre (§B).
 // The markup is shared (runes.html .legacy-app); this file only swaps the
 // slot geometry, a few classes and the tooltip skin per era.
 //
@@ -121,7 +122,8 @@ var LCU_FRAME = {
 // stats are joined with "+" in sorted order). File =
 // images/runes-lcu/icons/icon_runes_<name>_<mark|seal|glyph|large>.png.
 // Lethality is the client's rPhysicalLethality (→ armor_pen);
-// Precision = lethality + magic pen (→ hybrid_pen).
+// Precision = lethality + magic pen (→ hybrid_pen), Mark of Precision (5401)
+// included now that runes-data.js carries its lethality.
 var LCU_STAT_ICON = {
     ad: "attack_damage", adPerLevel: "scaling_attack_damage",
     ap: "ability_power", apPerLevel: "scaling_ability_power",
@@ -140,9 +142,6 @@ var LCU_STAT_ICON = {
     hpPercent: "percent_health", gold: "gold", ms: "movement_speed",
     ls: "life_steal", sv: "spellvamp", xp: "experience", timeDead: "revival"
 };
-// Mark of Precision (5401): Riot's text is abbreviated ("+0.7 Leth / +0.48
-// M.Pen"), so the catalogue only parsed its magic pen; it is a hybrid.
-var LCU_ICON_BY_ID = { "5401": "hybrid_pen" };
 var LCU_ICON_SUFFIX = { mark: "mark", seal: "seal", glyph: "glyph", quintessence: "large" };
 var LCU_ICON_DEFAULT = { mark: "attack_damage", seal: "armor", glyph: "magic_resist", quintessence: "attack_damage" };
 
@@ -153,31 +152,34 @@ var LCU_ICON_DEFAULT = { mark: "attack_damage", seal: "armor", glyph: "magic_res
 // "Attack Speed %", "Magic Resist at level 18"). Order = stats order:
 // Apr 2015 lists Physical Dmg, Magic Resist at level 18, Armor; Nov 2015
 // Ability Power, Attack Speed %, Armor (so MR sits above Armor).
+// lcu / lcuLevel: the 7.21 client's own stat names (rcp-fe-lol-l10n
+// trans.json basic_data_stats_<Stat>; scaling stats "<name> at level 18",
+// where the regen names drop " / 5 sec."), used by the LCU stats table.
 var CLIENT_STAT = [
-    { key: "ad",          label: "Physical Dmg" },
-    { key: "ap",          label: "Ability Power" },
-    { key: "as",          label: "Attack Speed",      pct: true },
-    { key: "crit",        label: "Crit Chance",       pct: true },
-    { key: "critDmg",     label: "Crit Damage",       pct: true },
-    { key: "lethality",   label: "Lethality" },
-    { key: "arpen",       label: "Armor Pen." },
-    { key: "mpen",        label: "Magic Pen." },
-    { key: "mr",          label: "Magic Resist" },
-    { key: "armor",       label: "Armor" },
-    { key: "hp",          label: "Health" },
-    { key: "hpPercent",   label: "Health",            pct: true },
-    { key: "hpRegen",     label: "Health Regen / 5" },
-    { key: "mp",          label: "Mana" },
-    { key: "mpRegen",     label: "Mana Regen / 5" },
-    { key: "energy",      label: "Energy" },
-    { key: "energyRegen", label: "Energy Regen / 5" },
-    { key: "cdr",         label: "Cooldowns",         pct: true, minus: true, statLabel: "Cooldown Reduction" },
-    { key: "ms",          label: "Movement Speed",    pct: true },
-    { key: "ls",          label: "Life Steal",        pct: true },
-    { key: "sv",          label: "Spell Vamp",        pct: true },
-    { key: "gold",        label: "Gold / 10" },
-    { key: "xp",          label: "Experience",        pct: true },
-    { key: "timeDead",    label: "Time Dead",         pct: true, minus: true }
+    { key: "ad",          label: "Physical Dmg",      lcu: "Attack Damage" },
+    { key: "ap",          label: "Ability Power",     lcu: "Ability Power" },
+    { key: "as",          label: "Attack Speed",      pct: true, lcu: "Attack Speed" },
+    { key: "crit",        label: "Crit Chance",       pct: true, lcu: "Critical Strike Chance" },
+    { key: "critDmg",     label: "Crit Damage",       pct: true, lcu: "Critical Strike Damage" },
+    { key: "lethality",   label: "Lethality",         lcu: "Lethality" },
+    { key: "arpen",       label: "Armor Pen.",        lcu: "Armor Penetration" },
+    { key: "mpen",        label: "Magic Pen.",        lcu: "Magic Penetration" },
+    { key: "mr",          label: "Magic Resist",      lcu: "Magic Resist" },
+    { key: "armor",       label: "Armor",             lcu: "Armor" },
+    { key: "hp",          label: "Health",            lcu: "Health" },
+    { key: "hpPercent",   label: "Health",            pct: true, lcu: "Health" },
+    { key: "hpRegen",     label: "Health Regen / 5",  lcu: "Health Regen / 5 sec.", lcuLevel: "Health Regen" },
+    { key: "mp",          label: "Mana",              lcu: "Mana" },
+    { key: "mpRegen",     label: "Mana Regen / 5",    lcu: "Mana Regen / 5 sec.", lcuLevel: "Mana Regen" },
+    { key: "energy",      label: "Energy",            lcu: "Energy" },
+    { key: "energyRegen", label: "Energy Regen / 5",  lcu: "Energy Regen / 5 sec.", lcuLevel: "Energy Regen" },
+    { key: "cdr",         label: "Cooldowns",         pct: true, minus: true, statLabel: "Cooldown Reduction", lcu: "Cooldown Reduction" },
+    { key: "ms",          label: "Movement Speed",    pct: true, lcu: "Movement Speed" },
+    { key: "ls",          label: "Life Steal",        pct: true, lcu: "Life Steal" },
+    { key: "sv",          label: "Spell Vamp",        pct: true, lcu: "Spell Vamp" },
+    { key: "gold",        label: "Gold / 10",         lcu: "Gold / 10 sec." },
+    { key: "xp",          label: "Experience",        pct: true, lcu: "Experience Gained" },
+    { key: "timeDead",    label: "Time Dead",         pct: true, minus: true, lcu: "Time Dead" }
 ];
 
 // Primary / Secondary (tooltip top-right). Riot's rule: each colour has a
@@ -199,6 +201,17 @@ function fmtClient(v) {
     var p = Math.pow(10, 1 - Math.floor(Math.log(a) / Math.LN10));
     var r = Math.round(a * p + 1e-9) / p;
     return r.toFixed(r >= 10 ? 0 : (r >= 1 ? 1 : 2));
+}
+
+// LCU (7.21 formatStatsDecimal): one decimal, no trailing zero: 15.26 →
+// "15.3", 9 → "9", 0.945 → "0.9". The client always read level 18; our
+// slider goes down to 1, where one scaling rune can total under 0.1, so
+// those get two decimals (0.0225 → "0.02", not "0"). lcuStatsTable drops a
+// row that still rounds to "0".
+function fmtLcu(v) {
+    var a = Math.abs(v);
+    var r = a < 0.1 ? Math.round(a * 100 + 1e-9) / 100 : Math.round(a * 10 + 1e-9) / 10;
+    return r.toLocaleString("en-US");
 }
 
 function runeStatParts(rune) {
@@ -259,7 +272,6 @@ function runeIconSrc(rune, placed) {
 // LCU: the client draws no rune art, only a per-stat glyph sprite on the
 // socket frame of the rune's colour and tier (see LCU_FRAME).
 function lcuStatIconName(rune) {
-    if (LCU_ICON_BY_ID[rune.id]) return LCU_ICON_BY_ID[rune.id];
     var keys = [];
     var k;
     for (k in (rune.base || {})) if (rune.base[k]) keys.push(k);
@@ -369,22 +381,26 @@ function applyEraChrome() {
     applyLcuLayout();
 }
 
-// LCU on a narrow screen: the 1271px board | inventory | stats row would
-// scale to ~0.3 on a phone (or pan with the inventory off-canvas), so below
-// LCU_STACK_BELOW px the page stacks board / inventory / stats in a 520px
-// stage (css/runes-legacy.css §B5). The stage width is the shared scaler's
-// input (nav.js LolStage reads data-stage-width on every fit).
-var LCU_STACK_BELOW = 834;         // side-by-side scale would drop under 0.65
-var STAGE_W_ROW = 1271, STAGE_W_STACK = 520;
+// Stage width per client: the AIR sheet is 1271px; the LCU page is the
+// 7.21 client's inventory | rune circle row (24 + 350 + 7 + 635 + 24 =
+// 1040px, css/runes-legacy.css §B). On a narrow screen that row would scale
+// to ~0.35 on a phone, so below LCU_STACK_BELOW px the LCU page stacks
+// board / inventory / stats in a 520px stage (§B5). The stage width is the
+// shared scaler's input (nav.js LolStage reads data-stage-width on every
+// fit).
+var LCU_STACK_BELOW = 684;         // the 1040px row would scale under 0.65
+var STAGE_W_AIR = 1271, STAGE_W_LCU = 1040, STAGE_W_STACK = 520;
 function applyLcuLayout() {
     var $app = $(".legacy-app");
     var vw = document.documentElement.clientWidth || window.innerWidth || 1280;
-    var layout = runeEra() === "lcu" && vw < LCU_STACK_BELOW ? "stack" : "row";
-    if ($app.attr("data-rl-layout") === layout) return;
-    $app.attr("data-rl-layout", layout);
+    var lcu = runeEra() === "lcu";
+    var layout = lcu && vw < LCU_STACK_BELOW ? "stack" : "row";
+    var width = String(!lcu ? STAGE_W_AIR : layout === "stack" ? STAGE_W_STACK : STAGE_W_LCU);
     var stage = $app.closest(".lol-stage")[0];
+    if ($app.attr("data-rl-layout") === layout && (!stage || stage.getAttribute("data-stage-width") === width)) return;
+    $app.attr("data-rl-layout", layout);
     if (stage) {
-        stage.setAttribute("data-stage-width", String(layout === "stack" ? STAGE_W_STACK : STAGE_W_ROW));
+        stage.setAttribute("data-stage-width", width);
         if (window.LolStage) LolStage.fit();
     }
     updateDrawnScrolls();
@@ -689,12 +705,19 @@ function computeTotals(level) {
 }
 
 // The client lists flat and scaling totals separately ("Magic Resist" /
-// "Magic Resist at level 18"); an empty page shows an empty panel.
+// "Magic Resist at level 18"); an empty page shows an empty panel (AIR) or
+// the circle's empty-page emblem + hint (LCU, css §B4).
 function recomputeStats() {
     var t = computeTotals(championLevel);
     var $list = $("#stats-list");
     var keep = $list.scrollTop();
     $list.empty();
+    if (runeEra() === "lcu") {
+        $list.append(lcuStatsTable(t));
+        $list.scrollTop(keep);
+        updateDrawnScrolls();
+        return;
+    }
     for (var i = 0; i < CLIENT_STAT.length; i++) {
         var cfg = CLIENT_STAT[i];
         var rows = [[t.base[cfg.key], false], [t.scaling[cfg.key], true]];
@@ -717,6 +740,32 @@ function recomputeStats() {
     updateDrawnScrolls();
 }
 
+// LCU: the 7.21 client's stats list (rcp-fe-lol-runes .rune-stats-list, a
+// uikit list table): one row per stat, amount | name, sorted by name;
+// scaling rows read "<name> at level N" at the slider's level (the client
+// fixed N = 18).
+function lcuStatsTable(t) {
+    var rows = [];
+    for (var i = 0; i < CLIENT_STAT.length; i++) {
+        var cfg = CLIENT_STAT[i];
+        var name = cfg.lcu || cfg.statLabel || cfg.label;
+        if (t.base[cfg.key]) rows.push({ cfg: cfg, v: t.base[cfg.key], name: name });
+        if (t.scaling[cfg.key]) rows.push({ cfg: cfg, v: t.scaling[cfg.key], name: (cfg.lcuLevel || name) + " at level " + championLevel });
+    }
+    rows.sort(function(a, b){ return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
+    var $table = $("<table>").addClass("rl-stats-table");
+    for (var j = 0; j < rows.length; j++) {
+        var r = rows[j];
+        var amount = fmtLcu(r.v);
+        if (amount === "0") continue;
+        // "at level 7" / "/ 5 sec." never break inside (no orphaned "7").
+        $table.append($("<tr>").addClass("rl-stat")
+            .append($("<td>").addClass("rl-stat-value").text((r.cfg.minus ? "-" : "+") + amount + (r.cfg.pct ? "%" : "")))
+            .append($("<td>").addClass("rl-stat-name").text(r.name.replace(/ (?=level|sec\.|\d)/g, " "))));
+    }
+    return $table;
+}
+
 // ---------- Page name, dirty marker, button states ---------------------------
 
 // AIR: X lit while the page has runes, revert + save while unsaved (Apr
@@ -726,6 +775,9 @@ function recomputeStats() {
 function refreshPageState() {
     var any = runeSlots.some(function(s){ return s !== null; });
     var dirty = isDirty();
+    // LCU empty page: emblem + hint in the circle instead of the stats.
+    if (any) $(".legacy-app").removeAttr("data-rl-empty");
+    else $(".legacy-app").attr("data-rl-empty", "");
     $("#rune-page-name").text((dirty ? "*" : "") + PAGE_NAME);
     $("#action-clear, #lcu-action-clear").prop("disabled", !any);
     $("#action-revert").prop("disabled", !dirty);
@@ -885,6 +937,8 @@ $(function(){
     initDrawnScrollbars();
     renderAll();
     updateLink();
+    // LCU stats / empty-page swap animates from now on (css §B4).
+    setTimeout(function(){ $(".legacy-app").attr("data-rl-anim", ""); }, 60);
 
     // Board: click a placed rune to remove it; an empty socket opens its
     // category in the library.
@@ -902,22 +956,29 @@ $(function(){
         .on("mousemove", ".rune-slot.filled", function(e){ if (window.LolTooltip) LolTooltip.move(e.originalEvent || e); })
         .on("mouseleave", ".rune-slot", hideRuneTip);
 
-    // Library: header = accordion toggle; row = place in the next free slot.
-    function placeFromRow(row) {
+    // Library: header = accordion toggle; row = place in the next free slot;
+    // shift-click = fill every free slot of that colour (the 7.21 client's
+    // "Shift-click a rune to fill the page").
+    function placeFromRow(row, fill) {
         var rune = runeForRow(row);
         if (!rune) return;
         var nextIdx = nextEmptySlotIndex(rune.category);
         if (nextIdx < 0) { showToast("All " + CATEGORY_LABEL[rune.category].toLowerCase() + " slots are full"); return; }
         hideRuneTip();
-        assignRuneToSlot(nextIdx, rune);
+        if (!fill) { assignRuneToSlot(nextIdx, rune); return; }
+        var left = (activeRuneDataSet.slots[rune.category] || 0) - placedCount(rune.id);
+        for (; left > 0 && nextIdx >= 0; left--, nextIdx = nextEmptySlotIndex(rune.category)) runeSlots[nextIdx] = rune;
+        renderAll();
+        updateLink();
     }
     $("#runes-categories")
         .on("click", ".rl-cat-header", function(){ hideRuneTip(); toggleCategory($(this).closest(".rl-cat").attr("data-category")); })
-        .on("click", ".rl-rune", function(){ placeFromRow(this); })
+        .on("mousedown", ".rl-rune", function(e){ if (e.shiftKey) e.preventDefault(); })   // no text selection
+        .on("click", ".rl-rune", function(e){ placeFromRow(this, e.shiftKey); })
         .on("keydown", ".rl-cat-header, .rl-rune", function(e){
             if (e.which !== 13 && e.which !== 32) return;
             e.preventDefault();
-            if ($(this).hasClass("rl-rune")) placeFromRow(this);
+            if ($(this).hasClass("rl-rune")) placeFromRow(this, e.shiftKey);
             else toggleCategory($(this).closest(".rl-cat").attr("data-category"));
         })
         .on("mouseenter", ".rl-rune", function(e){ showRuneTip(e, runeForRow(this), this); })
