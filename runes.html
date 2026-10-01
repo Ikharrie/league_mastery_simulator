@@ -37,7 +37,7 @@
         <script type="text/javascript">lolBootHeader();</script>
 
         <main class="site-main">
-        <div class="lol-stage" data-stage-width="1271"><div class="lol-stage-inner">
+        <div class="lol-stage" data-stage-width="1271" data-stage-bleed="air:7 15"><div class="lol-stage-inner">
         <!-- AIR profile sheet (css/air-sheet.css, air-sheet.js), painted
              variant: the sheet IS #parchment's full art; the head overlays
              its empty band (art y 11-155). Hidden when body[data-client=lcu]. -->
@@ -65,55 +65,77 @@
                 <div class="air-chips air-page-chips air-chips--rune"><span class="air-chip is-selected">1</span><span class="air-chip">2</span><span class="air-chip">3</span><span class="air-chip">4</span><span class="air-chip">5</span><span class="air-chip">6</span></div>
             </div>
 
-            <!-- Three-column layout: rune library | slot canvas | statistics.
-                 AIR (V3.14-V6.24): air-sheet.css pins the columns onto the
-                 painted panels and #parchment spans the whole sheet (no crop).
-                 LCU (V7.21): the canvas still crops the art to the slot
-                 region (logical 240,110 - 830,580 of the 1024x615 image). -->
-            <div class="runes-layout">
-                <aside class="runes-panel runes-panel-left">
-                    <div class="rune-filter-row">
-                        <span class="filter-label">Runes:</span>
-                        <select id="rune-category-filter" class="rune-select">
-                            <option value="all">All</option>
-                            <option value="mark">Marks</option>
-                            <option value="seal">Seals</option>
-                            <option value="glyph">Glyphs</option>
-                            <option value="quintessence">Quintessences</option>
-                        </select>
-                    </div>
-                    <div class="tier-filters">
-                        <span class="tier-label">Tier:</span>
-                        <label class="checkbox-label"><input type="checkbox" value="1" checked="checked" /> 1</label>
-                        <label class="checkbox-label"><input type="checkbox" value="2" checked="checked" /> 2</label>
-                        <label class="checkbox-label"><input type="checkbox" value="3" checked="checked" /> 3</label>
-                    </div>
-                    <div id="runes-categories" class="rune-categories"></div>
-                </aside>
+            <!-- Rune page (css/runes-legacy.css, runes-calculator.js).
+                 AIR (V3.14-V6.24): every widget is overlaid on the painted
+                 panels of the full-sheet art that #parchment paints
+                 (library well | page | stats well | button box).
+                 LCU (V7.21): the same widgets re-laid as the League Client's
+                 legacy rune page (gold rune circle, inventory, stats). -->
+            <div class="rl-board" id="parchment">
+                <div id="rune-slots" class="rune-slot-layer"></div>
+                <span class="rl-board-emblem" aria-hidden="true"></span>
+            </div>
 
-                <div class="runes-canvas-crop">
-                    <div class="parchment-runes" id="parchment">
-                        <div class="rune-title">Rune Page</div>
-                        <div id="rune-slots" class="rune-slot-layer"></div>
+            <div class="rl-pagebar">
+                <span class="rl-page-name" id="rune-page-name">Rune Page 1</span>
+            </div>
+
+            <div class="rl-typebar">
+                <label class="rl-type-label" for="rune-category-filter">Runes Type:</label>
+                <select id="rune-category-filter" class="rl-type-select">
+                    <option value="all">All</option>
+                    <option value="mark">Marks</option>
+                    <option value="seal">Seals</option>
+                    <option value="glyph">Glyphs</option>
+                    <option value="quintessence">Quintessences</option>
+                </select>
+            </div>
+
+            <aside class="rl-library" aria-label="Rune library">
+                <div class="rl-library-title" aria-hidden="true">Runes</div>
+                <div class="rl-tiers">
+                    <span class="rl-tier-label">Tier:</span>
+                    <label class="rl-tier"><input type="checkbox" value="1" checked="checked" /><span>1</span></label>
+                    <label class="rl-tier"><input type="checkbox" value="2" checked="checked" /><span>2</span></label>
+                    <label class="rl-tier"><input type="checkbox" value="3" checked="checked" /><span>3</span></label>
+                </div>
+                <div class="rl-well">
+                    <div id="runes-categories" class="rl-list" tabindex="-1"></div>
+                    <div class="rl-scroll" aria-hidden="true">
+                        <span class="rl-scroll-btn is-up"></span>
+                        <span class="rl-scroll-track"><span class="rl-scroll-thumb"></span></span>
+                        <span class="rl-scroll-btn is-down"></span>
                     </div>
                 </div>
+            </aside>
 
-                <aside class="runes-panel runes-panel-right">
-                    <div class="stats-title">Statistics</div>
-                    <div class="level-row">
-                        <label class="level-label" for="champ-level">Level <span id="champ-level-value">18</span></label>
-                        <input id="champ-level" type="range" min="1" max="18" step="1" value="18" title="Champion level — scaling runes recompute at this level" />
+            <aside class="rl-stats" aria-label="Statistics">
+                <div class="rl-stats-title">Statistics</div>
+                <div class="rl-stats-view">
+                    <div id="stats-list" class="rl-stats-list" tabindex="-1"></div>
+                    <div class="rl-scroll" aria-hidden="true">
+                        <span class="rl-scroll-btn is-up"></span>
+                        <span class="rl-scroll-track"><span class="rl-scroll-thumb"></span></span>
+                        <span class="rl-scroll-btn is-down"></span>
                     </div>
-                    <div id="stats-list" class="stats-list"></div>
-                    <div class="action-buttons">
-                        <div class="action-btn" id="action-clear" title="Clear Page">
-                            <img class="action-btn-img" alt="Clear" src="images/runes/legacy_clear_runebutton.png" />
-                        </div>
-                        <div class="action-btn" id="action-save" title="Save">
-                            <img class="action-btn-img" alt="Save" src="images/runes/legacy_save_runebutton.png" />
-                        </div>
-                    </div>
-                </aside>
+                </div>
+                <div class="rl-level">
+                    <label class="rl-level-label" for="champ-level">Level <span id="champ-level-value">18</span></label>
+                    <input id="champ-level" class="rl-level-range" type="range" min="1" max="18" step="1" value="18" aria-label="Champion level (scaling runes)" />
+                </div>
+            </aside>
+
+            <!-- AIR button box: clear | revert | save (+ Rune Combiner, S3-S4). -->
+            <div class="rl-actions rl-air-only">
+                <button type="button" id="action-clear" class="air-btn is-icon rl-btn rl-btn-clear" aria-label="Clear rune page" data-lol-tip-skin="air-mastery" data-lol-tip-title="Clear Page" data-lol-tip="Remove every rune from this page."></button>
+                <button type="button" id="action-revert" class="air-btn is-icon rl-btn rl-btn-revert" aria-label="Revert changes" data-lol-tip-skin="air-mastery" data-lol-tip-title="Revert" data-lol-tip="Undo the changes since the page was last saved."></button>
+                <button type="button" id="action-save" class="air-btn is-icon rl-btn rl-btn-save" aria-label="Save rune page (copies the link)" data-lol-tip-skin="air-mastery" data-lol-tip-title="Save" data-lol-tip="Save this rune page: copies its link to the clipboard."></button>
+                <button type="button" id="action-combine" class="air-btn is-icon rl-btn rl-btn-combine" aria-label="Rune Combiner" data-lol-tip-skin="air-mastery" data-lol-tip-title="Rune Combiner" data-lol-tip="Sacrifice runes for a chance at a better one (removed in V5.1; not simulated)."></button>
+            </div>
+            <!-- LCU page toolbar: clear-all circle button + SAVE. -->
+            <div class="rl-lcu-actions rl-lcu-only">
+                <button type="button" id="lcu-action-clear" class="lcu-circle-btn rl-lcu-clear" aria-label="Clear rune page"></button>
+                <button type="button" id="lcu-action-save" class="lcu-btn rl-lcu-save">Save</button>
             </div>
         </div>
         <script type="text/javascript">AirSheet.boot();</script>

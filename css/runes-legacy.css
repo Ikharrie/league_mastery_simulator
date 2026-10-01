@@ -1,330 +1,1177 @@
-/* --- Runes page ---------------------------------------------------------- */
-/* 1:1 reconstruction of the legacy LoL client's Runes tab, based on the
-   DOM + CSS shipped by legacy-lol-client.vercel.app. Slot coordinates,
-   hex dimensions, parchment background, and color palette are matched to
-   the original. */
+/* ==========================================================================
+   runes-legacy.css — pre-Reforged rune page (runes.html, V3.14-V7.21).
+   Markup: runes.html .legacy-app (the AIR sheet root) holds, as siblings:
+     .rl-board#parchment > #rune-slots (.rune-slot[.filled] > img.placed-rune)
+     .rl-pagebar > #rune-page-name
+     .rl-typebar  "Runes Type:" + select#rune-category-filter
+     .rl-library  .rl-tiers + .rl-well > #runes-categories.rl-list
+                  (.rl-cat[.is-open] > .rl-cat-header + .rl-cat-items >
+                  .rl-rune > icon / text / count) + .rl-scroll (drawn bar)
+     .rl-stats    title + .rl-stats-view (#stats-list.rl-stats-list of
+                  .rl-stat + .rl-scroll, drawn bar) + .rl-level slider
+     .rl-actions  (AIR) clear / revert / save [/ combiner]
+     .rl-lcu-actions (LCU) clear-all circle button + SAVE
+   runes-calculator.js builds the rows/slots and keys the per-era bits.
 
-body.runes-page {
-    background: var(--color-bg-darker);
-    margin: 0;
-    font-family: var(--font-sans);
-    color: var(--color-text-main);
-}
-body.runes-page #s2masteries { display: none; }
+   §A AIR (body[data-client=air], V3.14-V6.24): the AIR client Runes tab.
+      Everything is overlaid on the painted panels of the full sheet art
+      (images/runes/summoners_runes_bg.jpg, 1618x972 art px) that #parchment
+      paints. air-sheet.css §7 sizes the sheet and places the head and the
+      page chips; it still pins the retired .runes-layout columns, which
+      this markup no longer uses. Units: --a = 1 art px, --u = 1 native
+      client px (air-sheet.css; k = 1.1). Measured on the Apr 2015 capture
+      refs/runes-legacy/fandom_PVP.net_Summoner_profile_05.jpg (native px;
+      native = art * 0.7138 - 5, +4 on y) unless noted.
+   §B LCU (body[data-client=lcu], V7.21): the League Client's legacy rune
+      page (refs/runes-legacy/fandom_LCU_Rune_page.png, Dec 2016): gold
+      rune circle with 30 dark hex sockets, clear-all + SAVE, on the LCU
+      backdrop; inventory and stats in LCU uikit chrome (base.css §5).
+   ========================================================================== */
 
-/* Three-column rune builder layout: library panel | slot canvas | stats.
-   The canvas shows a CROP of the legacy parchment art — just the slot
-   region, logical (240,110)-(830,580) of the 1024x615 image — so the side
-   panels are normal flex children and can never drift off the painted art.
-   Slot positions stay percentages of the FULL art (.parchment-runes). */
-.runes-layout {
-    display: flex;
-    gap: 12px;
-    align-items: stretch;
-    padding: 0 12px;
-    box-sizing: border-box;
-    margin-bottom: 30px;
-}
-.runes-panel {
-    background: linear-gradient(to bottom, #f0e4bd, #e2d2a2);
-    border: 1px solid #b3976b;
-    border-radius: 4px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px rgba(255, 255, 255, 0.5);
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    padding: 8px;
-    min-height: 0;
-}
-.runes-panel-left  { width: 265px; flex: none; }
-.runes-panel-right { width: 205px; flex: none; }
+.legacy-app { box-sizing: border-box; }
+.legacy-app *, .legacy-app *::before, .legacy-app *::after { box-sizing: border-box; }
+body[data-client="air"] .rl-lcu-only,
+body[data-client="lcu"] .rl-air-only { display: none !important; }
+.legacy-app:not([data-rl-buttons="4"]) #action-combine { display: none; }
+.rune-slot-layer { position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; }
+.rune-slot { position: absolute; pointer-events: auto; cursor: pointer; transform: translate(-50%, -50%); }
+.placed-rune { display: block; width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; }
+.rl-library-title, .rl-board-emblem { display: none; }
 
-.runes-canvas-crop {
-    flex: 1;
-    min-width: 0;
-    aspect-ratio: 590 / 470;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid #b3976b;
-    border-radius: 4px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-    align-self: center;
+/* ==========================================================================
+   §A  AIR client (V3.14-V6.24)
+   ========================================================================== */
+body[data-client="air"] .legacy-app {
+    color: #1a120a;
+    font: 400 calc(12 * var(--u))/1.25 var(--font-air-body);
+    -webkit-font-smoothing: antialiased;
 }
-.parchment-runes {
-    box-sizing: border-box;
-    color: var(--color-parchment-text);
-    user-select: none;
-    background-image: url(../images/runes/summoners_runes_bg.jpg);
-    background-size: 100% 100%;
+
+/* --- A1. Board: the whole painted sheet; slots use % of the full art ---- */
+body[data-client="air"] .rl-board {
     position: absolute;
-    /* Full 1024x615 art relative to the 590x470 crop window. */
-    width: 173.559%;
-    height: 130.851%;
-    left: -40.678%;
-    top: -23.404%;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url(../images/runes/summoners_runes_bg.jpg) no-repeat 0 0 / 100% 100%;
+}
+/* Empty unlocked slot = only the painted indent (fandom Rune_page.jpg): an
+   invisible hit target, sized to the indent. */
+body[data-client="air"] .rune-slot {
+    width: 4.14%;                   /* 67x78 art px = the painted indent */
+    aspect-ratio: 67 / 78;
+    border-radius: 18%;
+}
+body[data-client="air"] .rune-slot.slot-quintessence {
+    width: 8.7%;                    /* 141 art px (~100 native): the Apr
+                                       2015 quint frame edge sits at r 43.5
+                                       native, 1.10x the 128 art px tried
+                                       first (seals match 1:1) */
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+}
+/* A placed rune covers its indent: the 64px Data Dragon icons are a hex
+   squashed into a square (stretch back to 67x78); the 235px client art is
+   a true hex in a square (cover). A placed quint (141 art px) sits where
+   the client put it (up to 8 logical px off the art's painted purple
+   circle, ~82 art px); its frame still covers the glow. */
+body[data-client="air"] .rune-slot .placed-rune.is-hires { object-fit: cover; }
+/* Under a placed quint, the same art with the socket's runic ring removed
+   (images/runes/rl-quint-underlay.jpg, 3 patches of 192 art px side by
+   side). runes-calculator.js puts one .rl-quint-underlay per placed quint
+   in #rune-slots BEFORE the slots (so neighbouring placed seals and their
+   glow paint over it), at the slot point with the patch's top-left offset
+   (QUINT_UNDERLAY). Identical to the board art except the ring, so only
+   the ring disappears; feathered at the rim against resampling seams. */
+.rl-quint-underlay { display: none; }
+body[data-client="air"] .rl-quint-underlay {
+    display: block;
+    position: absolute;
+    margin: calc(var(--ul-dy, -96) * var(--a)) 0 0 calc(var(--ul-dx, -96) * var(--a));
+    width: calc(192 * var(--a));
+    height: calc(192 * var(--a));
+    background: url(../images/runes/rl-quint-underlay.jpg) no-repeat calc(var(--ul-i, 0) * -192 * var(--a)) 0 / calc(576 * var(--a)) calc(192 * var(--a));
+    -webkit-mask: radial-gradient(closest-side, #000 90%, transparent 100%);
+    mask: radial-gradient(closest-side, #000 90%, transparent 100%);
+    pointer-events: none;
+}
+/* Placed rune: the full, unclipped icon with its own metal rim, a 1px
+   bright rim tint and a soft category glow (sampled Apr / Nov 2015). */
+body[data-client="air"] .rune-slot.slot-mark         { --rim: #ffc0a0; --glow: rgba(240, 110, 60, 0.95); --glow2: rgba(236, 104, 56, 0.75); }
+body[data-client="air"] .rune-slot.slot-seal         { --rim: #fdfda8; --glow: rgba(240, 222, 70, 0.95); --glow2: rgba(236, 214, 60, 0.7); }
+body[data-client="air"] .rune-slot.slot-glyph        { --rim: #f0ffff; --glow: rgba(160, 214, 236, 0.95); --glow2: rgba(140, 196, 220, 0.7); }
+body[data-client="air"] .rune-slot .placed-rune {
+    filter:
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--rim))
+        drop-shadow(0 0 calc(3 * var(--u)) var(--glow))
+        drop-shadow(0 0 calc(5 * var(--u)) var(--glow))
+        drop-shadow(0 0 calc(9 * var(--u)) var(--glow2));
+}
+body[data-client="air"] .rune-slot.filled:hover .placed-rune {
+    filter:
+        brightness(1.08)
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--rim))
+        drop-shadow(0 0 calc(3 * var(--u)) var(--glow))
+        drop-shadow(0 0 calc(5 * var(--u)) var(--glow))
+        drop-shadow(0 0 calc(9 * var(--u)) var(--glow2));
+}
+/* Quint halo per client build (runes-calculator.js applyEraChrome):
+     ember   Apr 2015: saturated #e8703e, ~6-8 native px past the serrated
+             frame (V4.20, the nearest capture)
+     cream   May 2013: a pale cream / peach fringe (V3.14)
+     silver  Nov 2015: silver-grey on ram and dragon quints (V5.21+) */
+body[data-client="air"] .rune-slot.slot-quintessence {
+    --q1: #ffb48e; --q2: rgba(230, 84, 58, 1); --q3: rgba(234, 94, 62, 0.85); --q4: rgba(232, 108, 68, 0.5);
+}
+body[data-client="air"] .legacy-app[data-rl-quint="cream"] .rune-slot.slot-quintessence {
+    --q1: #fff6e4; --q2: rgba(255, 236, 206, 0.95); --q3: rgba(246, 214, 176, 0.75); --q4: rgba(236, 196, 160, 0.45);
+}
+body[data-client="air"] .legacy-app[data-rl-quint="silver"] .rune-slot.slot-quintessence {
+    --q1: #ecece6; --q2: rgba(186, 190, 186, 1); --q3: rgba(178, 182, 178, 0.95); --q4: rgba(176, 180, 174, 0.7); --q5: rgba(184, 186, 176, 0.15);
+}
+body[data-client="air"] .rune-slot.slot-quintessence .placed-rune {
+    filter:
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--q1))
+        drop-shadow(0 0 calc(3 * var(--u)) var(--q2))
+        drop-shadow(0 0 calc(6 * var(--u)) var(--q3))
+        drop-shadow(0 0 calc(11 * var(--u)) var(--q4));
+}
+body[data-client="air"] .rune-slot.slot-quintessence.filled:hover .placed-rune {
+    filter:
+        brightness(1.08)
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--q1))
+        drop-shadow(0 0 calc(3 * var(--u)) var(--q2))
+        drop-shadow(0 0 calc(6 * var(--u)) var(--q3))
+        drop-shadow(0 0 calc(11 * var(--u)) var(--q4));
+}
+/* Silver (Nov 2015): a grey haze that visibly desaturates the parchment
+   out to ~1.2x the frame radius (capture at 1.08R / 1.16R: #c0ac8f
+   #d0be9b at 180 deg, #cfc7a6 #cdc18c at 200 deg), so wider and denser
+   outer layers than ember / cream. */
+body[data-client="air"] .legacy-app[data-rl-quint="silver"] .rune-slot.slot-quintessence .placed-rune {
+    filter:
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--q1))
+        drop-shadow(0 0 calc(3.5 * var(--u)) var(--q2))
+        drop-shadow(0 0 calc(6 * var(--u)) var(--q3))
+        drop-shadow(0 0 calc(9 * var(--u)) var(--q4))
+        drop-shadow(0 0 calc(13 * var(--u)) var(--q5));
+}
+body[data-client="air"] .legacy-app[data-rl-quint="silver"] .rune-slot.slot-quintessence.filled:hover .placed-rune {
+    filter:
+        brightness(1.08)
+        drop-shadow(0 0 calc(1.2 * var(--u)) var(--q1))
+        drop-shadow(0 0 calc(3.5 * var(--u)) var(--q2))
+        drop-shadow(0 0 calc(6 * var(--u)) var(--q3))
+        drop-shadow(0 0 calc(9 * var(--u)) var(--q4))
+        drop-shadow(0 0 calc(13 * var(--u)) var(--q5));
 }
 
-/* --- Rune builder: positioned absolutely within the parchment ----------- */
-/* All overlay panels use PERCENTAGE geometry measured against the painted
-   panels in summoners_runes_bg.jpg (1024x615 logical space), so they stay
-   glued to the art at any parchment scale. Painted boxes (logical px):
-   left sidebar x 33-235 / y 131-567; header band y 134-167 centered on the
-   middle column (x 244-842); stats box x 846-999 / y 134-520 with a small
-   action-button box below it at y 529-567. */
-
-.rune-title {
+/* --- A2. Page name over the painted dragon swirl (page x 386, band
+       y 216-264): left 7 native px, 17px sans, #74351b ---------------- */
+body[data-client="air"] .rl-pagebar {
     position: absolute;
-    top: 24.5%;
-    left: 53%;
-    transform: translate(-50%, -50%);
-    font-family: var(--font-serif);
-    color: var(--color-parchment-red);
-    font-size: 22px;
-    letter-spacing: 1px;
+    z-index: 1;
+    left: calc(386 * var(--a) + 7 * var(--u));
+    top: calc(216 * var(--a));
+    height: calc(49 * var(--a));
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+body[data-client="air"] .rl-page-name {
+    font: 400 calc(17 * var(--u))/1 var(--font-air-body);
+    color: #74351b;
     white-space: nowrap;
 }
 
-.rune-filter-row, .tier-filters {
+/* --- A3. Toolbar band: "Runes Type:" + AIR dropdown (native 52 / 123-262,
+       y 127.5-152.5). Page chips: air-sheet.css §7. ---------------------- */
+body[data-client="air"] .rl-typebar {
+    position: absolute;
+    z-index: 2;
+    left: calc(80 * var(--a));
+    top: calc(173 * var(--a));
+    height: calc(25 * var(--u));
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 4px;
 }
-.filter-label, .tier-label {
-    color: var(--color-parchment-red);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+body[data-client="air"] .rl-type-label {
+    flex: none;
+    width: calc(99.3 * var(--a));
+    font: 400 calc(13 * var(--u))/1 var(--font-air-body);
+    color: #6b2410;
+    white-space: nowrap;
 }
-.checkbox-label {
-    color: #3b2f21;
+body[data-client="air"] .rl-type-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    flex: none;
+    width: calc(139.5 * var(--u));
+    height: calc(25 * var(--u));
+    margin: 0;
+    padding: 0 calc(28 * var(--u)) 0 calc(5 * var(--u));
+    border: 1px solid #a8a08a;
+    border-bottom-color: #8d846c;
+    border-radius: calc(3 * var(--u));
+    /* face + right cell divider + ▼ */
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23333'/%3E%3C/svg%3E") no-repeat right calc(8 * var(--u)) center / calc(9 * var(--u)) calc(5.5 * var(--u)),
+        linear-gradient(#b9b9b9, #b9b9b9) no-repeat right calc(22.5 * var(--u)) top calc(1 * var(--u)) / 1px calc(100% - 2 * var(--u)),
+        linear-gradient(#fbfbfb, #fbfbfb) no-repeat right calc(21.5 * var(--u)) top calc(1 * var(--u)) / 1px calc(100% - 2 * var(--u)),
+        linear-gradient(to bottom, #ffffff 0%, #f6f6f6 45%, #e2e2e2 80%, #d4d4d4 100%);
+    box-shadow: 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(70, 50, 10, 0.35);
+    font: 600 calc(15 * var(--u))/1 var(--font-air-body);
+    color: #111;
     cursor: pointer;
-    align-items: center;
-    gap: 2px;
-    font-size: 9px;
-    display: flex;
-}
-.checkbox-label input { width: 11px; height: 11px; }
-.rune-select {
-    color: #3b2f21;
-    background: #fff;
-    border: 1px solid #b3976b;
     outline: none;
-    padding: 1px 3px;
-    font-size: 10px;
-    flex: 1;
-    min-width: 0;
 }
+body[data-client="air"] .rl-type-select:focus-visible { box-shadow: 0 0 0 1px #6b2410, 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(70, 50, 10, 0.35); }
+body[data-client="air"] .rl-type-select option { font: 400 14px var(--font-air-body); color: #111; background: #fff; }
 
-.rune-categories {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 4px;
-}
-.rune-categories::-webkit-scrollbar { width: 8px; }
-.rune-categories::-webkit-scrollbar-thumb { background: #b3976b; border-radius: 3px; }
-.rune-categories::-webkit-scrollbar-track { background: #0000001a; }
-
-.category-group { margin-bottom: 2px; }
-.category-header {
-    color: #f0e6d2;
-    cursor: pointer;
-    background: linear-gradient(#1e457c, #0a1b35);
-    align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    display: flex;
-}
-.category-header.header-mark         { color: #f33; }
-.category-header.header-seal         { color: #ff3; }
-.category-header.header-glyph        { color: #3af; }
-.category-header.header-quintessence { color: #c3f; }
-.category-arrow { opacity: 0.8; font-size: 8px; transition: transform 100ms; }
-.category-group.open .category-arrow { transform: rotate(90deg); }
-.rune-items {
-    background: #ffffffe6;
-    flex-direction: column;
-    gap: 1px;
-    padding: 2px;
-    display: none;
-}
-.category-group.open .rune-items { display: flex; }
-.rune-item {
-    cursor: pointer;
-    border: 1px solid transparent;
-    align-items: center;
-    gap: 6px;
-    padding: 3px;
-    transition: background 100ms;
-    display: flex;
-}
-.rune-item:hover { background: #fff9; border-color: var(--color-gold-base); }
-.rune-item.selected { background: #fff; border-color: var(--color-parchment-red); }
-.rune-icon-small { width: 24px; height: 24px; object-fit: contain; flex: none; }
-.rune-info { flex-direction: column; min-width: 0; line-height: 1.1; display: flex; }
-.rune-name { color: #111; font-size: 10px; font-weight: 700; }
-.rune-stats-inline { color: #777; margin-top: 1px; font-size: 9px; }
-
-.stats-title {
-    color: var(--color-parchment-red);
-    font-family: var(--font-serif);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-bottom: 1px solid rgba(97,12,12,0.3);
-    margin-bottom: 4px;
-}
-.level-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    border-bottom: 1px solid rgba(97,12,12,0.2);
-}
-.level-label { color: #3b2f21; font-size: 9px; font-weight: 700; flex: none; white-space: nowrap; }
-.level-row input[type="range"] { flex: 1; min-width: 0; height: 12px; cursor: pointer; accent-color: var(--color-parchment-red); }
-.rune-items-empty { color: #777; font-style: italic; padding: 6px 8px; font-size: 8px; }
-.stats-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 4px 8px;
-}
-.stat-row {
-    display: flex;
-    flex-direction: column;
-    padding: 2px 0;
-    border-bottom: 1px solid #0000001a;
-    margin-bottom: 2px;
-}
-.stat-row:last-child { border-bottom: none; }
-.stat-name { color: #3b2f21; font-size: 10px; font-weight: 700; }
-.stat-value { color: #111; font-size: 11px; margin-top: 0; }
-.stats-empty { color: #777; font-style: italic; padding: 10px 0; text-align: center; font-size: 9px; }
-
-.action-buttons {
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding: 6px 8px 2px;
-    display: flex;
-    border-top: 1px solid rgba(97, 12, 12, 0.25);
-}
-.action-btn {
-    cursor: pointer;
-    background: linear-gradient(#f3e9d8, #d8c5a1);
-    border: 1px solid #b3976b;
-    border-radius: 2px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: inset 0 1px #ffffff80;
-}
-.action-btn:hover { background: #fff; filter: brightness(1.05); }
-.action-btn-img { width: 16px; height: 16px; object-fit: contain; }
-
-/* --- The slot grid is its own absolute layer over the parchment --------- */
-.rune-slot-layer {
+/* --- A4. Library (painted panel x 71-376, tier band y 217-267, olive
+       well 268-875). List 199u + 1u line + 18u Flex scrollbar. -------- */
+body[data-client="air"] .rl-library {
     position: absolute;
-    inset: 0;
-    pointer-events: none;  /* slots themselves opt in */
+    z-index: 1;
+    left: calc(71 * var(--a));
+    top: calc(217 * var(--a));
+    width: calc(306 * var(--a));
+    height: calc(658 * var(--a));
 }
-.rune-slot {
+body[data-client="air"] .rl-tiers {
     position: absolute;
+    left: calc(51 * var(--u));
+    top: calc(32 * var(--a) - 7 * var(--u));
+    height: calc(14 * var(--u));
+    display: flex;
+    align-items: center;
+    font: 400 calc(11.5 * var(--u))/1 var(--font-air-body);
+    color: #2a2014;
+    white-space: nowrap;
+}
+body[data-client="air"] .rl-tier-label { margin-right: calc(14.5 * var(--u)); }
+body[data-client="air"] .rl-tier {
+    display: flex;
+    align-items: center;
+    margin-right: calc(8 * var(--u));
+    font-size: calc(13.5 * var(--u));
     cursor: pointer;
-    pointer-events: auto;
-    /* Sizes are percentages of the parchment so they scale fluidly without
-       transform-based rounding. The image analysis (detect-indents.py)
-       measured indent bounding-boxes at ~50x55 in 1024x615 logical coords;
-       a tiny extra margin keeps the slot frame from sitting flush against
-       the painted indent edge. Width 5.1% = ~52 logical px; aspect 50:55. */
-    width: 5.1%;
-    aspect-ratio: 50 / 55;
-    transform: translate(-50%, -50%);
-    transition: filter 100ms;
-    z-index: 10;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background: rgba(0,0,0,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
-.rune-slot.large-slot {
-    /* Quintessence: bigger purple hex on parchment ~80x80 logical = 7.8%. */
-    clip-path: none;
-    -webkit-clip-path: none;
-    width: 7.8%;
-    aspect-ratio: 1 / 1;
-    background: transparent;
-    overflow: hidden;
+body[data-client="air"] .rl-tier input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    flex: none;
+    width: calc(13.5 * var(--u));
+    height: calc(13.5 * var(--u));
+    margin: 0 calc(8 * var(--u)) 0 0;
+    border: 1px solid #5e5e5e;
+    border-radius: 1px;
+    background: linear-gradient(to bottom, #ffffff, #e9e9e9);
+    box-shadow: 0 1px 0 rgba(255, 250, 230, 0.6);
+    cursor: pointer;
+    outline: none;
 }
-.rune-slot:hover { filter: brightness(1.15) drop-shadow(0 0 6px rgba(255,255,255,0.5)); }
-.rune-slot.selected { filter: brightness(1.25) drop-shadow(0 0 8px #fff); }
+body[data-client="air"] .rl-tier input:checked {
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.1l2.7 2.9L10.2 2.6' fill='none' stroke='%23000' stroke-width='2.3'/%3E%3C/svg%3E") no-repeat center / 82% 82%,
+        linear-gradient(to bottom, #ffffff, #e9e9e9);
+}
+body[data-client="air"] .rl-tier input:focus-visible { box-shadow: 0 0 0 1px #6b2410; }
 
-.slot-indicator {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px dashed rgba(255,255,255,0.25);
+body[data-client="air"] .rl-well {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(51 * var(--a));
+    bottom: 0;
 }
-.rune-slot.large-slot .slot-indicator { border: none; }
-.slot-indicator::before {
-    content: "";
-    opacity: 0.4;
-    filter: blur(8px);
-    z-index: -1;
-    width: 100%;
-    height: 100%;
+body[data-client="air"] .rl-list {
     position: absolute;
     top: 0;
     left: 0;
+    bottom: 0;
+    right: calc(19 * var(--u));
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    outline: none;
 }
-.rune-slot.slot-mark         .slot-indicator { border-color: #ff32004d; }
-.rune-slot.slot-mark         .slot-indicator::before { background: radial-gradient(circle, #ff3200cc 0%, transparent 60%); }
-.rune-slot.slot-seal         .slot-indicator { border-color: #ffff004d; }
-.rune-slot.slot-seal         .slot-indicator::before { background: radial-gradient(circle, #ffff00cc 0%, transparent 60%); }
-.rune-slot.slot-glyph        .slot-indicator { border-color: #0096ff4d; }
-.rune-slot.slot-glyph        .slot-indicator::before { background: radial-gradient(circle, #0096ffcc 0%, transparent 60%); }
-.rune-slot.slot-quintessence .slot-indicator { border-color: #c800ff66; }
-.rune-slot.slot-quintessence .slot-indicator::before { background: radial-gradient(circle, #c800ffcc 0%, transparent 60%); }
+.rl-list::-webkit-scrollbar,
+.rl-stats-list::-webkit-scrollbar { display: none; }
 
-.placed-rune {
-    /* Rune art assets have transparent padding around the hex content, so a
-       scale-up makes the visible hex match the slot frame edges. The parent
-       slot has clip-path / overflow:hidden, so any overflow is cropped to
-       the hex shape — no visible bleed into neighbouring slots. */
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px #0006);
-    width: 100%;
-    height: 100%;
-    transform: scale(1.22);
+/* Category bars: 29.5u, navy gradient with a light top edge and lighter
+   bottom lip; black ▸/▾ at x+11.5, 15px regular label at x+26.5. */
+body[data-client="air"] .rl-cat-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: calc(29.5 * var(--u));
+    padding: 0 0 calc(1 * var(--u)) calc(26.5 * var(--u));
+    background: linear-gradient(to bottom, #7299ae 0%, #5586a5 4%, #3e7090 20%, #1a4d70 38%, #033150 50%, #012e4b 58%, #012f4d 80%, #013a63 88%, #064a7b 95%, #135683 100%);
+    font: 400 calc(15 * var(--u))/1 var(--font-air-body);
+    cursor: pointer;
+    outline: none;
 }
-.rune-slot.slot-quintessence .placed-rune { transform: scale(1.28); }
-
-.slot-glow {
-    pointer-events: none;
-    z-index: 5;
-    filter: blur(11px);
-    mix-blend-mode: screen;
-    border-radius: 50%;
-    width: 7%;
-    aspect-ratio: 1 / 1;
+body[data-client="air"] .rl-cat-header::before {
+    content: "";
     position: absolute;
-    transform: translate(-50%, -50%);
+    left: calc(11.5 * var(--u));
+    top: 50%;
+    margin-top: calc(-4 * var(--u));
+    border-style: solid;
+    border-width: calc(3.8 * var(--u)) 0 calc(3.8 * var(--u)) calc(4.2 * var(--u));
+    border-color: transparent transparent transparent #000;
 }
-.slot-glow.large-glow { filter: blur(18px); width: 11%; }
-.slot-glow.glow-mark         { background: radial-gradient(circle, #ff7878 20%, #ff2828b3 50%, transparent 80%); }
-.slot-glow.glow-seal         { background: radial-gradient(circle, #ffffb4 20%, #ffd228b3 50%, transparent 80%); }
-.slot-glow.glow-glyph        { background: radial-gradient(circle, #a0e6ff 20%, #28a0ffb3 50%, transparent 80%); }
-.slot-glow.glow-quintessence { background: radial-gradient(circle, #f0a0ff 20%, #d228ffb3 50%, transparent 80%); }
+body[data-client="air"] .rl-cat.is-open .rl-cat-header::before {
+    left: calc(10 * var(--u));
+    margin-top: calc(-2.5 * var(--u));
+    border-width: calc(4.2 * var(--u)) calc(3.8 * var(--u)) 0 calc(3.8 * var(--u));
+    border-color: #000 transparent transparent transparent;
+}
+body[data-client="air"] .rl-cat-header:hover { filter: brightness(1.12); }
+body[data-client="air"] .rl-cat-header:focus-visible { box-shadow: inset 0 0 0 1px rgba(255, 240, 200, 0.6); }
+body[data-client="air"] .cat-mark         .rl-cat-header { color: #9a1c26; }
+body[data-client="air"] .cat-seal         .rl-cat-header { color: #c9d45a; }
+body[data-client="air"] .cat-glyph        .rl-cat-header { color: #3f93d6; }
+body[data-client="air"] .cat-quintessence .rl-cat-header { color: #7a5ad0; }
+
+/* Rune rows: 37u cream gradient + 4u engraved separator (41u pitch), 34u
+   icon at x+1.5, short stat text at x+47.5 (12.5px, centred, wraps),
+   bold "x9" at the bottom-right. The last row has no separator. */
+body[data-client="air"] .rl-rune {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: calc(41 * var(--u));
+    padding: 0 calc(18 * var(--u)) calc(4 * var(--u)) calc(47.5 * var(--u));
+    background: linear-gradient(to bottom,
+        #f3eacb 0, #e1cf9d calc(100% - 4 * var(--u)),
+        #b9a46d calc(100% - 4 * var(--u)), #b9a46d calc(100% - 3 * var(--u)),
+        #857238 calc(100% - 3 * var(--u)), #857238 calc(100% - 1 * var(--u)),
+        #c3b382 calc(100% - 1 * var(--u)));
+    cursor: pointer;
+    outline: none;
+}
+body[data-client="air"] .rl-rune:last-child {
+    height: calc(37 * var(--u));
+    padding-bottom: 0;
+    background: linear-gradient(to bottom, #f3eacb, #e1cf9d);
+}
+body[data-client="air"] .rl-rune:hover {
+    background: linear-gradient(to bottom,
+        #f8f2dc 0, #e9dbb0 calc(100% - 4 * var(--u)),
+        #b9a46d calc(100% - 4 * var(--u)), #b9a46d calc(100% - 3 * var(--u)),
+        #857238 calc(100% - 3 * var(--u)), #857238 calc(100% - 1 * var(--u)),
+        #c3b382 calc(100% - 1 * var(--u)));
+}
+body[data-client="air"] .rl-rune:last-child:hover { background: linear-gradient(to bottom, #f8f2dc, #e9dbb0); }
+body[data-client="air"] .rl-rune:focus-visible { box-shadow: inset 0 0 0 1px rgba(107, 36, 16, 0.6); }
+body[data-client="air"] .rl-rune-icon {
+    position: absolute;
+    left: calc(1.5 * var(--u));
+    top: calc(1.5 * var(--u));
+    width: calc(34 * var(--u));
+    height: calc(34 * var(--u));
+}
+body[data-client="air"] .rl-rune-text {
+    font: 400 calc(12.5 * var(--u))/calc(15.4 * var(--u)) var(--font-air-body);
+    color: #1d140b;
+    white-space: pre-line;
+}
+body[data-client="air"] .rl-rune-count {
+    position: absolute;
+    right: calc(2 * var(--u));
+    top: calc(26 * var(--u));
+    font: 700 calc(11 * var(--u))/1 var(--font-lcu-display-mixed);
+    color: #140a02;
+}
+body[data-client="air"] .rl-rune-none {
+    padding: calc(8 * var(--u)) calc(10 * var(--u));
+    background: linear-gradient(to bottom, #f3eacb, #e1cf9d);
+    font-size: calc(12 * var(--u));
+    color: #5a4a2a;
+}
+
+/* Flex scrollbar, always shown (Apr 2015: 18u tan track #c6b074, 1u dark
+   line at its left, 16u cream arrow buttons with a tan ▲▼). */
+body[data-client="air"] .rl-scroll {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: calc(19 * var(--u));
+    display: flex;
+    flex-direction: column;
+    border-left: calc(1 * var(--u)) solid #9a8040;
+    background: #c6b074;
+}
+body[data-client="air"] .rl-scroll-btn {
+    position: relative;
+    flex: none;
+    width: calc(16 * var(--u));
+    height: calc(16 * var(--u));
+    margin: calc(1.5 * var(--u)) auto;
+    border: 1px solid #fff4d2;
+    border-right-color: #d4c08a;
+    border-bottom-color: #bea56a;
+    background: linear-gradient(to bottom, #fffaeb 0%, #fbf0cf 50%, #f2e2b5 100%);
+    box-shadow: 0 0 0 1px rgba(140, 115, 55, 0.45);
+    cursor: pointer;
+}
+body[data-client="air"] .rl-scroll-btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: calc(-2.5 * var(--u)) 0 0 calc(-3.5 * var(--u));
+    border-style: solid;
+    border-width: 0 calc(3.5 * var(--u)) calc(4.5 * var(--u)) calc(3.5 * var(--u));
+    border-color: transparent transparent #b39a5b transparent;
+}
+body[data-client="air"] .rl-scroll-btn.is-down::after {
+    margin-top: calc(-2 * var(--u));
+    border-width: calc(4.5 * var(--u)) calc(3.5 * var(--u)) 0 calc(3.5 * var(--u));
+    border-color: #b39a5b transparent transparent transparent;
+}
+body[data-client="air"] .rl-scroll-btn:active { background: linear-gradient(to bottom, #f2e2b5, #fbf0cf); }
+body[data-client="air"] .rl-scroll-track { position: relative; flex: 1 1 auto; min-height: 0; }
+body[data-client="air"] .rl-scroll-thumb {
+    display: none;
+    position: absolute;
+    left: 50%;
+    width: calc(16 * var(--u));
+    margin-left: calc(-8 * var(--u));
+    border: 1px solid #fff4d2;
+    border-right-color: #d4c08a;
+    border-bottom-color: #bea56a;
+    background: linear-gradient(to right, #fffaeb 0%, #fbf0cf 50%, #f0dfae 100%);
+    box-shadow: 0 0 0 1px rgba(140, 115, 55, 0.45);
+    cursor: pointer;
+}
+body[data-client="air"] .rl-scroll-thumb::after {         /* grip */
+    content: "";
+    position: absolute;
+    left: 25%;
+    right: 25%;
+    top: 50%;
+    height: calc(5 * var(--u));
+    margin-top: calc(-2.5 * var(--u));
+    background: repeating-linear-gradient(to bottom, #c8b27a 0, #c8b27a 1px, transparent 1px, transparent calc(2 * var(--u)));
+}
+body[data-client="air"] .rl-scroll.is-scrollable .rl-scroll-thumb { display: block; }
+
+/* --- A5. Statistics (painted panel x 1310-1540: band y 216-264, khaki
+       well 267-801). Entries 48u apart: 12px bold name, "+ 15" value,
+       engraved 1u #c1b176 / 1u #decf96 rule; empty page = empty panel. -- */
+body[data-client="air"] .rl-stats {
+    position: absolute;
+    z-index: 1;
+    left: calc(1310 * var(--a));
+    top: calc(216 * var(--a));
+    width: calc(231 * var(--a));
+    height: calc(610 * var(--a));
+}
+/* The art's button box (y 805-876) is ~25 art px taller than the client's
+   (33 native, Apr 2015): paint over its top rule (y 801-806, same khaki as
+   both wells) and redraw the engraved rule at y 826-829, so the stats
+   well runs on and the box is the client's 46 art px. */
+body[data-client="air"] .rl-stats::before,
+body[data-client="air"] .rl-stats::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+}
+body[data-client="air"] .rl-stats::before {
+    top: calc(584.5 * var(--a));
+    height: calc(7 * var(--a));
+    background: linear-gradient(to bottom, #d5c179, #d4c077 50%, #d2bd70);
+}
+body[data-client="air"] .rl-stats::after {
+    top: calc(610 * var(--a));
+    height: calc(4 * var(--a));
+    background: linear-gradient(to bottom, #c2a55f 0, #c2a55f 25%, #a08242 25%, #a08242 50%, #8f6c2a 50%, #8f6c2a 75%, #c0a361 75%);
+}
+body[data-client="air"] .rl-stats-title {
+    display: flex;
+    align-items: center;
+    height: calc(49 * var(--a));
+    padding: calc(1 * var(--u)) 0 0 calc(9 * var(--u));
+    font: 700 calc(17 * var(--u))/1 var(--font-air-body);
+    color: #6a1109;
+}
+/* The list scrolls (Flex List): its viewport is exactly 7 rows (48u
+   pitch, fixed height) so no row is ever sliced; the drawn Flex scrollbar
+   (A4) shows at its right edge only while it overflows. */
+body[data-client="air"] .rl-stats-view {
+    position: absolute;
+    top: calc(50 * var(--a));
+    left: 0;
+    right: 0;
+    height: calc(7 * 48 * var(--u));
+}
+body[data-client="air"] .rl-stats-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    outline: none;
+}
+body[data-client="air"] .rl-stats-view.has-scroll .rl-stats-list { right: calc(19 * var(--u)); }
+.rl-stats-view > .rl-scroll { display: none !important; }
+.rl-stats-view.has-scroll > .rl-scroll { display: flex !important; }
+body[data-client="air"] .rl-stat {
+    position: relative;
+    height: calc(48 * var(--u));
+    margin: 0 calc(5 * var(--u)) 0 calc(4 * var(--u));
+    padding: calc(2.7 * var(--u)) 0 0 calc(1.5 * var(--u));
+}
+body[data-client="air"] .rl-stat::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(43.5 * var(--u));
+    height: 1px;
+    background: #c1b176;
+    box-shadow: 0 1px 0 #e2d49c;
+}
+body[data-client="air"] .rl-stat-name {
+    font: 700 calc(12.5 * var(--u))/calc(16 * var(--u)) var(--font-air-body);
+    color: #140d03;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body[data-client="air"] .rl-stat-value {
+    margin-top: calc(4 * var(--u));
+    font: 400 calc(13.5 * var(--u))/calc(16 * var(--u)) var(--font-air-body);
+    color: #241a08;
+}
+/* Level slider (not in the client, which always shows "at level 18"):
+   parked at the foot of the stats well, drawn as parchment UI. */
+body[data-client="air"] .rl-level {
+    position: absolute;
+    left: calc(9 * var(--u));
+    right: calc(9 * var(--u));
+    bottom: calc(8 * var(--u));
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    font: 600 calc(11.5 * var(--u))/1 var(--font-air-body);
+    color: #4a3614;
+}
+body[data-client="air"] .rl-level-label { flex: none; white-space: nowrap; }
+body[data-client="air"] .rl-level-range {
+    --rl-level: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: calc(14 * var(--u));
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+}
+body[data-client="air"] .rl-level-range::-webkit-slider-runnable-track {
+    height: calc(6 * var(--u));
+    border-radius: calc(3 * var(--u));
+    background: linear-gradient(to right, #6e1206 0, #9b2a10 var(--rl-level), #c1b176 var(--rl-level));
+    box-shadow: inset 0 1px 2px rgba(60, 40, 0, 0.55), 0 1px 0 rgba(255, 245, 210, 0.7);
+}
+body[data-client="air"] .rl-level-range::-moz-range-track {
+    height: calc(6 * var(--u));
+    border-radius: calc(3 * var(--u));
+    background: #c1b176;
+    box-shadow: inset 0 1px 2px rgba(60, 40, 0, 0.55), 0 1px 0 rgba(255, 245, 210, 0.7);
+}
+body[data-client="air"] .rl-level-range::-moz-range-progress { height: calc(6 * var(--u)); border-radius: calc(3 * var(--u)); background: #8a2410; }
+body[data-client="air"] .rl-level-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(13 * var(--u));
+    height: calc(13 * var(--u));
+    margin-top: calc(-3.5 * var(--u));
+    border: 1px solid #0a1f3a;
+    border-radius: 50%;
+    background: var(--air-btn);
+    box-shadow: inset 0 1px 0 rgba(160, 200, 255, 0.5), 0 1px 2px rgba(60, 40, 0, 0.5);
+}
+body[data-client="air"] .rl-level-range::-moz-range-thumb {
+    width: calc(13 * var(--u));
+    height: calc(13 * var(--u));
+    border: 1px solid #0a1f3a;
+    border-radius: 50%;
+    background: var(--air-btn);
+}
+body[data-client="air"] .rl-level-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px rgba(107, 36, 16, 0.6); }
+
+/* --- A6. Button box (x 1310-1540, y 830-876, see A5): 35x27.5u icon
+       buttons 5.5u apart, centred. X = clear (enabled while the page has
+       runes), ↶ = revert and floppy = save (enabled while unsaved).
+       Glyphs are the client PNGs' white art as masks (images/runes/
+       rl-glyph-*.png); the disabled face is the rune tab's neutral grey
+       (Apr 2015: #c7c3c4 top line, #a6a1a7 → #666b65). ------------------ */
+body[data-client="air"] .rl-actions {
+    position: absolute;
+    z-index: 1;
+    left: calc(1310 * var(--a));
+    top: calc(830 * var(--a));
+    width: calc(231 * var(--a));
+    height: calc(46 * var(--a));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(5.5 * var(--u));
+    padding-top: calc(1 * var(--u));
+}
+body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn {
+    position: relative;
+    flex: none;
+    width: calc(35 * var(--u));
+    height: calc(27.5 * var(--u));
+    padding: 0;
+    border: 1px solid #0f2744;
+    border-bottom-color: #07172b;
+    border-radius: calc(3.5 * var(--u));
+    background: linear-gradient(to bottom, #5590d6 0, #3a74b6 7%, #2c62a0 22%, #234b83 45%, #183a69 65%, #0f305b 82%, #0c2a46 100%);
+    box-shadow: inset 0 1px 0 rgba(150, 195, 250, 0.45), 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(50, 35, 5, 0.55);
+    color: #fff;
+}
+body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: currentColor;
+    -webkit-mask: var(--rl-glyph) no-repeat center / var(--rl-glyph-size, 100%) var(--rl-glyph-size, 100%);
+    mask: var(--rl-glyph) no-repeat center / var(--rl-glyph-size, 100%) var(--rl-glyph-size, 100%);
+}
+body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:hover { filter: brightness(1.12); }
+body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:active {
+    filter: none;
+    background: var(--air-chip-selected);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+body[data-client="air"] .legacy-app .rl-actions .air-btn.rl-btn:disabled {
+    border-color: #6d6b6c;
+    border-bottom-color: #4e4f4d;
+    background: linear-gradient(to bottom, #c7c3c4 0, #a6a1a7 6%, #99969d 22%, #8c8a8b 45%, #7c7a7b 65%, #6e6c6d 82%, #646763 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(50, 35, 5, 0.45);
+    color: #dcdcdc;
+    filter: none;
+    cursor: default;
+}
+/* The client drew the glyphs larger than the repo PNGs do (Apr 2015: X
+   ~12u wide, floppy ~20u tall): scale the masks up. */
+.rl-btn-clear   { --rl-glyph: url(../images/runes/rl-glyph-clear.png);  --rl-glyph-size: 142%; }
+.rl-btn-revert  { --rl-glyph: url(../images/runes/rl-glyph-revert.png); --rl-glyph-size: 160%; }
+.rl-btn-save    { --rl-glyph: url(../images/runes/rl-glyph-save.png);   --rl-glyph-size: 150%; }
+/* Rune Combiner (V3.14 / V4.20): the blue recycle button after save. */
+/* Rounded chasing-arrows (Moebius) loop, as on the 2012 / 2013 client
+   button: three thick arcs on one circle, each ending in an arrowhead
+   (rl-glyph-combine.svg, drawn for this page). */
+.rl-btn-combine {
+    --rl-glyph: url(../images/runes/rl-glyph-combine.svg);
+    --rl-glyph-size: 112%;          /* 2013: the loop spans ~70% of the
+                                       button height, ~56% of its width */
+}
+
+/* --- A7. Rune tooltip (base.css skin air-rune + .rl-tt-air): the sheet
+       renders at k = 1.1 CSS px per client px (--u), so the tip does too
+       (Nov 2015: ~305x74 at the sheet's scale). The tooltip lives on
+       <body>, outside the sheet, so k is spelled out here. ------------ */
+.lol-tt.rl-tt-air[data-skin="air-rune"] {
+    --k: 1.1;
+    min-width: calc(300px * var(--k));
+    max-width: calc(300px * var(--k));   /* base: min 300 beats max 274 */
+    padding: calc(5px * var(--k)) calc(8px * var(--k)) calc(7px * var(--k));
+    border-radius: calc(4px * var(--k));
+    font-size: calc(12px * var(--k));
+}
+.lol-tt.rl-tt-air[data-skin="air-rune"] .tt-row {
+    gap: calc(12px * var(--k));
+    font-size: calc(11px * var(--k));
+    line-height: calc(14px * var(--k));
+}
+.lol-tt.rl-tt-air[data-skin="air-rune"] .tt-name {
+    margin-top: calc(8px * var(--k));
+    font-size: calc(15px * var(--k));
+}
+/* The stat line is regular weight in both captures ("+0.77 magic resist"
+   2012, "-0.83% cooldowns" 2015), the same stroke as the name; base.css
+   air-rune sets 600. */
+.lol-tt.rl-tt-air[data-skin="air-rune"] .tt-desc {
+    margin-top: calc(4px * var(--k));
+    font-size: calc(13px * var(--k));
+    font-weight: 400;
+}
+
+/* ==========================================================================
+   §B  LCU client (V7.21): the League Client's legacy rune page.
+       Stage 1271 wide, 24px side margins: rune board 670x560 at x 24 (the
+       Dec 2016 capture's frame: clear-all + SAVE top-right, gold circle
+       1:1 at (20,40)) | inventory x 714-1018 | statistics x 1042-1247.
+   ========================================================================== */
+body[data-client="lcu"] .legacy-app {
+    position: relative;
+    width: 1271px;
+    height: 580px;
+    color: var(--hx-grey-1);
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- B1. Board ---------------------------------------------------------- */
+body[data-client="lcu"] .rl-board {
+    position: absolute;
+    top: 10px;
+    left: 24px;
+    width: 670px;
+    height: 560px;
+    background: url(../images/runes-lcu/rune_circle.png) no-repeat 20px 40px / 626px 528px;
+}
+/* Centre mark (empty page), traced 1:1 off the Dec 2016 capture (board =
+   capture px): a 45-degree chevron outline (wing tips y 242, notch 247,
+   apex 264) with a detached diamond above the notch; warm grey #3c3732. */
+body[data-client="lcu"] .rl-board-emblem {
+    display: block;
+    position: absolute;
+    left: 308px;
+    top: 224px;
+    width: 53px;
+    height: 44px;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='308 224 53 44'%3E%3Cg fill='none' stroke='%233d3833' stroke-width='2.2' stroke-linejoin='miter'%3E%3Cpath d='M321 233.5L334.5 247L348 233.5L356.5 242L334.5 264L312.5 242Z'/%3E%3Cpath d='M334.5 228.5L339.2 233.2L334.5 237.9L329.8 233.2Z'/%3E%3C/g%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
+}
+body[data-client="lcu"] .rune-slot {
+    width: 67px;
+    height: 67px;
+    background: url(../images/runes-lcu/rune_base_small.png) no-repeat 0 calc(var(--f, 0) * 100% / 9) / 100% 1000%;
+}
+body[data-client="lcu"] .rune-slot:hover { background-position: 0 calc(var(--fh, 0) * 100% / 9); }
+body[data-client="lcu"] .rune-slot.slot-quintessence {
+    width: 151px;
+    height: 151px;
+    background-image: url(../images/runes-lcu/rune_base_large.png);
+    background-size: 100% 400%;
+    background-position: 0 calc(var(--f, 0) * 100% / 3);
+}
+body[data-client="lcu"] .rune-slot.slot-quintessence:hover { background-position: 0 calc(var(--fh, 0) * 100% / 3); }
+/* The rune art sits inside the socket's coloured rim: its own metal rim is
+   trimmed off by an inset hex clip, so only the socket frames it. */
+body[data-client="lcu"] .rune-slot .placed-rune {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46px;
+    height: 46px;
+    margin: -23px 0 0 -23px;
+    -webkit-clip-path: polygon(50% 14%, 85% 32%, 85% 68%, 50% 86%, 15% 68%, 15% 32%);
+    clip-path: polygon(50% 14%, 85% 32%, 85% 68%, 50% 86%, 15% 68%, 15% 32%);
+    transition: filter 200ms ease-out;
+}
+body[data-client="lcu"] .rune-slot.slot-quintessence .placed-rune {
+    width: 108px;
+    height: 108px;
+    margin: -54px 0 0 -54px;
+}
+body[data-client="lcu"] .rune-slot.filled:hover .placed-rune { filter: brightness(1.15); }
+
+/* --- B2. Page toolbar (in the board frame): page name left, clear-all
+       circle button + SAVE right (capture: clear at x 481, SAVE 530-642,
+       y 4-36). ------------------------------------------------------------ */
+body[data-client="lcu"] .rl-pagebar {
+    position: absolute;
+    left: 48px;
+    top: 14px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+body[data-client="lcu"] .rl-page-name {
+    font: 700 14px/18px var(--font-lcu-display-mixed);
+    letter-spacing: 0.0375em;
+    color: var(--hx-gold-1);
+    white-space: nowrap;
+}
+body[data-client="lcu"] .rl-lcu-actions {
+    position: absolute;
+    left: 505px;
+    top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 21px;
+}
+body[data-client="lcu"] .rl-lcu-clear.lcu-circle-btn::after {
+    --lcu-icon-size: 16px;
+    -webkit-mask-image: url(../images/lcu/icon-clearall.png);
+    mask-image: url(../images/lcu/icon-clearall.png);
+}
+body[data-client="lcu"] .rl-lcu-save.lcu-btn {
+    min-width: 112px;
+    height: 32px;
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+}
+
+/* --- B3. Inventory (right of the board) -------------------------------- */
+body[data-client="lcu"] .rl-library {
+    position: absolute;
+    left: 714px;
+    top: 10px;
+    width: 304px;
+    height: 560px;
+}
+body[data-client="lcu"] .rl-library-title,
+body[data-client="lcu"] .rl-stats-title {
+    display: block;
+    height: 36px;
+    padding-top: 12px;
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-1);
+}
+body[data-client="lcu"] .rl-library-title::after,
+body[data-client="lcu"] .rl-stats-title::after {
+    content: "";
+    display: block;
+    height: 4px;
+    margin-top: 8px;
+    background: url(../images/lcu/title-divider.png) no-repeat left center / 100% 4px;
+}
+body[data-client="lcu"] .rl-typebar {
+    position: absolute;
+    left: 714px;
+    top: 58px;
+    width: 304px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+body[data-client="lcu"] .rl-type-label {
+    flex: none;
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-text);
+}
+body[data-client="lcu"] .rl-type-select { flex: 1 1 auto; width: auto; }
+body[data-client="lcu"] .rl-tiers {
+    position: absolute;
+    left: 0;
+    top: 90px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-text);
+}
+body[data-client="lcu"] .rl-tier-label { margin-right: 2px; }
+body[data-client="lcu"] .rl-tier { display: flex; align-items: center; gap: 6px; cursor: pointer; font-family: var(--font-lcu-body); color: var(--hx-grey-1); }
+body[data-client="lcu"] .rl-tier input {           /* uikit checkbox sprite: 14px, 4 states */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    background: url(../images/lcu/checkbox-spritesheet.png) no-repeat 0 0 / 14px 56px;
+    cursor: pointer;
+    outline: none;
+}
+body[data-client="lcu"] .rl-tier:hover input { background-position: 0 -14px; }
+body[data-client="lcu"] .rl-tier input:checked { background-position: 0 -28px; }
+body[data-client="lcu"] .rl-tier:hover input:checked { background-position: 0 -42px; }
+body[data-client="lcu"] .rl-tier input:focus-visible { box-shadow: 0 0 0 1px var(--hx-gold-2); }
+
+body[data-client="lcu"] .rl-well {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 122px;
+    bottom: 0;
+    border: 1px solid transparent;
+    border-image: linear-gradient(to top, #695625, #463714) 1;
+    background: rgba(1, 10, 19, 0.72);
+}
+body[data-client="lcu"] .rl-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    outline: none;
+}
+body[data-client="lcu"] .rl-cat-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 12px 0 30px;
+    border-bottom: 1px solid var(--hx-opt-sep);
+    background: linear-gradient(to bottom, #1e2328, #141a1f);
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-text);
+    cursor: pointer;
+    outline: none;
+    transition: color 150ms ease-out;
+}
+body[data-client="lcu"] .rl-cat-header::before {            /* caret */
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -4px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 150ms ease-out;
+}
+body[data-client="lcu"] .rl-cat.is-open .rl-cat-header::before { transform: rotate(45deg); margin-top: -6px; }
+body[data-client="lcu"] .rl-cat-header::after {             /* category pip */
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 9px;
+    margin-top: -4.5px;
+    -webkit-clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+body[data-client="lcu"] .cat-mark .rl-cat-header::after         { background: #be1e37; }
+body[data-client="lcu"] .cat-seal .rl-cat-header::after         { background: #c89b3c; }
+body[data-client="lcu"] .cat-glyph .rl-cat-header::after        { background: #0596aa; }
+body[data-client="lcu"] .cat-quintessence .rl-cat-header::after { background: #a45ac8; }
+body[data-client="lcu"] .rl-cat-header:hover,
+body[data-client="lcu"] .rl-cat-header:focus-visible,
+body[data-client="lcu"] .rl-cat.is-open .rl-cat-header { color: var(--hx-gold-1); }
+body[data-client="lcu"] .rl-rune {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 6px 44px 6px 54px;
+    border-bottom: 1px solid var(--hx-opt-sep);
+    cursor: pointer;
+    outline: none;
+    transition: background-color 150ms ease-out;
+}
+body[data-client="lcu"] .rl-rune:hover,
+body[data-client="lcu"] .rl-rune:focus-visible { background: var(--hx-grey-3); }
+body[data-client="lcu"] .rl-rune-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    margin-top: -17px;
+    -webkit-clip-path: polygon(50% 5%, 91% 27%, 91% 73%, 50% 95%, 9% 73%, 9% 27%);
+    clip-path: polygon(50% 5%, 91% 27%, 91% 73%, 50% 95%, 9% 73%, 9% 27%);
+}
+body[data-client="lcu"] .rl-rune-text { color: var(--hx-grey-1); white-space: pre-line; }
+body[data-client="lcu"] .rl-rune:hover .rl-rune-text { color: var(--hx-gold-1); }
+body[data-client="lcu"] .rl-rune-count {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    margin-top: -8px;
+    font: 600 12px/16px var(--font-lcu-body);
+    color: var(--hx-gold-1);
+}
+body[data-client="lcu"] .rl-rune-none { padding: 12px; color: var(--hx-grey-15); }
+/* uikit scrollable: a thin bar in the well's right gutter. */
+body[data-client="lcu"] .rl-scroll {
+    position: absolute;
+    top: 4px;
+    right: 3px;
+    bottom: 4px;
+    width: 4px;
+    display: flex;
+    flex-direction: column;
+}
+body[data-client="lcu"] .rl-scroll-btn { display: none; }
+body[data-client="lcu"] .rl-scroll-track { position: relative; flex: 1 1 auto; background: rgba(30, 35, 40, 0.8); }
+body[data-client="lcu"] .rl-scroll-thumb {
+    display: none;
+    position: absolute;
+    left: 0;
+    width: 4px;
+    background: var(--hx-gold-4);
+    cursor: pointer;
+}
+body[data-client="lcu"] .rl-scroll-thumb:hover { background: var(--hx-gold-3); }
+body[data-client="lcu"] .rl-scroll.is-scrollable .rl-scroll-thumb { display: block; }
+
+/* --- B4. Statistics ---------------------------------------------------- */
+body[data-client="lcu"] .rl-stats {
+    position: absolute;
+    left: 1042px;
+    top: 10px;
+    width: 205px;
+    height: 560px;
+}
+body[data-client="lcu"] .rl-stats-view {
+    position: absolute;
+    top: 58px;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+}
+body[data-client="lcu"] .rl-stats-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    outline: none;
+}
+body[data-client="lcu"] .rl-stats-view.has-scroll .rl-stats-list { right: 12px; }
+body[data-client="lcu"] .rl-stats-view > .rl-scroll { top: 0; bottom: 0; right: 0; }
+/* uikit scrollable overflow masks: fade the edge that has more to scroll
+   (runes-calculator.js toggles .at-top / .at-end on the list). */
+body[data-client="lcu"] .has-scroll > .rl-list,
+body[data-client="lcu"] .has-scroll > .rl-stats-list {
+    --fade-t: 24px;
+    --fade-b: 40px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-t), #000 calc(100% - var(--fade-b)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-t), #000 calc(100% - var(--fade-b)), transparent 100%);
+}
+body[data-client="lcu"] .has-scroll > .at-top { --fade-t: 0px; }
+body[data-client="lcu"] .has-scroll > .at-end { --fade-b: 0px; }
+body[data-client="lcu"] .rl-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0 7px;
+    border-bottom: 1px solid var(--hx-divider);
+}
+/* One line per label ("Cooldown Reduction %" fits; ellipsis only as a
+   last resort); a scaling row carries "at level N" as a dimmer sub-line,
+   so every scaling row is two lines and every flat row one. */
+body[data-client="lcu"] .rl-stat { align-items: flex-start; }
+body[data-client="lcu"] .rl-stat-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--hx-grey-1);
+    letter-spacing: 0;
+}
+body[data-client="lcu"] .rl-stat-label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body[data-client="lcu"] .rl-stat-at {
+    display: block;
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--hx-grey-1);
+    opacity: 0.72;
+}
+body[data-client="lcu"] .rl-stat-value {
+    flex: none;
+    font: 600 13px/16px var(--font-lcu-body);
+    color: var(--hx-gold-1);
+}
+body[data-client="lcu"] .rl-level {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+body[data-client="lcu"] .rl-level-label {
+    flex: none;
+    font: 700 12px/16px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-text);
+}
+body[data-client="lcu"] .rl-level-range {
+    --rl-level: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 16px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+}
+body[data-client="lcu"] .rl-level-range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: linear-gradient(to right, var(--hx-gold-3) 0, var(--hx-gold-3) var(--rl-level), var(--hx-grey-3) var(--rl-level));
+}
+body[data-client="lcu"] .rl-level-range::-moz-range-track { height: 2px; background: var(--hx-grey-3); }
+body[data-client="lcu"] .rl-level-range::-moz-range-progress { height: 2px; background: var(--hx-gold-3); }
+body[data-client="lcu"] .rl-level-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -6px;
+    border: 2px solid var(--hx-gold-2);
+    border-radius: 50%;
+    background: var(--hx-grey-cool);
+    box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.6);
+}
+body[data-client="lcu"] .rl-level-range::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--hx-gold-2);
+    border-radius: 50%;
+    background: var(--hx-grey-cool);
+}
+body[data-client="lcu"] .rl-level-range:hover::-webkit-slider-thumb { border-color: var(--hx-gold-1); }
+
+/* --- B5. Narrow screens (runes-calculator.js applyLcuLayout, below 834px):
+       board / inventory / statistics stacked in a 520px stage, the board
+       drawn at 0.7045 (670 -> 472px), page toolbar above the gold ring. */
+body[data-client="lcu"] .legacy-app[data-rl-layout="stack"] { width: 520px; height: 1270px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-board {
+    top: 14px;
+    left: 24px;
+    transform: scale(0.7045);
+    transform-origin: 0 0;
+}
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-pagebar { left: 24px; top: 10px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-lcu-actions { left: auto; right: 24px; top: 10px; gap: 16px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-library { left: 24px; top: 420px; width: 472px; height: 460px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-typebar { left: 24px; top: 468px; width: 472px; }
+body[data-client="lcu"] [data-rl-layout="stack"] .rl-stats { left: 24px; top: 900px; width: 472px; height: 360px; }
+
+/* LCU rune tooltip content (base.css .lol-tt[data-skin=lcu]). */
+.rl-tt-lcu .tt-sub { color: var(--hx-grey-1); }
