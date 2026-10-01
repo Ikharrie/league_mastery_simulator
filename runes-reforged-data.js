@@ -266,6 +266,11 @@ function getReforgedDataSet(id) {
 // (CommunityDragon <branch>/plugins/rcp-be-lol-game-data/global/default/
 // v1/perks.json) has the numbers filled in. Per dataset id:
 // { runeId: [shortDesc, longDesc] }, null = keep the DDragon text.
+// Unsealed Spellbook (8360) from V25.x: DDragon and perks.json both carry
+// @f3@ (the swap cooldown the game script fills in). The value is the
+// perk's ShardRechargeMinutes in CommunityDragon <branch>/game/
+// perks.cdtb.bin.json: 4.5 min = 270 s in 15.24 and 16.13 (5.0 in 14.19,
+// where DDragon still printed "5 mins").
 var REFORGED_PERK_TEXT = {
     "rr-v7-22": {
         8112: ["Hitting a champion with 3 <b>separate</b> attacks or abilities in 3s deals bonus <lol-uikit-tooltipped-keyword key=\"LinkTooltip_Description_AdaptiveDmg\">adaptive damage</lol-uikit-tooltipped-keyword>.", "Hitting a champion with 3 <b>separate</b> attacks or abilities within 3s deals bonus <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_AdaptiveDmg'><font color='#48C4B7'>adaptive damage</font></lol-uikit-tooltipped-keyword>.<br><br>Damage: 50 - 220 (+0.50 bonus AD, +0.3 AP) damage.<br><br>Cooldown: 50 - 25s<br><br><hr></hr><i>'We called them the Thunderlords, for to speak of their lightning was to invite disaster.'</i>"],
@@ -334,8 +339,8 @@ var REFORGED_PERK_TEXT = {
     "rr-v12-23": { 8009: [null, "Damaging an enemy champion increases your mana regeneration by 1.5-11 (80% for ranged) mana per second for 4 seconds. All energy users gain 1.5 energy per second, instead.<br><br>Takedowns restore 15% of your maximum mana or energy."] },
     "rr-v13-24": { 8009: [null, "Damaging an enemy champion increases your mana regeneration by 1.5-11 (80% for ranged) mana per second for 4 seconds. All energy users gain 1.5 energy per second, instead.<br><br>Takedowns restore 15% of your maximum mana or energy."] },
     "rr-v14-19": { 9101: [null, "Killing a target restores 1 - 23 Health based on level."], 8463: [null, "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"] },
-    "rr-v25-24": { 9101: [null, "Killing a target restores 1 - 23 Health based on level."], 8463: [null, "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"] },
-    "rr-v26-13": { 9101: [null, "Killing a target restores 1 - 23 Health based on level."], 8463: [null, "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"] }
+    "rr-v25-24": { 9101: [null, "Killing a target restores 1 - 23 Health based on level."], 8463: [null, "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"], 8360: [null, "Swap one of your equipped Summoner Spells to a new, single use Summoner Spell. Each unique Summoner Spell you swap to permanently decreases your swap cooldown by 25s (initial swap cooldown is 270 seconds). <br><br>Your first swap becomes available at 6 mins. <br><rules><br>Summoner Spells can only be swapped while out of combat. <br>After using a swapped Summoner Spell you must swap 3 more times before the first can be selected again.<br>Smite damage increases after two Summoner Spell swaps. </rules>"] },
+    "rr-v26-13": { 9101: [null, "Killing a target restores 1 - 23 Health based on level."], 8463: [null, "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"], 8360: [null, "Swap one of your equipped Summoner Spells to a new, single use Summoner Spell. Each unique Summoner Spell you swap to permanently decreases your swap cooldown by 25s (initial swap cooldown is 270 seconds). <br><br>Your first swap becomes available at 6 mins. <br><rules><br>Summoner Spells can only be swapped while out of combat. <br>After using a swapped Summoner Spell you must swap 3 more times before the first can be selected again.<br>Smite damage increases after two Summoner Spell swaps. </rules>"] }
 };
 
 // V7.22-V8.22 path-pair set bonus, shown under the secondary path (list

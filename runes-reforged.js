@@ -148,10 +148,13 @@ function rrEsc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, functio
 // The catalog descriptions carry client-only markup (<lol-uikit-*> keyword
 // wrappers, <scaleAD>…) and, in the V7.22-era files, unresolved @Variable@
 // placeholders. Keep basic formatting tags, turn keywords into bold spans,
-// drop everything else.
+// drop everything else. %i:<name>% is an inline stat-icon token (V10.23
+// Revitalize "%i:scaleHealShield% 5%", V14.19 Lethal Tempo "%i:OnHit%");
+// there is no icon art for it here, so it is dropped rather than printed.
 function sanitizeReforgedDesc(html) {
     return String(html || "")
         .replace(/@[A-Za-z0-9_.*%\-]+@/g, "?")
+        .replace(/%i:[A-Za-z0-9_]+%\s*/g, "")
         .replace(/<lol-uikit-tooltipped-keyword[^>]*>/gi, '<span class="rr-kw">')
         .replace(/<\/lol-uikit-tooltipped-keyword>/gi, "</span>")
         .replace(/<rules>/gi, '<span class="rr-rules">').replace(/<\/rules>/gi, "</span>")
@@ -1019,9 +1022,11 @@ function handleShardPick(row, id) {
 // SAVE = the header's Share (copy the link) and marks the page clean.
 function rrSavePage() {
     var url = new URL($("#reforged-export-link").attr("href") || (location.pathname + location.hash), location.href).toString();
+    // Saving marks the page clean whether or not the clipboard copy works,
+    // same as the masteries and runes pages.
+    reforgedUi.savedHash = buildReforgedHash();
+    rrUpdateTopRow();
     copyToClipboardReforged(url).then(function(){
-        reforgedUi.savedHash = buildReforgedHash();
-        rrUpdateTopRow();
         reforgedToast(LolToast && LolToast.COPIED || "URL copied");
     }, function(){ reforgedToast(LolToast && LolToast.COPY_FAILED || "Copy failed"); });
 }
