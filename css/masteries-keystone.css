@@ -9,9 +9,9 @@
         mastery sidebar. The tree panel is the client's 827x479 px panel at
         sheet scale (1 native px = var(--u)):
           panel.jpg   the three smoky columns + separators, rebuilt from the
-                      1:1 captures (refs/keystone/Masteries2016.png,
+                      1:1 captures (capture Masteries2016.png,
                       nerf_tankmasteries.png, pcg / dig_1) with every icon,
-                      frame and label removed (scratchpad ks/build_bg.py)
+                      frame and label removed
           frames.png  80x80 native cells, icon box at (12,12), lifted from
                       the same captures (ks/extract2.py): 0 thin 49 (5-rank),
                       1 thin 56 (1-rank), 2 T2 bevel, 3-5 T4 riveted
@@ -22,7 +22,7 @@
         State changes are instant (no transitions).
 
    LCU  (V7.21 s7-final) — rcp-fe-lol-mastery-panel 7.21, values 1:1 from its
-        CSS (refs/keystone/mp721/panel.css): info bar, 322px trees with the
+        CSS (the 7.21 client's masteries panel css, via CommunityDragon): info bar, 322px trees with the
         gold header divider + completeness glow, 40px square icons in the
         46px frame sprite, 50px round icons in the 56/64px ring sprites,
         connectors between 5-rank pairs. Sprites vendored from
@@ -33,9 +33,6 @@
 #keystone-calculator { display: none; }
 body.keystone-system #calculator { display: none; }
 body.keystone-system #keystone-calculator { display: block; }
-/* The old Points Available / Return Points row: the AIR sidebar replaces it
-   in the AIR era, the LCU info bar (.ks-info) in the LCU era. */
-body.keystone-system #panel { display: none; }
 
 .ks-mastery {
     position: relative;
@@ -206,8 +203,11 @@ body[data-client="air"] #keystone-calculator[data-skin="air"] {
 
 /* AIR tooltip (air-mastery skin, base.css §7) at client proportions: the
    2015/16 box is a fixed ~290 native px wide (width set from JS) and its
-   type scales with the sheet — --ks-u = on-screen px per native px, set on
-   .ks-tt-air-in by keystone-calculator.js. Measured on qhylFA4fvQo_sd1.jpg
+   type scales with the sheet — --ks-u = CSS px per native px (the sheet's
+   --u, without the stage's shrink-to-fit, so it stays readable on phones
+   like the LCU tooltip), set on .ks-tt-air-in by keystone-calculator.js.
+   Opens above the cursor when it would run past the panel bottom
+   (ksPlaceAirTooltip). Measured on qhylFA4fvQo_sd1.jpg
    (u 0.544): title cap 11 (17px), bold rank line, 13px body on 16.5px
    lines; baselines title→rank 22, rank→body 24; text inset 7 left / 7
    top, 11 from the last baseline down. */
@@ -230,13 +230,14 @@ body[data-client="air"] #keystone-calculator[data-skin="air"] {
    LCU skin (7.21 rcp-fe-lol-mastery-panel, px 1:1)
    ========================================================================== */
 /* Backdrop: the 7.x Collections viewport background.png (near-black top,
-   teal smoke rising from the bottom; refs/keystone/coll_background.png with
+   teal smoke rising from the bottom; capture coll_background.png with
    the social strip x>=1057 cropped) replaces the shared backdrop-magic on
    this page — still one fixed layer (base.css body::before, DECISIONS §2). */
 body.keystone-system[data-client="lcu"]::before {
     background: #010a13 url(../images/lcu/masteries/collections-bg.jpg) no-repeat center bottom / cover;
 }
 body.keystone-system[data-client="lcu"] #s2masteries.air-sheet {
+    position: relative;
     width: 985px;
     min-height: 0;
     padding: 36px 23px 24px 24px;   /* even outer width: whole-px sprites */

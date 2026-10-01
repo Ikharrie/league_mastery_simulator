@@ -11,10 +11,9 @@ var activeDataSetId = null;
 var activeIconBase = "";
 var activeLook = null;
 var buttonClasses = ["unavailable", "available", "full"];
-var rankClasses = ["num-unavailable", "num-available", "num-full"];
 
 // ---------- In-client (AIR) tree geometry ---------------------------------
-// Native client px (measured on the captures, scratchpad specs/classic.md)
+// Native client px (measured on the captures)
 // times k = 1.1 (the AIR sheet's --air-k), rounded to whole CSS px so the
 // 1px frame lines stay crisp. A cell's frame line sits at
 //   (treePitch*t + col0 + colPitch*c,  row0 + rowPitch*r)   native px
@@ -110,8 +109,6 @@ function drawCalculator() {
             (new Image()).src = masteryIconUrl(data[pt][pi], false);
             (new Image()).src = masteryIconUrl(data[pt][pi], true);
         }
-
-    $("#points>.count").text(MAX_POINTS);
 }
 
 function drawButton(tree, index) {
@@ -128,9 +125,12 @@ function drawButton(tree, index) {
     if (parent != undefined) {
         var parentPos = masteryButtonPosition(tree, parent);
         var top = parentPos.y + look.conn.top;
+        // Two-row connectors (S2/S3) carry their own full-length gold art.
+        var span = masteryTier(tree, index) - masteryTier(tree, parent);
         $("#calculator").append(parentLink =
             $("<div>")
                 .addClass("requirement")
+                .addClass(span > 1 ? "span" + span : "")
                 .addClass(status)
                 .css({
                     left: (parentPos.x + look.conn.dx) + "px",
@@ -261,6 +261,9 @@ function masteryTooltipHtml(tree, index, rank) {
 function masteryTooltipBody(mastery, rank)  {
     // Rank 1 is index 0, but Rank 0 is also index 0
     rank = Math.max(0, rank - 1);
+    // S4 / S5: the client's own per-rank strings (Data Dragon mastery.json).
+    if (mastery.rankDesc && mastery.rankDesc[rank] != null)
+        return String(mastery.rankDesc[rank]).replace(/\n/g, "<br>");
     var desc = mastery.desc;
     desc = desc.replace(/#/, mastery.rankInfo[rank]);
     desc = desc.replace(/\n/g, "<br>");
@@ -411,7 +414,6 @@ function updateButtons() {
 function updateLabels() {
     for (var tree=0; tree<3; tree++)
         $("#calculator .tree-label[data-tree="+tree+"] .tree-label-count").text(treePoints(tree));
-    $("#points>.count").text(MAX_POINTS - totalPoints);
     updateMasterySidebar();
 }
 
@@ -456,6 +458,28 @@ function masterySidebarConfig(dataSet) {
     };
 }
 
+// A renamed page (pencil, LCU edit, "+", Delete, Revert) rewrites the hash
+// so Share / Save links carry the name. The sidebar repaints its name text
+// on every change; act only when the name itself changed.
+function watchPageNameForLink() {
+    var sb = window.AirMasterySidebar, aside = sb && sb.element();
+    if (!aside || !window.MutationObserver || aside._nameLinkObserved) return;
+    aside._nameLinkObserved = true;
+    var last = sb.pageName();
+    new MutationObserver(function(){
+        var n = sb.pageName();
+        if (n === last) return;
+        last = n;
+        var ds = getDataSet(activeDataSetId);
+        if (ds && ds.system === "keystone") {
+            if (typeof updateKeystoneLink === "function" && typeof keystoneActiveDataSetId !== "undefined"
+                    && keystoneActiveDataSetId === ds.id) updateKeystoneLink();
+        } else {
+            updateLink();
+        }
+    }).observe(aside, { subtree: true, childList: true, characterData: true });
+}
+
 function syncMasterySidebar(dataSet) {
     if (!window.AirMasterySidebar) return;
     AirMasterySidebar.render(masterySidebarConfig(dataSet));
@@ -480,31 +504,45 @@ function updateMasterySidebar() {
     }
 }
 
+// Optional last hash segment: the page name (AIR sidebar / LCU info bar),
+// URI-encoded; left out for the default "Mastery Page 1", so links without
+// a custom name are exactly what they were.
+function pageNameHashSegment() {
+    var sb = window.AirMasterySidebar;
+    var name = sb ? sb.pageName() : "";
+    return (!name || name === sb.DEFAULT_NAME) ? "" : "|" + encodeURIComponent(name);
+}
+
+// Write our own hash without re-importing it (one pending re-bind at a time,
+// so quick changes never stack several hashchange handlers).
+var hashRebindTimer = null;
+function replaceHashQuietly(hash) {
+    $("#exportLink").attr("href", document.location.pathname + hash);
+    if (document.location.hash == hash) return;
+    // Using replace() causes no change in browser history
+    $(window).unbind('hashchange');
+    document.location.replace(hash);
+    clearTimeout(hashRebindTimer);
+    hashRebindTimer = setTimeout(function(){
+        $(window).unbind('hashchange').bind('hashchange', updateMasteries);
+    }, 500);
+}
+
 function updateLink() {
     var code = exportMasteries();
-    // Hash format: "<dataset-id>|<mastery-code>". Old format (no pipe) is
-    // still accepted on import and treated as the default data set.
+    var name = pageNameHashSegment();
+    // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]". Old format
+    // (no pipe) is still accepted on import and treated as the default data
+    // set.
     var hash;
-    if (code.length <= 3) {
+    if (code.length <= 3 && !name) {
         // For empty/near-empty trees, still surface the data set so a fresh
         // page load lands on the same season/patch the user picked.
         hash = (activeDataSetId === DEFAULT_DATA_SET_ID) ? '' : activeDataSetId + '|';
     } else {
-        hash = activeDataSetId + '|' + code;
+        hash = activeDataSetId + '|' + (code.length <= 3 ? '' : code) + name;
     }
-    hash = '#' + hash;
-
-    // Update link and url only if we have to
-    $("#exportLink").attr("href", document.location.pathname + hash);
-    if (document.location.hash != hash) {
-        // Using replace() causes no change in browser history
-        document.location.replace(hash);
-        // Temporarily unbind change
-        $(window).unbind('hashchange');
-        setTimeout(function(){
-            $(window).bind('hashchange', updateMasteries);
-        }, 500);
-    }
+    replaceHashQuietly('#' + hash);
 }
 
 // There are max 4 points per mastery, or 3 bits each. There is a 1 bit padding
@@ -697,12 +735,20 @@ function decodeMasteries(str) {
 }
 
 function parseHash(raw) {
-    // Hash format: "<dataset-id>|<mastery-code>" (current) or just
-    // "<mastery-code>" (legacy — assume default data set).
-    if (!raw) return { id: DEFAULT_DATA_SET_ID, code: "" };
+    // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]" (current) or
+    // just "<mastery-code>" (legacy — assume default data set). Neither code
+    // alphabet contains "|"; the name is URI-encoded.
+    if (!raw) return { id: DEFAULT_DATA_SET_ID, code: "", name: null };
     var pipe = raw.indexOf('|');
-    if (pipe < 0) return { id: DEFAULT_DATA_SET_ID, code: raw };
-    return { id: raw.slice(0, pipe), code: raw.slice(pipe + 1) };
+    if (pipe < 0) return { id: DEFAULT_DATA_SET_ID, code: raw, name: null };
+    var rest = raw.slice(pipe + 1), name = null;
+    var pipe2 = rest.indexOf('|');
+    if (pipe2 >= 0) {
+        try { name = decodeURIComponent(rest.slice(pipe2 + 1)); }
+        catch (e) { name = rest.slice(pipe2 + 1); }
+        rest = rest.slice(0, pipe2);
+    }
+    return { id: raw.slice(0, pipe), code: rest, name: name };
 }
 
 function updateMasteries() {
@@ -712,6 +758,10 @@ function updateMasteries() {
         // the mastery code into the fresh state.
         switchDataSet(parsed.id, { skipUpdates: true });
     }
+    // The link names the page (default name when it carries none); set it
+    // before the import so the rewritten hash keeps it.
+    if (window.AirMasterySidebar)
+        AirMasterySidebar.pageName(parsed.name || AirMasterySidebar.DEFAULT_NAME);
     var ds = getDataSet(activeDataSetId);
     if (ds && ds.system === "keystone") {
         // Keystone builds use their own code format (keystone-calculator.js).
@@ -837,9 +887,8 @@ $(function(){
 
     // Panel: the AIR sidebar (emblems + counts, Points Available, Save /
     // Return / Delete / Revert, double-click an emblem to reset its tree).
-    // #return is the V7.21 LCU row's button.
-    $("#return").click(resetStates);
     syncMasterySidebar(bootstrapDs);
+    watchPageNameForLink();
 
     buildSeasonPatchSelectors();
 

@@ -29,6 +29,11 @@
 // names the parent (Butcher -> Feast, Block -> Unyielding, Wealth -> Bandit,
 // ... 15 connectors in all). Array order is the share-code order: never
 // reorder entries (move `index` instead).
+//
+// `rankDesc` = the client's own tooltip string per rank (Data Dragon 4.20.2
+// mastery.json description[], "<br>" kept as a line break; it matches the 4.20 client
+// capture word for word, e.g. Dangerous Game); the tooltip shows it when
+// present. desc / rankInfo keep the wiki-verified values.
 var season4FinalData = [
     // offensive
     [
@@ -39,6 +44,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Melee: Deal 2% increased damage and take 1% increased damage.\nRanged: Deal and take 1.5% increased damage.",
             rankInfo: [],
+            rankDesc: ["Melee - Deal an additional 2% damage and receive an additional 1% damage\nRanged - Deal an additional 1.5% damage and receive an additional 1.5% damage"],
         },
         {
             index: 2,
@@ -47,6 +53,7 @@ var season4FinalData = [
             ranks: 4,
             desc: "+#% Attack Speed",
             rankInfo: [1.25, 2.5, 3.75, 5],
+            rankDesc: ["+1.25% Attack Speed", "+2.5% Attack Speed", "+3.75% Attack Speed", "+5% Attack Speed"],
         },
         {
             index: 3,
@@ -55,6 +62,7 @@ var season4FinalData = [
             ranks: 4,
             desc: "+#% Cooldown Reduction",
             rankInfo: [1.25, 2.5, 3.75, 5],
+            rankDesc: ["+1.25% Cooldown Reduction", "+2.5% Cooldown Reduction", "+3.75% Cooldown Reduction", "+5% Cooldown Reduction"],
         },
         {
             index: 4,
@@ -63,6 +71,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Basic attacks and single-target abilities deal 2 bonus true damage to minions and monsters",
             rankInfo: [],
+            rankDesc: ["Basic attacks and single target spells deal an additional 2 damage to minions and monsters\n\nThis does not trigger off of area of effect damage or damage over time effects"],
         },
         {
             index: 5,
@@ -71,6 +80,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Damaging an enemy champion causes them to take 1% increased damage from your allies for 3 seconds",
             rankInfo: [],
+            rankDesc: ["Damaging an enemy with a spell increases allied champions' damage to that enemy by 1% for the next 3 seconds"],
         },
         {
             index: 6,
@@ -81,6 +91,7 @@ var season4FinalData = [
             desc: "+# Attack Damage per level\n(+# Attack Damage at champion level 18)",
             // Wiki: 0.22 / 0.39 / 0.55 AD per level (3.96 / 7.02 / 9.9 at level 18).
             rankInfo: [0.22, 0.39, 0.55],
+            rankDesc: ["+4 Attack Damage at level 18 (+0.22 Attack Damage per level)", "+7 Attack Damage at level 18 (+0.39 Attack Damage per level)", "+10 Attack Damage at level 18 (+0.55 Attack Damage per level)"],
         },
         {
             index: 7,
@@ -91,6 +102,7 @@ var season4FinalData = [
             desc: "+# Ability Power per level\n(+# Ability Power at champion level 18)",
             // Wiki: 0.33 / 0.61 / 0.89 AP per level (5.94 / 10.98 / 16.02 at level 18).
             rankInfo: [0.33, 0.61, 0.89],
+            rankDesc: ["+6 Ability Power at level 18 (+0.33 Ability Power per level)", "+11 Ability Power at level 18 (+0.61 Ability Power per level)", "+16 Ability Power at level 18 (+0.89 Ability Power per level)"],
         },
         {
             index: 8,
@@ -100,6 +112,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Restores 3 Health and 1 Mana on unit kill (5 second cooldown)",
             rankInfo: [],
+            rankDesc: ["Killing a unit restores 3 Health and 1 Mana"],
         },
         {
             index: 9,
@@ -108,6 +121,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Basic attacks against enemy champions increase your ability damage by 1% for 5 seconds (stacks up to 3 times)",
             rankInfo: [],
+            rankDesc: ["Damaging an enemy champion with a Basic Attack increases Spell Damage by 1%, stacking up to 3 times (max 3% damage increase)"],
         },
         {
             index: 10,
@@ -117,6 +131,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "+5 Attack Damage",
             rankInfo: [],
+            rankDesc: ["+4 Attack Damage"],
         },
         {
             index: 11,
@@ -126,6 +141,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "+8 Ability Power",
             rankInfo: [],
+            rankDesc: ["+6 Ability Power"],
         },
         {
             index: 12,
@@ -136,6 +152,7 @@ var season4FinalData = [
             // (20 / 35 / 50% maximum health). Unchanged V3.14 -> V5.21.
             desc: "Deal 5% increased damage to champions below #% maximum Health",
             rankInfo: [20, 35, 50],
+            rankDesc: ["Increases damage dealt to champions below 20% Health by 5%", "Increases damage dealt to champions below 35% Health by 5%", "Increases damage dealt to champions below 50% Health by 5%"],
         },
         {
             index: 13,
@@ -145,6 +162,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Abilities that deal damage to a champion increase your basic attack damage by 1% for 5 seconds (stacks up to 3 times)",
             rankInfo: [],
+            rankDesc: ["Damaging an enemy champion with a spell increases Basic Attack Damage by 1%, stacking up to 3 times (max 3% damage increase)"],
         },
         {
             index: 14,
@@ -153,6 +171,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Increases bonus Attack Damage by #%",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["Increases bonus Attack Damage by 2%", "Increases Bonus Attack Damage by 3.5%", "Increases Bonus Attack Damage by 5%"],
         },
         {
             index: 15,
@@ -161,6 +180,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Increases Ability Power by #%",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["Increases Ability Power by 2%", "Increases Ability Power by 3.5%", "Increases Ability Power by 5%"],
         },
         {
             index: 16,
@@ -170,6 +190,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Champion kills and assists restore 5% of your missing Health and Mana",
             rankInfo: [],
+            rankDesc: ["Champion kills and assists restore 5% missing Health and Mana"],
         },
         {
             index: 17,
@@ -178,6 +199,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Critical strikes grant 5% Attack Speed for 3 seconds (stacks up to 3 times)",
             rankInfo: [],
+            rankDesc: ["Critical hits grant +5% Attack Speed for 3 seconds (stacks up to 3 times)"],
         },
         {
             index: 18,
@@ -186,6 +208,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+#% Armor Penetration and +#% Magic Penetration",
             rankInfo: [2, 4, 6],
+            rankDesc: ["+2% Armor and Magic Penetration", "+4% Armor and Magic Penetration", "+6% Armor and Magic Penetration"],
             rankInfo2: [2, 4, 6],
         },
         {
@@ -195,6 +218,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Basic attacks deal bonus magic damage equal to 5% of your Ability Power",
             rankInfo: [],
+            rankDesc: ["Basic Attacks also deal bonus magic damage equal to 5% of Ability Power"],
         },
         {
             index: 22,
@@ -203,6 +227,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases damage dealt by 3%",
             rankInfo: [],
+            rankDesc: ["+3% increased damage"],
         },
     ],
     // defensive
@@ -214,6 +239,7 @@ var season4FinalData = [
             ranks: 2,
             desc: "Reduces incoming damage from champion basic attacks by #",
             rankInfo: [1, 2],
+            rankDesc: ["Reduces incoming damage from champion basic attacks by 1", "Reduces incoming damage from champion basic attacks by 2"],
         },
         {
             index: 2,
@@ -222,6 +248,7 @@ var season4FinalData = [
             ranks: 2,
             desc: "+# Health Regen per 5 seconds",
             rankInfo: [1, 2],
+            rankDesc: ["+1 Health per 5 seconds", "+2 Health per 5 seconds"],
         },
         {
             index: 3,
@@ -230,6 +257,7 @@ var season4FinalData = [
             ranks: 2,
             desc: "Increases bonus Armor and Magic Resist by #%",
             rankInfo: [2.5, 5],
+            rankDesc: ["Increases bonus Armor and Magic Resist by 2.5%", "Increases bonus Armor and Magic Resist by 5%"],
         },
         {
             index: 4,
@@ -238,6 +266,7 @@ var season4FinalData = [
             ranks: 2,
             desc: "Reduces damage taken from monsters by #",
             rankInfo: [1, 2],
+            rankDesc: ["Reduces damage taken from neutral monsters by 1\n\nThis does not affect lane minions", "Reduces damage taken from neutral monsters by 2\n\nThis does not affect lane minions"],
         },
         {
             index: 5,
@@ -247,6 +276,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces all incoming damage from champions by 2 (1 for ranged champions)",
             rankInfo: [],
+            rankDesc: ["Melee - Reduces all incoming damage from champions by 2\nRanged - Reduces all incoming damage from champions by 1"],
         },
         {
             index: 6,
@@ -255,6 +285,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+# Health",
             rankInfo: [12, 24, 36],
+            rankDesc: ["+12 Health", "+24 Health", "+36 Health"],
         },
         {
             index: 8,
@@ -264,6 +295,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Basic attacks from enemy monsters inflict them with a bleed for 4 seconds, dealing 1% of their current Health as true damage per second",
             rankInfo: [],
+            rankDesc: ["Taking Basic Attack Damage from neutral monsters cause them to bleed, dealing physical damage equal to 1% of their current Health each second\nThis does not work against lane minions"],
         },
         {
             index: 9,
@@ -272,6 +304,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces damage taken from enemies with impaired movement (slow, root, stun) by 3%",
             rankInfo: [],
+            rankDesc: ["Reduces damage taken by 3% from enemies that have impaired movement (slows, snares, taunts, stuns, etc.)"],
         },
         {
             index: 10,
@@ -281,6 +314,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases your maximum Health by 3%",
             rankInfo: [],
+            rankDesc: ["+3% Maximum Health"],
         },
         {
             index: 11,
@@ -289,6 +323,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+# Armor",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["+2 Armor", "+3.5 Armor", "+5 Armor"],
         },
         {
             index: 12,
@@ -297,6 +332,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+# Magic Resist",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["+2 Magic Resist", "+3.5 Magic Resist", "+5 Magic Resist"],
         },
         {
             index: 13,
@@ -307,6 +343,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Restores #% of missing Health every 5 seconds",
             rankInfo: [0.35, 0.675, 1],
+            rankDesc: ["Regenerates 0.35% of missing Health every 5 seconds", "Regenerates 0.675% of missing Health every 5 seconds", "Regenerates 1% of missing Health every 5 seconds"],
         },
         {
             index: 14,
@@ -315,6 +352,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces the effectiveness of slows by 10%",
             rankInfo: [],
+            rankDesc: ["Reduces the effectiveness of slows by 10%"],
         },
         {
             index: 15,
@@ -324,6 +362,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces total damage taken from critical strikes by 10%",
             rankInfo: [],
+            rankDesc: ["Reduces the total damage taken from critical strikes by 10%"],
         },
         {
             index: 16,
@@ -333,6 +372,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces damage taken from area of effect magic damage by 4%",
             rankInfo: [],
+            rankDesc: ["Reduces damage taken by 4% from Area of Effect magic damage"],
         },
         {
             index: 17,
@@ -342,6 +382,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases self-targeted healing, health regen, life steal and spell vamp by 10% while below 25% Health",
             rankInfo: [],
+            rankDesc: ["Increases self-healing, Health Regen, Lifesteal, and Spellvamp by 10% when below 25% Health"],
         },
         {
             index: 18,
@@ -354,6 +395,7 @@ var season4FinalData = [
             ranks: 4,
             desc: "Grants +# Armor and +# Magic Resist for each nearby visible enemy champion (700 range)",
             rankInfo: [1, 2, 3, 4],
+            rankDesc: ["+1 Armor and 0.5 Magic Resist for each nearby enemy champion", "+2 Armor and 1 Magic Resist for each nearby enemy champion", "+3 Armor and 1.5 Magic Resist for each nearby enemy champion", "+4 Armor and 2 Magic Resist for each nearby enemy champion"],
             rankInfo2: [0.5, 1, 1.5, 2],
         },
         {
@@ -363,6 +405,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Start the game and respawn with a 50-strength shield",
             rankInfo: [],
+            rankDesc: ["Start the game with a 50 Health shield. This shield regenerates each time after respawning"],
         },
         {
             index: 22,
@@ -374,6 +417,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces the duration of crowd control effects by 15%",
             rankInfo: [],
+            rankDesc: ["Reduces the duration of crowd control effects by 15%"],
         },
     ],
     // utility
@@ -385,6 +429,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Reduces Recall channel time by 1 second",
             rankInfo: [],
+            rankDesc: ["Reduces the casting time of Recall by 1 second\n\nDominion - Reduces the casting time of Enhanced Recall by 0.5 seconds"],
         },
         {
             index: 2,
@@ -393,6 +438,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+#% Movement Speed",
             rankInfo: [0.5, 1, 1.5],
+            rankDesc: ["+0.5% Movement Speed", "+1% Movement Speed", "+1.5% Movement Speed"],
         },
         {
             index: 3,
@@ -401,6 +447,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+# Mana Regen per 5 seconds",
             rankInfo: [1, 2, 3],
+            rankDesc: ["+1 Mana Regen per 5 seconds", "+2 Mana Regen per 5 seconds", "+3 Mana Regen per 5 seconds"],
         },
         {
             index: 4,
@@ -409,6 +456,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases the cast range of Wards and Trinkets by 10%",
             rankInfo: [],
+            rankDesc: ["Increases the cast range of trinket items by 15%"],
         },
         {
             index: 6,
@@ -417,6 +465,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Reduces the cooldown of Summoner Spells by #%",
             rankInfo: [4, 7, 10],
+            rankDesc: ["Reduces the cooldown of Summoner Spells by 4%", "Reduces the cooldown of Summoner Spells by 7%", "Reduces the cooldown of Summoner Spells by 10%"],
         },
         {
             index: 7,
@@ -426,6 +475,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Gain Health Regen equal to 0.3% of your maximum Mana",
             rankInfo: [],
+            rankDesc: ["+1 Health Regen per 5 seconds for every 300 maximum Mana"],
         },
         {
             index: 8,
@@ -434,6 +484,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases the duration of Potions and Elixirs by 10%",
             rankInfo: [],
+            rankDesc: ["Increases the duration of potions and elixirs by 10%"],
         },
         {
             index: 9,
@@ -442,6 +493,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Grants an additional +# gold every 10 seconds",
             rankInfo: [0.5, 1, 1.5],
+            rankDesc: ["+0.5 Gold every 10 seconds", "+1 Gold every 10 seconds", "+1.5 Gold every 10 seconds"],
         },
         {
             index: 10,
@@ -450,6 +502,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases the duration of shrine, relic, quest, and neutral monster buffs by 20%",
             rankInfo: [],
+            rankDesc: ["Increases the duration of shrine, relic, quest, and neutral monster buffs by 20%"],
         },
         {
             index: 11,
@@ -458,6 +511,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+#% Lifesteal and Spell Vamp",
             rankInfo: [1, 2, 3],
+            rankDesc: ["+1% Lifesteal and Spellvamp", "+2% Lifesteal and Spellvamp", "+3% Lifesteal and Spellvamp"],
         },
         {
             index: 12,
@@ -467,6 +521,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Upgrades Health Potions into Total Biscuits of Rejuvenation, which restore an additional 20 Health and 10 Mana",
             rankInfo: [],
+            rankDesc: ["Health potions are upgraded into Biscuits that restore an additional 20 Health and 10 Mana instantly upon consumption"],
         },
         {
             index: 14,
@@ -477,6 +532,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Increases starting gold by 40",
             rankInfo: [],
+            rankDesc: ["+40 Starting Gold"],
         },
         {
             // Wiki: Scavenger sits in tier 4, Bandit in tier 5 — grid
@@ -488,6 +544,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Melee: Champion takedowns grant 15 bonus gold.\nRanged: Basic attacks and single-target on-hit abilities against enemy champions grant 3 gold (5 second cooldown per target).",
             rankInfo: [],
+            rankDesc: ["Melee - Grants +15 Gold on champion kill or assist\nRanged - Grants +3 Gold each time an enemy champion is attacked. This cannot trigger on the same champion more than once every 5 seconds"],
         },
         {
             index: 15,
@@ -496,6 +553,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "Increases your maximum Mana by #%",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["+2% increased maximum Mana", "+3.5% increased maximum Mana", "+5% increased maximum Mana"],
         },
         {
             index: 16,
@@ -507,6 +565,7 @@ var season4FinalData = [
             hashRanks: 1,
             desc: "+# Experience every 10 seconds while near a higher-level allied champion",
             rankInfo: [5, 10],
+            rankDesc: ["+5 Experience every 10 seconds while near a higher level allied champion", "+10 Experience every 10 seconds while near a higher level allied champion"],
         },
         {
             index: 13,
@@ -517,6 +576,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Gain 1 gold each time a nearby allied champion kills an enemy minion (1100 range)",
             rankInfo: [],
+            rankDesc: ["+1 Gold each time an ally kills a nearby lane minion"],
         },
         {
             index: 19,
@@ -525,6 +585,7 @@ var season4FinalData = [
             ranks: 3,
             desc: "+#% Cooldown Reduction. Reduces active item cooldowns by #%",
             rankInfo: [2, 3.5, 5],
+            rankDesc: ["+2% Cooldown Reduction and reduces the cooldown of Activated Items by 4%", "+3.5% Cooldown Reduction and reduces the cooldown of Activated Items by 7%", "+5% Cooldown Reduction and reduces the cooldown of Activated Items by 10%"],
             rankInfo2: [4, 7, 10],
         },
         {
@@ -534,6 +595,7 @@ var season4FinalData = [
             ranks: 1,
             desc: "Grants 5% bonus Movement Speed while out of combat",
             rankInfo: [],
+            rankDesc: ["+5% Movement Speed out of combat"],
         },
     ],
 ];

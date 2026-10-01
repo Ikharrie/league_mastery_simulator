@@ -40,7 +40,7 @@ var season6KeystoneData = {
         oneKeystoneAcrossAllTrees: true
     },
     // AIR client layout: 5-rank icons at the column edges (V5.22 - V6.x,
-    // refs/keystone/gdub_page11.png, Masteries2016.png).
+    // capture gdub_page11.png, Masteries2016.png).
     airFiveRankLayout: "edge",
     // `slot` (optional, per mastery) = left-to-right position in the client
     // when it differs from the data order. The data order is the share-hash

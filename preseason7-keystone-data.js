@@ -65,7 +65,7 @@ var preseason7KeystoneData = {
         oneKeystoneAcrossAllTrees: true
     },
     // AIR client layout: from V6.22 the 5-rank icons sit on the centred
-    // pair like the 2-option rows (refs/keystone/nerf_tankmasteries.png).
+    // pair like the 2-option rows (capture nerf_tankmasteries.png).
     airFiveRankLayout: "pair",
     // Per-mastery `airIconVersion`: the V6.22 AIR client still drew the
     // 5.22.3 art for Fresh Blood and Double-Edged Sword (same capture).

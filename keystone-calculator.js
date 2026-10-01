@@ -119,7 +119,7 @@ function isKeystoneTierUnlocked(treeId, tierNumber) {
 // in place on every change (updateKeystoneView), so hover states, the open
 // tooltip and LCU transitions survive clicks.
 
-// AIR panel grid, measured on refs/keystone/Masteries2016.png (1:1) and
+// AIR panel grid, measured on capture Masteries2016.png (1:1) and
 // nerf_tankmasteries.png (V6.22): columns every 275 px, rows every 71 px
 // from y=21. 5-rank icons are 49x49 boxes, 1-rank / keystone icons 56x56.
 // 1-rank rows: 3 options at x 44/111/178, 2 options at 78/145. 5-rank rows
@@ -241,21 +241,40 @@ function showKeystoneTooltip(pick, evt) {
     } else {
         // The 2015/16 client tooltip is a fixed ~290 native px wide box
         // (E9Sw2am5I2I_sd2 / qhylFA4fvQo_sd1, even for one-line content),
-        // scaled like the sheet: k = on-screen px per native px (--u times
-        // the stage scale), measured off the 827 native px panel.
+        // scaled like the sheet: k = CSS px per native px (--u).
         var k = keystoneAirScale();
         var e = evt && (evt.originalEvent || evt);
-        LolTooltip.show(e && typeof e.clientX === "number" ? e : pick.el,
+        var atCursor = e && typeof e.clientX === "number";
+        LolTooltip.show(atCursor ? e : pick.el,
             '<div class="ks-tt-air-in" style="--ks-u:' + k.toFixed(4) + 'px">'
                 + keystoneTipHtml(pick, "air") + '</div>',
             "air-mastery", { className: "ks-tt-air", width: Math.round(290 * k) });
+        if (atCursor) ksPlaceAirTooltip(e);
     }
 }
 
+// The sheet's own scale (--u: the panel's layout width / 827 native px). The
+// stage's shrink-to-fit transform is left out, as the LCU skin's 1:1 tooltip
+// does: on a phone the panel pans at half size but the tooltip text stays
+// full size and readable.
 function keystoneAirScale() {
     var root = keystoneView && keystoneView.root;
-    var w = root ? root.getBoundingClientRect().width : 0;
+    var w = root ? root.offsetWidth : 0;
     return w > 0 ? w / 827 : 1.1;
+}
+
+// AIR tooltips hang below-right of the cursor; one that would run past the
+// bottom of the tree panel opens above-right instead, its bottom just over
+// the pointer (qhylFA4fvQo_sd1: the T5 Legendary Guardian tooltip sits above
+// the hovered icon; E9Sw2am5I2I_sd2: a short T5 one that fits opens below).
+// LolTooltip keeps the horizontal placement and the viewport flips.
+function ksPlaceAirTooltip(e) {
+    if (!window.LolTooltip || !LolTooltip.isVisible() || !keystoneView || keystoneView.skin === "lcu") return;
+    var el = LolTooltip.element();
+    var panel = keystoneView.root.getBoundingClientRect();
+    var h = el.offsetHeight;
+    if (e.clientY + 16 + h > panel.bottom)
+        el.style.top = Math.max(4, Math.round(e.clientY - h - 4)) + "px";
 }
 
 function hideKeystoneTooltip() {
@@ -420,7 +439,10 @@ function buildKeystonePick(tree, tierDef, mastery, pool, skin) {
     el.addEventListener("mouseenter", function(e){ keystoneHover = { pick: pick, evt: e }; showKeystoneTooltip(pick, e); });
     el.addEventListener("mousemove", function(e){
         if (keystoneHover && keystoneHover.pick === pick) keystoneHover.evt = e;
-        if (window.LolTooltip && (!keystoneView || keystoneView.skin !== "lcu")) LolTooltip.move(e);
+        if (window.LolTooltip && (!keystoneView || keystoneView.skin !== "lcu")) {
+            LolTooltip.move(e);
+            ksPlaceAirTooltip(e);
+        }
     });
     el.addEventListener("mouseleave", hideKeystoneTooltip);
     // Two click models: AIR = +1 / -1 per click (the AIR help box), LCU =
@@ -625,7 +647,7 @@ function syncKeystoneInfoBar() {
 // ---------- Interaction ------------------------------------------------------
 
 // --- LCU click model: the 7.21 mastery-icon component + mastery / level
-// models (refs/keystone/mp721/panel.js):
+// models (the 7.21 client's masteries panel js, via CommunityDragon):
 //   click          addMaxMasteryPoints — fill the mastery: min(ranks, row
 //                  points + min(row room, page points)); a sibling's points
 //                  move over first (giveMaxPointsToSibling).
@@ -840,9 +862,6 @@ function keystoneRefreshAll() {
 }
 
 function updateKeystonePointsLabel() {
-    var total = getKeystoneTotalPoints();
-    var max = keystoneActiveDataSet.maxPoints;
-    $("#points>.count").text(max - total);
     // AIR sidebar emblem counts / Points Available / Save-Revert state.
     if (typeof updateMasterySidebar === "function") updateMasterySidebar();
     if (keystoneView && keystoneView.info) syncKeystoneInfoBar();
@@ -866,6 +885,8 @@ function resetKeystoneTree(treeId) {
 //                5 points in option 0, "03+12" is a 3/2 split
 //   keystone   — "k<masteryIdx>"
 // Empty tiers serialize as "". A build with nothing spent has no code.
+// The hash is "#<dataset>|<code>", plus "|<page name>" (URI-encoded) when the
+// page has a custom name (calculator.js pageNameHashSegment / parseHash).
 
 function exportKeystones() {
     if (!keystoneActiveDataSet) return "";
@@ -931,7 +952,10 @@ function importKeystones(code) {
 
 function updateKeystoneLink() {
     var code = exportKeystones();
-    var hash = "#" + keystoneActiveDataSetId + "|" + code;
+    // Optional "|<page name>" segment (calculator.js pageNameHashSegment).
+    var name = typeof pageNameHashSegment === "function" ? pageNameHashSegment() : "";
+    var hash = "#" + keystoneActiveDataSetId + "|" + code + name;
+    if (typeof replaceHashQuietly === "function") { replaceHashQuietly(hash); return; }
     $("#exportLink").attr("href", document.location.pathname + hash);
     if (document.location.hash !== hash) {
         document.location.replace(hash);
