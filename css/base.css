@@ -6,11 +6,10 @@
      3. stage scale-to-fit wrapper
      4. site header (LCU nav)
      5. LCU primitives (flat button, circle button, framed dropdown,
-        display link, gold divider)
-     6. AIR primitives (navy button, page chips, AIR sans)
+        display link)
+     6. AIR primitives (navy button, page chips)
      7. tooltip component (one element, data-skin)
      8. toast
-     9. legacy compat blocks (to be removed as surfaces migrate)
 
    Client era: nav.js sets body[data-client="air"|"lcu"] from the active
    dataset (DECISIONS.md §1). Key every era-specific look off it; never
@@ -82,21 +81,6 @@
     --air-tt-border: #4b4b4d;
     --air-tt-rank: #e1e89a;       /* tooltip "Rank: 2/3" line [sampled S3] */
     --air-tt-req: #ff0000;        /* tooltip requirement line */
-
-    /* --- Deprecated aliases (still referenced by surface CSS; migrate to
-           the tokens above, then delete) -------------------------------- */
-    --color-bg-dark: #010a13;
-    --color-bg-darker: #000;
-    --color-bg-panel: #010a13d9;
-    --color-gold-light: #f0e6d2;
-    --color-gold-base: #c8aa6e;
-    --color-gold-dark: #7a5c29;
-    --color-text-main: #f0e6d2;
-    --color-text-muted: #a09b8c;
-    --color-parchment-text: #3b2f21;
-    --color-parchment-red: #610c0c;
-    --font-serif: var(--font-lcu-display-mixed);
-    --font-sans: var(--font-lcu-body);
 }
 
 /* ==========================================================================
@@ -238,18 +222,6 @@ body[data-client="lcu"]::before {
     width: max-content;
     transform-origin: 0 0;
 }
-
-/* Stage adapters (temporary): the calculators' outer boxes still carry the
-   old page margins. Inside a stage the stage owns spacing. Surface owners:
-   fold these into your own CSS, then delete here. */
-.lol-stage-inner > #s2masteries,
-.lol-stage-inner > .legacy-app,
-.lol-stage-inner > #reforged-calculator {
-    margin: 0;
-}
-.lol-stage-inner > #s2masteries { color: #000; }   /* body text is LCU grey now */
-.lol-stage-inner > #reforged-calculator { padding: 28px; }
-.lol-stage-inner .reforged-page { grid-template-columns: 1fr 1fr; }
 
 /* ==========================================================================
    4. Site header — LCU nav bar, identical on every page.
@@ -773,8 +745,7 @@ body[data-client="lcu"]::before {
     cursor: pointer;
 }
 .lcu-dropdown-option:first-child { border-top: 0; }
-.lcu-dropdown-option:hover,
-.lcu-dropdown-option.is-active { color: var(--hx-gold-1); background: var(--hx-grey-3); }
+.lcu-dropdown-option:hover { color: var(--hx-gold-1); background: var(--hx-grey-3); }
 .lcu-dropdown-option:active { color: var(--hx-gold-5); background: rgba(30, 35, 40, 0.5); }
 .lcu-dropdown-option.is-selected { padding-right: 31px; }
 .lcu-dropdown-option.is-selected::after {
@@ -832,22 +803,6 @@ body[data-client="lcu"]::before {
 .lcu-link:hover,
 .lcu-link:focus-visible { --lcu-link-color: var(--hx-gold-1); }
 .lcu-link:active { --lcu-link-color: var(--hx-gold-3); }
-
-/* --- 5e. Gold divider -------------------------------------------------
-   <hr class="lcu-divider">          gold fade (uikit title_divider, 4px)
-   <hr class="lcu-divider is-rule">  1px content rule (#3c4650) */
-.lcu-divider {
-    display: block;
-    height: 4px;
-    margin: 8px 0;
-    border: 0;
-    background: url(../images/lcu/title-divider.png) no-repeat center / 100% 4px;
-}
-.lcu-divider.is-rule {
-    height: 0;
-    border-top: 1px solid var(--hx-divider);
-    background: none;
-}
 
 /* ==========================================================================
    6. AIR primitives (inside AIR-era sheets only). AIR state changes are
@@ -919,8 +874,7 @@ body[data-client="lcu"]::before {
     outline: none;
 }
 .air-chip:hover { background: var(--air-chip-hover); }
-.air-chip.is-selected,
-.air-chip[aria-selected="true"] {
+.air-chip.is-selected {
     background: var(--air-chip-selected);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
     cursor: default;
@@ -935,9 +889,6 @@ body[data-client="lcu"]::before {
     filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5));
 }
 
-/* --- 6c. AIR sans utility --------------------------------------------- */
-.air-sans { font-family: var(--font-air-body); }
-
 /* ==========================================================================
    7. Tooltip — ONE element (#lol-tt), skinned with data-skin. API in nav.js:
      LolTooltip.show(anchorOrEvent, html, skin, opts)  skin: air-mastery |
@@ -945,8 +896,10 @@ body[data-client="lcu"]::before {
      LolTooltip.move(evt)  LolTooltip.hide()
    AIR skins follow the cursor (instant); lcu anchors to the element with
    a caret (opacity 150ms). Surfaces supply only content, using:
-     .tt-title .tt-sub .tt-rank .tt-req .tt-body .tt-next .tt-row
-     .tt-tier .tt-kind .tt-name .tt-desc .tt-divider .tt-value
+     air-mastery  .tt-title .tt-rank .tt-req .tt-body .tt-next .tt-value
+     air-rune     .tt-row .tt-tier .tt-kind .tt-name .tt-desc
+     lcu          .tt-title .tt-body (richer LCU tips bring their own
+                  classes: ks-tt-*, rl-tt-*, rr-tt-*)
    Title colour per tree/path: style="--tt-title-color:#46a3ee".
    ========================================================================== */
 .lol-tt {
@@ -1049,12 +1002,7 @@ body[data-client="lcu"]::before {
     text-transform: uppercase;
     color: var(--tt-title-color, var(--hx-gold-1));
 }
-.lol-tt[data-skin="lcu"] .tt-sub   { margin-top: 2px; color: var(--hx-grey-1); }
-.lol-tt[data-skin="lcu"] .tt-rank  { color: var(--hx-grey-1); }
-.lol-tt[data-skin="lcu"] .tt-req   { margin-top: 4px; color: #be1e37; }
 .lol-tt[data-skin="lcu"] .tt-body  { margin-top: 6px; color: var(--hx-grey-1); }
-.lol-tt[data-skin="lcu"] .tt-body b,
-.lol-tt[data-skin="lcu"] .tt-value { color: var(--hx-gold-1); font-weight: 600; }
 /* Short hints (data-lol-tip: header controls, disabled tabs) read like the
    7.20 PRESET PAGES / CREATE NEW tips: centred, 12px/16px caps title
    (8px cap height), body straight under it. */
@@ -1065,12 +1013,6 @@ body[data-client="lcu"]::before {
     letter-spacing: 0.05em;
 }
 .lol-tt[data-skin="lcu"].is-hint .tt-body { margin-top: 0; }
-.lol-tt[data-skin="lcu"] .tt-divider {
-    height: 4px;
-    margin: 8px 0;
-    border: 0;
-    background: url(../images/lcu/title-divider.png) no-repeat center / 100% 4px;
-}
 /* Caret: hangs outside the frame, overlapping the 2px border it touches.
    --tt-caret = offset of the caret along the edge (set by nav.js). */
 .lol-tt[data-skin="lcu"].has-caret .lol-tt-caret {
@@ -1145,53 +1087,3 @@ body[data-client="lcu"]::before {
     -webkit-font-smoothing: antialiased;
 }
 .lol-toast.visible { opacity: 1; }
-
-/* ==========================================================================
-   9. Legacy compat — kept so existing surfaces keep working until they
-   migrate. Do not build on these.
-   ========================================================================== */
-
-/* Old floating tooltip of keystone-calculator.js / runes-reforged.js
-   (#keystone-tooltip, #reforged-tooltip). Migrate to LolTooltip. */
-.lol-tooltip {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    width: 260px;
-    padding: 8px 10px;
-    box-sizing: border-box;
-    background: #010a13;
-    border: 2px solid #323635;
-    color: #f0e6d2;
-    font-family: var(--font-lcu-body);
-    font-size: 11px;
-    line-height: 1.35;
-    pointer-events: none;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-}
-.lol-tooltip-title { font-size: 13px; font-weight: bold; color: var(--hx-gold-1); margin-bottom: 3px; }
-.lol-tooltip-sub   { color: var(--hx-gold-2); font-size: 10px; margin-bottom: 4px; }
-.lol-tooltip-req   { color: #ff4040; font-size: 10px; margin-bottom: 4px; }
-.lol-tooltip-body  { color: #c8d2da; }
-.lol-tooltip-body hr { border: none; border-top: 1px solid rgba(200, 170, 110, 0.35); margin: 5px 0; }
-.lol-tooltip-body i  { color: #8a8a7a; }
-.lol-tooltip-body b  { color: #f0e6d2; }
-
-/* The classic page's "Return Points" button used to be styled by a global
-   `button` rule here. Scoped to the classic sheet until masteries-classic
-   moves to .air-btn. */
-#s2masteries button:not(.air-btn):not(.lcu-btn) {
-    cursor: pointer;
-    width: 130px;
-    margin: 0;
-    padding: 3px;
-    border: 1px outset #3467a7;
-    border-radius: 4px;
-    background: linear-gradient(to bottom, #3467a7 0%, #143964 50%, #0e2848 100%);
-    font-size: 16px;
-    color: #fff;
-}
-#s2masteries button:not(.air-btn):not(.lcu-btn):hover {
-    background: linear-gradient(to bottom, #5679a5 1%, #143964 50%, #0e2848 100%);
-}
-#s2masteries button:not(.air-btn):not(.lcu-btn):active { border-style: inset; }

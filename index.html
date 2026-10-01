@@ -16,11 +16,15 @@
         <link rel="stylesheet" href="css/masteries-keystone.css" type="text/css" />
         <link rel="stylesheet" href="css/air-sheet.css" type="text/css" />
         <script type="text/javascript">
-            // Preload the classic tree art + frames (calculator.js / masteries-classic.css)
+            // Preload the classic tree art, the state frames and the gold
+            // connectors (calculator.js / masteries-classic.css) and the
+            // sidebar emblems, so a state change never waits on an image.
             (new Image()).src = "images/classic/trees-client.jpg";
             (new Image()).src = "images/classic/frame-grey.png";
             (new Image()).src = "images/classic/frame-green.png";
             (new Image()).src = "images/classic/frame-gold.png";
+            (new Image()).src = "images/classic/conn-gold.png";
+            (new Image()).src = "images/classic/conn-gold-long.png";
             (new Image()).src = "images/air/ms-emblems.png";
         </script>
     </head>
@@ -108,18 +112,6 @@
             <div class="air-sheet-main">
             <div class="air-sheet-toolbar" aria-hidden="true">
                 <div class="air-chips air-page-chips"><span class="air-chip is-selected">1</span><span class="air-chip">2</span><span class="air-chip">3</span><span class="air-chip">4</span><span class="air-chip">5</span><span class="air-chip">6</span><span class="air-chip">7</span><span class="air-chip">8</span><span class="air-chip">9</span><span class="air-chip">10</span><span class="air-chip air-chip-add"></span></div>
-            </div>
-            <!-- V7.21 LCU skin only (AIR: the sidebar replaces this row;
-                 air-sheet.css hides it). -->
-            <div id="panel">
-                <div class="left">
-                    <div id="points">
-                        <span>Points Available: </span><span class="count"></span>
-                    </div>
-                </div>
-                <div class="right">
-                    <button id="return">Return Points</button>
-                </div>
             </div>
             <div id="calculator"></div>
             <!-- Alternate render target for the Ferocity/Cunning/Resolve

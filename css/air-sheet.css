@@ -6,19 +6,20 @@
    body[data-client="air"]; with "lcu" the sheet chrome is hidden.
 
    Measured on the client captures (native 1280x800 client px):
-     2010 masteries   refs/masteries-classic/wb-riot-2010-masteries.jpg
-     Dec 2012 S3      refs/masteries-classic/yt-uOygL_Bof5Q.jpg
-     Apr 2015 runes   refs/runes-legacy/fandom_PVP.net_Summoner_profile_05.jpg
-     Apr 2015 mast.   refs/runes-legacy/fandom_PVP.net_Summoner_profile_06.jpg
+     2010 masteries   capture wb-riot-2010-masteries.jpg
+     Dec 2012 S3      capture yt-uOygL_Bof5Q.jpg
+     Apr 2015 runes   Fandom File:PVP.net_Summoner_profile_05.jpg
+     Apr 2015 mast.   Fandom File:PVP.net_Summoner_profile_06.jpg
    Art: images/air/sheet.jpg = images/runes/summoners_runes_bg.jpg (1618x972
    art px) with the painted rune panels replaced by plain parchment
-   (scratchpad make_sheet.py). 1 native px = 1.40 art px.
+   1 native px = 1.40 art px.
 
    Units. Everything scales with --air-k (native client px -> CSS px):
      --u  = 1 native px     --a  = 1 art px (= 0.71384 native px)
-   Default k 1.1 = the classic tree art (masteries-background.jpg is the
-   S2-S5 trees at 1.10x). Override --air-k on .air-sheet to rescale; also
-   redeclare --u/--a there (custom props resolve where declared).
+   Default k 1.1 = the classic tree art (images/classic/trees-client.jpg
+   is the client's S2-S5 trees at 1.10x). Override --air-k on .air-sheet
+   to rescale; also redeclare --u/--a there (custom props resolve where
+   declared).
 
    Markup contract (see index.html / runes.html):
      .air-sheet[data-air-page=masteries|runes][data-air-season][data-air-period]
@@ -74,12 +75,6 @@ body[data-client="air"] .air-sheet {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-}
-/* Beat masteries-keystone.css (body.keystone-system #s2masteries → slate box)
-   while the keystone AIR skin is on the parchment. */
-body[data-client="air"] #s2masteries.air-sheet {
-    background: none;
-    box-shadow: none;
 }
 body[data-client="air"] .air-sheet::before {
     content: "";
@@ -152,7 +147,7 @@ body[data-client="air"] .air-folder-tab {
 }
 /* 2012 client: flat tan face on the second tab (Dec 2012 yt-uOygL_Bof5Q).
    The label is the plain "Ranked Teams" of the Nov 2012 capture
-   (refs/chrome/yt-air-masteries-2012.png) — no ▼: the dropdown arrow only
+   (capture yt-air-masteries-2012.png) — no ▼: the dropdown arrow only
    appears once the summoner is on a ranked team. */
 body[data-client="air"] .air-sheet[data-air-period="2012"] .air-folder-tab {
     background: linear-gradient(to bottom, #eddaa6 0, #e6d29d 12%, #e4cf9d 50%, #e8d4a2 88%, #dcc795 100%);
@@ -277,10 +272,6 @@ body[data-client="air"] .air-sheet-toolbar {
 body[data-client="air"] .air-sheet-toolbar:empty,
 body[data-client="air"] .air-sheet[data-air-chips="0"] .air-sheet-toolbar { visibility: hidden; }
 
-/* The old top #panel row (Points Available + Return Points) is replaced by
-   the sidebar in the AIR era; it only survives for the V7.21 LCU skin. */
-body[data-client="air"] .air-sheet #panel { display: none; }
-
 /* ==========================================================================
    4. AIR page chips at sheet scale (base.css .air-chip = the component;
       selected = pressed navy, hover = slate, both from base.css tokens).
@@ -357,8 +348,8 @@ body[data-client="air"] .air-sheet .air-btn.is-icon {
    5b. Mastery sidebar (.air-ms in .air-sheet-side; air-sheet.js
        AirMasterySidebar). Classic S1-S5 and keystone AIR (V5.22, V6.22):
        the keystone era kept the S2-S5 sidebar (Oct 2015 PBE, 2016 live).
-       Native geometry, Apr 2015 capture (refs/runes-legacy/
-       fandom_PVP.net_Summoner_profile_06.jpg, 1:1 client px):
+       Native geometry, Apr 2015 capture (Fandom
+       File:PVP.net_Summoner_profile_06.jpg, 1:1 client px):
          column 217 wide, 13 left of the trees; "Mastery Pages" (+ grey
          wyrm flourish) in the toolbar band; page box 217x226 at the trees'
          top: name field 26 tall (6/7/6 inset) with a 21px pencil, emblem
@@ -469,8 +460,7 @@ body[data-client="air"] .air-ms-name.is-editing {
     border-color: #6e5620;
     background: #d6c28a;
 }
-/* #mastery-sidebar: beats base.css's legacy `#s2masteries button` rule. */
-body[data-client="air"] #mastery-sidebar .air-ms-pencil {
+body[data-client="air"] .air-ms-pencil {
     position: absolute;
     top: calc(1 * var(--u));
     right: calc(2 * var(--u));
@@ -490,14 +480,13 @@ body[data-client="air"] #mastery-sidebar .air-ms-pencil {
     cursor: pointer;
     outline: none;
 }
-body[data-client="air"] #mastery-sidebar .air-ms-pencil:hover,
-body[data-client="air"] #mastery-sidebar .air-ms-pencil:active {
-    border-style: solid;
+body[data-client="air"] .air-ms-pencil:hover,
+body[data-client="air"] .air-ms-pencil:active {
     background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 19'%3E%3Cpath d='M3.6 15.4l.5-2.6 1.9 2z' fill='%23f0e8de'/%3E%3Cpath d='M4.3 12.6l8.4-8.4 2.2 2.2-8.4 8.4z' fill='%23cdbcab'/%3E%3Cpath d='M4.3 12.6l8.4-8.4.9.9-8.4 8.4z' fill='%23e6dacc'/%3E%3Cpath d='M12.7 4.2l1-1 2.2 2.2-1 1z' fill='%23d8b89c'/%3E%3C/svg%3E") no-repeat center / 100% 100%,
         linear-gradient(to bottom, #b8843f 0, #9a5f16 16%, #804a12 33%, #6b440c 48%, #5b3502 63%, #4e2c02 78%, #432603 92%, #452604 100%);
 }
-body[data-client="air"] #mastery-sidebar .air-ms-pencil:focus-visible { box-shadow: 0 0 0 1px #f3e2a8; }
+body[data-client="air"] .air-ms-pencil:focus-visible { box-shadow: 0 0 0 1px #f3e2a8; }
 
 /* Emblem row: tree emblem + point count; double-click resets that tree. */
 body[data-client="air"] .air-ms-trees {
@@ -711,12 +700,9 @@ body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-toolbar { 
 /* ==========================================================================
    7. Painted variant (runes.html): the sheet IS the full 1618x972 art that
       #parchment already paints (runes-calculator.js sets its image). The
-      head overlays the art's empty band (y 11-155), the rune-page tabs sit
-      in its toolbar band at art (384,167), and the old three-column layout
-      is pinned onto the painted panels (library x 68-377, page 384-1303,
-      stats 1308-1543, y 216-877). #parchment spans the whole sheet, so the
-      crop window and its seams are gone; slot % positions are unchanged.
-      Panel internals are untouched (runes-legacy.css / runes surface).
+      head overlays the art's empty band (y 11-155) and the rune-page tabs
+      sit in its toolbar band at art (384,167). Every rune widget is
+      absolutely placed on the painted panels by runes-legacy.css §A.
    ========================================================================== */
 body[data-client="air"] .air-sheet.air-sheet--painted {
     display: block;
@@ -724,7 +710,7 @@ body[data-client="air"] .air-sheet.air-sheet--painted {
     height: calc(972 * var(--a));
     min-width: 0;
     min-height: 0;
-    padding: calc(216 * var(--a)) calc(75 * var(--a)) calc(95 * var(--a)) calc(68 * var(--a));
+    padding: 0;
     overflow: hidden;
 }
 body[data-client="air"] .air-sheet--painted::before { content: none; }
@@ -742,59 +728,13 @@ body[data-client="air"] .air-sheet--painted .air-sheet-toolbar {
     height: auto;
     padding: 0;
 }
-body[data-client="air"] .air-sheet--painted .runes-layout {
-    display: flex;
-    gap: 0;
-    align-items: stretch;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-body[data-client="air"] .air-sheet--painted .runes-panel {
-    position: relative;
-    z-index: 1;
-    flex: none;
-    height: 100%;
-}
-body[data-client="air"] .air-sheet--painted .runes-panel-left  { width: calc(309 * var(--a)); }
-body[data-client="air"] .air-sheet--painted .runes-panel-right { width: calc(235 * var(--a)); }
-body[data-client="air"] .air-sheet--painted .runes-canvas-crop {
-    position: static;
-    flex: none;
-    align-self: stretch;
-    width: calc(919 * var(--a));
-    margin: 0 calc(5 * var(--a)) 0 calc(7 * var(--a));
-    aspect-ratio: auto;
-    overflow: visible;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-}
-body[data-client="air"] .air-sheet--painted .parchment-runes {
-    z-index: 0;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
 
 /* ==========================================================================
    8. LCU era (V7.21 masteries / runes): no sheet. The 2017 LCU masteries
-      screen puts the trees straight on the backdrop (refs/keystone/
-      Masteries2017.png), so the old slate web box of masteries-keystone.css
-      (#010a13 fill + 40px shadow) is cancelled here; the keystone LCU skin
-      adds its own uikit panel dividers. Runes keep their LCU-era layout.
+      screen puts the trees straight on the backdrop (capture
+      Masteries2017.png); the keystone LCU skin sizes #s2masteries and adds
+      its own uikit panel dividers (masteries-keystone.css). Runes keep
+      their LCU-era layout (runes-legacy.css §B).
    ========================================================================== */
 body[data-client="lcu"] .air-sheet-head,
 body[data-client="lcu"] .air-sheet-toolbar { display: none; }
-body[data-client="lcu"] #s2masteries.air-sheet {
-    position: relative;
-    box-sizing: content-box;
-    width: 932px;
-    min-height: 624px;
-    padding: 40px;
-    background: none;
-    box-shadow: none;
-}

@@ -1,10 +1,12 @@
 League of Legends: Historical Mastery Simulator
 ================================================
 
-A browser-based mastery-tree calculator covering League of Legends across
-multiple historical seasons and patches. Pick a season and patch from the
-dropdowns, plan a mastery build, share a link that round-trips the season +
-patch + build state, and (eventually) compare builds across patches.
+A browser-based calculator for League of Legends masteries and runes across
+historical seasons and patches ("Legacy LoL Calculator" in the page
+header). Pick a season and patch, plan a mastery or rune page, and share a
+link that round-trips the patch + build state. Each patch is drawn the way
+the game client of its time drew it: the Adobe AIR client (2009-2016) for
+the early seasons, the League Client (2017+) for the late ones.
 
 This is a fork of [dpatti/league-mastery-calc][dp], reworked into a
 season-aware simulator. The original calculator handled a single patch at a
@@ -13,87 +15,143 @@ time; this fork keeps multiple snapshots side by side.
 Demo
 ----
 
-Open `index.html` through a local web server (e.g. `python -m http.server`).
-A jsDelivr-hosted demo will live at the gh-pages URL once published.
+Serve the folder with any static web server (see Local development) and
+open `index.html`. A hosted demo will live at the gh-pages URL once
+published.
 
-What's new in this fork
------------------------
+Pages and eras
+--------------
 
-* **Season + Patch dropdowns** in the panel, styled to match the in-game
-  blue/gold panel look.
-* **Versioned data registry** (`masteryDataSets` in `data.js`): each season +
-  patch is one entry, each with its own tree data, point cap, and sprite
-  sheet URL.
-* **Shareable URLs** that encode `<dataset-id>|<mastery-code>`. Old links
-  (just the code, no prefix) still resolve to the default season.
-* **Share button** that copies the current shareable URL to the clipboard.
-* **Multiple seasons shipped**: Season 1 (Late, V1.0.0.130), Season 2 (Ahri
-  patch, V1.0.0.131), Season 3 (PBE preview, V3.01).
-* **Riot Data Dragon icons at runtime** for Season 3. Each data-set entry
-  can declare a `ddragonVersion`; on activation the calculator fetches that
-  version's `mastery.json` and decorates buttons with the matching icon
-  PNGs. Season 1 and Season 2 pre-date Data Dragon, so they fall back to
-  the bundled Season-3 sprite strip as a placeholder.
+| Page | Snapshots | Client look |
+| --- | --- | --- |
+| [index.html](index.html) masteries | Season 1 (V1.0.0.130) | AIR, 2010 client |
+| | Season 2 (V1.0.0.131, Ahri patch), Season 3 (V1.0.0.152, Preseason 3), Season 4 (V4.20), Season 5 (V5.21) | AIR, 2012-2015 client |
+| | V5.22 (Preseason 6) and V6.22 (Preseason 7): Ferocity / Cunning / Resolve keystone trees | AIR, 2015-2016 client |
+| | V7.21: final keystone trees | League Client |
+| [runes.html](runes.html) pre-Reforged runes | V3.14, V4.20, V5.21, V6.24 | AIR |
+| | V7.21 | League Client |
+| [runes-reforged.html](runes-reforged.html) Runes Reforged | V7.22, V8.23, V9.23, V10.23, V11.23, V12.23, V13.24, V14.19, V25.24, V26.13 | League Client (2017 page layout through V12.23, the V13 layout from V13.24) |
 
-* **Pre-Runes-Reforged rune calculator** at [runes.html](runes.html). Place
-  runes into the 9 Mark + 9 Seal + 9 Glyph + 3 Quintessence slots, scrub
-  the champion-level slider to see scaling-rune values at that level, and
-  share the page via URL hash. Three season snapshots — V4.20, V5.21, and
-  V7.21 (all three tiers, ~296 runes each including event runes) — are
-  generated straight from Data Dragon's legacy `rune.json` catalogs
-  (`node generate-runes-data.js` regenerates `runes-data.js` from the
-  files under `data/`), with per-rune icons from the same bundle. The
-  pre-V6.22 catalogs keep flat Armor Penetration as its own stat since
-  Lethality didn't exist yet.
+* **AIR pages** sit on the burnt-edge parchment profile sheet of the AIR
+  client: summoner name tab, profile sub-tabs (Masteries / Runes are real
+  links), page chips, the Mastery Pages sidebar (Save / Return / Delete /
+  Revert) and AIR tooltips that follow the cursor.
+* **League Client pages** use the client's own uikit look: flat gold
+  buttons, framed dropdowns, anchored tooltips with a caret, the 7.21
+  masteries panel, the 7.21 rune book (gold rune circle, socket frames and
+  per-stat glyphs) and the perks editor of Runes Reforged.
+* The site header (LCU-styled nav with Season / Patch dropdowns, Link and
+  Share) is the same on every page. Switching patches happens in place; the
+  look follows the patch.
 
-* **Seasons 6 + 7 mastery (Ferocity / Cunning / Resolve keystone
-  system)** — V5.22 (Preseason 6) replaced the classic 30-point
-  Offense/Defense/Utility trees with the keystone system: still 30 points
-  total, but each tree caps at 18 (5+1+5+1+5+1), so builds were 18/12/0
-  splits. It ran until V7.21 (last patch before Runes Reforged shipped).
-  Three snapshots are available: V5.22 (launch), V6.22 (Preseason 7
-  "Assassins" update — Courage of the Colossus, Lethality conversion),
-  and V7.21 (final). Selecting Season 6 or Season 7 switches the calculator to a
-  three-column tree view with the keystone tier pinned to the bottom and
-  one reachable keystone across all trees. 5-rank rows share a point pool
-  and support splitting between the two options (as the real client did);
-  1-rank rows behave as radio groups. Mastery icons load at runtime from
-  each patch's own Data Dragon `mastery.json` (5.22.3 / 7.21.1), and the
-  data files were fact-checked mastery-by-mastery against the wiki's
-  Season 2016 mastery pages.
+Masteries: classic 30-point Offense / Defense / Utility trees for S1-S5,
+with the tree art, frames, counters and connectors of each client. From
+V5.22 the keystone system: 30 points, each tree capped at 18 (5+1+5+1+5+1),
+5-rank rows share a point pool, 1-rank rows are radio groups, one keystone
+across all trees. Tooltips carry the per-rank values (Data Dragon strings
+for S4 / S5).
 
-* **Runes Reforged calculator** at
-  [runes-reforged.html](runes-reforged.html) — V7.22 through V14.19+
-  picker. Pick a primary path with keystone + 3 minor runes, a secondary
-  path with 2 minor runes (one per slot row, no two from the same row),
-  and three stat shards (Offense / Flex / Defense, added in V8.23). The
-  shard options are era-accurate per patch: scaling CDR through V10.22,
-  +8 Ability Haste from V10.23, and the reworked Flex/Defense rows
-  (Move Speed, Tenacity & Slow Resist, flat/scaling Health) from V14.2.
-  Catalog is fetched at runtime from Riot Data Dragon's
-  `runesReforged.json` for the selected patch, with rune icons hot-linked
-  from the DDragon CDN and stat-shard icons from CommunityDragon.
+Pre-Reforged runes: 9 marks, 9 seals, 9 glyphs and 3 quintessences, tiers
+1-3 (about 296 runes per patch, event runes included), a statistics panel
+and a champion-level slider for the scaling runes. The pre-V6.22 catalogs
+keep flat Armor Penetration as its own stat (Lethality did not exist yet).
 
-Roadmap
--------
+Runes Reforged: a primary path with keystone + 3 runes, a secondary path
+with 2 runes from different rows, and stat shards from V8.23 with the
+options of each era (scaling CDR, Ability Haste from V10.23, the V14.2 flex
+and defense rework). Grid and list modes as in the client.
 
-* Dedicated icon sprite sheets per season for the mastery calculator.
-* Per-patch granularity inside each season (currently only one snapshot per
-  season).
-* Saveable in-browser mastery and rune pages (like the in-client "save page"
-  flow).
-* Patch-notes side panel toggle.
-* Rune calculator: named/saveable pages (the in-client "save page" flow).
+Share links keep working across versions: `index.html#<dataset>|<code>`,
+`runes.html#preReforged-V5.21|<30 rune ids>[|<champion level>]` and
+`runes-reforged.html#rr-v14-19|<primary>|<secondary>|<shards>`; mastery and
+Runes Reforged links add `|<page name>` when the page has a custom name.
+Older link formats still decode to the same build. The Save buttons inside
+the pages copy the link, like Share.
 
 Local development
 -----------------
 
 ```
-python -m http.server 8765
+python -m http.server
 ```
 
-Then visit `http://127.0.0.1:8765/`. Modern browsers block the jQuery CDN
-script when the page is loaded over `file://`, so a local server is required.
+Any port works; then open `http://127.0.0.1:8000/` (or the port you
+picked). There is no build step and nothing to install: plain HTML, CSS and
+JavaScript, with jQuery 1.7 vendored under `vendor/`. Fonts come from
+Google Fonts (stand-ins for the client fonts: Spectral / Spectral SC for
+Beaufort, Inter for Spiegel, Marcellus for Friz Quadrata, Source Sans 3 for
+the AIR client's sans); without network access the pages fall back to
+system fonts. Mastery and pre-Reforged rune art is bundled. The Runes
+Reforged page bundles its scene, style-picker and stat-shard art but
+fetches `runesReforged.json` and the rune icons at runtime (from Riot Data
+Dragon; the V7.22 icons come from CommunityDragon), so it needs network
+access.
+
+Data tools:
+
+* `node generate-runes-data.js` regenerates `runes-data.js` from the Data
+  Dragon rune catalogs under `data/`.
+* `node embed-mastery-icon-ids.js` stamps the Data Dragon icon ids from
+  `data/mastery-<version>.json` onto the keystone data files.
+* `python detect-indents.py` (needs Pillow) finds the painted rune-slot
+  indents on the AIR rune sheet; the AIR slot positions in
+  `runes-calculator.js` were measured with it.
+
+Project layout
+--------------
+
+* `index.html`, `runes.html`, `runes-reforged.html` — the three pages.
+* `css/`
+  * `base.css` — tokens (LCU hextech and AIR colours, fonts), page shell
+    and backdrops, stage scale-to-fit, site header, LCU and AIR
+    primitives, the shared tooltip and toast. Loaded first on every page.
+  * `air-sheet.css` — the AIR parchment profile sheet and the Mastery
+    Pages sidebar, shared by classic masteries, keystone AIR and legacy
+    runes.
+  * `masteries-classic.css` — S1-S5 trees (`#calculator`).
+  * `masteries-keystone.css` — V5.22-V7.21 trees, AIR and League Client
+    skins (`#keystone-calculator`).
+  * `runes-legacy.css` — pre-Reforged rune page, AIR and League Client.
+  * `runes-reforged.css` — the Runes Reforged perks editor.
+* `nav.js` — client era switch (`body[data-client="air"|"lcu"]`), header
+  and Season / Patch navigation, tooltip, toast, LCU dropdown list, stage
+  scaling.
+* `air-sheet.js` — AIR sheet chrome per period and the Mastery Pages
+  sidebar.
+* `calculator.js` (classic masteries), `keystone-calculator.js`,
+  `runes-calculator.js`, `runes-reforged.js` — the calculators.
+* Data: `data.js` (mastery dataset registry), `season1-data.js` …
+  `season5-data.js`, `season6-keystone-data.js`,
+  `preseason7-keystone-data.js`, `season7-keystone-data.js`,
+  `runes-data.js` (generated), `runes-reforged-data.js`.
+* `data/` — Data Dragon `mastery.json` / `rune.json` catalogs used by the
+  data tools.
+* `vendor/` — jQuery 1.7.
+* `*-notes.md`, `*verification-report.md` — research notes and the
+  value checks behind the datasets.
+* `images/`
+  * `air/` — AIR sheet art, sidebar emblems and flourish.
+  * `classic/` — S1-S5 tree panels, frames and connectors.
+  * `masteries/<version>/` — mastery icons per Data Dragon version
+    (`gray_` = locked); `masteries/s1/`, `masteries/s2/` — Season 1 / 2
+    icons; `masteries/keystone-air/` — AIR keystone panel and frames.
+  * `lcu/` — League Client uikit pieces (backdrop, nav, dropdown,
+    tooltip, buttons); `lcu/masteries/` — the 7.21 masteries panel sprites.
+  * `runes/` — rune icons, the painted rune-page parchment and the AIR
+    button glyphs; `runes-lcu/` — the 7.21 rune book (circle, socket
+    frames, per-stat glyphs).
+  * `runes-reforged/` — scenes, style picker, page icons and stat-shard
+    icons.
+
+Roadmap
+-------
+
+* More than one patch per season (most seasons have one snapshot).
+* Pages saved in the browser (Save currently copies the share link).
+* Compare one build across patches.
+* Patch-notes side panel.
+* V7.21 rune book: inventory to the left of the ring and the statistics
+  inside it, as in the client.
 
 Contributors
 ------------
@@ -106,40 +164,53 @@ This project stands on a chain of prior work.
   mastery calculator, 2012.
 * [@wonderfulheaven][wh] — Season 3 mastery data update.
 * [Ikharrie][ih] — current fork: season-aware simulator, multi-season data,
-  share button, sprite-sheet wiring, README rewrite.
+  rune calculators, client-era looks.
 
 **Data and assets:**
 
-* [League of Legends Wiki][lolwiki] (wiki.leagueoflegends.com) and the
-  [community-run Fandom wiki][lolfandom] — sources for historical mastery
-  rank values, tier structure, prerequisites, and effect descriptions used
-  to populate every season dataset (S1, S2, S3, S4, S5 30-point trees and
-  S6 + S7 Ferocity / Cunning / Resolve keystone trees), plus the
-  pre-Reforged rune effect tables.
-* [Riot Data Dragon][ddragon] — Riot's static-data CDN. Source of:
-  * Mastery icons for S3 (`mastery.json` per patch).
-  * Keystone-era mastery IDs and icons from `7.23.1/data/.../mastery.json`
-    (last DDragon version that shipped a mastery file).
-  * Runes Reforged catalog (`runesReforged.json`) — fetched live at the
-    selected patch, with rune icons hot-linked from `cdn/img/{icon}`.
-  * Legacy pre-Reforged rune values from `rune.json`.
-* [CommunityDragon][cdragon] — open community mirror of LoL game data;
-  source of stat-shard icons (`perk-images/statmods/`) because Riot's
-  `runesReforged.json` doesn't include them.
+* [Riot Data Dragon][ddragon] — Riot's static-data CDN. Source of the
+  S3-S5 and keystone-era mastery icons (with Riot's `gray_` variants) and
+  `mastery.json` strings, the pre-Reforged `rune.json` catalogs and rune
+  icons, and the Runes Reforged catalog and rune icons (fetched live per
+  patch).
+* [CommunityDragon][cdragon] — open mirror of the League Client's files:
+  the 7.21 masteries panel and rune book sprites, League Client uikit
+  pieces, Runes Reforged scene and style-picker art, stat-shard icons, and
+  the perks data cited for rune values.
+* [League of Legends Wiki][lolwiki] and the [Fandom wiki][lolfandom] —
+  historical mastery and rune values, tiers, prerequisites and effect
+  text for every season, the Season 1 and Season 2 mastery icons (the
+  wiki's 2011 / 2012 client icons), and client screenshots used as visual
+  references.
+* Riot's own web pages, via the [Wayback Machine][wayback] — the tree
+  emblem sprite of Riot's 2011 "Masteries in Season Two" page, which the
+  Mastery Pages sidebar emblems are cut from, and Riot's 2010 capture of
+  the client Masteries page that the Season 1 tree art is rebuilt from.
+* The [legacy-lol-client][llc] fan reconstruction of the AIR client — the
+  painted rune-page parchment (`images/runes/summoners_runes_bg.jpg`) the
+  AIR rune page and sheet are built on, and the rune-slot fill order.
 * The **Pyroblasty fork of dpatti** ([live][pyroblasty]) was a useful
   visual reference for the Season 6 calculator era when sanity-checking
   the dark/gold palette.
-* **Riot Games** — League of Legends, all mastery icons, rune icons,
-  ability icons, background panel art, and tree-art sprites are the
-  property of Riot Games, Inc. This project is a fan-made historical
-  reference and is not endorsed by, sponsored by, or affiliated with Riot
-  Games. Asset use is consistent with Riot's Legal Jibber Jabber for
-  non-commercial fan projects.
+
+Legal
+-----
+
+Legacy LoL Calculator isn't endorsed by Riot Games and doesn't reflect the
+views or opinions of Riot Games or anyone officially involved in producing
+or managing Riot Games properties. Riot Games, and all associated
+properties are trademarks or registered trademarks of Riot Games, Inc.
+
+League of Legends, its mastery, rune and ability icons and its client art
+are the property of Riot Games, Inc. This is a non-commercial fan-made
+historical reference, made under Riot's "Legal Jibber Jabber" policy.
 
 [lolwiki]: https://wiki.leagueoflegends.com/
 [lolfandom]: https://leagueoflegends.fandom.com/
 [ddragon]: https://developer.riotgames.com/docs/lol#data-dragon
 [cdragon]: https://www.communitydragon.org/
+[wayback]: https://web.archive.org/
+[llc]: https://legacy-lol-client.vercel.app/
 [pyroblasty]: https://github.com/Pyroblasty/league-mastery-calc
 
 [dp]: https://github.com/dpatti/league-mastery-calc
