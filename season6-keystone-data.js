@@ -7,8 +7,9 @@
 //     tree holds at most 18 points (5+1+5+1+5+1), so the classic builds were
 //     18/12/0 splits. The old "18 total points" reading was wrong — 18 is
 //     the per-tree cap, not the budget.
-//   - Three trees: Ferocity (red, offense), Cunning (blue, utility/cdr),
-//     Resolve (green, defense).
+//   - Three trees: Ferocity (crimson, offense), Cunning (violet,
+//     utility/cdr), Resolve (teal / steel blue, defense). `color` is the
+//     AIR tooltip title colour of the tree.
 //   - Each tree has 6 tiers.
 //   - Odd tiers (1, 3, 5) host two minor masteries sharing one 5-point
 //     pool. Splitting points between the two options IS allowed (confirmed
@@ -38,12 +39,19 @@ var season6KeystoneData = {
         maxPointsPerTree: 18,
         oneKeystoneAcrossAllTrees: true
     },
+    // AIR client layout: 5-rank icons at the column edges (V5.22 - V6.x,
+    // refs/keystone/gdub_page11.png, Masteries2016.png).
+    airFiveRankLayout: "edge",
+    // `slot` (optional, per mastery) = left-to-right position in the client
+    // when it differs from the data order. The data order is the share-hash
+    // index and must not change; Cunning tiers 2 and 4 show Runic Affinity /
+    // Bandit on the left (gdub_page11.png, pcg capture).
     trees: [
         // ============================================================ FEROCITY
         {
             id: "ferocity",
             name: "Ferocity",
-            color: "#c53030",
+            color: "#c83c32",
             tiers: [
                 {
                     tier: 1,
@@ -103,7 +111,7 @@ var season6KeystoneData = {
         {
             id: "cunning",
             name: "Cunning",
-            color: "#2e7fb8",
+            color: "#a060c0",
             tiers: [
                 {
                     tier: 1,
@@ -117,8 +125,8 @@ var season6KeystoneData = {
                     masteries: [
                         // V5.22 launch tier-2 Cunning had Secret Stash and Runic Affinity
                         // only (Assassin was added in V5.24).
-                        { id: "secret-stash",   name: "Secret Stash", iconId: 6322,   ranks: 1, desc: "Potions, flasks and elixirs last 10% longer; Health Potions become Total Biscuits of Rejuvenation (restore an additional 20 HP / 10 MP instantly).", rankInfo: [10] },
-                        { id: "runic-affinity", name: "Runic Affinity", iconId: 6321, ranks: 1, desc: "Jungle monster buffs (Red/Blue/Baron/Elder) last 15% longer.", rankInfo: [15] }
+                        { id: "secret-stash",   name: "Secret Stash", iconId: 6322,   slot: 1, ranks: 1, desc: "Potions, flasks and elixirs last 10% longer; Health Potions become Total Biscuits of Rejuvenation (restore an additional 20 HP / 10 MP instantly).", rankInfo: [10] },
+                        { id: "runic-affinity", name: "Runic Affinity", iconId: 6321, slot: 0, ranks: 1, desc: "Jungle monster buffs (Red/Blue/Baron/Elder) last 15% longer.", rankInfo: [15] }
                     ]
                 },
                 {
@@ -132,8 +140,8 @@ var season6KeystoneData = {
                 {
                     tier: 4,
                     masteries: [
-                        { id: "dangerous-game", name: "Dangerous Game", iconId: 6343, ranks: 1, desc: "Champion kills/assists restore 5% of missing health and missing mana.", rankInfo: [5] },
-                        { id: "bandit",         name: "Bandit", iconId: 6342,         ranks: 1, desc: "Gain 1g per nearby minion killed by an ally; gain 10g (melee) / 3g (ranged) on-hit vs. champions (5s cooldown).", rankInfo: [10] }
+                        { id: "dangerous-game", name: "Dangerous Game", iconId: 6343, slot: 1, ranks: 1, desc: "Champion kills/assists restore 5% of missing health and missing mana.", rankInfo: [5] },
+                        { id: "bandit",         name: "Bandit", iconId: 6342,         slot: 0, ranks: 1, desc: "Gain 1g per nearby minion killed by an ally; gain 10g (melee) / 3g (ranged) on-hit vs. champions (5s cooldown).", rankInfo: [10] }
                     ]
                 },
                 {
@@ -161,7 +169,7 @@ var season6KeystoneData = {
         {
             id: "resolve",
             name: "Resolve",
-            color: "#3f9e57",
+            color: "#6a6ad2",
             tiers: [
                 {
                     tier: 1,

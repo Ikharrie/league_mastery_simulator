@@ -28,7 +28,7 @@ var season7KeystoneData = {
         {
             id: "ferocity",
             name: "Ferocity",
-            color: "#c53030",
+            color: "#c83c32",
             tiers: [
                 {
                     tier: 1,
@@ -89,7 +89,7 @@ var season7KeystoneData = {
         {
             id: "cunning",
             name: "Cunning",
-            color: "#2e7fb8",
+            color: "#a060c0",
             tiers: [
                 {
                     tier: 1,
@@ -151,7 +151,7 @@ var season7KeystoneData = {
         {
             id: "resolve",
             name: "Resolve",
-            color: "#3f9e57",
+            color: "#6a6ad2",
             tiers: [
                 {
                     tier: 1,

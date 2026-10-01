@@ -5,7 +5,7 @@
 // classic 30-point system.
 //
 // Rules implemented (matching the 2016-2017 client):
-//   - 18 max points.
+//   - The dataset's maxPoints per page (30); a tree holds at most 18.
 //   - Per tree, 5 minor tiers + 1 keystone tier (tier 6, rendered at the
 //     BOTTOM of the column like the in-game layout).
 //   - Tier 1 always unlocked; tier N unlocks once tier N-1 is FILLED
@@ -16,6 +16,11 @@
 //   - 1-rank rows act as a radio group: clicking a different option moves
 //     the point.
 //   - At most ONE keystone is active across all three trees.
+//   - Click model per client: AIR +1 / -1 per click (the AIR help box), the
+//     LCU fills / empties a mastery per click (see "LCU click model").
+//
+// Two skins (see "Skins" below): the AIR client (V5.22, V6.22) inside the
+// shared AIR sheet + sidebar, and the League Client mastery panel (V7.21).
 //
 // Icons come from Riot Data Dragon's mastery.json for the dataset's
 // `ddragonVersion` (masteries shipped in DDragon through 7.23.1), matched
@@ -99,39 +104,61 @@ function isKeystoneTierUnlocked(treeId, tierNumber) {
     return keystoneTierTotal(treeId, tierNumber - 1) >= keystoneTierPool(prevDef);
 }
 
-// ---------- Icons ------------------------------------------------------------
-// Icons are bundled in the repo under images/masteries/<ddragonVersion>/
-// (downloaded from Data Dragon once; see embed-mastery-icon-ids.js). Each
-// mastery carries its DDragon `iconId`, so no runtime fetch is needed.
+// ---------- Skins -------------------------------------------------------------
+// Two client screens, picked by the client era of the dataset (nav.js
+// clientEraFor → body[data-client]):
+//   air  V5.22 / V6.22 — the Adobe AIR client's Masteries tab: the shared AIR
+//        sheet + sidebar (air-sheet.css / air-sheet.js), a 827x479 native px
+//        tree panel (css/masteries-keystone.css §AIR). Every mastery is
+//        absolutely placed on the capture grid (KS_AIR below; native px,
+//        CSS multiplies by --u).
+//   lcu  V7.21 — the League Client rcp-fe-lol-mastery-panel (7.21 CSS 1:1):
+//        info bar, three 322px trees with header / glow / square + ring
+//        frames (css/masteries-keystone.css §LCU).
+// The DOM is built once per dataset + skin (buildKeystoneView) and updated
+// in place on every change (updateKeystoneView), so hover states, the open
+// tooltip and LCU transitions survive clicks.
 
-function keystoneIconUrl(mastery) {
+// AIR panel grid, measured on refs/keystone/Masteries2016.png (1:1) and
+// nerf_tankmasteries.png (V6.22): columns every 275 px, rows every 71 px
+// from y=21. 5-rank icons are 49x49 boxes, 1-rank / keystone icons 56x56.
+// 1-rank rows: 3 options at x 44/111/178, 2 options at 78/145. 5-rank rows
+// sit at the column edges (44/178) in V5.22 - V6.x and on the centred pair
+// (78/145) from V6.22 (dataset airFiveRankLayout).
+var KS_AIR = {
+    colX: 275, rowY: 21, rowPitch: 71,
+    pos3: [44, 111, 178], pos2: [78, 145], edge5: [44, 178],
+    labelX: [28, 25, 22]
+};
+// Tooltip title colours per tree (AIR: sampled from the 2015/16 captures;
+// LCU titles are #f0e6d2 for every tree).
+var KS_TREE_TITLE = { ferocity: "#c83c32", cunning: "#a060c0", resolve: "#6a6ad2" };
+
+var keystoneView = null;   // { skin, dsId, root, picks: [...], trees: {...}, info }
+var keystoneHover = null;  // { pick, evt } while the pointer is on a mastery
+
+function keystoneSkin() {
+    if (!keystoneActiveDataSet) return "air";
+    return typeof clientEraFor === "function" ? clientEraFor(keystoneActiveDataSet.id) : "air";
+}
+
+// ---------- Icons ------------------------------------------------------------
+// Icons are bundled under images/masteries/<ddragonVersion>/ (from Data
+// Dragon; see embed-mastery-icon-ids.js). gray_<id>.png is DDragon's pre-baked
+// greyscale (Rec.601 luma) that the AIR client showed for unranked masteries.
+
+// `airIconVersion` (optional, per mastery): the icon art the AIR client
+// actually drew when it differs from the dataset's DDragon version — the
+// V6.22 AIR client kept the 5.22.3 art for Fresh Blood and Double-Edged
+// Sword (nerf_tankmasteries.png); the LCU skin keeps the DDragon art.
+function keystoneIconUrl(mastery, gray, skin) {
     if (!mastery.iconId || !keystoneActiveDataSet || !keystoneActiveDataSet.ddragonVersion)
         return null;
-    return "images/masteries/" + keystoneActiveDataSet.ddragonVersion + "/" + mastery.iconId + ".png";
+    var ver = (skin === "air" && mastery.airIconVersion) || keystoneActiveDataSet.ddragonVersion;
+    return "images/masteries/" + ver + "/" + (gray ? "gray_" : "") + mastery.iconId + ".png";
 }
 
-// ---------- Tooltip (original client style) ----------------------------------
-
-function keystoneTooltipEl() {
-    var $tip = $("#keystone-tooltip");
-    if (!$tip.length) {
-        $tip = $("<div>").attr("id", "keystone-tooltip").addClass("lol-tooltip")
-            .append($("<div>").addClass("lol-tooltip-title"))
-            .append($("<div>").addClass("lol-tooltip-sub"))
-            .append($("<div>").addClass("lol-tooltip-req"))
-            .append($("<div>").addClass("lol-tooltip-body"))
-            .appendTo("body");
-    }
-    return $tip;
-}
-
-function positionLolTooltip($tip, e) {
-    var w = $tip.outerWidth(), h = $tip.outerHeight();
-    var x = e.clientX + 18, y = e.clientY + 18;
-    if (x + w > window.innerWidth - 8)  x = e.clientX - w - 12;
-    if (y + h > window.innerHeight - 8) y = e.clientY - h - 12;
-    $tip.css({ left: Math.max(4, x) + "px", top: Math.max(4, y) + "px" });
-}
+// ---------- Tooltip (LolTooltip: air-mastery / lcu skins) --------------------
 
 // Cumulative in-tree points needed before this tier opens (5/6/11/12/17).
 function keystoneTierThreshold(treeDef, tierNumber) {
@@ -144,27 +171,131 @@ function keystoneTierThreshold(treeDef, tierNumber) {
     return needed;
 }
 
-function showKeystoneTooltip(e, tree, tierDef, mastery, ranks) {
-    var $tip = keystoneTooltipEl();
-    $tip.find(".lol-tooltip-title").text(mastery.name).css("color", tree.color || "");
-    var sub = tierDef.isKeystone
-        ? "Keystone — only one active across all trees"
-        : "Rank: " + ranks + " / " + (mastery.ranks || 1);
-    $tip.find(".lol-tooltip-sub").text(sub);
-    var $req = $tip.find(".lol-tooltip-req");
-    if (!isKeystoneTierUnlocked(tree.id, tierDef.tier)) {
-        $req.text("Requires " + keystoneTierThreshold(tree, tierDef.tier)
-            + " points in " + tree.name).show();
-    } else {
-        $req.hide();
+// The description at a given rank: every "a/b/c/d/e" list with one entry
+// per rank collapses to that rank's value ("+0.8/1.6/2.4/3.2/4% Attack
+// Speed" at rank 3 → "+2.4% Attack Speed").
+function keystoneDescAt(mastery, rank) {
+    var ranks = mastery.ranks || 1;
+    var desc = String(mastery.desc || "");
+    if (ranks < 2) return desc;
+    var r = Math.min(Math.max(rank, 1), ranks) - 1;
+    return desc.replace(/-?\d+(?:\.\d+)?(?:\/-?\d+(?:\.\d+)?)+/g, function(list){
+        var parts = list.split("/");
+        return parts.length === ranks ? parts[r] : list;
+    });
+}
+
+function keystoneTipHtml(pick, skin) {
+    var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
+    var tree = pick.tree, tierDef = pick.tierDef, mastery = pick.mastery;
+    var ranks = keystoneMasteryRanks(pick), max = mastery.ranks || 1;
+    var locked = !isKeystoneTierUnlocked(tree.id, tierDef.tier);
+    var req = locked ? "Requires " + keystoneTierThreshold(tree, tierDef.tier) + " points in " + tree.name : "";
+    var showNext = ranks > 0 && ranks < max;
+    if (skin === "lcu") {
+        // mastery-panel-mastery-tooltip template + en_US strings of the 7.21
+        // client (rcp-fe-lol-l10n trans.json): "Requires {{ranks}} points in
+        // {{type}}", "Next Point:", mastery_click_instructions_label.
+        var x = ksLcuCtx(pick);
+        var html = '<div class="ks-tt">'
+            + '<header class="ks-tt-head"><span>' + esc(mastery.name) + '</span>'
+            + '<span class="ks-tt-points">' + ranks + '/' + max + '</span></header>';
+        if (locked) {
+            var need = keystoneTierThreshold(tree, tierDef.tier);
+            html += '<div class="ks-tt-req">Requires ' + need + ' point' + (need === 1 ? '' : 's')
+                + ' in <span class="mastery-type">' + esc(tree.name) + '</span></div>';
+        }
+        html += '<p class="ks-tt-desc">' + esc(keystoneDescAt(mastery, ranks || 1)) + '</p>';
+        if (showNext)
+            html += '<p class="ks-tt-desc ks-tt-next"><span class="prefix">Next Point:</span> '
+                + esc(keystoneDescAt(mastery, ranks + 1)) + '</p>';
+        // showMasteryClickInstructions / masteryClickInstructionsText. The
+        // client's count, min(ranks - assigned, page left + row points),
+        // overstates a click on a full page whose row the mastery already
+        // holds alone (click does nothing there); use what a click adds.
+        var n = ksLcuWouldAdd(pick) ? ksLcuClickTarget(x) - ranks : 0;
+        if (n > 0 && !locked) {
+            html += '<hr /><p class="ks-tt-click">' + (n === 1
+                ? '<span class="click-instruction">Click to add one point.</span>'
+                : '<span class="click-instruction">Click to add ' + n + ' points.</span>'
+                  + '<span class="click-instruction">Shift-click to add one point.</span>') + '</p>';
+        }
+        return html + '</div>';
     }
-    $tip.find(".lol-tooltip-body").text(mastery.desc);
-    $tip.show();
-    positionLolTooltip($tip, e);
+    var out = '<div class="tt-title" style="--tt-title-color:' + (KS_TREE_TITLE[tree.id] || "#fff") + '">'
+        + esc(mastery.name) + '</div>'
+        + '<div class="tt-rank">Rank: ' + ranks + '/' + max + '</div>';
+    if (req) out += '<div class="tt-req">' + esc(req) + '</div>';
+    out += '<div class="tt-body">' + esc(keystoneDescAt(mastery, ranks || 1)) + '</div>';
+    if (showNext)
+        out += '<div class="tt-next"><div>Next Rank:</div>' + esc(keystoneDescAt(mastery, ranks + 1)) + '</div>';
+    return out;
+}
+
+function showKeystoneTooltip(pick, evt) {
+    if (!window.LolTooltip || !pick) return;
+    var skin = keystoneView ? keystoneView.skin : keystoneSkin();
+    if (skin === "lcu") {
+        LolTooltip.show(pick.icon, keystoneTipHtml(pick, "lcu"), "lcu",
+            { position: "top", width: 280, className: "ks-tt-lcu" });
+    } else {
+        // The 2015/16 client tooltip is a fixed ~290 native px wide box
+        // (E9Sw2am5I2I_sd2 / qhylFA4fvQo_sd1, even for one-line content),
+        // scaled like the sheet: k = on-screen px per native px (--u times
+        // the stage scale), measured off the 827 native px panel.
+        var k = keystoneAirScale();
+        var e = evt && (evt.originalEvent || evt);
+        LolTooltip.show(e && typeof e.clientX === "number" ? e : pick.el,
+            '<div class="ks-tt-air-in" style="--ks-u:' + k.toFixed(4) + 'px">'
+                + keystoneTipHtml(pick, "air") + '</div>',
+            "air-mastery", { className: "ks-tt-air", width: Math.round(290 * k) });
+    }
+}
+
+function keystoneAirScale() {
+    var root = keystoneView && keystoneView.root;
+    var w = root ? root.getBoundingClientRect().width : 0;
+    return w > 0 ? w / 827 : 1.1;
 }
 
 function hideKeystoneTooltip() {
-    $("#keystone-tooltip").hide();
+    keystoneHover = null;
+    if (window.LolTooltip) LolTooltip.hide();
+}
+
+// ---------- State per mastery -------------------------------------------------
+
+function keystoneMasteryRanks(pick) {
+    var s = keystoneState[pick.tree.id];
+    if (pick.tierDef.isKeystone) return s.keystone === pick.mastery.id ? 1 : 0;
+    return s.tiers[pick.tierDef.tier][pick.mastery.id] || 0;
+}
+
+function keystoneTierTotal0(pick) {
+    var s = keystoneState[pick.tree.id];
+    if (pick.tierDef.isKeystone) return s.keystone ? 1 : 0;
+    return keystoneTierTotal(pick.tree.id, pick.tierDef.tier);
+}
+
+// Would a left-click add a point (the click rules of handleKeystonePickClick)?
+function keystoneCanAdd(pick) {
+    var ranks = keystoneMasteryRanks(pick), max = pick.mastery.ranks || 1;
+    if (ranks >= max || !isKeystoneTierUnlocked(pick.tree.id, pick.tierDef.tier)) return false;
+    var budget = keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints();
+    if (pick.tierDef.isKeystone) return budget > 0 || !!keystoneState.__activeKeystone;
+    var pool = keystoneTierPool(pick.tierDef), total = keystoneTierTotal0(pick);
+    if (pool === 1) return total > 0 || budget > 0;         // radio row: moves the point
+    return total < pool && budget > 0;
+}
+
+// AIR frame / counter state: ranked (yellow), available (blue: the tier is
+// open and either points remain or the row already holds some — the sibling
+// of a 5/5 stays blue), locked (grey).
+function keystoneAirState(pick) {
+    if (keystoneMasteryRanks(pick) > 0) return "ranked";
+    if (!isKeystoneTierUnlocked(pick.tree.id, pick.tierDef.tier)) return "locked";
+    var budget = keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints();
+    return (budget > 0 || keystoneTierTotal0(pick) > 0) ? "available" : "locked";
 }
 
 // ---------- Rendering --------------------------------------------------------
@@ -179,94 +310,445 @@ function drawKeystoneCalculator(dataSet) {
         if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
         initKeystoneState(dataSet);
     }
-    var $area = $("#keystone-calculator").empty();
-    if (!keystoneActiveDataSet) return;
-    keystoneActiveDataSet.data.trees.forEach(function(tree){
-        var $col = $("<div>").addClass("keystone-tree").attr("data-tree", tree.id);
-        $col.append(
-            $("<div>").addClass("keystone-tree-title")
-                .append($("<span>").text(tree.name))
-                .append($("<span>").addClass("keystone-tree-points")
-                    .text(keystoneTreePoints(tree.id))));
-        // Tiers render in tier order; the keystone tier (6) lands at the
-        // bottom, matching the in-game layout.
-        tree.tiers.forEach(function(tierDef){
-            var $tier = $("<div>").addClass("keystone-tier");
-            if (tierDef.isKeystone) $tier.addClass("keystone-tier-keystone");
-            else $tier.attr("data-tier", tierDef.tier);
-            tierDef.masteries.forEach(function(m){
-                $tier.append(buildKeystonePick(tree, tierDef, m));
-            });
-            $col.append($tier);
-        });
-        $area.append($col);
-    });
+    if (!keystoneActiveDataSet) { $("#keystone-calculator").empty(); keystoneView = null; return; }
+    var skin = keystoneSkin();
+    if (!keystoneView || keystoneView.dsId !== keystoneActiveDataSet.id || keystoneView.skin !== skin
+            || !document.body.contains(keystoneView.root))
+        buildKeystoneView(skin);
+    updateKeystoneView();
     updateKeystonePointsLabel();
 }
 
-function buildKeystonePick(tree, tierDef, mastery) {
-    var s = keystoneState[tree.id];
-    var ranks, selected;
-    if (tierDef.isKeystone) {
-        ranks = (s.keystone === mastery.id) ? 1 : 0;
-        selected = ranks > 0;
-    } else {
-        ranks = s.tiers[tierDef.tier][mastery.id] || 0;
-        selected = ranks > 0;
-    }
-    var tierLocked = !isKeystoneTierUnlocked(tree.id, tierDef.tier);
-    // A 5-point row whose pool is exhausted dims its untouched option.
-    var capped = !tierDef.isKeystone && !selected
-        && keystoneTierTotal(tree.id, tierDef.tier) >= keystoneTierPool(tierDef)
-        && keystoneTierPool(tierDef) > 1;
-    var budgetSpent = getKeystoneTotalPoints() >= keystoneActiveDataSet.maxPoints;
+function ksEl(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+}
 
-    // Original calculator state semantics: gold when maxed, green when a
-    // point can go in, gray otherwise.
-    var maxRanks = mastery.ranks || 1;
-    var status;
-    if (ranks >= maxRanks) status = "full";
-    else if (!tierLocked && !capped && !(budgetSpent && ranks === 0)) status = "available";
-    else status = "unavailable";
+function buildKeystoneView(skin) {
+    hideKeystoneTooltip();
+    var root = document.getElementById("keystone-calculator");
+    if (!root) return;
+    while (root.firstChild) root.removeChild(root.firstChild);
+    var ds = keystoneActiveDataSet;
+    root.setAttribute("data-skin", skin);
+    root.setAttribute("data-dataset", ds.id);
+    var view = { skin: skin, dsId: ds.id, root: root, picks: [], trees: {}, info: null };
 
-    var $pick = $("<div>")
-        .addClass("keystone-pick")
-        .addClass(status)
-        .attr("data-tree", tree.id)
-        .attr("data-tier", tierDef.tier)
-        .attr("data-mastery", mastery.id)
-        .toggleClass("selected", selected)
-        .toggleClass("locked", tierLocked && !selected)
-        .toggleClass("capped", capped && !tierLocked);
+    if (skin === "lcu") view.info = buildKeystoneInfoBar(root);
 
-    $pick.on("mouseenter mousemove", function(e){
-        showKeystoneTooltip(e, tree, tierDef, mastery,
-            tierDef.isKeystone ? (selected ? 1 : 0) : ranks);
+    var trees = ksEl("div", "ks-trees");
+    var five = ds.data.airFiveRankLayout === "pair" ? KS_AIR.pos2 : KS_AIR.edge5;
+    ds.data.trees.forEach(function(tree, ti){
+        var col = ksEl("div", "ks-tree ks-tree-" + tree.id);
+        col.setAttribute("data-tree", tree.id);
+        var t = { el: col, points: null, name: null, reset: null, label: null };
+        if (skin === "lcu") {
+            var head = ksEl("header", "ks-tree-header");
+            t.points = ksEl("div", "ks-tree-points", "0");
+            t.name = ksEl("div", "ks-tree-name", tree.name);
+            t.reset = ksEl("a", "ks-tree-reset");
+            t.reset.setAttribute("role", "button");
+            t.reset.setAttribute("tabindex", "0");
+            t.reset.setAttribute("aria-label", "Reset " + tree.name + " points");
+            t.reset.setAttribute("data-lol-tip", "Reset points in this tree");
+            t.reset.addEventListener("click", function(){
+                if (!t.reset.classList.contains("disabled")) resetKeystoneTree(tree.id);
+            });
+            head.appendChild(t.points); head.appendChild(t.name); head.appendChild(t.reset);
+            col.appendChild(head);
+        } else {
+            col.style.setProperty("--col", ti);
+        }
+        tree.tiers.forEach(function(tierDef, rowIdx){
+            var pool = tierDef.isKeystone ? 1 : keystoneTierPool(tierDef);
+            var level = ksEl("div", "ks-level " + (pool > 1 ? "ks-level-5" : "ks-level-1")
+                + (pool > 1 ? "" : " is-keystone") + " level-" + rowIdx);
+            level.setAttribute("data-tier", tierDef.tier);
+            var n = tierDef.masteries.length;
+            var xs = pool > 1 ? five : (n >= 3 ? KS_AIR.pos3 : KS_AIR.pos2);
+            // Display order: the optional per-mastery `slot` (client position
+            // when it differs from the data / share-hash order).
+            var order = tierDef.masteries.map(function(m, mi){ return { m: m, pos: m.slot != null ? m.slot : mi }; })
+                .sort(function(a, b){ return a.pos - b.pos; });
+            order.forEach(function(o){
+                var mastery = o.m, mi = o.pos;
+                var pick = buildKeystonePick(tree, tierDef, mastery, pool, skin);
+                pick.pos = mi;
+                if (skin === "air") {
+                    pick.el.style.setProperty("--x", xs[Math.min(mi, xs.length - 1)]);
+                    pick.el.style.setProperty("--y", KS_AIR.rowY + KS_AIR.rowPitch * rowIdx);
+                }
+                pick.level = level;
+                level.appendChild(pick.el);
+                view.picks.push(pick);
+            });
+            col.appendChild(level);
+        });
+        if (skin === "air") {
+            t.label = ksEl("div", "ks-tree-label");
+            t.label.style.setProperty("--lx", KS_AIR.labelX[ti] != null ? KS_AIR.labelX[ti] : 24);
+            col.appendChild(t.label);
+        }
+        view.trees[tree.id] = t;
+        trees.appendChild(col);
     });
-    $pick.on("mouseleave", hideKeystoneTooltip);
+    root.appendChild(trees);
+    keystoneView = view;
+}
 
-    var iconUrl = keystoneIconUrl(mastery);
-    if (iconUrl) {
-        $pick.addClass("has-icon").append($("<img>").addClass("keystone-pick-icon")
-            .attr("src", iconUrl).attr("alt", mastery.name));
-    }
-    $pick.append($("<div>").addClass("keystone-pick-name").text(mastery.name));
-    if (!tierDef.isKeystone) {
-        $pick.append($("<div>")
-            .addClass("counter")
-            .addClass("num-" + status)
-            .text(ranks + "/" + maxRanks));
-    }
-
-    $pick.on("click", function(){ handleKeystonePickClick(tree.id, tierDef, mastery); });
-    $pick.on("contextmenu", function(e){
+function buildKeystonePick(tree, tierDef, mastery, pool, skin) {
+    var el = ksEl("div", "ks-mastery ks-" + tree.id + (pool > 1 ? " is-five" : " is-one"));
+    el.setAttribute("data-tree", tree.id);
+    el.setAttribute("data-tier", tierDef.tier);
+    el.setAttribute("data-mastery", mastery.id);
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-label", mastery.name);
+    var icon = ksEl("div", "ks-icon");
+    var img = document.createElement("img");
+    img.className = "ks-img";
+    img.alt = "";
+    img.draggable = false;
+    icon.appendChild(img);
+    icon.appendChild(ksEl("span", "ks-fallback", mastery.name));
+    el.appendChild(icon);
+    el.appendChild(ksEl("div", "ks-mask"));
+    var value = null;
+    if (pool > 1) { value = ksEl("div", "ks-value", "0/" + (mastery.ranks || 1)); el.appendChild(value); }
+    var pick = { el: el, icon: icon, img: img, value: value, tree: tree, tierDef: tierDef, mastery: mastery, src: null };
+    el.addEventListener("mouseenter", function(e){ keystoneHover = { pick: pick, evt: e }; showKeystoneTooltip(pick, e); });
+    el.addEventListener("mousemove", function(e){
+        if (keystoneHover && keystoneHover.pick === pick) keystoneHover.evt = e;
+        if (window.LolTooltip && (!keystoneView || keystoneView.skin !== "lcu")) LolTooltip.move(e);
+    });
+    el.addEventListener("mouseleave", hideKeystoneTooltip);
+    // Two click models: AIR = +1 / -1 per click (the AIR help box), LCU =
+    // the 7.21 mastery-icon component (see "LCU click model" below).
+    function lcu() { return !!keystoneView && keystoneView.skin === "lcu"; }
+    el.addEventListener("click", function(e){
+        if (!lcu()) { handleKeystonePickClick(tree.id, tierDef, mastery); return; }
+        if (e.shiftKey) ksLcuAddOne(pick); else ksLcuAddMax(pick);
+        keystoneRefreshAll();
+    });
+    el.addEventListener("contextmenu", function(e){
         e.preventDefault();
-        handleKeystonePickRightClick(tree.id, tierDef, mastery);
+        if (!lcu()) { handleKeystonePickRightClick(tree.id, tierDef, mastery); return; }
+        if (e.shiftKey) ksLcuRemove(pick, false); else ksLcuRemove(pick, true);
+        keystoneRefreshAll();
     });
-    return $pick;
+    // Mouse wheel (the AIR help box: "...or using the mouse wheel"; LCU
+    // _mouseWheelHandler: up on an empty row fills it, else +1; down -1).
+    el.addEventListener("wheel", function(e){
+        if (!e.deltaY) return;
+        e.preventDefault();
+        if (lcu()) {
+            if (e.deltaY < 0) {
+                var x = ksLcuCtx(pick);
+                if (x.L === 0) ksLcuAddMax(pick); else ksLcuAddOne(pick);
+            } else ksLcuRemove(pick, false);
+            keystoneRefreshAll();
+            return;
+        }
+        if (e.deltaY < 0) handleKeystonePickClick(tree.id, tierDef, mastery);
+        else handleKeystonePickRightClick(tree.id, tierDef, mastery);
+    }, { passive: false });
+    return pick;
+}
+
+function lolEscapeHtmlSafe(v) {
+    return typeof lolEscapeHtml === "function" ? lolEscapeHtml(v)
+        : String(v).replace(/[&<>"]/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
+}
+
+function ksToggle(el, cls, on) { if (el) el.classList.toggle(cls, !!on); }
+
+function updateKeystoneView() {
+    var view = keystoneView;
+    if (!view || !keystoneActiveDataSet) return;
+    var air = view.skin === "air";
+    var budget = keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints();
+    view.root.classList.toggle("no-points-remaining", budget <= 0);
+    view.picks.forEach(function(pick){
+        var ranks = keystoneMasteryRanks(pick), max = pick.mastery.ranks || 1;
+        var unlocked = isKeystoneTierUnlocked(pick.tree.id, pick.tierDef.tier);
+        var tierTotal = keystoneTierTotal0(pick);
+        var el = pick.el;
+        ksToggle(el, "has-points", ranks > 0);
+        ksToggle(el, "is-complete", ranks >= max);
+        ksToggle(el, "is-disabled", !unlocked);
+        ksToggle(el, "level-no-point", tierTotal === 0);
+        var st = keystoneAirState(pick);
+        el.setAttribute("data-state", st);
+        ksToggle(el, "can-add", air ? keystoneCanAdd(pick) : ksLcuWouldAdd(pick));
+        if (pick.value) pick.value.textContent = ranks + "/" + max;
+        var src = keystoneIconUrl(pick.mastery, air && ranks === 0, view.skin);
+        if (src && pick.src !== src) { pick.img.src = src; pick.src = src; }
+        ksToggle(el, "no-icon", !src);
+    });
+    // 5-rank connectors (LCU): chevrons point at the option holding more.
+    if (!air) view.root.querySelectorAll(".ks-level-5").forEach(function(level){
+        var picks = view.picks.filter(function(p){ return p.level === level; })
+            .sort(function(x, y){ return x.pos - y.pos; });
+        var a = picks[0] ? keystoneMasteryRanks(picks[0]) : 0, b = picks[1] ? keystoneMasteryRanks(picks[1]) : 0;
+        var dir = (a === 0 && b === 0) ? "" : (a === b ? "split" : (a > b ? "left-side" : "right-side"));
+        ["split", "left-side", "right-side"].forEach(function(c){ level.classList.toggle(c, c === dir); });
+    });
+    keystoneActiveDataSet.data.trees.forEach(function(tree){
+        var t = view.trees[tree.id];
+        if (!t) return;
+        var pts = keystoneTreePoints(tree.id);
+        var comp = pts >= 18 ? 3 : (pts >= 12 ? 2 : (pts >= 6 ? 1 : 0));
+        var el = t.el;
+        for (var c = 0; c <= 3; c++) el.classList.toggle("completeness-" + c, c === comp);
+        ksToggle(el, "no-points", pts === 0);
+        ksToggle(el, "is-complete", pts >= 18);
+        if (t.points) t.points.textContent = String(pts);
+        if (t.reset) ksToggle(t.reset, "disabled", pts === 0);
+        if (t.label) t.label.innerHTML = lolEscapeHtmlSafe(tree.name.toUpperCase() + ":") + " "
+            + '<span class="ks-num">' + pts + '</span>';
+    });
+    if (view.info) syncKeystoneInfoBar();
+    // A change under the pointer refreshes the open tooltip in place.
+    if (keystoneHover && keystoneHover.pick && document.body.contains(keystoneHover.pick.el))
+        showKeystoneTooltip(keystoneHover.pick, keystoneHover.evt);
+}
+
+// ---------- LCU info bar (page name · POINTS AVAILABLE · + trash ≡× SAVE) ----
+// The page name and saved / unsaved state live in AirMasterySidebar (the AIR
+// sidebar markup stays in the DOM, hidden in the LCU era), so SAVE / reset /
+// delete behave exactly like the AIR buttons: SAVE = copy link (#share).
+
+function buildKeystoneInfoBar(root) {
+    var bar = ksEl("div", "ks-info");
+    var main = ksEl("div", "ks-info-main");
+    var edit = ksEl("a", "lcu-circle-btn ks-btn-edit");
+    edit.setAttribute("role", "button"); edit.setAttribute("tabindex", "0");
+    edit.setAttribute("aria-label", "Edit page name");
+    edit.setAttribute("data-lol-tip", "Edit page name");
+    var name = ksEl("div", "ks-page-name");
+    var dot = ksEl("span", "ks-page-incomplete", "•");
+    var text = ksEl("span", "ks-page-name-text", "Mastery Page 1");
+    name.appendChild(dot); name.appendChild(text);
+    var input = document.createElement("input");
+    input.className = "ks-page-name-input";
+    input.type = "text"; input.maxLength = 30; input.spellcheck = false;
+    input.setAttribute("aria-label", "Mastery page name");
+    main.appendChild(edit); main.appendChild(name); main.appendChild(input);
+    var pts = ksEl("div", "ks-points-available");
+    var ctrls = ksEl("div", "ks-info-controls");
+    function circle(cls, label, tip, fn) {
+        var b = ksEl("a", "lcu-circle-btn " + cls);
+        b.setAttribute("role", "button"); b.setAttribute("tabindex", "0");
+        b.setAttribute("aria-label", label);
+        b.setAttribute("data-lol-tip", tip);
+        b.addEventListener("click", function(){ if (!b.classList.contains("disabled")) fn(); });
+        b.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.click(); } });
+        ctrls.appendChild(b);
+        return b;
+    }
+    // Labels: the 7.21 en_US strings (mastery_page_*_label, refs mp721/l10n).
+    var sb = function(){ return window.AirMasterySidebar || null; };
+    // One page is modelled: "+" starts a fresh page (points returned, next
+    // default name), like creating a page in the client.
+    circle("ks-btn-add", "Add new page", "Add new page", function(){
+        var m = sb();
+        if (!m) { resetKeystones(); return; }
+        var n = /^Mastery Page (\d+)$/.exec(m.pageName());
+        m.ret();
+        m.pageName("Mastery Page " + (n ? (+n[1] + 1) : 2));
+    });
+    circle("ks-btn-delete", "Delete page", "Delete page", function(){
+        if (sb()) sb().del(); else resetKeystones();
+    });
+    circle("ks-btn-reset", "Reset points in this page", "Reset points in this page", function(){
+        if (sb()) sb().ret(); else resetKeystones();
+    });
+    var save = ksEl("button", "lcu-btn ks-btn-save", "Save");
+    save.type = "button";
+    save.addEventListener("click", function(){
+        if (sb()) sb().save(); else { var s = document.getElementById("share"); if (s) s.click(); }
+        syncKeystoneInfoBar();
+    });
+    ctrls.appendChild(save);
+    bar.appendChild(main); bar.appendChild(pts); bar.appendChild(ctrls);
+    root.appendChild(bar);
+
+    function startEdit() {
+        if (bar.classList.contains("is-editing")) return;
+        input.value = sb() ? sb().pageName() : text.textContent;
+        bar.classList.add("is-editing");
+        input.focus(); input.select();
+    }
+    function endEdit(commit) {
+        if (!bar.classList.contains("is-editing")) return;
+        bar.classList.remove("is-editing");
+        if (commit && sb()) sb().pageName(input.value);
+        syncKeystoneInfoBar();
+    }
+    edit.addEventListener("mousedown", function(e){ if (bar.classList.contains("is-editing")) e.preventDefault(); });
+    edit.addEventListener("click", function(){ if (bar.classList.contains("is-editing")) endEdit(true); else startEdit(); });
+    edit.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); edit.click(); } });
+    input.addEventListener("keydown", function(e){
+        if (e.key === "Enter") { e.preventDefault(); endEdit(true); }
+        else if (e.key === "Escape") { e.preventDefault(); endEdit(false); }
+    });
+    input.addEventListener("blur", function(){ endEdit(true); });
+
+    // AirMasterySidebar repaints its (hidden) aside on every build change,
+    // save, revert and rename: mirror that into the bar.
+    var aside = document.getElementById("mastery-sidebar");
+    if (aside && window.MutationObserver && !aside._ksObserved) {
+        aside._ksObserved = true;
+        new MutationObserver(function(){
+            if (keystoneView && keystoneView.info) syncKeystoneInfoBar();
+        }).observe(aside, { attributes: true, attributeFilter: ["data-dirty"], subtree: true, childList: true, characterData: true });
+    }
+    return { bar: bar, name: text, dot: dot, points: pts, save: save };
+}
+
+function syncKeystoneInfoBar() {
+    var info = keystoneView && keystoneView.info;
+    if (!info || !keystoneActiveDataSet) return;
+    var left = keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints();
+    info.points.textContent = "Points Available: " + left;
+    info.points.classList.toggle("points-left", left > 0);
+    info.dot.style.display = left > 0 ? "" : "none";
+    var sb = window.AirMasterySidebar;
+    info.name.textContent = sb ? sb.pageName() : "Mastery Page 1";
+    var dirty = sb ? sb.isDirty() : true;
+    info.save.disabled = !dirty;
+    if (!dirty) info.save.setAttribute("data-lol-tip", "No changes to save");
+    else info.save.setAttribute("data-lol-tip", "Save this page (copies its link)");
 }
 
 // ---------- Interaction ------------------------------------------------------
+
+// --- LCU click model: the 7.21 mastery-icon component + mastery / level
+// models (refs/keystone/mp721/panel.js):
+//   click          addMaxMasteryPoints — fill the mastery: min(ranks, row
+//                  points + min(row room, page points)); a sibling's points
+//                  move over first (giveMaxPointsToSibling).
+//   shift+click    addMasteryPoint — +1, or take one from a sibling when
+//                  the row (or the page) has no room left.
+//   right-click    removeAllMasteryPoints; shift+right-click removeMasteryPoint.
+//   wheel          up: empty row → fill, else +1; down: -1.
+// Removing is refused while higher rows hold points (canRemovePoint: tree
+// points > level.pointsRequired + ranks); those rows flash (highlight()).
+// canAddPoint: page full → only a row that already holds points; otherwise
+// a row that holds points or is unlocked.
+
+function ksPts(treeId, tierDef, masteryId) {
+    var s = keystoneState[treeId];
+    if (tierDef.isKeystone) return s.keystone === masteryId ? 1 : 0;
+    return s.tiers[tierDef.tier][masteryId] || 0;
+}
+
+function ksSetPts(treeId, tierDef, masteryId, n) {
+    var s = keystoneState[treeId];
+    if (tierDef.isKeystone) {
+        if (n > 0) {
+            var act = keystoneState.__activeKeystone;
+            if (act && act.treeId !== treeId) keystoneState[act.treeId].keystone = null;
+            s.keystone = masteryId;
+            keystoneState.__activeKeystone = { treeId: treeId, masteryId: masteryId };
+        } else if (s.keystone === masteryId) {
+            s.keystone = null;
+            keystoneState.__activeKeystone = null;
+        }
+        return;
+    }
+    if (n > 0) s.tiers[tierDef.tier][masteryId] = n;
+    else delete s.tiers[tierDef.tier][masteryId];
+}
+
+function ksLcuCtx(pick) {
+    var td = pick.tierDef;
+    return {
+        tid: pick.tree.id, td: td, id: pick.mastery.id,
+        c: keystoneMasteryRanks(pick),               // mastery.pointsAssigned
+        R: pick.mastery.ranks || 1,                  // mastery.ranks
+        P: td.isKeystone ? 1 : keystoneTierPool(td), // level.maxPointsInRow
+        L: keystoneTierTotal0(pick),                 // level.levelPointsAssigned
+        B: keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints(), // page.pointsRemaining
+        unlocked: isKeystoneTierUnlocked(pick.tree.id, td.tier)
+    };
+}
+
+function ksLcuCanAdd(x) { return x.B <= 0 ? x.L > 0 : (x.L > 0 || x.unlocked); }
+
+// Points the mastery holds after a plain click (siblings' points move over,
+// the rest of the row fills from the page's points).
+function ksLcuClickTarget(x) {
+    return Math.min(x.R, x.L + Math.min(x.P - x.L, Math.max(0, x.B)));
+}
+
+// Would a plain click change anything (cursor / .can-add / tooltip)?
+function ksLcuWouldAdd(pick) {
+    var x = ksLcuCtx(pick);
+    return ksLcuCanAdd(x) && ksLcuClickTarget(x) > x.c;
+}
+
+function ksLcuAddMax(pick) {
+    var x = ksLcuCtx(pick);
+    if (!ksLcuCanAdd(x)) return false;
+    var target = ksLcuClickTarget(x);
+    if (target <= x.c) return false;
+    x.td.masteries.forEach(function(m){ if (m.id !== x.id) ksSetPts(x.tid, x.td, m.id, 0); });
+    ksSetPts(x.tid, x.td, x.id, target);
+    return true;
+}
+
+function ksLcuAddOne(pick) {
+    var x = ksLcuCtx(pick);
+    if (!ksLcuCanAdd(x)) return false;
+    if (Math.min(x.P - x.L, x.B) <= 0) {             // getPointFromSibling
+        var sib = null;
+        x.td.masteries.forEach(function(m){
+            if (!sib && m.id !== x.id && ksPts(x.tid, x.td, m.id) > 0) sib = m;
+        });
+        if (!sib || x.c >= x.R) return false;
+        ksSetPts(x.tid, x.td, sib.id, ksPts(x.tid, x.td, sib.id) - 1);
+        ksSetPts(x.tid, x.td, x.id, x.c + 1);
+        return true;
+    }
+    if (x.c >= x.R) return false;
+    ksSetPts(x.tid, x.td, x.id, x.c + 1);
+    return true;
+}
+
+function ksLcuRemove(pick, all) {
+    var x = ksLcuCtx(pick);
+    if (x.c === 0) return false;
+    if (keystoneTreePoints(x.tid) > keystoneTierThreshold(pick.tree, x.td.tier) + x.R) {
+        ksHighlightLevelsAbove(pick);
+        return false;
+    }
+    ksSetPts(x.tid, x.td, x.id, all ? 0 : x.c - 1);
+    return true;
+}
+
+// mastery-highlight (750ms): the higher rows that still hold points.
+function ksHighlightLevelsAbove(pick) {
+    var t = keystoneView && keystoneView.trees[pick.tree.id];
+    if (!t) return;
+    Array.prototype.forEach.call(t.el.querySelectorAll(".ks-level"), function(level){
+        var tier = +level.getAttribute("data-tier");
+        if (tier <= pick.tierDef.tier) return;
+        var td = keystoneTierDef(pick.tree, tier);
+        var pts = td.isKeystone ? (keystoneState[pick.tree.id].keystone ? 1 : 0)
+            : keystoneTierTotal(pick.tree.id, tier);
+        if (pts <= 0 || level.classList.contains("ks-highlight")) return;
+        level.classList.add("ks-highlight");
+        var done = function(e){
+            if (e && (e.target !== level || e.animationName !== "ks-highlight")) return;
+            level.classList.remove("ks-highlight");
+            level.removeEventListener("animationend", done);
+        };
+        level.addEventListener("animationend", done);
+        setTimeout(done, 2000);
+    });
+}
 
 function handleKeystonePickClick(treeId, tierDef, mastery) {
     var s = keystoneState[treeId];
@@ -351,9 +833,8 @@ function cascadeKeystoneRelock(treeId, fromTier) {
 }
 
 function keystoneRefreshAll() {
-    // A redraw replaces the hovered element, so mouseleave never fires —
-    // hide explicitly; the next mousemove re-shows it with fresh state.
-    hideKeystoneTooltip();
+    // In-place update: the hovered mastery keeps its element, so its
+    // tooltip is refreshed rather than closed.
     drawKeystoneCalculator();
     updateKeystoneLink();
 }
@@ -362,6 +843,21 @@ function updateKeystonePointsLabel() {
     var total = getKeystoneTotalPoints();
     var max = keystoneActiveDataSet.maxPoints;
     $("#points>.count").text(max - total);
+    // AIR sidebar emblem counts / Points Available / Save-Revert state.
+    if (typeof updateMasterySidebar === "function") updateMasterySidebar();
+    if (keystoneView && keystoneView.info) syncKeystoneInfoBar();
+}
+
+// Sidebar emblem double-click / LCU tree reset: refund one tree (and its
+// keystone).
+function resetKeystoneTree(treeId) {
+    if (!keystoneActiveDataSet || !keystoneState[treeId]) return;
+    var s = keystoneState[treeId];
+    for (var t in s.tiers) s.tiers[t] = {};
+    if (keystoneState.__activeKeystone && keystoneState.__activeKeystone.treeId === treeId)
+        keystoneState.__activeKeystone = null;
+    s.keystone = null;
+    keystoneRefreshAll();
 }
 
 // ---------- Share hash -------------------------------------------------------

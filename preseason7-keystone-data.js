@@ -64,12 +64,17 @@ var preseason7KeystoneData = {
         maxPointsPerTree: 18,
         oneKeystoneAcrossAllTrees: true
     },
+    // AIR client layout: from V6.22 the 5-rank icons sit on the centred
+    // pair like the 2-option rows (refs/keystone/nerf_tankmasteries.png).
+    airFiveRankLayout: "pair",
+    // Per-mastery `airIconVersion`: the V6.22 AIR client still drew the
+    // 5.22.3 art for Fresh Blood and Double-Edged Sword (same capture).
     trees: [
         // ============================================================ FEROCITY
         {
             id: "ferocity",
             name: "Ferocity",
-            color: "#c53030",
+            color: "#c83c32",
             tiers: [
                 {
                     tier: 1,
@@ -83,7 +88,7 @@ var preseason7KeystoneData = {
                     masteries: [
                         // V6.22 reshuffle: Fresh Blood (new) + Feast + Expose Weakness.
                         // Oppressor was removed this patch.
-                        { id: "fresh-blood",     name: "Fresh Blood", iconId: 6121,     ranks: 1, desc: "Your first basic attack vs. a champion deals 10 + 1 per level (11 at lvl 1, 28 at lvl 18) bonus damage (6s per-target cooldown).", rankInfo: [28] },
+                        { id: "fresh-blood",     name: "Fresh Blood", iconId: 6121, airIconVersion: "5.22.3", ranks: 1, desc: "Your first basic attack vs. a champion deals 10 + 1 per level (11 at lvl 1, 28 at lvl 18) bonus damage (6s per-target cooldown).", rankInfo: [28] },
                         // Feast cooldown was 30s by V6.22 (V6.8 raised it to 30s from 25s).
                         { id: "feast",           name: "Feast", iconId: 6122,           ranks: 1, desc: "Killing a unit restores 20 health (30s cooldown).", rankInfo: [20] },
                         { id: "expose-weakness", name: "Expose Weakness", iconId: 6123, ranks: 1, desc: "Your damaging abilities debuff enemies for 3s, making them take 3% more damage from your allies.", rankInfo: [3] }
@@ -103,7 +108,7 @@ var preseason7KeystoneData = {
                         // V6.22 added Battle Trance; Double-Edged Sword moved down from tier 2.
                         { id: "bounty-hunter",      name: "Bounty Hunter", iconId: 6141,      ranks: 1, desc: "+1% damage per unique enemy champion you have killed (max 5%).", rankInfo: [1] },
                         // V6.22 BUFF: 5% dealt / 2.5% taken (up from 3% / 1.5%). V7.4 later reverted.
-                        { id: "double-edged-sword", name: "Double-Edged Sword", iconId: 6142, ranks: 1, desc: "Deal 5% increased damage and take 2.5% increased damage from all sources.", rankInfo: [5] },
+                        { id: "double-edged-sword", name: "Double-Edged Sword", iconId: 6142, airIconVersion: "5.22.3", ranks: 1, desc: "Deal 5% increased damage and take 2.5% increased damage from all sources.", rankInfo: [5] },
                         { id: "battle-trance",      name: "Battle Trance", iconId: 6143,      ranks: 1, desc: "While in combat with enemy champions, ramp up to +5% increased damage over 5 seconds (lost 3s after leaving combat).", rankInfo: [5] }
                     ]
                 },
@@ -136,7 +141,7 @@ var preseason7KeystoneData = {
         {
             id: "cunning",
             name: "Cunning",
-            color: "#2e7fb8",
+            color: "#a060c0",
             tiers: [
                 {
                     tier: 1,
@@ -201,7 +206,7 @@ var preseason7KeystoneData = {
         {
             id: "resolve",
             name: "Resolve",
-            color: "#3f9e57",
+            color: "#6a6ad2",
             tiers: [
                 {
                     tier: 1,

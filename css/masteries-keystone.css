@@ -1,175 +1,634 @@
-/* --- Keystone mastery system (V5.22 -> V7.21) --------------------------- */
-/* Ferocity / Cunning / Resolve. Three vertical tree columns, each with 5
-   minor tiers stacked top-to-bottom and the keystone tier pinned to the
-   BOTTOM (the in-game LCU layout). Only one keystone may be active across
-   all three trees. Visual aesthetic borrows the dark blue + gold of the
-   legacy 2017 client. */
-#keystone-calculator {
-    display: none;
-    width: 920px;
-    min-height: 533px;
-    background: url(../images/masteries-background.jpg);
-    box-sizing: border-box;
-    padding: 18px 16px;
-    color: #f0e6d2;
-    font-family: "Roboto", Arial, sans-serif;
-}
+/* ==========================================================================
+   masteries-keystone.css — Ferocity / Cunning / Resolve keystone masteries
+   (V5.22 → V7.21), drawn by keystone-calculator.js into #keystone-calculator.
+   Two skins, keyed off body[data-client] (DECISIONS §1) and mirrored on the
+   container as [data-skin]:
+
+   AIR  (V5.22 s6-launch, V6.22 s7-preseason) — the AIR client Masteries tab.
+        Sits in the shared AIR sheet (air-sheet.css) next to the shared
+        mastery sidebar. The tree panel is the client's 827x479 px panel at
+        sheet scale (1 native px = var(--u)):
+          panel.jpg   the three smoky columns + separators, rebuilt from the
+                      1:1 captures (refs/keystone/Masteries2016.png,
+                      nerf_tankmasteries.png, pcg / dig_1) with every icon,
+                      frame and label removed (scratchpad ks/build_bg.py)
+          frames.png  80x80 native cells, icon box at (12,12), lifted from
+                      the same captures (ks/extract2.py): 0 thin 49 (5-rank),
+                      1 thin 56 (1-rank), 2 T2 bevel, 3-5 T4 riveted
+                      (ferocity / cunning / resolve gems), 6-8 T6 reliquary
+        State language (captures): yellow = ranked, BLUE = available, grey =
+        locked / no budget (counter + frame); unranked icons use DDragon
+        gray_<id>.png, ranked ones colour. Counters only on 5-rank rows.
+        State changes are instant (no transitions).
+
+   LCU  (V7.21 s7-final) — rcp-fe-lol-mastery-panel 7.21, values 1:1 from its
+        CSS (refs/keystone/mp721/panel.css): info bar, 322px trees with the
+        gold header divider + completeness glow, 40px square icons in the
+        46px frame sprite, 50px round icons in the 56/64px ring sprites,
+        connectors between 5-rank pairs. Sprites vendored from
+        CommunityDragon 7.21 into images/lcu/masteries/ (rings split per
+        tree + palette-quantised; glows downscaled).
+   ========================================================================== */
+
+#keystone-calculator { display: none; }
 body.keystone-system #calculator { display: none; }
-body.keystone-system #keystone-calculator { display: flex; gap: 14px; }
-/* The 2016 client was a dark slate screen — swap out the classic parchment
-   tile and the red/blue/green tree art overlays while a keystone season is
-   active, and lift the panel text onto the dark background. */
-body.keystone-system .art-top,
-body.keystone-system .art-bottom { display: none; }
-body.keystone-system #s2masteries {
-    background: #010a13;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-}
-body.keystone-system #panel,
-body.keystone-system #points,
-body.keystone-system #exportLink { color: #f0e6d2; }
+body.keystone-system #keystone-calculator { display: block; }
+/* The old Points Available / Return Points row: the AIR sidebar replaces it
+   in the AIR era, the LCU info bar (.ks-info) in the LCU era. */
+body.keystone-system #panel { display: none; }
 
-.keystone-tree {
-    flex: 1;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.7));
-    border: 1px solid var(--color-gold-dark);
-    border-radius: 4px;
-    padding: 10px 6px 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    min-width: 0;
+.ks-mastery {
     position: relative;
-}
-/* Tree signature colors match the 2016 client: Ferocity red, Cunning blue,
-   Resolve green. */
-.keystone-tree[data-tree="ferocity"] { border-color: #a92f25; box-shadow: inset 0 0 14px rgba(169, 47, 37, 0.18); }
-.keystone-tree[data-tree="cunning"]  { border-color: #2e7fb8; box-shadow: inset 0 0 14px rgba(46, 127, 184, 0.18); }
-.keystone-tree[data-tree="resolve"]  { border-color: #3f9e57; box-shadow: inset 0 0 14px rgba(63, 158, 87, 0.18); }
-
-.keystone-tree-title {
-    color: var(--color-gold-light);
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 14px;
-    text-align: center;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid rgba(212,182,84,0.25);
-}
-.keystone-tree[data-tree="ferocity"] .keystone-tree-title { color: #f04030; }
-.keystone-tree[data-tree="cunning"]  .keystone-tree-title { color: #5fb3ee; }
-.keystone-tree[data-tree="resolve"]  .keystone-tree-title { color: #5fd47e; }
-.keystone-tree-title { display: flex; justify-content: space-between; align-items: baseline; padding-left: 8px; padding-right: 8px; }
-.keystone-tree-points { color: var(--color-gold-light); font-size: 12px; }
-
-.keystone-tier {
-    display: flex;
-    justify-content: center;
-    gap: 22px;
-    margin-bottom: 12px;
-}
-
-/* Keystone tier pinned to the BOTTOM of the column (in-game layout). */
-.keystone-tier.keystone-tier-keystone {
-    margin-top: auto;
-    margin-bottom: 0;
-    padding-top: 12px;
-    padding-bottom: 2px;
-    border-top: 1px solid rgba(212, 182, 84, 0.4);
-    gap: 4px;
-}
-
-/* Minor mastery tile — square icon button in the original dpatti/Pyroblasty
-   calculator language: 2px state-colored border (gray unavailable, green
-   available, gold maxed), rounded corners, rank counter badge overlapping
-   the bottom-right corner, all detail in the hover tooltip. */
-.keystone-pick {
-    width: 48px;
-    height: 48px;
-    flex: none;
-    position: relative;
-    border: 2px solid #999;
-    border-radius: 8px;
-    background: #000;
-    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-user-select: none;
     user-select: none;
-    box-sizing: content-box;
+    -webkit-tap-highlight-color: transparent;
 }
-.keystone-pick-icon {
+.ks-icon { box-sizing: content-box; }
+.ks-img { display: block; width: 100%; height: 100%; }
+.ks-mask, .ks-value { pointer-events: none; }
+.ks-fallback { display: none; }
+.ks-mastery.no-icon .ks-img { visibility: hidden; }
+.ks-mastery.no-icon .ks-fallback {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 6px;
-    object-fit: cover;
-    /* Unavailable = the classic sprite's B&W column: fully desaturated but
-       clearly visible, NOT darkened into a black box. */
-    filter: grayscale(100%) brightness(0.9);
-    transition: filter 120ms;
-}
-.keystone-pick.available .keystone-pick-icon,
-.keystone-pick.full .keystone-pick-icon { filter: none; }
-.keystone-pick.available:hover .keystone-pick-icon { filter: brightness(1.15); }
-
-/* Original state borders. */
-.keystone-pick.available { border-color: #00ff00; }
-.keystone-pick.full      { border-color: #d4b654; }
-.keystone-pick.full .keystone-pick-icon { filter: none; }
-.keystone-pick.locked,
-.keystone-pick.capped    { border-color: #999; cursor: default; }
-
-/* Rank counter badge — same .counter/.num-* classes as the classic page. */
-.keystone-pick .counter {
-    z-index: 2;
-    line-height: 1.3;
-    right: -6px;
-}
-
-/* Text fallback when no DDragon icon loaded. */
-.keystone-pick-name {
-    position: absolute;
-    inset: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2px;
+    font: 700 8px/1.1 var(--font-lcu-body);
     text-align: center;
-    font-size: 8px;
-    font-weight: bold;
     color: #f0e6d2;
-    padding: 2px;
-    line-height: 1.1;
 }
-.keystone-pick.has-icon .keystone-pick-name { display: none; }
+.ks-mastery.can-add, .ks-mastery.has-points { cursor: pointer; }
 
-/* Keystone tier tiles — larger gold-rimmed hexes at the column bottom,
-   matching the 2016 client's keystone row. */
-.keystone-tier-keystone .keystone-pick {
-    width: 62px;
-    height: 62px;
-    border-color: var(--color-gold-dark);
-    border-radius: 0;
-    background: transparent;
-    border: none;
-    padding: 2px;
+/* ==========================================================================
+   AIR skin
+   ========================================================================== */
+body[data-client="air"] #keystone-calculator[data-skin="air"] {
+    position: relative;
+    width: calc(827 * var(--u));
+    height: calc(479 * var(--u));
+    background: #0b0605 url(../images/masteries/keystone-air/panel.jpg) no-repeat 0 0 / 100% 100%;
+    color: #d0c1af;
+    font: 400 calc(11 * var(--u))/1 Tahoma, Verdana, "Segoe UI", sans-serif;
 }
-.keystone-tier-keystone .keystone-pick-icon {
-    border-radius: 0;
-    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-}
-.keystone-tier-keystone .keystone-pick::after {
-    /* Hex rim drawn as an outline layer so the state color reads clearly. */
-    content: "";
+#keystone-calculator[data-skin="air"] .ks-trees { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+#keystone-calculator[data-skin="air"] .ks-tree {
     position: absolute;
-    inset: 0;
-    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%,
-                       50% 6%, 12% 27%, 12% 73%, 50% 94%, 88% 73%, 88% 27%, 50% 6%);
-    background: #999;
-    pointer-events: none;
+    top: 0;
+    left: calc(var(--col, 0) * 275 * var(--u));
+    width: calc(275 * var(--u));
+    height: 100%;
 }
-.keystone-tier-keystone .keystone-pick.available::after { background: #00ff00; }
-.keystone-tier-keystone .keystone-pick.full::after      { background: #d4b654; }
-.keystone-tier-keystone .keystone-pick.full {
-    filter: drop-shadow(0 0 8px rgba(212, 182, 84, 0.8));
+#keystone-calculator[data-skin="air"] .ks-level { display: contents; }
+
+/* Boxes: 5-rank 49x49 (2px bronze frame + 45px icon), 1-rank and keystones
+   56x56 (2px frame + 52px icon); top-left = the capture grid (--x, --y). */
+#keystone-calculator[data-skin="air"] .ks-mastery {
+    position: absolute;
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(49 * var(--u));
+    height: calc(49 * var(--u));
+    --ks-box: 49;
+    --ks-cell: 0;
+}
+#keystone-calculator[data-skin="air"] .ks-mastery.is-one {
+    width: calc(56 * var(--u));
+    height: calc(56 * var(--u));
+    --ks-box: 56;
+    --ks-cell: 1;
+}
+#keystone-calculator[data-skin="air"] .ks-icon {
+    position: absolute;
+    left: calc(2 * var(--u));
+    top: calc(2 * var(--u));
+    width: calc((var(--ks-box) - 4) * var(--u));
+    height: calc((var(--ks-box) - 4) * var(--u));
+    background: #000;
+}
+#keystone-calculator[data-skin="air"] .ks-mask {
+    position: absolute;
+    left: calc(-12 * var(--u));
+    top: calc(-12 * var(--u));
+    width: calc(80 * var(--u));
+    height: calc(80 * var(--u));
+    background: url(../images/masteries/keystone-air/frames.png) no-repeat;
+    background-size: calc(720 * var(--u)) calc(80 * var(--u));
+    background-position: calc(var(--ks-cell) * -80 * var(--u)) 0;
+}
+/* Selected 1-rank picks: escalating frames (T2 bevel, T4 gem rivets, T6
+   reliquary) — Masteries2016.png. */
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="2"] { --ks-cell: 2; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="4"].ks-ferocity { --ks-cell: 3; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="4"].ks-cunning  { --ks-cell: 4; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="4"].ks-resolve  { --ks-cell: 5; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="6"].ks-ferocity { --ks-cell: 6; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="6"].ks-cunning  { --ks-cell: 7; }
+#keystone-calculator[data-skin="air"] .is-one.has-points[data-tier="6"].ks-resolve  { --ks-cell: 8; }
+#keystone-calculator[data-skin="air"] .is-one.has-points .ks-mask { z-index: 1; }
+/* Locked / no budget: the thin grey 1px frame, inset 1px (nerf_tank V6.22:
+   Cunning 0 column, Ferocity keystones). */
+#keystone-calculator[data-skin="air"] .ks-mastery[data-state="locked"] .ks-mask {
+    left: calc(1 * var(--u));
+    top: calc(1 * var(--u));
+    width: calc((var(--ks-box) - 2) * var(--u));
+    height: calc((var(--ks-box) - 2) * var(--u));
+    box-sizing: border-box;
+    border: calc(1 * var(--u)) solid;
+    border-color: #4a4a4a #2c2c2c #5a5a5a #3e3e3e;
+    box-shadow: inset 0 0 0 calc(1 * var(--u)) rgba(0, 0, 0, 0.55);
+    background: none;
+}
+/* Hover (no capture of the AIR hover exists): a slight lift, instant. */
+#keystone-calculator[data-skin="air"] .ks-mastery.can-add:hover .ks-img,
+#keystone-calculator[data-skin="air"] .ks-mastery.has-points:hover .ks-img { filter: brightness(1.18); }
+
+/* 5-rank counter "n/5": 31x16 box on the icon's bottom-right (+23,+41):
+   1px dim ring, 1px bright border, dark fill glowing at the top centre,
+   11px digits. Sampled from nerf_tankmasteries.png (lossless). */
+#keystone-calculator[data-skin="air"] .ks-value {
+    --c-dim: #858500; --c-hi: #e0df00; --c-glow: #744200; --c-dark: #0c0600; --c-text: #fdf300;
+    position: absolute;
+    z-index: 2;
+    left: calc(23 * var(--u));
+    top: calc(41 * var(--u));
+    box-sizing: border-box;
+    width: calc(31 * var(--u));
+    height: calc(16 * var(--u));
+    border: calc(1 * var(--u)) solid var(--c-dim);
+    border-right-color: var(--c-dim-r, var(--c-dim));
+    background:
+        radial-gradient(ellipse 58% 90% at 50% 12%, var(--c-glow) 0, var(--c-dark) 100%) padding-box;
+    box-shadow: inset 0 0 0 calc(1 * var(--u)) var(--c-hi);
+    /* Greyscale-antialiased digits: its own compositing layer so Chrome drops
+       ClearType colour fringes (they tinted the yellow / blue / grey state
+       colours). Stem weight per state (nerf_tankmasteries.png, lossless):
+       ranked "5/5" 2px stems (bold), available / locked "0/5" 1px (regular). */
+    font: 400 calc(10.5 * var(--u))/calc(14 * var(--u)) Tahoma, Verdana, "Segoe UI", sans-serif;
+    letter-spacing: calc(0.5 * var(--u));
+    text-align: center;
+    white-space: nowrap;
+    color: var(--c-text);
+    will-change: transform;
+}
+#keystone-calculator[data-skin="air"] .ks-mastery[data-state="available"] .ks-value {
+    --c-dim: #13253d; --c-hi: #305f9c; --c-glow: #152943; --c-dark: #020305; --c-text: #0092f5;
+}
+#keystone-calculator[data-skin="air"] .ks-mastery[data-state="locked"] .ks-value {
+    --c-dim: #262626; --c-hi: #747474; --c-glow: #2c2c2c; --c-dark: #040404; --c-text: #989898;
+}
+#keystone-calculator[data-skin="air"] .ks-mastery[data-state="ranked"] .ks-value { --c-dim-r: #676300; font-weight: 700; }
+
+/* "FEROCITY: 18" — Friz stand-in, bottom-left of each column, cap top at
+   native y 450 (Masteries2016.png: #d0c1af, 14px caps, x 28/25/22). */
+#keystone-calculator[data-skin="air"] .ks-tree-label {
+    position: absolute;
+    left: calc(var(--lx, 24) * var(--u));
+    top: calc(445.5 * var(--u));
+    font: 400 calc(19 * var(--u))/calc(22 * var(--u)) var(--font-air-display);
+    letter-spacing: calc(0.95 * var(--u));
+    word-spacing: calc(1 * var(--u));
+    color: #d0c1af;
+    white-space: nowrap;
+    pointer-events: none;
+    will-change: transform;          /* greyscale AA, as on the counters */
+}
+/* Marcellus' digits read as letters ("1" = I, "0" = O); Friz Quadrata's
+   are flagged / oval (nerf_tankmasteries.png "CUNNING: 0", "FEROCITY: 12"):
+   lining Spectral figures stand in. */
+#keystone-calculator[data-skin="air"] .ks-tree-label .ks-num {
+    font: 500 calc(19.5 * var(--u))/1 var(--font-lcu-display-mixed);
+    font-feature-settings: "lnum" 1;
+    letter-spacing: calc(0.6 * var(--u));
+}
+
+/* AIR tooltip (air-mastery skin, base.css §7) at client proportions: the
+   2015/16 box is a fixed ~290 native px wide (width set from JS) and its
+   type scales with the sheet — --ks-u = on-screen px per native px, set on
+   .ks-tt-air-in by keystone-calculator.js. Measured on qhylFA4fvQo_sd1.jpg
+   (u 0.544): title cap 11 (17px), bold rank line, 13px body on 16.5px
+   lines; baselines title→rank 22, rank→body 24; text inset 7 left / 7
+   top, 11 from the last baseline down. */
+.lol-tt[data-skin="air-mastery"].ks-tt-air {
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+}
+.lol-tt.ks-tt-air .ks-tt-air-in {
+    padding: calc(3 * var(--ks-u)) calc(7 * var(--ks-u)) calc(7 * var(--ks-u));
+    font: 400 calc(13 * var(--ks-u))/calc(16.5 * var(--ks-u)) var(--font-air-body);
+}
+.lol-tt.ks-tt-air .tt-title { font: 400 calc(17 * var(--ks-u))/calc(21 * var(--ks-u)) var(--font-air-body); }
+.lol-tt.ks-tt-air .tt-rank  { margin-top: calc(4.5 * var(--ks-u)); font-size: calc(13 * var(--ks-u)); font-weight: 600; }
+.lol-tt.ks-tt-air .tt-body  { margin-top: calc(7.5 * var(--ks-u)); }
+.lol-tt.ks-tt-air .tt-next  { margin-top: calc(9 * var(--ks-u)); }
+.lol-tt.ks-tt-air .tt-next > div:first-child { color: #fff; }
+
+/* ==========================================================================
+   LCU skin (7.21 rcp-fe-lol-mastery-panel, px 1:1)
+   ========================================================================== */
+/* Backdrop: the 7.x Collections viewport background.png (near-black top,
+   teal smoke rising from the bottom; refs/keystone/coll_background.png with
+   the social strip x>=1057 cropped) replaces the shared backdrop-magic on
+   this page — still one fixed layer (base.css body::before, DECISIONS §2). */
+body.keystone-system[data-client="lcu"]::before {
+    background: #010a13 url(../images/lcu/masteries/collections-bg.jpg) no-repeat center bottom / cover;
+}
+body.keystone-system[data-client="lcu"] #s2masteries.air-sheet {
+    width: 985px;
+    min-height: 0;
+    padding: 36px 23px 24px 24px;   /* even outer width: whole-px sprites */
+}
+body[data-client="lcu"] #keystone-calculator[data-skin="lcu"] {
+    position: relative;
+    width: 985px;
+    height: 575px;
+    color: #f0e6d2;
+    font-family: var(--font-lcu-display);
+    -webkit-font-smoothing: antialiased;
+    text-align: left;
+}
+
+/* --- Info bar (top 5, 32 tall, three flex thirds) ------------------------ */
+#keystone-calculator[data-skin="lcu"] .ks-info {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 985px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#keystone-calculator[data-skin="lcu"] .ks-info-main {
+    display: flex;
+    align-items: center;
+    flex: 1 1 328px;
+    min-width: 0;
+}
+#keystone-calculator[data-skin="lcu"] .ks-page-name {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 32px;
+    padding: 0 24px 0 13px;
+    background: url(../images/lcu/up-down-arrow.png) no-repeat right 4px center / 13px 18px;
+    /* 7.8 capture: "Support Thresh" caps 12px tall, 125px wide. Spectral's
+       caps are shorter than Beaufort's, so 18px (0.0375em in Beaufort). */
+    font: 700 18px/18px var(--font-lcu-display-mixed);
+    letter-spacing: 0.005em;
+    color: #cdbe91;
+    white-space: nowrap;
+    cursor: default;
+}
+#keystone-calculator[data-skin="lcu"] .ks-page-name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 230px;
+}
+#keystone-calculator[data-skin="lcu"] .ks-page-incomplete {
+    padding-right: 3px;
+    font-family: var(--font-lcu-display);
+    color: #fabe0a;
+}
+#keystone-calculator[data-skin="lcu"] .ks-page-name-input {
+    display: none;
+    box-sizing: border-box;
+    width: 230px;
+    height: 32px;
+    margin-left: 15px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-image: linear-gradient(to top, #695625, #463714) 1;
+    background: rgba(0, 0, 0, 0.7);
+    font: 400 12px/16px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: #f0e6d2;
+    outline: none;
+}
+#keystone-calculator[data-skin="lcu"] .ks-info.is-editing .ks-page-name { display: none; }
+#keystone-calculator[data-skin="lcu"] .ks-info.is-editing .ks-page-name-input { display: block; }
+#keystone-calculator[data-skin="lcu"] .ks-points-available {
+    flex: 1 1 328px;
+    text-align: center;
+    position: relative;
+    top: 3px;                        /* Spectral SC sits higher than Beaufort */
+    font: 700 14px/32px var(--font-lcu-display);
+    font-feature-settings: "lnum" 1;
+    letter-spacing: 0.01em;          /* 0.075em in Beaufort; Spectral SC runs wider */
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #a09b8c;
+    cursor: default;
+    animation: ks-fade-in 0.5s;
+}
+#keystone-calculator[data-skin="lcu"] .ks-points-available.points-left { color: #fabe0a; }
+#keystone-calculator[data-skin="lcu"] .ks-info-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1 1 328px;
+}
+#keystone-calculator[data-skin="lcu"] .ks-btn-add,
+#keystone-calculator[data-skin="lcu"] .ks-btn-delete { margin-right: 11px; }
+#keystone-calculator[data-skin="lcu"] .ks-btn-reset { margin-right: 12px; }
+#keystone-calculator[data-skin="lcu"] .ks-btn-save { min-width: 112px; }
+#keystone-calculator[data-skin="lcu"] .lcu-circle-btn::after {
+    -webkit-mask-size: var(--ks-mw, 17px) var(--ks-mh, 16px);
+    mask-size: var(--ks-mw, 17px) var(--ks-mh, 16px);
+}
+#keystone-calculator[data-skin="lcu"] .ks-btn-edit::after {
+    --ks-mw: 15px; --ks-mh: 13px;
+    -webkit-mask-image: url(../images/lcu/masteries/icon-edit.png);
+    mask-image: url(../images/lcu/masteries/icon-edit.png);
+}
+#keystone-calculator[data-skin="lcu"] .ks-btn-add::after {
+    -webkit-mask-image: url(../images/lcu/masteries/icon-add.png);
+    mask-image: url(../images/lcu/masteries/icon-add.png);
+}
+#keystone-calculator[data-skin="lcu"] .ks-btn-delete::after {
+    --ks-mw: 13px; --ks-mh: 14px;
+    -webkit-mask-image: url(../images/lcu/masteries/icon-delete.png);
+    mask-image: url(../images/lcu/masteries/icon-delete.png);
+}
+#keystone-calculator[data-skin="lcu"] .ks-btn-reset::after {
+    -webkit-mask-image: url(../images/lcu/masteries/icon-reset.png);
+    mask-image: url(../images/lcu/masteries/icon-reset.png);
+}
+
+/* --- Trees ------------------------------------------------------------------ */
+#keystone-calculator[data-skin="lcu"] .ks-trees {
+    position: absolute;
+    top: 56px;                       /* .categories padding-top 55 (+1: 7.8 capture) */
+    left: 0;
+    width: 986px;                    /* 3 x 322 + 2 x 10: whole-px trees (the 7.8 */
+    display: flex;                   /* capture's content column is this wide) */
+    justify-content: flex-start;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree {
+    flex: none;
+    width: 322px;
+    height: 520px;
+    margin-right: 10px;
+    text-align: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: 0 32px;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree:last-child { margin-right: 0; }
+/* Glow under the header: 1-11 points small, 12-17 medium, 18 large. */
+#keystone-calculator[data-skin="lcu"] .ks-tree-ferocity { background-image: url(../images/lcu/masteries/glow-ferocity-1.png); background-position: 0 30px; }
+#keystone-calculator[data-skin="lcu"] .ks-tree-ferocity.completeness-2 { background-image: url(../images/lcu/masteries/glow-ferocity-2.png); background-position: -1px 30px; }
+#keystone-calculator[data-skin="lcu"] .ks-tree-ferocity.completeness-3 { background-image: url(../images/lcu/masteries/glow-ferocity-3.png); background-position: -16px 30px; }
+#keystone-calculator[data-skin="lcu"] .ks-tree-cunning { background-image: url(../images/lcu/masteries/glow-cunning-1.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-cunning.completeness-2 { background-image: url(../images/lcu/masteries/glow-cunning-2.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-cunning.completeness-3 { background-image: url(../images/lcu/masteries/glow-cunning-3.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-resolve { background-image: url(../images/lcu/masteries/glow-resolve-1.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-resolve.completeness-2 { background-image: url(../images/lcu/masteries/glow-resolve-2.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-resolve.completeness-3 { background-image: url(../images/lcu/masteries/glow-resolve-3.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree.no-points { background-image: none; }
+
+#keystone-calculator[data-skin="lcu"] .ks-tree-header {
+    position: relative;
+    height: 60px;
+    margin-bottom: 29px;
+    background: url(../images/lcu/masteries/header.png) no-repeat 0 30px / 318px auto;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree.is-complete .ks-tree-header { background-image: url(../images/lcu/masteries/header-complete.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree.no-points .ks-tree-header { background-image: url(../images/lcu/masteries/header-empty.png); }
+#keystone-calculator[data-skin="lcu"] .ks-tree-points {
+    display: inline-block;
+    position: relative;
+    top: 1px;
+    margin-top: -2px;
+    font: 700 30px/32px var(--font-lcu-display);
+    font-feature-settings: "lnum" 1;
+    letter-spacing: 0.05em;
+    background: linear-gradient(to bottom, #cdbe91 0%, #c89b3c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    cursor: default;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree-name {
+    position: relative;
+    top: 2px;
+    margin-top: 20px;
+    /* 18px/22px .05em in Beaufort; Spectral SC is ~12% wider, so 17px .02em
+       keeps the capture's 12px caps and word widths. */
+    font: 700 17px/22px var(--font-lcu-display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #f0e6d2;
+    cursor: default;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset {
+    position: absolute;
+    right: 8px;
+    bottom: -13px;
+    width: 20px;
+    height: 20px;
+    background: url(../images/lcu/masteries/tree-reset.png) no-repeat 0 0 / 100% auto;
+    cursor: pointer;
+    outline: none;
+}
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset:hover { background-position: 0 -20px; }
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset:active { background-position: 0 -40px; }
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset.disabled,
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset.disabled:hover,
+#keystone-calculator[data-skin="lcu"] .ks-tree-reset.disabled:active { background-position: 0 -60px; cursor: default; }
+
+/* --- Levels -------------------------------------------------------------- */
+#keystone-calculator[data-skin="lcu"] .ks-level {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 46px 24px 41px;
+    background: url(../images/lcu/masteries/connector.png) no-repeat center 15px / 108px auto;
+    animation: ks-fade-in 0.5s;
+}
+#keystone-calculator[data-skin="lcu"] .ks-level.left-side  { background-image: url(../images/lcu/masteries/connector-left.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.right-side { background-image: url(../images/lcu/masteries/connector-right.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.split      { background-image: url(../images/lcu/masteries/connector-split.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone {
+    justify-content: center;
+    margin-bottom: 20px;
+    background: none;
+}
+
+/* --- Mastery icons ----------------------------------------------------------- */
+#keystone-calculator[data-skin="lcu"] .ks-mastery {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    overflow: visible;
+}
+#keystone-calculator[data-skin="lcu"] .ks-mastery div,
+#keystone-calculator[data-skin="lcu"] .ks-mastery img {
+    transition: filter 0.333s, box-shadow 0.333s, color 0.333s;
+}
+#keystone-calculator[data-skin="lcu"] .ks-icon {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    padding: 1px;
+    border: 1px solid transparent;
+    background-color: #0d141c;
+}
+#keystone-calculator[data-skin="lcu"] .ks-img {
+    width: 40px;
+    height: 40px;
+    opacity: 0.7;
+    filter: saturate(0);
+}
+#keystone-calculator[data-skin="lcu"] .ks-mastery:hover .ks-img,
+#keystone-calculator[data-skin="lcu"] .ks-mastery.has-points .ks-img { opacity: 1; filter: saturate(1); }
+#keystone-calculator[data-skin="lcu"] .ks-mastery.has-points:hover .ks-img { filter: brightness(1.2) saturate(1.1); }
+#keystone-calculator[data-skin="lcu"] .ks-mastery.is-disabled { filter: grayscale(1); }
+#keystone-calculator[data-skin="lcu"] .ks-mastery.is-disabled .ks-img,
+#keystone-calculator[data-skin="lcu"] .ks-mastery.is-disabled:hover .ks-img { opacity: 0.7; filter: saturate(0); }
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-mastery.level-no-point { filter: grayscale(1); }
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-mastery.level-no-point .ks-img,
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-mastery.level-no-point:hover .ks-img { opacity: 0.7; filter: saturate(0); }
+/* Full page: an empty mastery whose row holds points (a click moves them)
+   lights up at 0.7 (.noPointsRemaining .mastery-icon.no-point.iconEnabled). */
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-mastery:not(.has-points):not(.is-disabled):hover .ks-img { opacity: 0.7; }
+
+/* Square frame sprite (13 x 46px): grey · cunning · ferocity · resolve,
+   each hover / rest / pts-hover / pts. */
+#keystone-calculator[data-skin="lcu"] .ks-mask {
+    position: absolute;
+    top: -1px;
+    left: -2px;
+    width: 46px;
+    height: 46px;
+    background: url(../images/lcu/masteries/square-frames.png) no-repeat 0 0 / 46px auto;
+}
+#keystone-calculator[data-skin="lcu"] .ks-ferocity.is-five .ks-mask { background-position: 0 -276px; }
+#keystone-calculator[data-skin="lcu"] .ks-ferocity.is-five:hover .ks-mask { background-position: 0 -230px; }
+#keystone-calculator[data-skin="lcu"] .ks-ferocity.is-five.has-points .ks-mask { background-position: 0 -368px; }
+#keystone-calculator[data-skin="lcu"] .ks-ferocity.is-five.has-points:hover .ks-mask { background-position: 0 -322px; }
+#keystone-calculator[data-skin="lcu"] .ks-cunning.is-five .ks-mask { background-position: 0 -92px; }
+#keystone-calculator[data-skin="lcu"] .ks-cunning.is-five:hover .ks-mask { background-position: 0 -46px; }
+#keystone-calculator[data-skin="lcu"] .ks-cunning.is-five.has-points .ks-mask { background-position: 0 -184px; }
+#keystone-calculator[data-skin="lcu"] .ks-cunning.is-five.has-points:hover .ks-mask { background-position: 0 -138px; }
+#keystone-calculator[data-skin="lcu"] .ks-resolve.is-five .ks-mask { background-position: 0 -460px; }
+#keystone-calculator[data-skin="lcu"] .ks-resolve.is-five:hover .ks-mask { background-position: 0 -414px; }
+#keystone-calculator[data-skin="lcu"] .ks-resolve.is-five.has-points .ks-mask { background-position: 0 -552px; }
+#keystone-calculator[data-skin="lcu"] .ks-resolve.is-five.has-points:hover .ks-mask { background-position: 0 -506px; }
+#keystone-calculator[data-skin="lcu"] .ks-ferocity.is-five.is-disabled:hover .ks-mask { background-position: 0 -276px; }
+#keystone-calculator[data-skin="lcu"] .ks-cunning.is-five.is-disabled:hover .ks-mask  { background-position: 0 -92px; }
+#keystone-calculator[data-skin="lcu"] .ks-resolve.is-five.is-disabled:hover .ks-mask  { background-position: 0 -460px; }
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-ferocity.is-five.level-no-point:hover .ks-mask { background-position: 0 -276px; }
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-cunning.is-five.level-no-point:hover .ks-mask  { background-position: 0 -92px; }
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-resolve.is-five.level-no-point:hover .ks-mask  { background-position: 0 -460px; }
+
+/* "n/5" badge: only with points. */
+#keystone-calculator[data-skin="lcu"] .ks-value {
+    display: none;
+    position: absolute;
+    right: -9px;
+    bottom: -7px;
+    box-sizing: content-box;
+    width: 35px;
+    height: 16px;
+    padding-left: 3px;
+    border: 1px solid #3c3c41;
+    background: #0d141c;
+    font: 400 13px/16px var(--font-lcu-body);
+    letter-spacing: 2px;
+    text-align: center;
+    color: #a09b8c;
+    transition: color 0.333s, border-color 0.333s;
+}
+#keystone-calculator[data-skin="lcu"] .ks-mastery.has-points .ks-value { display: block; }
+#keystone-calculator[data-skin="lcu"] .ks-mastery.has-points:hover .ks-value { filter: brightness(1.2) saturate(1.1); }
+
+/* Ring levels (1-rank rows + keystones): 56px slot, 50px round icon, ring
+   56px at rest / 64px with points. Per-tree ring sprite, 9 frames: 0 grey,
+   1 hover, 2 rest, 3/4 T2 pts-hover/pts, 5/6 T4, 7/8 T6 (keystone). */
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mastery {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin: 0 21px;
+    --ks-ring: 56px;
+    --ks-frame: 2;
+}
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mask {
+    top: 50%;
+    left: 50%;
+    width: var(--ks-ring);
+    height: var(--ks-ring);
+    margin: calc(var(--ks-ring) / -2) 0 0 calc(var(--ks-ring) / -2);
+    background-size: 100% auto;
+    background-position: 0 calc(var(--ks-frame) * var(--ks-ring) * -1);
+}
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-ferocity .ks-mask { background-image: url(../images/lcu/masteries/rings-ferocity.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-cunning .ks-mask  { background-image: url(../images/lcu/masteries/rings-cunning.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-resolve .ks-mask  { background-image: url(../images/lcu/masteries/rings-resolve.png); }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mastery:hover { --ks-frame: 1; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mastery.is-disabled:hover,
+#keystone-calculator[data-skin="lcu"].no-points-remaining .ks-level.is-keystone .ks-mastery.level-no-point:hover { --ks-frame: 2; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mastery.has-points { --ks-ring: 64px; --ks-frame: 4; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-mastery.has-points:hover { --ks-frame: 3; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone.level-3 .ks-mastery.has-points { --ks-frame: 6; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone.level-3 .ks-mastery.has-points:hover { --ks-frame: 5; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone.level-5 .ks-mastery.has-points { --ks-frame: 8; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone.level-5 .ks-mastery.has-points:hover { --ks-frame: 7; }
+#keystone-calculator[data-skin="lcu"] .ks-level.is-keystone .ks-value { display: none !important; }
+
+@keyframes ks-fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+/* mastery-highlight: a refused removal flashes the higher rows that hold
+   points (the fade-in stays in the list so it does not restart). */
+@keyframes ks-highlight { 50% { filter: brightness(0.5) opacity(0.3); } }
+#keystone-calculator[data-skin="lcu"] .ks-level.ks-highlight { animation: ks-fade-in 0.5s, ks-highlight 750ms 1 ease-in; }
+/* mastery-pop: a mastery that becomes complete (5/5, or a 1-rank pick). */
+@keyframes ks-pop { 50% { filter: brightness(1.5) saturate(1.1); } }
+#keystone-calculator[data-skin="lcu"] .ks-mastery.is-complete { animation: ks-pop 1s 1 ease-out; }
+
+/* --- LCU mastery tooltip (lol-uikit-tooltip, mastery-panel-mastery-tooltip):
+       280 wide, padding 20 15, anchored above the icon. -------------------- */
+.lol-tt[data-skin="lcu"].ks-tt-lcu { --lol-tt-pad: 20px 15px; max-width: none; }
+.lol-tt.ks-tt-lcu .ks-tt-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font: 700 14px/18px var(--font-lcu-display);
+    font-feature-settings: "lnum" 1;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: #f0e6d2;
+}
+.lol-tt.ks-tt-lcu .ks-tt-points { color: #a09b8c; }
+.lol-tt.ks-tt-lcu .ks-tt-req { color: #be1e37; }
+.lol-tt.ks-tt-lcu .ks-tt-desc { margin: 20px 0 0; color: #a09b8c; }
+.lol-tt.ks-tt-lcu .ks-tt-click { margin: 0; color: #a09b8c; }
+.lol-tt.ks-tt-lcu .click-instruction { display: block; }
+.lol-tt.ks-tt-lcu hr {
+    height: 1px;
+    margin: 15px auto;
+    border: 0;
+    background: linear-gradient(to right, rgba(255, 0, 0, 0) 0%, rgba(118, 92, 41, 0.75) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #keystone-calculator[data-skin="lcu"] .ks-level,
+    #keystone-calculator[data-skin="lcu"] .ks-level.ks-highlight,
+    #keystone-calculator[data-skin="lcu"] .ks-mastery.is-complete,
+    #keystone-calculator[data-skin="lcu"] .ks-points-available { animation: none; }
 }
