@@ -8,6 +8,7 @@ var season2AhriPatchData = [
         {
             index: 1,
             name: "Summoner's Wrath",
+            icon: "summoners-wrath",
             ranks: 1,
             desc: "Improves the following Summoner Spells:\n\n|Exhaust:| Reduces target's Magic Resist and Armor by 10\n|Ignite:| Increases Ability Power and Attack Damage by 5 while on cooldown\n|Surge:| Increases Ability Power and Attack Speed gained by 10%\n|Ghost:| Increases Movement Speed bonus to 35%",
             rankInfo: [],
@@ -15,6 +16,7 @@ var season2AhriPatchData = [
         {
             index: 2,
             name: "Brute Force",
+            icon: "brute-force",
             ranks: 3,
             desc: "+# Attack Damage",
             rankInfo: [1, 2, 3],
@@ -22,6 +24,7 @@ var season2AhriPatchData = [
         {
             index: 3,
             name: "Mental Force",
+            icon: "mental-force",
             ranks: 4,
             desc: "+# Ability Power",
             rankInfo: [1, 2, 3, 4],
@@ -29,6 +32,7 @@ var season2AhriPatchData = [
         {
             index: 4,
             name: "Butcher",
+            icon: "butcher",
             ranks: 2,
             desc: "Basic attacks deal # bonus damage to minions and monsters",
             rankInfo: [2, 4],
@@ -36,6 +40,7 @@ var season2AhriPatchData = [
         {
             index: 6,
             name: "Alacrity",
+            icon: "alacrity",
             ranks: 4,
             desc: "+#% Attack Speed",
             rankInfo: [1, 2, 3, 4],
@@ -43,6 +48,7 @@ var season2AhriPatchData = [
         {
             index: 7,
             name: "Sorcery",
+            icon: "sorcery",
             ranks: 4,
             desc: "+#% Cooldown Reduction",
             rankInfo: [1, 2, 3, 4],
@@ -50,6 +56,7 @@ var season2AhriPatchData = [
         {
             index: 8,
             name: "Demolitionist",
+            icon: "demolitionist",
             ranks: 1,
             desc: "Basic attacks deal 10 bonus damage to towers",
             rankInfo: [],
@@ -57,6 +64,7 @@ var season2AhriPatchData = [
         {
             index: 9,
             name: "Deadliness",
+            icon: "deadliness",
             ranks: 4,
             desc: "+#% Critical Strike Chance",
             rankInfo: [1, 2, 3, 4],
@@ -64,6 +72,7 @@ var season2AhriPatchData = [
         {
             index: 10,
             name: "Weapon Expertise",
+            icon: "weapon-expertise",
             ranks: 1,
             desc: "+10% Armor Penetration",
             rankInfo: [],
@@ -72,6 +81,7 @@ var season2AhriPatchData = [
         {
             index: 11,
             name: "Arcane Knowledge",
+            icon: "arcane-knowledge",
             ranks: 1,
             desc: "+10% Magic Penetration",
             rankInfo: [],
@@ -80,6 +90,7 @@ var season2AhriPatchData = [
         {
             index: 12,
             name: "Havoc",
+            icon: "havoc",
             ranks: 3,
             desc: "Increases damage dealt by #%",
             rankInfo: [0.5, 1, 1.5],
@@ -87,6 +98,7 @@ var season2AhriPatchData = [
         {
             index: 13,
             name: "Lethality",
+            icon: "lethality",
             ranks: 1,
             desc: "10% Critical Strike Damage",
             rankInfo: [],
@@ -95,6 +107,7 @@ var season2AhriPatchData = [
         {
             index: 14,
             name: "Vampirism",
+            icon: "vampirism",
             ranks: 3,
             desc: "#% Life Steal",
             rankInfo: [1, 2, 3],
@@ -102,6 +115,7 @@ var season2AhriPatchData = [
         {
             index: 15,
             name: "Blast",
+            icon: "blast",
             ranks: 4,
             perlevel: 1,
             desc: "+# Ability Power per level\n(# Ability Power at champion level 18)",
@@ -110,6 +124,7 @@ var season2AhriPatchData = [
         {
             index: 18,
             name: "Sunder",
+            icon: "sunder",
             ranks: 3,
             desc: "+# Armor Penetration",
             rankInfo: [2, 4, 6],
@@ -117,6 +132,7 @@ var season2AhriPatchData = [
         {
             index: 19,
             name: "Archmage",
+            icon: "archmage",
             ranks: 4,
             desc: "Increases your Ability Power #%",
             rankInfo: [1.25, 2.5, 3.75, 5],
@@ -124,6 +140,7 @@ var season2AhriPatchData = [
         {
             index: 22,
             name: "Executioner",
+            icon: "executioner",
             ranks: 1,
             desc: "Increases damage dealt by 6% to targets below 40% Health",
             rankInfo: [],
@@ -134,6 +151,7 @@ var season2AhriPatchData = [
         {
             index: 1,
             name: "Summoner's Resolve",
+            icon: "summoners-resolve",
             ranks: 1,
             desc: "Improves the following Summoner Spells:\n\n|Revive:| Grants a massive Movement Speed boost for a short duration upon reviving\n|Cleanse:| Increases duration of disable reduction by 1 second\n|Heal:| Increases Health restored by 10%\n|Smite:| Grants 10 bonus gold on use\n|Garrison:| Allied Garrisoned turrets deal 50% splash damage",
             rankInfo: [],
@@ -141,6 +159,7 @@ var season2AhriPatchData = [
         {
             index: 2,
             name: "Resistance",
+            icon: "resistance",
             ranks: 3,
             desc: "+# Magic Resist",
             rankInfo: [2, 4, 6],
@@ -148,6 +167,7 @@ var season2AhriPatchData = [
         {
             index: 3,
             name: "Hardiness",
+            icon: "hardiness",
             ranks: 3,
             desc: "+# Armor",
             rankInfo: [2, 4, 6],
@@ -155,6 +175,7 @@ var season2AhriPatchData = [
         {
             index: 4,
             name: "Tough Skin",
+            icon: "tough-skin",
             ranks: 2,
             desc: "Reduces damage taken from minions and monsters by #",
             rankInfo: [1, 2],
@@ -162,6 +183,7 @@ var season2AhriPatchData = [
         {
             index: 6,
             name: "Durability",
+            icon: "durability",
             ranks: 4,
             perlevel: 1,
             desc: "+# Health per level\n(+# Health at champion level 18)",
@@ -170,6 +192,7 @@ var season2AhriPatchData = [
         {
             index: 7,
             name: "Vigor",
+            icon: "vigor",
             ranks: 3,
             desc: "+# Health Regen per 5 seconds",
             rankInfo: [1, 2, 3],
@@ -177,6 +200,7 @@ var season2AhriPatchData = [
         {
             index: 9,
             name: "Indomitable",
+            icon: "indomitable",
             ranks: 2,
             desc: "Reduces incoming damage by #",
             rankInfo: [1, 2],
@@ -184,6 +208,7 @@ var season2AhriPatchData = [
         {
             index: 10,
             name: "Veteran's Scars",
+            icon: "veterans-scars",
             ranks: 1,
             desc: "+30 Health",
             rankInfo: [],
@@ -192,6 +217,7 @@ var season2AhriPatchData = [
         {
             index: 11,
             name: "Evasion",
+            icon: "evasion",
             ranks: 3,
             desc: "Reduces the damage taken from area effect abilities by #%",
             rankInfo: [1, 2, 3],
@@ -199,6 +225,7 @@ var season2AhriPatchData = [
         {
             index: 12,
             name: "Bladed Armor",
+            icon: "bladed-armor",
             ranks: 1,
             desc: "Returns 6 damage against minion and monster attacks",
             rankInfo: [],
@@ -207,6 +234,7 @@ var season2AhriPatchData = [
         {
             index: 13,
             name: "Siege Commander",
+            icon: "siege-commander",
             ranks: 1,
             desc: "Reduces the Armor of nearby towers by 10 (does not stack)",
             rankInfo: [],
@@ -214,6 +242,7 @@ var season2AhriPatchData = [
         {
             index: 14,
             name: "Initiator",
+            icon: "initiator",
             ranks: 3,
             desc: "Increases Movement Speed by #% when above 70% Health",
             rankInfo: [1, 2, 3],
@@ -221,6 +250,7 @@ var season2AhriPatchData = [
         {
             index: 15,
             name: "Enlightenment",
+            icon: "enlightenment",
             ranks: 3,
             perlevel: 1,
             desc: "+# Cooldown Reduction per level\n(+#% Cooldown Reduction at champion level 18)",
@@ -229,6 +259,7 @@ var season2AhriPatchData = [
         {
             index: 18,
             name: "Honor Guard",
+            icon: "honor-guard",
             ranks: 3,
             desc: "Reduces damage taken by #%",
             rankInfo: [0.5, 1, 1.5],
@@ -236,6 +267,7 @@ var season2AhriPatchData = [
         {
             index: 19,
             name: "Mercenary",
+            icon: "mercenary",
             ranks: 3,
             desc: "Gain # bonus gold on champion kills and assists (50% reduced effect on the Crystal Scar).",
             rankInfo: [8, 16, 24],
@@ -243,6 +275,7 @@ var season2AhriPatchData = [
         {
             index: 22,
             name: "Juggernaut",
+            icon: "juggernaut",
             ranks: 1,
             desc: "Increases your maximum Health by 3% and reduces the duration of incoming disables by 10%.",
             rankInfo: [],
@@ -252,6 +285,7 @@ var season2AhriPatchData = [
         {
             index: 1,
             name: "Summoner's Insight",
+            icon: "summoners-insight",
             ranks: 1,
             desc: "Improves the following Summoner Spells:\n\n|Teleport:| Reduces cast time by 1 second\n|Promote:| Increases promoted minion's bonus defensive stats by 15%\n|Flash:| Reduces cooldown by 15 seconds\n|Clarity:| Increases Mana restored by 20%\n|Clairvoyance:| Increases duration by 2 seconds",
             rankInfo: [],
@@ -259,6 +293,7 @@ var season2AhriPatchData = [
         {
             index: 2,
             name: "Good Hands",
+            icon: "good-hands",
             ranks: 3,
             desc: "Reduces time spent dead by #%",
             rankInfo: [4, 7, 10],
@@ -266,6 +301,7 @@ var season2AhriPatchData = [
         {
             index: 3,
             name: "Expanded Mind",
+            icon: "expanded-mind",
             ranks: 3,
             perlevel: 1,
             desc: "+# Mana per level\n(+# Mana at champion level 18)\nor +# Energy",
@@ -275,6 +311,7 @@ var season2AhriPatchData = [
         {
             index: 4,
             name: "Improved Recall",
+            icon: "improved-recall",
             ranks: 1,
             desc: "Reduces the cast time of Recall by 1 second and Enhanced Recall by # seconds.",
             rankInfo: [0.5],
@@ -282,6 +319,7 @@ var season2AhriPatchData = [
         {
             index: 6,
             name: "Swiftness",
+            icon: "swiftness",
             ranks: 4,
             desc: "+#% Movement Speed",
             rankInfo: [0.5, 1, 1.5, 2],
@@ -289,6 +327,7 @@ var season2AhriPatchData = [
         {
             index: 7,
             name: "Meditation",
+            icon: "meditation",
             ranks: 3,
             desc: "+# Mana Regen per 5 seconds",
             rankInfo: [1, 2, 3],
@@ -297,6 +336,7 @@ var season2AhriPatchData = [
         {
             index: 8,
             name: "Scout",
+            icon: "scout",
             ranks: 1,
             desc: "Increase vision range of wards by 5%",
             rankInfo: [],
@@ -304,6 +344,7 @@ var season2AhriPatchData = [
         {
             index: 10,
             name: "Greed",
+            icon: "greed",
             ranks: 4,
             desc: "Gain an additional # gold every 10 seconds",
             rankInfo: [0.5, 1, 1.5, 2],
@@ -311,6 +352,7 @@ var season2AhriPatchData = [
         {
             index: 11,
             name: "Transmutation",
+            icon: "transmutation",
             ranks: 3,
             desc: "+#% Spell Vamp",
             rankInfo: [1, 2, 3],
@@ -318,6 +360,7 @@ var season2AhriPatchData = [
         {
             index: 12,
             name: "Runic Affinity",
+            icon: "runic-affinity",
             ranks: 1,
             desc: "Increases the duration of shrine, relic, quest, and neutral monster buffs by 20%",
             rankInfo: [],
@@ -325,6 +368,7 @@ var season2AhriPatchData = [
         {
             index: 14,
             name: "Wealth",
+            icon: "wealth",
             ranks: 2,
             desc: "Increases starting gold by #",
             rankInfo: [20, 40],
@@ -333,6 +377,7 @@ var season2AhriPatchData = [
         {
             index: 15,
             name: "Awareness",
+            icon: "awareness",
             ranks: 4,
             desc: "Increases experience gained by #%",
             rankInfo: [1.25, 2.5, 3.75, 5],
@@ -340,6 +385,7 @@ var season2AhriPatchData = [
         {
             index: 16,
             name: "Sage",
+            icon: "sage",
             ranks: 1,
             desc: "Gain 40 bonus experience on champion kills and assists  (50% reduced effect on the Crystal Scar)",
             rankInfo: [],
@@ -347,6 +393,7 @@ var season2AhriPatchData = [
         {
             index: 18,
             name: "Strength of Spirit",
+            icon: "strength-of-spirit",
             ranks: 3,
             desc: "Increases health regen per 5 seconds by #% of maximum mana",
             rankInfo: [0.4, 0.7, 1],
@@ -354,6 +401,7 @@ var season2AhriPatchData = [
         {
             index: 19,
             name: "Intelligence",
+            icon: "intelligence",
             ranks: 3,
             desc: "+#% Cooldown Reduction",
             rankInfo: [2, 4, 6],
@@ -361,6 +409,7 @@ var season2AhriPatchData = [
         {
             index: 23,
             name: "Mastermind",
+            icon: "mastermind",
             ranks: 1,
             desc: "Reduces the cooldown of your Summoner Spells by 15%.",
             rankInfo: [],

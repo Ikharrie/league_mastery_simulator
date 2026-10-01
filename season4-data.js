@@ -23,18 +23,19 @@
 // (Frenzy, Spell Weaving, Blade Weaving, Dangerous Game).
 //
 // `parent` references the ARRAY INDEX (0-based) of the prerequisite in the
-// same tree array, matching the existing Season 3 convention. The Season 4
-// tree has very few hard prerequisites — only Juggernaut requires 3 ranks
-// in Veteran's Scars on the wiki, but the calculator's `parent` model is
-// the simpler "tier-up requires N points in same column", so we encode the
-// few documented parent relationships and rely on the column/tier point
-// gates for the rest.
+// same tree array, matching the existing Season 3 convention. `index` (the
+// grid cell, (row-1)*4 + column), `parent` and `icon` come from Data Dragon
+// 4.20.2 mastery.json: the id 4TRC encodes tree / row / column and `prereq`
+// names the parent (Butcher -> Feast, Block -> Unyielding, Wealth -> Bandit,
+// ... 15 connectors in all). Array order is the share-code order: never
+// reorder entries (move `index` instead).
 var season4FinalData = [
     // offensive
     [
         {
             index: 1,
             name: "Double-Edged Sword",
+            icon: "4111",
             ranks: 1,
             desc: "Melee: Deal 2% increased damage and take 1% increased damage.\nRanged: Deal and take 1.5% increased damage.",
             rankInfo: [],
@@ -42,6 +43,7 @@ var season4FinalData = [
         {
             index: 2,
             name: "Fury",
+            icon: "4112",
             ranks: 4,
             desc: "+#% Attack Speed",
             rankInfo: [1.25, 2.5, 3.75, 5],
@@ -49,6 +51,7 @@ var season4FinalData = [
         {
             index: 3,
             name: "Sorcery",
+            icon: "4113",
             ranks: 4,
             desc: "+#% Cooldown Reduction",
             rankInfo: [1.25, 2.5, 3.75, 5],
@@ -56,6 +59,7 @@ var season4FinalData = [
         {
             index: 4,
             name: "Butcher",
+            icon: "4114",
             ranks: 1,
             desc: "Basic attacks and single-target abilities deal 2 bonus true damage to minions and monsters",
             rankInfo: [],
@@ -63,6 +67,7 @@ var season4FinalData = [
         {
             index: 5,
             name: "Expose Weakness",
+            icon: "4121",
             ranks: 1,
             desc: "Damaging an enemy champion causes them to take 1% increased damage from your allies for 3 seconds",
             rankInfo: [],
@@ -70,6 +75,7 @@ var season4FinalData = [
         {
             index: 6,
             name: "Brute Force",
+            icon: "4122",
             ranks: 3,
             perlevel: 1,
             desc: "+# Attack Damage per level\n(+# Attack Damage at champion level 18)",
@@ -79,6 +85,7 @@ var season4FinalData = [
         {
             index: 7,
             name: "Mental Force",
+            icon: "4123",
             ranks: 3,
             perlevel: 1,
             desc: "+# Ability Power per level\n(+# Ability Power at champion level 18)",
@@ -88,6 +95,8 @@ var season4FinalData = [
         {
             index: 8,
             name: "Feast",
+            icon: "4124",
+            parent: 3,
             ranks: 1,
             desc: "Restores 3 Health and 1 Mana on unit kill (5 second cooldown)",
             rankInfo: [],
@@ -95,6 +104,7 @@ var season4FinalData = [
         {
             index: 9,
             name: "Spell Weaving",
+            icon: "4131",
             ranks: 1,
             desc: "Basic attacks against enemy champions increase your ability damage by 1% for 5 seconds (stacks up to 3 times)",
             rankInfo: [],
@@ -102,6 +112,8 @@ var season4FinalData = [
         {
             index: 10,
             name: "Martial Mastery",
+            icon: "4132",
+            parent: 5,
             ranks: 1,
             desc: "+5 Attack Damage",
             rankInfo: [],
@@ -109,6 +121,8 @@ var season4FinalData = [
         {
             index: 11,
             name: "Arcane Mastery",
+            icon: "4133",
+            parent: 6,
             ranks: 1,
             desc: "+8 Ability Power",
             rankInfo: [],
@@ -116,6 +130,7 @@ var season4FinalData = [
         {
             index: 12,
             name: "Executioner",
+            icon: "4134",
             ranks: 3,
             // Wiki: flat +5% damage; the HEALTH THRESHOLD scales per rank
             // (20 / 35 / 50% maximum health). Unchanged V3.14 -> V5.21.
@@ -125,6 +140,8 @@ var season4FinalData = [
         {
             index: 13,
             name: "Blade Weaving",
+            icon: "4141",
+            parent: 8,
             ranks: 1,
             desc: "Abilities that deal damage to a champion increase your basic attack damage by 1% for 5 seconds (stacks up to 3 times)",
             rankInfo: [],
@@ -132,6 +149,7 @@ var season4FinalData = [
         {
             index: 14,
             name: "Warlord",
+            icon: "4142",
             ranks: 3,
             desc: "Increases bonus Attack Damage by #%",
             rankInfo: [2, 3.5, 5],
@@ -139,6 +157,7 @@ var season4FinalData = [
         {
             index: 15,
             name: "Archmage",
+            icon: "4143",
             ranks: 3,
             desc: "Increases Ability Power by #%",
             rankInfo: [2, 3.5, 5],
@@ -146,6 +165,8 @@ var season4FinalData = [
         {
             index: 16,
             name: "Dangerous Game",
+            icon: "4144",
+            parent: 11,
             ranks: 1,
             desc: "Champion kills and assists restore 5% of your missing Health and Mana",
             rankInfo: [],
@@ -153,6 +174,7 @@ var season4FinalData = [
         {
             index: 17,
             name: "Frenzy",
+            icon: "4151",
             ranks: 1,
             desc: "Critical strikes grant 5% Attack Speed for 3 seconds (stacks up to 3 times)",
             rankInfo: [],
@@ -160,21 +182,24 @@ var season4FinalData = [
         {
             index: 18,
             name: "Devastating Strikes",
+            icon: "4152",
             ranks: 3,
             desc: "+#% Armor Penetration and +#% Magic Penetration",
             rankInfo: [2, 4, 6],
             rankInfo2: [2, 4, 6],
         },
         {
-            index: 19,
+            index: 20,
             name: "Arcane Blade",
+            icon: "4154",
             ranks: 1,
             desc: "Basic attacks deal bonus magic damage equal to 5% of your Ability Power",
             rankInfo: [],
         },
         {
-            index: 21,
+            index: 22,
             name: "Havoc",
+            icon: "4162",
             ranks: 1,
             desc: "Increases damage dealt by 3%",
             rankInfo: [],
@@ -185,6 +210,7 @@ var season4FinalData = [
         {
             index: 1,
             name: "Block",
+            icon: "4211",
             ranks: 2,
             desc: "Reduces incoming damage from champion basic attacks by #",
             rankInfo: [1, 2],
@@ -192,6 +218,7 @@ var season4FinalData = [
         {
             index: 2,
             name: "Recovery",
+            icon: "4212",
             ranks: 2,
             desc: "+# Health Regen per 5 seconds",
             rankInfo: [1, 2],
@@ -199,6 +226,7 @@ var season4FinalData = [
         {
             index: 3,
             name: "Enchanted Armor",
+            icon: "4213",
             ranks: 2,
             desc: "Increases bonus Armor and Magic Resist by #%",
             rankInfo: [2.5, 5],
@@ -206,6 +234,7 @@ var season4FinalData = [
         {
             index: 4,
             name: "Tough Skin",
+            icon: "4214",
             ranks: 2,
             desc: "Reduces damage taken from monsters by #",
             rankInfo: [1, 2],
@@ -213,6 +242,8 @@ var season4FinalData = [
         {
             index: 5,
             name: "Unyielding",
+            icon: "4221",
+            parent: 0,
             ranks: 1,
             desc: "Reduces all incoming damage from champions by 2 (1 for ranged champions)",
             rankInfo: [],
@@ -220,13 +251,16 @@ var season4FinalData = [
         {
             index: 6,
             name: "Veteran's Scars",
+            icon: "4222",
             ranks: 3,
             desc: "+# Health",
             rankInfo: [12, 24, 36],
         },
         {
-            index: 7,
+            index: 8,
             name: "Bladed Armor",
+            icon: "4224",
+            parent: 3,
             ranks: 1,
             desc: "Basic attacks from enemy monsters inflict them with a bleed for 4 seconds, dealing 1% of their current Health as true damage per second",
             rankInfo: [],
@@ -234,6 +268,7 @@ var season4FinalData = [
         {
             index: 9,
             name: "Oppression",
+            icon: "4231",
             ranks: 1,
             desc: "Reduces damage taken from enemies with impaired movement (slow, root, stun) by 3%",
             rankInfo: [],
@@ -241,14 +276,16 @@ var season4FinalData = [
         {
             index: 10,
             name: "Juggernaut",
+            icon: "4232",
+            parent: 5,
             ranks: 1,
             desc: "Increases your maximum Health by 3%",
             rankInfo: [],
-            parent: 5, // Veteran's Scars (array index 5 in this tree)
         },
         {
             index: 11,
             name: "Hardiness",
+            icon: "4233",
             ranks: 3,
             desc: "+# Armor",
             rankInfo: [2, 3.5, 5],
@@ -256,6 +293,7 @@ var season4FinalData = [
         {
             index: 12,
             name: "Resistance",
+            icon: "4234",
             ranks: 3,
             desc: "+# Magic Resist",
             rankInfo: [2, 3.5, 5],
@@ -265,6 +303,7 @@ var season4FinalData = [
             // V4.2 nerfed this from 0.7/1.35/2% to 0.35/0.675/1% missing HP per 5s.
             // V4.20 still uses the post-V4.2 values.
             name: "Perseverance",
+            icon: "4241",
             ranks: 3,
             desc: "Restores #% of missing Health every 5 seconds",
             rankInfo: [0.35, 0.675, 1],
@@ -272,6 +311,7 @@ var season4FinalData = [
         {
             index: 14,
             name: "Swiftness",
+            icon: "4242",
             ranks: 1,
             desc: "Reduces the effectiveness of slows by 10%",
             rankInfo: [],
@@ -279,6 +319,8 @@ var season4FinalData = [
         {
             index: 15,
             name: "Reinforced Armor",
+            icon: "4243",
+            parent: 9,
             ranks: 1,
             desc: "Reduces total damage taken from critical strikes by 10%",
             rankInfo: [],
@@ -286,6 +328,8 @@ var season4FinalData = [
         {
             index: 16,
             name: "Evasive",
+            icon: "4244",
+            parent: 10,
             ranks: 1,
             desc: "Reduces damage taken from area of effect magic damage by 4%",
             rankInfo: [],
@@ -293,6 +337,8 @@ var season4FinalData = [
         {
             index: 17,
             name: "Second Wind",
+            icon: "4251",
+            parent: 11,
             ranks: 1,
             desc: "Increases self-targeted healing, health regen, life steal and spell vamp by 10% while below 25% Health",
             rankInfo: [],
@@ -304,6 +350,7 @@ var season4FinalData = [
             // aura is "Legendary Guardian" (Tenacious is the T6 CC capstone).
             // V3.15 also reduced the aura range to 700 from 900.
             name: "Legendary Guardian",
+            icon: "4252",
             ranks: 4,
             desc: "Grants +# Armor and +# Magic Resist for each nearby visible enemy champion (700 range)",
             rankInfo: [1, 2, 3, 4],
@@ -312,16 +359,18 @@ var season4FinalData = [
         {
             index: 19,
             name: "Runic Blessing",
+            icon: "4253",
             ranks: 1,
             desc: "Start the game and respawn with a 50-strength shield",
             rankInfo: [],
         },
         {
-            index: 21,
+            index: 22,
             // NAME FIX: this T6 capstone is "Tenacious" in V4.20 (the CC-
             // reduction mastery). See the note on the T5 Legendary Guardian
             // aura above. V5.12 later moved Tenacious to T3 at 10%.
             name: "Tenacious",
+            icon: "4262",
             ranks: 1,
             desc: "Reduces the duration of crowd control effects by 15%",
             rankInfo: [],
@@ -332,6 +381,7 @@ var season4FinalData = [
         {
             index: 1,
             name: "Phasewalker",
+            icon: "4311",
             ranks: 1,
             desc: "Reduces Recall channel time by 1 second",
             rankInfo: [],
@@ -339,6 +389,7 @@ var season4FinalData = [
         {
             index: 2,
             name: "Fleet of Foot",
+            icon: "4312",
             ranks: 3,
             desc: "+#% Movement Speed",
             rankInfo: [0.5, 1, 1.5],
@@ -346,6 +397,7 @@ var season4FinalData = [
         {
             index: 3,
             name: "Meditation",
+            icon: "4313",
             ranks: 3,
             desc: "+# Mana Regen per 5 seconds",
             rankInfo: [1, 2, 3],
@@ -353,27 +405,32 @@ var season4FinalData = [
         {
             index: 4,
             name: "Scout",
+            icon: "4314",
             ranks: 1,
             desc: "Increases the cast range of Wards and Trinkets by 10%",
             rankInfo: [],
         },
         {
-            index: 5,
+            index: 6,
             name: "Summoner's Insight",
+            icon: "4322",
             ranks: 3,
             desc: "Reduces the cooldown of Summoner Spells by #%",
             rankInfo: [4, 7, 10],
         },
         {
-            index: 6,
+            index: 7,
             name: "Strength of Spirit",
+            icon: "4323",
+            parent: 2,
             ranks: 1,
             desc: "Gain Health Regen equal to 0.3% of your maximum Mana",
             rankInfo: [],
         },
         {
-            index: 7,
+            index: 8,
             name: "Alchemist",
+            icon: "4324",
             ranks: 1,
             desc: "Increases the duration of Potions and Elixirs by 10%",
             rankInfo: [],
@@ -381,6 +438,7 @@ var season4FinalData = [
         {
             index: 9,
             name: "Greed",
+            icon: "4331",
             ranks: 3,
             desc: "Grants an additional +# gold every 10 seconds",
             rankInfo: [0.5, 1, 1.5],
@@ -388,6 +446,7 @@ var season4FinalData = [
         {
             index: 10,
             name: "Runic Affinity",
+            icon: "4332",
             ranks: 1,
             desc: "Increases the duration of shrine, relic, quest, and neutral monster buffs by 20%",
             rankInfo: [],
@@ -395,6 +454,7 @@ var season4FinalData = [
         {
             index: 11,
             name: "Vampirism",
+            icon: "4333",
             ranks: 3,
             desc: "+#% Lifesteal and Spell Vamp",
             rankInfo: [1, 2, 3],
@@ -402,15 +462,18 @@ var season4FinalData = [
         {
             index: 12,
             name: "Culinary Master",
+            icon: "4334",
+            parent: 6,
             ranks: 1,
             desc: "Upgrades Health Potions into Total Biscuits of Rejuvenation, which restore an additional 20 Health and 10 Mana",
             rankInfo: [],
         },
         {
-            index: 13,
+            index: 14,
             // V4.5 increased Scavenger's pickup range from 900 to 1100, but
             // gold amount unchanged. Wealth is unchanged from V3.14.
             name: "Wealth",
+            icon: "4342",
             ranks: 1,
             desc: "Increases starting gold by 40",
             rankInfo: [],
@@ -418,8 +481,10 @@ var season4FinalData = [
         {
             // Wiki: Scavenger sits in tier 4, Bandit in tier 5 — grid
             // positions swapped 2026-07 (this changes old share URLs).
-            index: 17,
+            index: 18,
             name: "Bandit",
+            icon: "4352",
+            parent: 11,
             ranks: 1,
             desc: "Melee: Champion takedowns grant 15 bonus gold.\nRanged: Basic attacks and single-target on-hit abilities against enemy champions grant 3 gold (5 second cooldown per target).",
             rankInfo: [],
@@ -427,6 +492,7 @@ var season4FinalData = [
         {
             index: 15,
             name: "Expanded Mind",
+            icon: "4343",
             ranks: 3,
             desc: "Increases your maximum Mana by #%",
             rankInfo: [2, 3.5, 5],
@@ -434,29 +500,37 @@ var season4FinalData = [
         {
             index: 16,
             name: "Inspiration",
-            ranks: 1,
-            desc: "Grants 5 bonus Experience every 10 seconds while near a higher-level allied champion (rounded up at level 18)",
-            rankInfo: [],
+            icon: "4344",
+            ranks: 2,
+            // 2 ranks (Data Dragon 4.20.2); was 1. hashRanks keeps the old
+            // 1-bit share-code field so pre-fix links decode unchanged.
+            hashRanks: 1,
+            desc: "+# Experience every 10 seconds while near a higher-level allied champion",
+            rankInfo: [5, 10],
         },
         {
-            index: 14,
+            index: 13,
             // V4.5 buffed Scavenger range 900 -> 1100; gold unchanged.
             name: "Scavenger",
+            icon: "4341",
+            parent: 7,
             ranks: 1,
             desc: "Gain 1 gold each time a nearby allied champion kills an enemy minion (1100 range)",
             rankInfo: [],
         },
         {
-            index: 18,
+            index: 19,
             name: "Intelligence",
+            icon: "4353",
             ranks: 3,
             desc: "+#% Cooldown Reduction. Reduces active item cooldowns by #%",
             rankInfo: [2, 3.5, 5],
             rankInfo2: [4, 7, 10],
         },
         {
-            index: 21,
+            index: 22,
             name: "Wanderer",
+            icon: "4362",
             ranks: 1,
             desc: "Grants 5% bonus Movement Speed while out of combat",
             rankInfo: [],

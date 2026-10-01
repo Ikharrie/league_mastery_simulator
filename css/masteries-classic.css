@@ -1,152 +1,290 @@
-/* Classic 30-point mastery page (Season 1 - Season 5, parchment).
-   The page chrome (parchment sheet, name tab, sub-tabs, page chips) is the
-   shared AIR profile sheet: css/air-sheet.css. The 2011-website box
-   (content_top / content_tile / content_bot) is gone. */
+/* ==========================================================================
+   masteries-classic.css — the 30-point Offense / Defense / Utility trees
+   (Season 1 - Season 5) as the AIR client drew them.
+   The page chrome (parchment sheet, name tab, sub-tabs, page chips) and the
+   Masteries sidebar are the shared AIR profile sheet: css/air-sheet.css +
+   air-sheet.js. This file only styles #calculator (built by calculator.js).
+
+   Two looks, chosen by the dataset (#calculator[data-look], calculator.js
+   CLASSIC_LOOKS holds the matching geometry):
+     client  S2-S5, the 2012-2015 client. Tree art = the client's own panels
+             (images/classic/trees-client.jpg, fused from the captures).
+     s1      Season 1, the 2010 client (images/classic/trees-2010.jpg).
+   Everything is native client px x1.1 (the sheet's --air-k), rounded.
+
+   Icon cell (client), measured on the lossless S3 capture
+   (nerfplz-s3-doublelift.png) and the S4 green capture:
+     55x55 outer box = 1px outer | 1px state line | 1px inner | 49px art,
+     chamfered corner studs (images/classic/frame-<state>.png).
+       locked     gray_ art (Riot's Rec.601 luma: same brightness, no
+                  darkening), line #747474, dark studs
+       available  colour art, line #22d000, lime studs (rank 0 with the
+                  requirements met, and every partial rank)
+       full       colour art, line #f1cb00, bright gold studs
+     rank counter 29x14 (26x13 native), right edge 1px inside the line,
+       4px below the frame; 1px border in the state colour, near-black fill
+       with a soft glow at the top, "x/y" in the state colour.
+   Connectors: 12px bars from the parent's counter to the child's frame;
+   grey and green = flat metal stripes, gold = the braided stub texture cut
+   from the capture (images/classic/conn-gold.png) with a flat tail on
+   two-row connectors.
+   No hover highlight and no transitions: the client changed state instantly.
+   ========================================================================== */
+
 #s2masteries {
-    font: 11px Arial, Helvetica, sans-serif;
     -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;
+    user-select: none;
 }
 
-#panel {
-    width: 920px;
-    height: 80px;
+/* --- Tree panels ---------------------------------------------------------- */
+#calculator {
     position: relative;
+    width: 908px;
+    height: 526px;
+    margin: 0;
+    background: #140a04 url(../images/classic/trees-client.jpg) no-repeat 0 0 / 908px 526px;
     cursor: default;
 }
+body.keystone-system #calculator { display: none; }
 
-#calculator {
-    background: url(../images/masteries-background.jpg);
-    width: 920px;
-    height: 533px;
-    position: relative;
-    margin: 0 auto;
-}
-
-/* --- Panel ---------------------------------------------------------------- */
-#points {
-    font-size: 18px;
-    margin-right: 30px;
-    margin-bottom: 10px;
-}
-.left {
+/* "OFFENSE: 21": white Friz (Marcellus) caps, inside the art, bottom-left.
+   Client: cap height 14 native (15.4 CSS), "OFFENSE:" 87 native wide,
+   baseline 15 above the panel bottom. */
+#calculator .tree-label {
     position: absolute;
-    left: 0;
-    top: 0;
+    top: 494px;
+    z-index: 2;
+    font: 400 22px/22px var(--font-air-display);
+    letter-spacing: 0.8px;
+    color: #fff;
+    white-space: pre;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
 }
-.center {
-    text-align: center;
-    margin: 0 auto 15px;
-}
-.right {
-    position: absolute;
-    right: 0;
-    top: 0;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-#tree-summaries {
-    height: 40px;
-    position: relative;
-    width: 100%;
-    margin-top: 34px;   /* clear the absolutely-positioned Points row */
-    margin-bottom: 4px;
-}
-.tree-summary {
-    width: 40px;
-    height: 30px;
-    padding: 5px;
-    padding-left: 40px;
-    background-repeat: no-repeat;
-    text-align: left;
-    font-size: 30px;
-    font-weight: bold;
-    position: absolute;
-    background-image: url(../images/tree-icons.png);
-}
-#tree-summaries .offense {
-    background-position: 0px 0px;
-}
-#tree-summaries .defense {
-    background-position: 0px -43px;
-}
-#tree-summaries .utility {
-    background-position: 0px -86px;
-}
-
-/* --- Calculator ----------------------------------------------------------- */
-.tree-label {
-    color: #fefefe;
-    position: absolute;
-    font-weight: bolder;
-    font-size: 15px;
+/* The count: Friz Quadrata has LINING figures (oval cap-height "0", flagged
+   "1"); Marcellus only has old-style ones ("10" reads "IO", "16" dips), so
+   the digits come from Spectral's lining set, sized to the Marcellus cap
+   height. Times New Roman (also lining) if the web fonts are missing. */
+#calculator .tree-label-count {
+    font-family: "Spectral SC", "Spectral", "Times New Roman", serif;
+    font-weight: 500;
+    font-size: 23px;
+    font-variant-numeric: lining-nums;
     letter-spacing: 1px;
 }
 
-.button {
-    width: 54px;
-    height: 54px;
+/* --- Icon cells ----------------------------------------------------------- */
+#calculator .button {
     position: absolute;
-    cursor: pointer;
-    border: 2px solid #999;
-    border-radius: 8px;
     z-index: 1;
-    background-image: url(../images/button-icons.jpg);
+    width: 55px;
+    height: 55px;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    cursor: pointer;
 }
-
-.button.unavailable {
-    border-color: #999;
-    cursor: default;
-}
-.button.available {
-    border-color: #00ff00;
-}
-.button.full {
-    border-color: #d4b654;
-}
-
-/* Buttons rendered from Data Dragon are single-image PNGs (no color/B&W
-   strip), so we tint the unavailable state via CSS filter instead of
-   relying on a backgroundPosition shift. */
-.button.ddragon.unavailable {
-    -webkit-filter: grayscale(1) brightness(0.55);
-    filter: grayscale(1) brightness(0.55);
-}
-
-#tooltip {
-    display: none;
-    color: #fefefe;
-    width: 180px;
-    padding: 5px;
-    background: #000;
+#calculator .button.unavailable { cursor: default; }
+#calculator .button .ms-art {
     position: absolute;
-    z-index: 100;
-    border: 2px solid #323635;
-    border-radius: 5px;
+    left: 3px;
+    top: 3px;
+    width: 49px;
+    height: 49px;
+    background: #000 var(--ms-art) no-repeat center / 49px 49px;
 }
-#tooltip strong {
-    font-size: 13px;
-    font-weight: bolder;
+#calculator .button.unavailable .ms-art { background-image: var(--ms-art-gray); }
+#calculator .button::after {                  /* the frame, over the art */
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 55px;
+    height: 55px;
+    background: url(../images/classic/frame-grey.png) no-repeat 0 0 / 55px 55px;
+    pointer-events: none;
 }
-#tooltip p {
-    margin-bottom: 0px;
+#calculator .button.available::after { background-image: url(../images/classic/frame-green.png); }
+#calculator .button.full::after      { background-image: url(../images/classic/frame-gold.png); }
+
+/* Rank counter */
+#calculator .button .counter {
+    --ms-c: #747474;                 /* border + text */
+    --ms-c-dim: #1e1e1e;             /* 1px outline around the border */
+    --ms-glow: rgba(116, 116, 116, 0.30);
+    --ms-fill: #070707;
+    position: absolute;
+    z-index: 2;
+    right: 2px;
+    top: 44px;
+    bottom: auto;
+    width: 29px;
+    height: 14px;
+    box-sizing: border-box;
+    padding: 0;
+    border: 1px solid var(--ms-c);
+    border-radius: 0;
+    background:
+        radial-gradient(ellipse 70% 90% at 50% 0, var(--ms-glow), transparent 75%),
+        var(--ms-fill);
+    box-shadow: 0 0 0 1px var(--ms-c-dim);
+    font: 400 12px/11px Arial, "Liberation Sans", Helvetica, sans-serif;
+    letter-spacing: 0.2px;                      /* thin 1px glyphs, no faux bold */
+    color: var(--ms-c-text, #9a9a9a);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
 }
-#tooltip .highlight {
-    color: #fecb00;
+#calculator .button.available .counter {
+    --ms-c: #3cc400;
+    --ms-c-dim: #0f3a00;
+    --ms-glow: rgba(0, 110, 30, 0.55);
+    --ms-fill: #000904;
+    --ms-c-text: #00d400;            /* [S4 lossless 3/4: #00d400] */
 }
-#tooltip .req {
-    color: #ff0000;
-}
-#tooltip.custom {
-    width: auto;
-}
-#tooltip.custom p {
-    margin-top: 0px;
+#calculator .button.full .counter {
+    --ms-c: #e0df00;
+    --ms-c-dim: #4a4200;
+    --ms-glow: rgba(140, 90, 0, 0.55);
+    --ms-fill: #0c0900;
+    --ms-c-text: #f6ec00;
 }
 
+/* --- Requirement connectors ---------------------------------------------- */
+#calculator .requirement {
+    position: absolute;
+    z-index: 0;
+    width: 12px;
+    background:
+        linear-gradient(to right, #1d1f21 0 1px, #4d4d4d 1px 2px, #7b7b7b 2px 3px, #4d4d4d 3px 4px,
+                        #5d5d5d 4px 5px, #656565 5px 6px, #6d6d6d 6px 9px, #808080 9px 10px,
+                        #494949 10px 11px, #1d1f21 11px 12px);
+}
+/* Available: a flat striped green bar, the grey profile in green, no braid
+   [Nov 2012 client, defense r3c1 2/2 -> r4c1 0/1: body #007000-#0e7f00,
+   light stripe #208e47; same stripes in the wiki S3 tree, tail
+   #267521 #278f26 | #007100 ... #11920b #10851c]. */
+#calculator .requirement.available {
+    background:
+        linear-gradient(to right, #0a2a04 0 1px, #165e10 1px 2px, #30982a 2px 3px, #0e600a 3px 4px,
+                        #126a0c 4px 5px, #15720e 5px 6px, #187a12 6px 9px, #2c9426 9px 10px,
+                        #105a0c 10px 11px, #0a2a04 11px 12px);
+}
+/* Full: the braided "chain" (cut from the lossless S3 capture) for the
+   first ~49 native px under the parent's counter, then a flat striped tail
+   on connectors that span two rows (S2/S3) [Nov 2012 client, defense
+   r1c3 4/4 -> r3c3 1/1: braid to 51 native px, then flat #874d0c-#9a5000
+   between lighter rails #92673d / #a87b20; the wiki S3 tree shows the
+   same braid-then-flat split]. */
+#calculator .requirement.full {
+    background:
+        linear-gradient(to right, #2a1600 0 1px, #a87410 1px 2px, #c48e1c 2px 3px, #6a3e00 3px 4px,
+                        #804a00 4px 5px, #8e5200 5px 6px, #965800 6px 9px, #c48c18 9px 10px,
+                        #a07c10 10px 11px, #2a1600 11px 12px) 0 54px / 12px 100% no-repeat,
+        url(../images/classic/conn-gold.png) 0 0 / 12px 18px repeat-y;
+}
+
+/* --- Mastery tooltip (shared #lol-tt, skin air-mastery) -------------------
+   Scaled like the sheet (k 1.1): in the Dec 2012 capture "Reduces the
+   cooldown of activated items by 15%" is 263 native px = 290 CSS px, i.e.
+   ~14px Source Sans (Myriad runs wider); title and rank in proportion.
+   base.css keeps the unscaled 12px for the other AIR surfaces. */
+.lol-tt.ms-classic-tt[data-skin="air-mastery"] {
+    min-width: 200px;
+    max-width: 330px;
+    padding: 7px 10px 8px;
+    font-size: 14px;
+    line-height: 1.3;
+}
+.lol-tt.ms-classic-tt[data-skin="air-mastery"] .tt-title { font-size: 18px; line-height: 1.25; }
+.lol-tt.ms-classic-tt[data-skin="air-mastery"] .tt-rank  { font-size: 14px; }
+
+/* ==========================================================================
+   Season 1: the 2010 client (wb-riot-2010-masteries.jpg, 1:1 native).
+   Brown / blue-grey / olive panels with emblem watermarks; 50px frames of a
+   1px line + 1px darker outer line, both softly rounded, round 48px art
+   whose white corner glints are baked into the 2011 icons; navy counters
+   with a tarnished-gold border in every state; always-silver connectors;
+   bold Friz "OFFENSE:   21".
+   ========================================================================== */
+#calculator[data-look="s1"] {
+    width: 902px;
+    height: 568px;
+    background: #1a120a url(../images/classic/trees-2010.jpg) no-repeat 0 0 / 902px 568px;
+}
+#calculator[data-look="s1"] .button { width: 57px; height: 57px; }
+#calculator[data-look="s1"] .button .ms-art {
+    left: 2px;
+    top: 2px;
+    width: 53px;
+    height: 53px;
+    background-size: 53px 53px;
+}
+#calculator[data-look="s1"] .button::after {
+    width: 57px;
+    height: 57px;
+    background: url(../images/classic/s1-frame-grey.png) no-repeat 0 0 / 57px 57px;
+}
+#calculator[data-look="s1"] .button.available::after { background-image: url(../images/classic/s1-frame-green.png); }
+#calculator[data-look="s1"] .button.full::after      { background-image: url(../images/classic/s1-frame-gold.png); }
+/* Counter 28x16 native: 1px tarnished-gold border (2px at the bottom), a
+   pale rim above it, navy fill; right edge 2px inside the line, 7px below. */
+#calculator[data-look="s1"] .button .counter {
+    right: auto;
+    left: 23px;
+    top: 47px;
+    width: 31px;
+    height: 18px;
+    border: 1px solid #8b7e5c;
+    border-top-color: #a89449;
+    border-bottom: 2px solid #9e861c;
+    border-radius: 1px;
+    background: linear-gradient(to bottom, #0a1a2c 0%, #081329 55%, #0a2141 100%);
+    box-shadow: 0 -1px 0 rgba(215, 205, 170, 0.55), 0 1px 1px rgba(0, 0, 0, 0.5);
+    font: 400 11px/15px Arial, "Liberation Sans", Helvetica, sans-serif;
+    letter-spacing: 0.4px;
+    -webkit-text-stroke: 0;
+    color: #919d9d;
+}
+#calculator[data-look="s1"] .button.available .counter { color: #25e727; }
+#calculator[data-look="s1"] .button.full .counter      { color: #dfca01; }
+/* Silver connector, whatever the state [body #777374, rims #b2a9a2 #aaa6a7]. */
+#calculator[data-look="s1"] .requirement,
+#calculator[data-look="s1"] .requirement.available,
+#calculator[data-look="s1"] .requirement.full {
+    width: 11px;
+    background:
+        linear-gradient(to bottom, rgba(255, 245, 230, 0.14), transparent 3px),
+        linear-gradient(to right, #0c0401 0 1px, #7b7774 1px 2px, #b2a9a2 2px 3px, #777374 3px 8px,
+                        #aaa6a7 8px 9px, #7f7b7c 9px 10px, #100c0d 10px 11px);
+}
+/* Heavy bold Friz [2010: cap height 13 native, "OFFENSE:" 79 wide, number
+   21 native after the colon]: Marcellus 400 faux-bolded plus a hairline
+   stroke; bold lining digits. */
+#calculator[data-look="s1"] .tree-label {
+    top: 529px;
+    font: 700 19px/19px var(--font-air-display);
+    letter-spacing: 1.2px;
+    -webkit-text-stroke: 0.4px #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+#calculator[data-look="s1"] .tree-label-count {
+    font-weight: 700;
+    font-size: 21px;
+}
+#calculator[data-look="s1"] .tree-label-gap {
+    display: inline-block;
+    width: 22px;                    /* "OFFENSE:   21": a wide gap [2010] */
+}
+
+/* ==========================================================================
+   Compat, not the classic page: keystone-calculator.js still draws its
+   picks with .counter / .num-* (masteries-keystone.css builds on these).
+   Remove once the keystone surface stops using them.
+   ========================================================================== */
 .counter {
     position: absolute;
     right: 2px;
@@ -157,38 +295,33 @@
     font-size: 11px;
     padding: 0px 5px;
 }
+.num-unavailable { color: #999; }
+.num-available { color: #00ff00; }
+.num-full { color: #d4b654; }
 
-.num-unavailable {
-    color: #999;
+/* V7.21 LCU skin only: the old Points Available / Return Points row
+   (#panel). The AIR era hides it (air-sheet.css) — the sidebar replaces it. */
+#panel {
+    width: 920px;
+    height: 80px;
+    position: relative;
+    cursor: default;
 }
-.num-available {
-    color: #00ff00;
+#panel #points {
+    font-size: 18px;
+    margin-right: 30px;
+    margin-bottom: 10px;
 }
-.num-full {
-    color: #d4b654;
-}
-
-.requirement {
-    width: 21px;
+#panel .left {
     position: absolute;
-    background: url(../images/req-bars.png);
+    left: 0;
+    top: 0;
 }
-.requirement.unavailable {
-    background-position: 0px 0px;
-}
-.requirement.available {
-    background-position: -21px 0px;
-}
-.requirement.full {
-    background-position: -42px 0px;
-}
-
-#tooltip .offense {
-    color: #983200;
-}
-#tooltip .defense {
-    color: #46a3ee;
-}
-#tooltip .utility {
-    color: #329832;
+#panel .right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }

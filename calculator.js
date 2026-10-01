@@ -5,15 +5,53 @@ var treeNames = [
 ];
 var treeOffsets = [0, 0, 0];
 var MAX_POINTS = 30;
-var TREE_OFFSET = 305;
-var HEIGHT_GAP = 26;
-var BUTTON_SIZE = 56;
 var state = [{}, {}, {}];
 var totalPoints = 0;
 var activeDataSetId = null;
-var activeSpriteUrl = "images/button-icons.jpg";
+var activeIconBase = "";
+var activeLook = null;
 var buttonClasses = ["unavailable", "available", "full"];
 var rankClasses = ["num-unavailable", "num-available", "num-full"];
+
+// ---------- In-client (AIR) tree geometry ---------------------------------
+// Native client px (measured on the captures, scratchpad specs/classic.md)
+// times k = 1.1 (the AIR sheet's --air-k), rounded to whole CSS px so the
+// 1px frame lines stay crisp. A cell's frame line sits at
+//   (treePitch*t + col0 + colPitch*c,  row0 + rowPitch*r)   native px
+// and its outer box (the dark outer line) starts 1px before that.
+//   client  S2-S5, the 2012-2015 client (lossless nerfplz-s3-doublelift.png).
+//           Art images/classic/trees-client.jpg = the client's own panels
+//           (825x478 native: 279-wide panels at a 273 pitch, their frames
+//           overlap; the icon grid runs at a 275 pitch). Frame 48 native
+//           line-to-line -> 55x55 outer; counter 26x13 -> 29x14, right edge
+//           1px inside the line, 4px below the frame; connector 11 -> 12
+//           wide, from the parent's counter to the child's frame.
+//   s1      Season 1, the 2010 client (Riot's wb-riot-2010-masteries.jpg).
+//           Art images/classic/trees-2010.jpg: 270x516 panels at a 275
+//           pitch. Frame 50 native -> 57x57 outer; counter 28x16 -> 31x18,
+//           2px inside the line, 7px below; silver connector 10 -> 11.
+// css/masteries-classic.css draws the matching sizes per
+// #calculator[data-look].
+var CLASSIC_LOOKS = {
+    client: {
+        k: 1.1, width: 908, height: 526,
+        treePitch: 275, col0: 22, colPitch: 61, row0: 16, rowPitch: 71,
+        labelX: [29, 328, 628],                 // "OFFENSE: 21" left edge (CSS px)
+        conn: { dx: 22, top: 58 }               // from the parent's outer box (CSS px)
+    },
+    s1: {
+        k: 1.1, width: 902, height: 568,
+        treePitch: 275, col0: 16, colPitch: 63, row0: 10, rowPitch: 79,
+        labelX: [24, 327, 629],
+        conn: { dx: 23, top: 65 }
+    }
+};
+
+// Tooltip title colour per tree: offense red, defense blue, utility green.
+// The captures keep the "Rank:" line at full brightness, so their darker
+// titles are the real colour [4.20 "Dangerous Game" peak #6d3332 (luma
+// ~68), Dec 2012 "Artificer" #566756 (~98), Nov 2012 "Tenacious" #6c7f9d].
+var TREE_TITLE_COLORS = ["#a2281c", "#3b83c7", "#3f7e33"];
 
 // Recompute globals that depend on the active data set. Call this whenever
 // `data` is reassigned (i.e. when the season/patch dropdown changes).
@@ -28,258 +66,196 @@ function syncDataSetGlobals(dataSet) {
     state = [{}, {}, {}];
     totalPoints = 0;
     activeDataSetId = dataSet.id;
-    activeSpriteUrl = dataSet.spriteUrl || "images/button-icons.jpg";
+    activeIconBase = dataSet.iconBase || "";
+    activeLook = CLASSIC_LOOKS[dataSet.look] || CLASSIC_LOOKS.client;
+}
+
+function masteryIconUrl(mastery, gray) {
+    if (!mastery.icon) return "";
+    var rel = activeIconBase + (gray ? "gray_" : "") + mastery.icon + ".png";
+    // Absolute: the URL travels in a custom property (--ms-art), and a
+    // relative url() there would resolve against css/, not the page.
+    try { return new URL(rel, document.baseURI).href; } catch (e) { return rel; }
 }
 
 function drawCalculator() {
+    var look = activeLook || CLASSIC_LOOKS.client;
+    var ds = getDataSet(activeDataSetId);
+    $("#calculator")
+        .attr("data-look", (ds && ds.look) || "client")
+        .css({ width: look.width + "px", height: look.height + "px" });
+
     for (var tree = 0; tree < 3; tree++)
         for (var index = 0; index < data[tree].length; index++)
             drawButton(tree, index);
 
-    // make tooltip
-    var tip, maxDims = {width: $("#calculator").parent().width(), height: $("#calculator").parent().height()};
-    $("#calculator")
-        .contextmenu(function(event){ event.preventDefault() })
-        .append(
+    // "OFFENSE: 21" inside each tree panel (bottom-left).
+    for (var t = 0; t < 3; t++) {
+        $("#calculator").append(
             $("<div>")
-                .attr('id', "tooltip")
-                .append($("<strong>"))
-                .append(
-                    $("<div>")
-                        .addClass("rank")
-                )
-                .append(
-                    $("<div>")
-                        .addClass("req")
-                )
-                .append(
-                    $("<p>")
-                        .addClass("tooltip-text")
-                        .addClass("first")
-                )
-                .append(
-                    $("<p>")
-                        .addClass("tooltip-text")
-                        .addClass("second")
-                        .append(
-                            $("<div>")
-                                .addClass("nextRank")
-                                .text("Next rank:")
-                        )
-                        .append(
-                            $("<div>")
-                                .addClass("content")
-                        )
-                )
+                .addClass("tree-label")
+                .attr("data-tree", t)
+                .css({ left: look.labelX[t] + "px" })
+                .append($("<span>").addClass("tree-label-name").text(treeNames[t].toUpperCase() + ":"))
+                .append($("<span>").addClass("tree-label-gap").text(" "))
+                .append($("<span>").addClass("tree-label-count").text("0"))
         );
+    }
 
-    // mousemove event global since it follows tooltip visibility. Namespaced
-    // so a redraw can replace the handler instead of stacking new ones.
-    var anchor = $("#calculator");
-    $(window)
-        .off('mousemove.calc')
-        .on('mousemove.calc', function(event){
-            if (tip.is(":visible")) {
-                // boundary checking for tooltip (right and bottom sides)
-                var pos = anchor.offset();
-                var offsetX = 20, offsetY = 20;
-                if (event.pageX - pos.left + tip.width() > maxDims.width - 30)
-                    offsetX = -tip.width() - 20;
-                if (event.pageY - pos.top + tip.height() > maxDims.height )
-                    offsetY = -tip.height() - 20;
-                tip.css({
-                    left: event.pageX - pos.left + offsetX,
-                    top:  event.pageY - pos.top + offsetY,
-                });
-            }
-        });
-    tip = $("#tooltip");
+    $("#calculator").off("contextmenu.calc").on("contextmenu.calc", function(event){ event.preventDefault(); });
+
+    // Warm the cache with both art states so a state flip never flashes.
+    for (var pt = 0; pt < 3; pt++)
+        for (var pi = 0; pi < data[pt].length; pi++) {
+            (new Image()).src = masteryIconUrl(data[pt][pi], false);
+            (new Image()).src = masteryIconUrl(data[pt][pi], true);
+        }
 
     $("#points>.count").text(MAX_POINTS);
 }
 
 function drawButton(tree, index) {
-    var spritePos = masterySpritePos(tree, index);
+    var look = activeLook || CLASSIC_LOOKS.client;
+    var mastery = data[tree][index];
     var buttonPos = masteryButtonPosition(tree, index);
-    var status = data[tree][index].index < 5 ? "available" : "unavailable";
+    var status = mastery.index < 5 ? "available" : "unavailable";
     var rank = 0;
 
-    // Check if we need to draw the requirement
-    var parent = data[tree][index].parent;
+    // Requirement connector: from the parent's rank counter down to this
+    // mastery's frame (may span two rows in S1-S3).
+    var parent = mastery.parent;
     var parentLink = null;
     if (parent != undefined) {
         var parentPos = masteryButtonPosition(tree, parent);
-        $("#calculator").append(parentLink = 
+        var top = parentPos.y + look.conn.top;
+        $("#calculator").append(parentLink =
             $("<div>")
                 .addClass("requirement")
-                .addClass("unavailable")
-                // height is one gap and button for each in between them, plus an extra gap 
+                .addClass(status)
                 .css({
-                    height: (HEIGHT_GAP + BUTTON_SIZE) * 
-                            (data[tree][index].index/4 - data[tree][parent].index/4 - 1) + HEIGHT_GAP + 5,
-                    left: parentPos.x + 18,
-                    top: parentPos.y + BUTTON_SIZE - 2,
+                    left: (parentPos.x + look.conn.dx) + "px",
+                    top: top + "px",
+                    height: Math.max(0, buttonPos.y - top) + "px",
                 })
         );
     }
 
-    $("#calculator").append(
-        $("<div>")
-            .addClass("button")
-            .addClass(status)
-            .data("parentLink", parentLink)
-            .attr("data-tree", tree)
-            .attr("data-index", index)
-            .css({
-                left: buttonPos.x+"px",
-                top: buttonPos.y+"px",
-                backgroundImage: "url(" + activeSpriteUrl + ")",
-                // Sprite has two columns: 0px is color and -58px is black and white
-                backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " +
-                                    (spritePos - 2) + "px",
-            })
-            .append(
-                $("<div>")
-                    .addClass("counter")
-                    .addClass("num-"+status)
-                    .text("0/" + data[tree][index].ranks)
-            )
-            .mouseover(function(event){
-                var tooltipText = masteryTooltip(tree, index, rank);
-                formatTooltip($("#tooltip").show(), tooltipText);
-                $(this).data("hover", true);
-                $(this).parent().mousemove();
-            })
-            .mouseout(function(){
-                $("#tooltip").hide();
-                $(this).data("hover", false);
-            })
-            .mousedown(function(event){
-                switch (event.which) {
-                    case 1:
-                        // Left click
-                        if (isValidState(tree, index, rank, +1)) {
-                            setState(tree, index, rank, +1);
-                        }
-                        break;
-                    case 3:
-                        // Right click
-                        if (isValidState(tree, index, rank, -1)) {
-                            setState(tree, index, rank, -1);
-                        }
-                        break;
-                }
-            })
-            .data("update", function() {
-                rank = state[tree][index] || 0;
-                if (rank == data[tree][index].ranks) {
-                    status = "full";
-                } else {
-                    // check if available
-                    if (masteryPointReq(tree, index) <= treePoints(tree) && masteryParentReq(tree, index))
+    var $btn = $("<div>")
+        .addClass("button")
+        .addClass(status)
+        .data("parentLink", parentLink)
+        .attr("data-tree", tree)
+        .attr("data-index", index)
+        .css({
+            left: buttonPos.x + "px",
+            top: buttonPos.y + "px",
+        })
+        .append(
+            $("<span>")
+                .addClass("ms-art")
+                .attr("style", "--ms-art:url(\"" + masteryIconUrl(mastery, false) + "\");" +
+                               "--ms-art-gray:url(\"" + masteryIconUrl(mastery, true) + "\")")
+        )
+        .append(
+            $("<span>")
+                .addClass("counter")
+                .text("0/" + mastery.ranks)
+        );
+
+    var showTip = function(event){
+        if (!window.LolTooltip) return;
+        LolTooltip.show(event || $btn, masteryTooltipHtml(tree, index, rank), "air-mastery",
+                        { className: "ms-classic-tt" });
+    };
+    $btn
+        .mouseenter(function(event){
+            $(this).data("hover", true);
+            showTip(event.originalEvent || event);
+        })
+        .mousemove(function(event){
+            if (window.LolTooltip) LolTooltip.move(event.originalEvent || event);
+        })
+        .mouseleave(function(){
+            $(this).data("hover", false);
+            if (window.LolTooltip) LolTooltip.hide();
+        })
+        .mousedown(function(event){
+            switch (event.which) {
+                case 1:
+                    // Left click
+                    if (isValidState(tree, index, rank, +1)) {
+                        setState(tree, index, rank, +1);
+                    }
+                    break;
+                case 3:
+                    // Right click
+                    if (isValidState(tree, index, rank, -1)) {
+                        setState(tree, index, rank, -1);
+                    }
+                    break;
+            }
+        })
+        .data("update", function() {
+            rank = state[tree][index] || 0;
+            if (rank == mastery.ranks) {
+                status = "full";
+            } else {
+                // check if available
+                if (masteryPointReq(tree, index) <= treePoints(tree) && masteryParentReq(tree, index))
+                    status = "available";
+                else
+                    status = "unavailable";
+
+                // check if points spent
+                if (totalPoints >= MAX_POINTS)
+                    if (rank > 0)
                         status = "available";
                     else
                         status = "unavailable";
+            }
+            // State classes drive frame, art (colour / gray_), counter and
+            // connector looks in css/masteries-classic.css. Instant, no
+            // transition (the AIR client never animated these).
+            if ( !$(this).hasClass(status) )
+                $(this).removeClass(buttonClasses.join(" ")).addClass(status);
+            $(this).find(".counter").text(rank + "/" + mastery.ranks);
 
-                    // check if points spent
-                    if (totalPoints >= MAX_POINTS)
-                        if (rank > 0)
-                            status = "available";
-                        else
-                            status = "unavailable";
-                }
-                // change status class
-                if ( !$(this).hasClass(status) ) {
-                    var $btn = $(this);
-                    $btn.removeClass(buttonClasses.join(" ")).addClass(status);
-                    // Sprite buttons use a two-column trick (color/B&W) so
-                    // we shift backgroundPosition. Data Dragon buttons are
-                    // single-image PNGs; CSS handles their grayscale state.
-                    if (!$btn.hasClass("ddragon")) {
-                        $btn.css({
-                            backgroundPosition: (status != "unavailable" ? -2 : -60) + "px " +
-                                                (spritePos - 2) + "px",
-                        });
-                    }
-                }
-                // adjust counter
-                var counter = $(this).find(".counter").text(rank + "/" + data[tree][index].ranks);
-                if ( !counter.hasClass("num-"+status) ) {
-                    counter
-                        .removeClass(rankClasses.join(" "))
-                        .addClass("num-"+status)
-                }
+            var parentLink = $(this).data("parentLink");
+            if (parentLink != null && !parentLink.hasClass(status))
+                parentLink.removeClass(buttonClasses.join(" ")).addClass(status);
 
-                // change parent status
-                var parentLink = $(this).data("parentLink");
-                if (parentLink != null) {
-                    if ( !parentLink.hasClass(status) ) {
-                        parentLink
-                            .removeClass(buttonClasses.join(" "))
-                            .addClass(status);
-                    }
-                }
-                // force tooltip redraw
-                if ($(this).data("hover"))
-                    $(this).mouseover();
-            })
-    );
+            // live tooltip refresh (rank / requirement lines)
+            if ($(this).data("hover") && window.LolTooltip && LolTooltip.isVisible()) {
+                var el = LolTooltip.element();
+                var content = el && el.querySelector(".lol-tt-content");
+                if (content) content.innerHTML = masteryTooltipHtml(tree, index, rank);
+            }
+        });
+
+    // Mouse wheel: up adds a point, down removes one (the client's own help
+    // box: "...or using the mouse wheel").
+    $btn[0].addEventListener("wheel", function(event){
+        var mod = event.deltaY < 0 ? +1 : (event.deltaY > 0 ? -1 : 0);
+        if (!mod) return;
+        event.preventDefault();
+        if (isValidState(tree, index, rank, mod)) setState(tree, index, rank, mod);
+    }, { passive: false });
+
+    $("#calculator").append($btn);
 }
 
-function customTooltip(tooltip, tooltipText) {
-    tooltip.addClass("custom");
-    tooltip.children(":not(p.first)").hide();
-    tooltip.find("p.first").text(tooltipText);
-}
-
-function formatTooltip(tooltip, tooltipText) {
-    tooltip.removeClass("custom");
-
-    var head = tooltip.find("strong").text(tooltipText.header).show();
-    if ( !head.hasClass(treeNames[tooltipText.tree]) ) {
-        head
-            .removeClass(treeNames.join(" "))
-            .addClass(treeNames[tooltipText.tree]);
-    }
-
-    var rank = tooltip.find(".rank").text(tooltipText.rank).show();
-    if ( !rank.hasClass(tooltipText.rankClass) ) {
-        rank
-            .removeClass(rankClasses.join(" "))
-            .addClass(tooltipText.rankClass)
-    }
-
-    tooltip.find(".req").text(tooltipText.req).show();
-    tooltip.find("p.first").html(tooltipText.body);
-
-    var second = tooltip.find("p.second");
-    if (tooltipText.bodyNext == null) {
-        second.hide();
-    } else {
-        second
-            .show()
-            .find(".content")
-                .html(tooltipText.bodyNext);
-    }
-}
-
-function masteryTooltip(tree, index, rank) {
+function masteryTooltipHtml(tree, index, rank) {
     var mastery = data[tree][index];
-    // second flags whether there are two tooltips (one for next rank)
     var showNext = !(rank < 1 || rank >= mastery.ranks);
-
-    // parse text
-    var text = {
-        tree: tree,
-        header: mastery.name,
-        rank: "Rank: " + rank + "/" + mastery.ranks,
-        rankClass: (rank < mastery.ranks ? rankClasses[1] : rankClasses[2]),
-        req: masteryTooltipReq(tree, index),
-        body: masteryTooltipBody(mastery, rank),
-        bodyNext: showNext ? masteryTooltipBody(mastery, rank+1) : null,
-    };
-
-    return text;
+    var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
+    var req = masteryTooltipReq(tree, index);
+    var html = '<div class="tt-title" style="--tt-title-color:' + TREE_TITLE_COLORS[tree] + '">' + esc(mastery.name) + '</div>' +
+        '<div class="tt-rank">Rank: ' + rank + '/' + mastery.ranks + '</div>';
+    if (req) html += '<div class="tt-req">' + esc(req).replace(/\n/g, "<br>") + '</div>';
+    html += '<div class="tt-body">' + masteryTooltipBody(mastery, rank) + '</div>';
+    if (showNext)
+        html += '<div class="tt-next"><div class="tt-rank">Next rank:</div>' + masteryTooltipBody(mastery, rank + 1) + '</div>';
+    return html;
 }
 
 function masteryTooltipBody(mastery, rank)  {
@@ -288,7 +264,7 @@ function masteryTooltipBody(mastery, rank)  {
     var desc = mastery.desc;
     desc = desc.replace(/#/, mastery.rankInfo[rank]);
     desc = desc.replace(/\n/g, "<br>");
-    desc = desc.replace(/\|(.+?)\|/g, "<span class='highlight'>$1</span>");
+    desc = desc.replace(/\|(.+?)\|/g, "<span class='tt-value'>$1</span>");
     if (mastery.perlevel) {
         desc = desc.replace(/#/, Math.round(mastery.rankInfo[rank]*180)/10);
     }
@@ -311,26 +287,18 @@ function masteryTooltipReq(tree, index) {
     return missing.join("\n");
 }
 
+// Outer-box position of a mastery cell, from its 1-based grid `index`
+// (row = floor((index-1)/4), column = (index-1)%4): the frame line sits at
+// the native grid point x k, rounded; the outer box starts 1px before it.
 function masteryButtonPosition(tree, index) {
+    var look = activeLook || CLASSIC_LOOKS.client;
     var idx = data[tree][index].index - 1;
     var ix = idx % 4;
     var iy = Math.floor(idx / 4);
-    var x=0, y=0;
-
-    // padding for tree
-    x += TREE_OFFSET * tree;
-    // base padding
-    x += 20;
-    y += 18;
-    // padding for spacing
-    x += ix * (BUTTON_SIZE + 15);
-    y += iy * (BUTTON_SIZE + HEIGHT_GAP);
-
-    return {x: x, y: y};
-}
-
-function masterySpritePos(tree, index) {
-    return 0 - 58 * (treeOffsets[tree] + index);
+    return {
+        x: Math.round(look.k * (look.treePitch * tree + look.col0 + look.colPitch * ix)) - 1,
+        y: Math.round(look.k * (look.row0 + look.rowPitch * iy)) - 1
+    };
 }
 
 function masteryTier(tree, index) {
@@ -343,7 +311,8 @@ function masteryPointReq(tree, index) {
 
 function masteryParentReq(tree, index) {
     var parent = data[tree][index].parent;
-    if (parent && (state[tree][parent] || 0) < data[tree][parent].ranks)
+    // parent is an array index: 0 is a real parent (S4/S5 Block -> Unyielding)
+    if (parent != null && (state[tree][parent] || 0) < data[tree][parent].ranks)
         return false;
     return true;
 }
@@ -440,9 +409,74 @@ function updateButtons() {
 }
 
 function updateLabels() {
-    for (var tree=0; tree<3; tree++) {
-        $("div[data-idx="+tree+"]").text(treePoints(tree));
-        $("#points>.count").text(MAX_POINTS - totalPoints);
+    for (var tree=0; tree<3; tree++)
+        $("#calculator .tree-label[data-tree="+tree+"] .tree-label-count").text(treePoints(tree));
+    $("#points>.count").text(MAX_POINTS - totalPoints);
+    updateMasterySidebar();
+}
+
+// ---------- AIR mastery sidebar (air-sheet.js AirMasterySidebar) -----------
+// One sidebar for classic S1-S5 and keystone AIR (V5.22 / V6.22); hidden in
+// the LCU era by CSS. syncMasterySidebar() after every dataset switch (it
+// resets the saved baseline), updateMasterySidebar() after every change.
+
+function masterySidebarConfig(dataSet) {
+    if (dataSet && dataSet.system === "keystone") {
+        // Ferocity / Cunning / Resolve reuse the 2010-2015 emblems (red
+        // swords, blue star-shield) plus the book in violet (Oct 2015 PBE).
+        var emblem = { ferocity: "ferocity", cunning: "cunning", resolve: "resolve" };
+        return {
+            trees: dataSet.data.trees.map(function(t){ return { name: t.name, emblem: emblem[t.id] || t.id }; }),
+            maxPoints: dataSet.maxPoints,
+            getCode: function(){ return typeof exportKeystones === "function" ? exportKeystones() : ""; },
+            onReturn: function(){ resetStates(); },
+            onRevert: function(code){
+                if (typeof importKeystones !== "function") return;
+                importKeystones(code);
+                updateKeystoneLink();
+            },
+            onTreeReset: function(i){
+                var tree = dataSet.data.trees[i];
+                if (tree && typeof resetKeystoneTree === "function") resetKeystoneTree(tree.id);
+            }
+        };
+    }
+    return {
+        trees: treeNames.map(function(n){ return { name: n.charAt(0).toUpperCase() + n.slice(1), emblem: n }; }),
+        maxPoints: dataSet ? dataSet.maxPoints : MAX_POINTS,
+        getCode: function(){ return exportMasteries(); },
+        onReturn: function(){ resetStates(); },
+        onRevert: function(code){ importMasteries(code); },
+        onTreeReset: function(i){
+            resetTree(i, true);
+            updateButtons();
+            updateLabels();
+            updateLink();
+        }
+    };
+}
+
+function syncMasterySidebar(dataSet) {
+    if (!window.AirMasterySidebar) return;
+    AirMasterySidebar.render(masterySidebarConfig(dataSet));
+    updateMasterySidebar();
+    AirMasterySidebar.markSaved();
+}
+
+function updateMasterySidebar() {
+    if (!window.AirMasterySidebar) return;
+    var ds = getDataSet(activeDataSetId);
+    if (ds && ds.system === "keystone") {
+        if (typeof keystoneActiveDataSet === "undefined" || !keystoneActiveDataSet) return;
+        AirMasterySidebar.update({
+            points: keystoneActiveDataSet.data.trees.map(function(t){ return keystoneTreePoints(t.id); }),
+            available: keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints()
+        });
+    } else {
+        AirMasterySidebar.update({
+            points: [treePoints(0), treePoints(1), treePoints(2)],
+            available: MAX_POINTS - totalPoints
+        });
     }
 }
 
@@ -480,10 +514,33 @@ function updateLink() {
 // always flush at the end of a tree.
 var maxbits = 5;
 var exportChars = "WvlgUCsA7pGZ3zSjakbP2x0mTB6htH8JuKMq1yrnwEQDLY5IVNXdcioe9fF4OR_-";
+//
+// Field widths are fixed per mastery (floor(ranks/2)+1 bits, array order),
+// so a data fix that changes a rank count would shift every later field of
+// old links. Such entries keep `hashRanks` = the count the old links were
+// written with (S1 Preservation 3, S4/S5 Inspiration 1): plain codes always
+// use it, so links made before the fix decode to the same build (values are
+// clamped to the real ranks). A build the old widths cannot hold
+// (Inspiration 2/2) is written as "~" + a code in the current widths.
+var CODE_CURRENT_PREFIX = "~";
+var codecCurrent = false;
 var bitlen = function(tree, index) {
-    if (data[tree][index] == undefined)
+    var m = data[tree][index];
+    if (m == undefined)
         return 0;
-    return Math.floor(data[tree][index].ranks/2)+1;
+    var ranks = (!codecCurrent && m.hashRanks != null) ? m.hashRanks : m.ranks;
+    return Math.floor(ranks/2)+1;
+}
+// True when every rank fits the legacy (hashRanks) field widths.
+function legacyCodeFits() {
+    for (var t = 0; t < 3; t++)
+        for (var i = 0; i < data[t].length; i++) {
+            var m = data[t][i];
+            if (m.hashRanks == null) continue;
+            var bits = Math.floor(m.hashRanks/2)+1;
+            if ((state[t][i] || 0) > (1 << bits) - 1) return false;
+        }
+    return true;
 }
 // returns how many of the next masteries can fit in size bits
 var bitfit = function(tree, index, bits) {
@@ -497,6 +554,13 @@ var bitfit = function(tree, index, bits) {
     }
 }
 function exportMasteries() {
+    codecCurrent = false;
+    if (legacyCodeFits()) return encodeMasteries();
+    codecCurrent = true;
+    try { return CODE_CURRENT_PREFIX + encodeMasteries(); }
+    finally { codecCurrent = false; }
+}
+function encodeMasteries() {
     var str = "";
     var bits = 0;
     var collected = 0; // number of bits collected in this substr
@@ -565,9 +629,28 @@ var importChars = {}
 for (var i=0; i<exportChars.length; i++) {
     importChars[exportChars[i]] = i;
 }
+// Notes (mastery.hashNote) of legacy fields that held more points than the
+// corrected mastery has; filled by decodeMasteries, shown once per import.
+var decodeNotes = [];
 function importMasteries(str) {
     resetStates(true);
+    str = String(str || "");
+    codecCurrent = str.charAt(0) === CODE_CURRENT_PREFIX;
+    if (codecCurrent) str = str.slice(1);
+    decodeNotes = [];
+    try { decodeMasteries(str); }
+    finally { codecCurrent = false; }
 
+    updateButtons();
+    updateLabels();
+    updateLink();
+
+    // e.g. an old S1 link with Perseverance 2-3 in the Defense slot that is
+    // Preservation (1 rank) now: the tree total drops, so say why.
+    if (decodeNotes.length && window.LolToast)
+        LolToast.show(decodeNotes.join(" "), { duration: 5000 });
+}
+function decodeMasteries(str) {
     var tree = 0;
     var index = 0;
     for (var i=0; i<str.length; i++) {
@@ -587,6 +670,11 @@ function importMasteries(str) {
                 var shift = sizes.slice(j + 1).reduce(function(a, b){ return a + b; }, 0);
                 // shift off the bits we don't want and AND it with a bit mask
                 var value = (cur >> shift) & ((1 << sizes[j]) - 1);
+                // clamp: a legacy field can be wider than the fixed ranks
+                var m = data[tree][index];
+                if (value > m.ranks && m.hashNote && decodeNotes.indexOf(m.hashNote) < 0)
+                    decodeNotes.push(m.hashNote);
+                value = Math.min(value, m.ranks);
 
                 state[tree][index] = value;
                 totalPoints += value;
@@ -606,10 +694,6 @@ function importMasteries(str) {
                 break;
         }
     }
-
-    updateButtons();
-    updateLabels();
-    updateLink();
 }
 
 function parseHash(raw) {
@@ -635,69 +719,17 @@ function updateMasteries() {
     } else {
         importMasteries(parsed.code);
     }
+    // A loaded build is a saved page: no "*", Save / Revert greyed.
+    if (window.AirMasterySidebar) AirMasterySidebar.markSaved();
 }
 
 // Tear down and redraw the calculator. Called when switching seasons/patches.
+// Icons are vendored per dataset (dataSet.iconBase + mastery.icon); there
+// is no runtime Data Dragon fetch.
 function redrawCalculator() {
+    if (window.LolTooltip) LolTooltip.hide();
     $("#calculator").empty();
     drawCalculator();
-    applyDdragonIcons(activeDataSetId);
-}
-
-// Cache of Data Dragon icon catalogs by data-set id. Each entry is a
-// { name -> imageUrl } map.
-var ddragonIconCache = {};
-
-// Kick off (or reuse) a Data Dragon mastery.json fetch for the given data
-// set, then overlay each button's background image with the matching icon.
-// Buttons keep their sprite-based backgroundPosition + color/B&W column
-// trick intact for unavailable state; only the image source changes.
-function applyDdragonIcons(dataSetId) {
-    var dataSet = getDataSet(dataSetId);
-    if (!dataSet || !dataSet.ddragonVersion) return;
-
-    if (ddragonIconCache[dataSetId]) {
-        decorateButtonsWithIcons(dataSetId, ddragonIconCache[dataSetId]);
-        return;
-    }
-
-    var version = dataSet.ddragonVersion;
-    var url = "https://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/mastery.json";
-    $.getJSON(url).done(function(json){
-        var map = {};
-        if (json && json.data) {
-            for (var id in json.data) {
-                var m = json.data[id];
-                if (m && m.name && m.image && m.image.full) {
-                    map[m.name] = "https://ddragon.leagueoflegends.com/cdn/" + version + "/img/mastery/" + m.image.full;
-                }
-            }
-        }
-        ddragonIconCache[dataSetId] = map;
-        decorateButtonsWithIcons(dataSetId, map);
-    });
-    // Silent fall back to sprite on failure — no error UI.
-}
-
-function decorateButtonsWithIcons(dataSetId, iconMap) {
-    if (activeDataSetId !== dataSetId) return; // user switched away while loading
-    $("#calculator .button").each(function(){
-        var $btn = $(this);
-        var tree = +$btn.attr("data-tree");
-        var index = +$btn.attr("data-index");
-        var entry = data[tree] && data[tree][index];
-        if (!entry) return;
-        var url = iconMap[entry.name];
-        if (!url) return;
-        // Data Dragon icons are single-state PNGs. Use a `ddragon` flag
-        // class so the available/unavailable visual switches to a CSS
-        // grayscale filter instead of the sprite's two-column trick.
-        $btn.addClass("ddragon").css({
-            backgroundImage: "url(" + url + ")",
-            backgroundPosition: "center center",
-            backgroundSize: "cover",
-        });
-    });
 }
 
 // Switch to a different season/patch snapshot. Resets state, redraws the
@@ -712,21 +744,19 @@ function switchDataSet(id, opts) {
 
     // Toggle which calculator container is visible. The keystone system
     // (V5.22 onwards) is structurally different and uses its own render
-    // path in keystone-calculator.js. CSS keys off `body.keystone-system`
-    // so the Points panel + Return button stay visible but the classic
-    // tree-summaries are hidden via the body class rules.
+    // path in keystone-calculator.js. CSS keys off `body.keystone-system`.
+    // The AIR sidebar serves both systems (re-synced after the draw).
     if (system === "keystone") {
         $("body").addClass("keystone-system");
-        $("#tree-summaries").hide();
         if (typeof drawKeystoneCalculator === "function") {
             drawKeystoneCalculator(dataSet);
         }
     } else {
         $("body").removeClass("keystone-system");
-        $("#tree-summaries").show();
         syncDataSetGlobals(dataSet);
         redrawCalculator();
     }
+    syncMasterySidebar(dataSet);
 
     // Reflect the active set in the season nav + patch dropdown (without
     // re-firing change handlers).
@@ -805,36 +835,11 @@ $(function(){
     // Calculator
     drawCalculator();
 
-    // Panel
+    // Panel: the AIR sidebar (emblems + counts, Points Available, Save /
+    // Return / Delete / Revert, double-click an emblem to reset its tree).
+    // #return is the V7.21 LCU row's button.
     $("#return").click(resetStates);
-    for (var tree = 0; tree < 3; tree++) {
-        $("#panel>#tree-summaries").append(
-            $("<div>")
-                .addClass("tree-summary")
-                .addClass(treeNames[tree])
-                .attr("data-idx", tree)
-                .text(0)
-                .css({
-                    left: TREE_OFFSET * tree + 126,
-                    cursor: "pointer",
-                })
-                .mouseover(function(){
-                    customTooltip($("#tooltip").show(), "Double click to reset tree");
-                })
-                .mouseout(function(){
-                    $("#tooltip").hide();
-                })
-                .dblclick(function(){
-                    resetTree($(this).attr("data-idx"), true);
-                    updateButtons();
-                    updateLabels();
-                    updateLink();
-                })
-        )
-        .append(
-            $("<div>")
-        );
-    }
+    syncMasterySidebar(bootstrapDs);
 
     buildSeasonPatchSelectors();
 
