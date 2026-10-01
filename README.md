@@ -55,6 +55,11 @@ Pre-Reforged runes: 9 marks, 9 seals, 9 glyphs and 3 quintessences, tiers
 1-3 (about 296 runes per patch, event runes included), a statistics panel
 and a champion-level slider for the scaling runes. The pre-V6.22 catalogs
 keep flat Armor Penetration as its own stat (Lethality did not exist yet).
+The V7.21 page is the League Client rune book: the inventory to the left of
+the gold rune circle (runes listed per type, each with how many are left),
+statistics inside the circle, click a rune to place it and shift-click to
+fill every free slot of its colour. On a narrow screen the board, inventory
+and statistics stack.
 
 Runes Reforged: a primary path with keystone + 3 runes, a secondary path
 with 2 runes from different rows, and stat shards from V8.23 with the
@@ -90,7 +95,9 @@ access.
 Data tools:
 
 * `node generate-runes-data.js` regenerates `runes-data.js` from the Data
-  Dragon rune catalogs under `data/`.
+  Dragon rune catalogs under `data/`. Where Data Dragon's text is wrong
+  (Mark of Precision's stale "+0.7 Leth" in V6.22-V7.21), a cited
+  `DESC_FIXES` entry replaces it.
 * `node embed-mastery-icon-ids.js` stamps the Data Dragon icon ids from
   `data/mastery-<version>.json` onto the keystone data files.
 * `python detect-indents.py` (needs Pillow) finds the painted rune-slot
@@ -150,8 +157,6 @@ Roadmap
 * Pages saved in the browser (Save currently copies the share link).
 * Compare one build across patches.
 * Patch-notes side panel.
-* V7.21 rune book: inventory to the left of the ring and the statistics
-  inside it, as in the client.
 
 Contributors
 ------------

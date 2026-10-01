@@ -88,6 +88,8 @@
    body is a flex column: header → main.site-main → footer. The backdrop is
    ONE fixed layer (body::before) chosen by era; it sits above the canvas
    so page CSS that paints body (e.g. body.runes-page) cannot hide it.
+   .site-main grows to fill a short window (footer at the bottom), except
+   on phones (≤719px), where it ends at the scaled stage.
    ========================================================================== */
 body {
     margin: 0;
@@ -146,7 +148,12 @@ body[data-client="lcu"]::before {
 .site-footer a:hover { color: var(--hx-gold-1); }
 
 @media (max-width: 719px) {
-    .site-main { padding: 16px 16px 24px; }
+    /* Phones: no sticky footer. The stage is scaled down to a fraction of
+       the viewport height, so growing .site-main to fill the window left an
+       empty band (~140px at 375x812) between the stage and the footer; the
+       main area now ends at the scaled stage (+ padding) and the footer
+       follows it, the backdrop shows below. Wider windows keep flex-grow. */
+    .site-main { flex-grow: 0; padding: 16px 16px 24px; }
     .site-footer { padding: 12px 16px; }
 }
 

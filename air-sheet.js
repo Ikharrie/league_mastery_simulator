@@ -130,6 +130,9 @@ var AirSheet = window.AirSheet = (function(){
             renderSubtabs(sheet, page, period, def);
             renderChips(sheet, page, season);
             sheet._airSynced = true;
+            // The sidebar's Save state depends on the period (2010: always
+            // live); repaint it in case it rendered before this sync.
+            if (sheet.querySelector(".air-ms") && window.AirMasterySidebar) AirMasterySidebar.update({});
         }
     }
 
@@ -192,6 +195,8 @@ var AirSheet = window.AirSheet = (function(){
 //   AirMasterySidebar.element()     the <aside> (null when absent)
 //   AirMasterySidebar.DEFAULT_NAME  "Mastery Page 1"
 // Dirty state is mirrored on the aside as [data-dirty="true|false"].
+// Save / Revert are disabled while the page is clean, except Save in the
+// 2010 look (.air-sheet[data-air-period="2010"]), which stays live.
 // ---------------------------------------------------------------------------
 
 var AirMasterySidebar = window.AirMasterySidebar = (function(){
@@ -219,8 +224,16 @@ var AirMasterySidebar = window.AirMasterySidebar = (function(){
             t.setAttribute("title", name);
         }
         var save = q(".air-ms-save"), rev = q(".air-ms-revert");
-        if (save) save.disabled = !dirty;
+        if (save) save.disabled = !dirty && !saveAlwaysLive();
         if (rev) rev.disabled = !dirty;
+    }
+
+    // The 2010 client keeps Save Masteries live (navy, clickable) on a saved
+    // page, like Return Points (wb-riot-2010-masteries.jpg); later clients
+    // grey it out until the page changes.
+    function saveAlwaysLive() {
+        var sheet = root && root.closest ? root.closest(".air-sheet") : null;
+        return !!sheet && sheet.getAttribute("data-air-period") === "2010";
     }
 
     function update(s) {

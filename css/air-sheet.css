@@ -621,6 +621,8 @@ body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions {
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-emblem[data-emblem="defense"] {
     transform: translateX(calc(-4.5 * var(--u))) scale(0.8);
 }
+/* Return Points over Save Masteries, both navy: in 2010 Save is never
+   disabled (air-sheet.js AirMasterySidebar), even on a saved page. */
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions .air-btn { font-size: calc(15 * var(--u)); }
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions .air-btn:not(:disabled) {
     box-shadow: inset 0 1px 0 rgba(160, 200, 245, 0.5), 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(70, 50, 0, 0.5);
