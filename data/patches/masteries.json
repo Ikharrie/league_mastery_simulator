@@ -1,0 +1,1608 @@
+{
+ "_comment": [
+  "Masteries listing (DESIGN §1.4): one record per listed patch, chronological. Seeded by tools/import-masteries.js from the research changed-patches.json files; hand-maintained afterwards (re-run the importer with --no-listing).",
+  "reason: season-start | change | season-end | season-start+change. source: {ddragon: <build>} (data/sources/masteries/ddragon/<build>.json) or {wiki: <patch>} (data/sources/masteries/wiki/<patch>.json); crossCheck = the DDragon builds the S3 templates are checked against (M5).",
+  "textOnly: a season boundary whose payload differs from the previous listed patch in tooltip text only (DESIGN §0 counts it as a boundary with no change; check C2).",
+  "changes[].text keeps the research wording; the trailing [..] names the evidence: DD = Data Dragon, WP = wiki patch page, WM = wiki mastery page, RN = Riot patch notes, LC = League Client game data (CommunityDragon).",
+  "Labels, ids, era and chrome are not stored here: tools/lib/patches.js computes them (labelFor, idFor, chromeOf)."
+ ],
+ "page": "masteries",
+ "patches": [
+  {
+   "patch": "V1.0.0.32",
+   "season": "s1",
+   "reason": "season-start",
+   "date": "2009-10-21",
+   "source": {"wiki":"V1.0.0.32"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/Summoner_Mastery (Patch history)"],
+   "changes": [
+    {
+     "text": "Launch (gold) build; masteries as of the last beta patch V0.9.25.34. Differs from s1-final: Mender's Faith (+75 heal, -10 s Heal CD), Willpower 30 s, Demolisher present, Cripple 25, Improved Rally +20% base magic damage, Reinforce (+9 minion damage while Fortify is up), Haste 8%, Ardor half-then-scaling, Strength of Spirit 0.5/1/1.5% per 5 s, Meditation 1.66/3.33/5, Veteran's Scars 15/30/45/60, Havoc 5% base damage.",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/Heal (Patch history: June 26 2009, V1.0.0.52, V1.0.0.61)",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.52",
+      "https://leagueoflegends.fandom.com/wiki/Fortify (Patch history: V0.9.22.7, V1.0.0.61)",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.61",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.63",
+      "https://leagueoflegends.fandom.com/wiki/Cleanse (Patch history: June 26 2009, V1.0.0.63)",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.72",
+      "https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)",
+      "https://leagueoflegends.fandom.com/wiki/Rally (Patch history: V0.9.22.16, V1.0.0.72)",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.101",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.109",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.110",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.118b"
+     ],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V1.0.0.52",
+   "season": "s1",
+   "reason": "change",
+   "date": "2009-11-11",
+   "source": {"wiki":"V1.0.0.52"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.52"],
+   "changes": [
+    {
+     "text": "Mender's Faith: Heal bonus changed to 10 x champion level (10-180) from 75 flat (+10 s cooldown reduction) [medium].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.52",
+      "https://leagueoflegends.fandom.com/wiki/Heal (Patch history: June 26 2009, V1.0.0.52, V1.0.0.61)",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.61"
+     ],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V1.0.0.61",
+   "season": "s1",
+   "reason": "change",
+   "date": "2009-12-02",
+   "source": {"wiki":"V1.0.0.61"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.61"],
+   "changes": [
+    {
+     "text": "Mender's Faith: now reduces Heal cooldown by 30 s instead of the 10 x level heal bonus [high].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.61",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.52",
+      "https://leagueoflegends.fandom.com/wiki/Heal (Patch history: June 26 2009, V1.0.0.52, V1.0.0.61)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Reinforce: Fortify loses its own splash; Reinforce now makes Fortify give allied turrets 50% splash damage (was +9 minion damage) [low on old text].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.61",
+      "https://leagueoflegends.fandom.com/wiki/Garrison (exists from Dominion, V1.0.0.125-128)",
+      "https://leagueoflegends.fandom.com/wiki/Fortify (Patch history: V0.9.22.7, V1.0.0.61)"
+     ],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V1.0.0.63",
+   "season": "s1",
+   "reason": "change",
+   "date": "2009-12-17",
+   "source": {"wiki":"V1.0.0.63"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63"],
+   "changes": [
+    {
+     "text": "Demolisher removed together with the Promote summoner spell (Offense tier 4 keeps only Brute Force) [high].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.63",
+      "https://leagueoflegends.fandom.com/wiki/Promote (V1.0.0.63: removed, \"Demolisher removed until Promote is reintroduced\"; V1.0.0.129 added to SR)",
+      "Riot 2010 client screenshot (scratchpad refs/masteries-classic/wb-riot-2010-masteries.jpg): Offense tier 4 holds only Brute Force"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Willpower: Cleanse cooldown reduction 30 -> 20 s [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63","https://leagueoflegends.fandom.com/wiki/Cleanse (Patch history: June 26 2009, V1.0.0.63)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.72",
+   "season": "s1",
+   "reason": "change",
+   "date": "2010-02-02",
+   "source": {"wiki":"V1.0.0.72"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.72"],
+   "changes": [
+    {
+     "text": "Cripple: Exhaust armor / magic resist reduction 25 -> 10 [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.72","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Improved Rally: now 20-70 AP (by level) instead of +20% base magic damage [high value, medium wording].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.72","https://leagueoflegends.fandom.com/wiki/Rally (Patch history: V0.9.22.16, V1.0.0.72)"],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V1.0.0.101",
+   "season": "s1",
+   "reason": "change",
+   "date": "2010-09-21",
+   "source": {"wiki":"V1.0.0.101"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.101"],
+   "changes": [
+    {
+     "text": "Haste: Ghost movement speed bonus 8% -> 6% [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.101","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.109",
+   "season": "s1",
+   "reason": "change",
+   "date": "2011-01-18",
+   "source": {"wiki":"V1.0.0.109"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.109"],
+   "changes": [
+    {
+     "text": "Ardor: full 1.33/2.66/4% AP and attack speed from level 1 (was half at level 1 scaling to full at 18); tooltip clarified [medium].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.109"],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V1.0.0.110",
+   "season": "s1",
+   "reason": "change",
+   "date": "2011-02-01",
+   "source": {"wiki":"V1.0.0.110"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110"],
+   "changes": [
+    {
+     "text": "Strength of Spirit: 0.5/1/1.5% -> 0.33/0.66/1% of max mana as health regen per 5 s (tooltip moved from per-second to per-5) [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Meditation: 1.66/3.33/5 -> 1/2/3 mana regen per 5 s [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Veteran's Scars: 15/30/45/60 -> 12/24/36/48 health [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.118b",
+   "season": "s1",
+   "reason": "change",
+   "date": "2011-05-24",
+   "source": {"wiki":"V1.0.0.118b"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.118b"],
+   "changes": [
+    {
+     "text": "Havoc: +4% total physical and magic damage, from +5% base damage [high].",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.118b","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.128",
+   "season": "s1",
+   "reason": "season-end",
+   "date": "2011-11-01",
+   "source": {"wiki":"V1.0.0.128"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/Summoner_Mastery (Patch history)"],
+   "changes": [
+    {
+     "text": "Last Season 1 patch (V1.0.0.129 reworked masteries on 2011-11-15). No value change since V1.0.0.118b; Reinforce tooltip names Garrison (Dominion, V1.0.0.125) [low, text only]. Equals s1-final minus Demolisher.",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.63",
+      "https://leagueoflegends.fandom.com/wiki/Promote (V1.0.0.63: removed, \"Demolisher removed until Promote is reintroduced\"; V1.0.0.129 added to SR)",
+      "Riot 2010 client screenshot (scratchpad refs/masteries-classic/wb-riot-2010-masteries.jpg): Offense tier 4 holds only Brute Force",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.61",
+      "https://leagueoflegends.fandom.com/wiki/Garrison (exists from Dominion, V1.0.0.125-128)"
+     ],
+     "confidence": "low"
+    }
+   ],
+   "confidence": "low",
+   "textOnly": "Reinforce tooltip names Garrison (Dominion, V1.0.0.125); values unchanged since V1.0.0.118b"
+  },
+  {
+   "patch": "V1.0.0.129",
+   "season": "s2",
+   "reason": "season-start+change",
+   "date": "2011-11-15",
+   "source": {"wiki":"V1.0.0.129"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.129"],
+   "changes": [
+    {
+     "text": "Season 2 rework (new 3 x 6-tier trees). Differs from s2-ahri: Alacrity 1.5/3/4.5/6%, Summoner's Resolve Heal +15%, Utility tier 5 slot holds Perseverance (3/6/9% health and mana regen) instead of Strength of Spirit.",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.129",
+      "https://web.archive.org/web/20111114175058/http://na.leagueoflegends.com/masteries (Riot \"Masteries in Season Two\", captured 2011-11-14; cached copy patches/raw/riot-2011-11-14-masteries-in-season-two.html)",
+      "dpatti/league-mastery-calc commit 8c43821 (2011-11-14, initial S2 data) in this repo history",
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.131",
+      "https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.131",
+   "season": "s2",
+   "reason": "change",
+   "date": "2011-12-13",
+   "source": {"wiki":"V1.0.0.131"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.131"],
+   "changes": [
+    {
+     "text": "Alacrity 1.5/3/4.5/6 -> 1/2/3/4% [high].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.131",
+      "https://web.archive.org/web/20111114175058/http://na.leagueoflegends.com/masteries (Riot \"Masteries in Season Two\", captured 2011-11-14; cached copy patches/raw/riot-2011-11-14-masteries-in-season-two.html)",
+      "dpatti/league-mastery-calc commit 8c43821 (2011-11-14, initial S2 data) in this repo history"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Summoner's Resolve: Heal bonus 15% -> 10% [high].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.131",
+      "https://web.archive.org/web/20111114175058/http://na.leagueoflegends.com/masteries (Riot \"Masteries in Season Two\", captured 2011-11-14; cached copy patches/raw/riot-2011-11-14-masteries-in-season-two.html)",
+      "dpatti/league-mastery-calc commit 8c43821 (2011-11-14, initial S2 data) in this repo history"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Perseverance removed; Strength of Spirit (0.4/0.7/1% of max mana as health regen per 5 s) takes its slot [high]. Equals s2-ahri.",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.131",
+      "https://web.archive.org/web/20111114175058/http://na.leagueoflegends.com/masteries (Riot \"Masteries in Season Two\", captured 2011-11-14; cached copy patches/raw/riot-2011-11-14-masteries-in-season-two.html)",
+      "dpatti/league-mastery-calc commit 8c43821 (2011-11-14, initial S2 data) in this repo history",
+      "https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.133",
+   "season": "s2",
+   "reason": "change",
+   "date": "2012-02-01",
+   "source": {"wiki":"V1.0.0.133"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.133"],
+   "changes": [
+    {
+     "text": "Deadliness: 1/2/3/4% critical strike chance -> 0.125/0.25/0.375/0.5 attack damage per level (2.25/4.5/6.75/9 at 18) [high].",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.133",
+      "https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)",
+      "https://lol.fandom.com/wiki/<Name>_(Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Summoner_Mastery (Patch history)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.151",
+   "season": "s2",
+   "reason": "season-end",
+   "date": "2012-11-13",
+   "source": {"wiki":"V1.0.0.151"},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/Summoner_Mastery (Patch history)"],
+   "changes": [
+    {
+     "text": "Last Season 2 patch. No calculator-relevant change since V1.0.0.133 per the wiki (see open question on a Summoner's Resolve Barrier line, V1.0.0.141+).",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/Summoner_Mastery (Patch history)","https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V1.0.0.152",
+   "season": "s3",
+   "reason": "season-start+change",
+   "date": "2012-12-04",
+   "source": {"wiki":"V1.0.0.152","crossCheck":["3.6.14","3.13.24"]},
+   "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152"],
+   "changes": [
+    {
+     "text": "Season 3 rework (live). Differs from s3-pbe (11/28 PBE data): Legendary Armor 2/3.5/5% (PBE 2/4/6), Scout 5 s (PBE 3 s), Bladed Armor deals true damage to minions and monsters [medium]. No calculator-relevant mastery change from here to V3.5 per the wiki; state equals Data Dragon 3.6.14.",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V1.0.0.152",
+      "https://leagueoflegends.fandom.com/wiki/<Name>_(Season_2011|2012|2013_Mastery) (Patch History)",
+      "https://wiki.leagueoflegends.com/en-us/<Name>_(Season_YYYY_Mastery) (same content as fandom)",
+      "https://lol.fandom.com/wiki/<Name>_(Mastery)",
+      "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json (first Data Dragon mastery build; equals the reconstructed live V1.0.0.152 state)",
+      "http://www.surrenderat20.net/2012/11/1128-pbe-patch.html (Legendary Armor 2/4/6 on the 11/28 PBE)",
+      "dpatti/league-mastery-calc commit 46150fc (2012-11-30, \"PBE updates\", from surrenderat20 11/28 PBE post)",
+      "https://www.surrenderat20.net/2012/11/1115-pbe-patch.html (Scout 3 s on the 11/15 PBE)"
+     ],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "patch": "V3.13",
+   "season": "s3",
+   "reason": "season-end",
+   "date": "2013-10-29",
+   "source": {"wiki":"V1.0.0.152","crossCheck":["3.6.14","3.13.24"]},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json",
+    "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V3.12 (mirror: https://wiki.leagueoflegends.com/en-us/V3.12)",
+    "https://leagueoflegends.fandom.com/wiki/V3.13 (mirror: https://wiki.leagueoflegends.com/en-us/V3.13)"
+   ],
+   "changes": [
+    {
+     "text": "No calculator-relevant mastery change anywhere in V3.6-V3.13: DDragon 3.6.14 -> 3.13.24 is identical apart from one tooltip-only edit, and the wiki patch pages V3.6-V3.13 have no Masteries section. [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.12 (mirror: https://wiki.leagueoflegends.com/en-us/V3.12)",
+      "https://leagueoflegends.fandom.com/wiki/V3.13 (mirror: https://wiki.leagueoflegends.com/en-us/V3.13)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Ignored (tooltip-only): V3.12 Summoner's Insight (S3) Revive line gained '(200 + 20 per level)' bonus-health figure; no patch note. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Data = DDragon 3.13.24 (Season 3 tree, 56 masteries, 42/37/41 ranks). The diff to the previous listed Season 3 patch (V3.5 or earlier) must come from the wiki-era research; DDragon starts at 3.6.14.",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.12 (mirror: https://wiki.leagueoflegends.com/en-us/V3.12)",
+      "https://leagueoflegends.fandom.com/wiki/V3.13 (mirror: https://wiki.leagueoflegends.com/en-us/V3.13)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Shown with the V1.0.0.152 templates (desc + rankInfo), which the build checks number by number against DDragon 3.6.14 and 3.13.24; the V3.12 Summoner's Insight Revive figure is tooltip noise (data/patches/noise/masteries.json).",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V3.14",
+   "season": "s4",
+   "reason": "season-start+change",
+   "date": "2013-11-20",
+   "source": {"ddragon":"3.14.41"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+    "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V3.14 (mirror: https://wiki.leagueoflegends.com/en-us/V3.14)",
+    "https://leagueoflegends.fandom.com/wiki/Inspiration_(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Preseason 4 rework: all 56 Season 3 masteries removed; new 2014 tree of 57 masteries on the 4-wide, 6-tier grid (Offense 20 masteries / 38 ranks, Defense 19 / 34, Utility 18 / 33), 15 prerequisite links (Butcher>Feast, Brute Force>Martial Mastery, Mental Force>Arcane Mastery, Spell Weaving>Blade Weaving, Executioner>Dangerous Game, Block>Unyielding, Tough Skin>Bladed Armor, Veteran's Scars>Juggernaut, Hardiness>Reinforced Armor, Resistance>Evasive, Perseverance>Second Wind, Meditation>Strength of Spirit, Alchemist>Culinary Master, Greed>Scavenger, Wealth>Bandit). [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.14 (mirror: https://wiki.leagueoflegends.com/en-us/V3.14)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Launch values that later changed: Martial Mastery +5 AD, Arcane Mastery +8 AP, Perseverance 1/2/3% missing HP per 5 s, Feast 2 HP, Bandit melee +15 gold on takedown, Meditation 1/2/3 MP5 (T1), Expanded Mind 2/3.5/5% mana (T4), Inspiration 5/10 XP (2 ranks), Intelligence item-CDR 4/7/10%, Wanderer 5% MS, Legendary Guardian aura 900 range. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.14 (mirror: https://wiki.leagueoflegends.com/en-us/V3.14)",
+      "https://leagueoflegends.fandom.com/wiki/Inspiration_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Live-client bug mirrored by DDragon: the T5 4-rank armor/MR aura (id 4252) is named 'Tenacious' and the T6 15% CC-reduction capstone (4262) 'Legendary Guardian'; Riot fixed the swap in V3.15. [DD, WP V3.15, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.14 (mirror: https://wiki.leagueoflegends.com/en-us/V3.14)",
+      "https://leagueoflegends.fandom.com/wiki/Inspiration_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "DDragon-only name defects fixed in 3.15: 'Runic Shield' (wiki and patch notes: Runic Blessing), 'Veteran Scars'. 'Perseverance ' carries a trailing space in every 2014 build. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Use 3.14.41: builds 3.14.12-3.14.19 are pre-release (a 'Conjuror' mastery, Fury 1-4%, Scout 'wards and trinkets 10%', Inspiration 7.5/7.5, one-value strings for every rank of Brute Force / Fleet of Foot / Meditation / Veteran Scars, typos 'Doubled-Edged', 'Arcane Masrery', 'Perserverance', null rank strings for Mental Force r2-3, Tenacious r4, Expanded Mind r2-3); 3.14.20 onwards matches the live tree. [DD intra-patch]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Scout: 15% trinket cast range (DDragon 3.14.20+, wiki mastery page); the wiki V3.14 patch page's 'wards and trinkets 10%' is the pre-release text. [DD, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/Inspiration_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V3.15",
+   "season": "s4",
+   "reason": "change",
+   "date": "2013-12-13",
+   "source": {"ddragon":"3.15.5"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+    "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Martial Mastery +5 -> +4 attack damage. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+      "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Arcane Mastery +8 -> +6 ability power. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+      "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Perseverance 1/2/3% -> 0.7/1.35/2% missing health every 5 s. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+      "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Tenacious / Legendary Guardian name swap fixed: T5 4-rank aura (+1-4 armor, +0.5-2 MR per nearby enemy champion) is now Legendary Guardian, T6 capstone (15% CC duration reduction) is Tenacious. Cells, ranks and values unchanged. [DD (ids 4252/4262 renamed), WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+      "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Legendary Guardian aura range 900 -> 700. [WP, WM; not in DDragon text]",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V3.15 (mirror: https://wiki.leagueoflegends.com/en-us/V3.15)",
+      "https://leagueoflegends.fandom.com/wiki/Martial_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Arcane_Mastery_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Tenacious_(Season_2014_Mastery)"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "text": "DDragon data fixes: Runic Shield -> Runic Blessing, Veteran Scars -> Veteran's Scars (no gameplay change). [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Tooltip-only: Blade Weaving dropped 'This cannot trigger more than once a second'; Meditation 'per 5' -> 'per 5 seconds'; Tough Skin 'effect' -> 'affect'. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V4.2",
+   "season": "s4",
+   "reason": "change",
+   "date": "2014-02-10",
+   "source": {"ddragon":"4.2.6"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/4.2.6/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V4.2 (mirror: https://wiki.leagueoflegends.com/en-us/V4.2)",
+    "https://leagueoflegends.fandom.com/wiki/Perseverance__(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Perseverance 0.7/1.35/2% -> 0.35/0.675/1% missing health every 5 s. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/4.2.6/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V4.2 (mirror: https://wiki.leagueoflegends.com/en-us/V4.2)",
+      "https://leagueoflegends.fandom.com/wiki/Perseverance__(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Tooltip-only: Reinforced Armor 'damage taken by critical strikes' -> 'from critical strikes'. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/4.2.6/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V4.5",
+   "season": "s4",
+   "reason": "change",
+   "date": "2014-04-03",
+   "source": {"ddragon":"4.5.4"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V4.5 (mirror: https://wiki.leagueoflegends.com/en-us/V4.5)",
+    "https://leagueoflegends.fandom.com/wiki/Feast_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Scavenger_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Dangerous_Game_(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Feast on-kill heal 2 -> 3 health (mana 1 unchanged). [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V4.5 (mirror: https://wiki.leagueoflegends.com/en-us/V4.5)",
+      "https://leagueoflegends.fandom.com/wiki/Feast_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Scavenger_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Dangerous_Game_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Scavenger range 900 -> 1100. [WP, WM; DDragon text has no range]",
+     "sources": [
+      "https://leagueoflegends.fandom.com/wiki/V4.5 (mirror: https://wiki.leagueoflegends.com/en-us/V4.5)",
+      "https://leagueoflegends.fandom.com/wiki/Feast_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Scavenger_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Dangerous_Game_(Season_2014_Mastery)"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "text": "Dangerous Game tooltip now 'Champion kills and assists restore 5% missing Health and Mana' (was 'Killing a champion'); wiki calls it an undocumented tooltip change, the effect already counted assists. [DD, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/Feast_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Scavenger_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Dangerous_Game_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Also folded into this diff (tooltip-only, not listed): V4.3 Bladed Armor bleed now says 'physical damage' (wiki: physical since V3.14); V4.4 Brute Force / Mental Force per-level figures gained '+' signs. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V4.19",
+   "season": "s4",
+   "reason": "season-end",
+   "date": "2014-11-05",
+   "source": {"ddragon":"4.19.3"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/4.19.3/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V4.10 (mirror: https://wiki.leagueoflegends.com/en-us/V4.10)",
+    "https://leagueoflegends.fandom.com/wiki/V4.19 (mirror: https://wiki.leagueoflegends.com/en-us/V4.19)"
+   ],
+   "changes": [
+    {
+     "text": "No calculator-relevant change since V4.5. Ignored tooltip-only edits: V4.10 Reinforced Armor 'Reduces the total damage taken from critical strikes' (wiki: tooltip clarification), V4.10 / V4.13 Legendary Guardian, Enchanted Armor, Resistance 'Magic Resist' <-> 'Magic Resistance'. [DD, WP V4.10]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/4.19.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V4.10 (mirror: https://wiki.leagueoflegends.com/en-us/V4.10)",
+      "https://leagueoflegends.fandom.com/wiki/V4.19 (mirror: https://wiki.leagueoflegends.com/en-us/V4.19)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Data = DDragon 4.19.3, identical to 4.20.2 (the repo's s4-final source).",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/4.19.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V4.10 (mirror: https://wiki.leagueoflegends.com/en-us/V4.10)",
+      "https://leagueoflegends.fandom.com/wiki/V4.19 (mirror: https://wiki.leagueoflegends.com/en-us/V4.19)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high",
+   "textOnly": "V4.10 / V4.13 tooltip rewordings (Reinforced Armor, Legendary Guardian, Enchanted Armor, Resistance); numbers unchanged"
+  },
+  {
+   "patch": "V4.20",
+   "season": "s5",
+   "reason": "season-start",
+   "date": "2014-11-20",
+   "source": {"ddragon":"4.20.2"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/4.20.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V4.20 (mirror: https://wiki.leagueoflegends.com/en-us/V4.20)"],
+   "changes": [
+    {
+     "text": "Preseason 5 (new Summoner's Rift): no mastery change; DDragon 4.19.3 = 4.20.2 = 4.21.5 = ... = 5.9.1 except the V4.13 wording noise already folded into V4.19. [DD, WP V4.20, V4.21, V5.1-V5.9]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/4.20.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V4.20 (mirror: https://wiki.leagueoflegends.com/en-us/V4.20)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V5.10",
+   "season": "s5",
+   "reason": "change",
+   "date": "2015-05-28",
+   "source": {"ddragon":"5.10.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+    "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+    "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+    "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Utility overhaul. Meditation and Expanded Mind swap cells: Expanded Mind moves T4 c3 -> T1 c3 (DDragon id 4313), Meditation T1 c3 -> T4 c3 (4343); the prerequisite Strength of Spirit <- T1 c3 now points at Expanded Mind. [DD, WP, RN]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Expanded Mind 2/3.5/5% max mana -> flat 25/50/75 mana. [DD, WP, RN; WM history line says 20/50/75, its own effect line says 25]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Meditation 1/2/3 mana regen per 5 s -> 0.5/1/1.5% missing mana every 5 s. [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Bandit: melee +15 gold on takedown removed; melee now gains 8 gold per champion hit (ranged 3), 5 s per-target cooldown. [DD, WP, RN; WM says 10]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Inspiration 5/10 -> 10/20 experience every 10 s. [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Intelligence item-active CDR 4/7/10% -> 8/14/20% (CDR 2/3.5/5% unchanged). [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Wanderer 5% -> flat 20 out-of-combat movement speed. [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.9.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.10.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.10 (mirror: https://wiki.leagueoflegends.com/en-us/V5.10)",
+      "https://web.archive.org/web/20190825033715/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "https://leagueoflegends.fandom.com/wiki/Bandit_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Expanded_Mind_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V5.12",
+   "season": "s5",
+   "reason": "change",
+   "date": "2015-06-24",
+   "source": {"ddragon":"5.12.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+    "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+    "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Defense overhaul (DDragon keeps ids per cell, so read it by name): Swiftness T4 -> T1 (cell 4213), 1 -> 2 ranks, 10% -> 7.5/15% slow reduction. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Enchanted Armor T1 -> T5 (4252), 2 -> 4 ranks, 2.5/5% -> 2.5/5/7.5/10% bonus armor and MR. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Tenacious T6 -> T3 (4231), 15% -> 10% CC duration reduction. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Oppression T3 -> T5 (4253), 3% -> 2% damage reduction vs movement-impaired enemies. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Legendary Guardian T5 -> T6 (4262), 4 ranks -> 1, now +3 armor and +3 MR per nearby enemy champion. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Runic Blessing removed; Adaptive Armor added at T4 (4242): 4% of the higher bonus resist granted as the other. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.12 (mirror: https://wiki.leagueoflegends.com/en-us/V5.12)",
+      "https://leagueoflegends.fandom.com/wiki/Legendary_Guardian_(Season_2014_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Enchanted_Armor_(Season_2014_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Prerequisite links unchanged by cell (Hardiness>Reinforced Armor, Resistance>Evasive, Perseverance>Second Wind ...). Tree still 19 masteries / 34 ranks. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.11.1/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/5.12.1/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V5.21",
+   "season": "s5",
+   "reason": "season-end",
+   "date": "2015-10-29",
+   "source": {"ddragon":"5.21.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/5.21.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.21 (mirror: https://wiki.leagueoflegends.com/en-us/V5.21)"],
+   "changes": [
+    {
+     "text": "No calculator-relevant change since V5.12 (V5.13 Oppression 'movement(slows' spacing fix only). Data = DDragon 5.21.1 (the repo's s5-final source). [DD, WP V5.13-V5.21]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.21.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.21 (mirror: https://wiki.leagueoflegends.com/en-us/V5.21)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high",
+   "textOnly": "V5.13 Oppression spacing fix ('movement(slows' -> 'movement (slows'); numbers unchanged"
+  },
+  {
+   "patch": "V5.22",
+   "season": "s6",
+   "reason": "season-start+change",
+   "date": "2015-11-11",
+   "source": {"ddragon":"5.22.3"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V5.22 (mirror: https://wiki.leagueoflegends.com/en-us/V5.22)",
+    "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-522-notes"
+   ],
+   "changes": [
+    {
+     "text": "Preseason 6: 2014 Offense/Defense/Utility tree removed; Ferocity / Cunning / Resolve keystone trees, 39 masteries in total (13 per tree, 37 ranks per tree), 6 tiers: T1/T3/T5 two 5-rank masteries sharing 5 points, T2/T4 two 1-rank choices, T6 three keystones; 18 points max per tree. [DD, WP, RN]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.22 (mirror: https://wiki.leagueoflegends.com/en-us/V5.22)",
+      "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-522-notes"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Keystones: Warlord's Bloodlust (crits heal 15%, +20% AS), Fervor of Battle (10 stacks, 1-8 on-hit), Deathfire Touch (6 + 50% bonus AD + 20% AP over 3 s per DDragon; wiki V5.22 entry says 5), Stormraider's Surge (30% max HP in 2 s -> 35% MS), Thunderlord's Decree (10/level + 20% bonus AD + 10% AP, 30 s cd), Windspeaker's Blessing (+10% heals/shields, +15% resists), Grasp of the Undying (3% max HP), Strength of the Ages, Bond of Stone (4%, doubled near an ally, 8% redirect, stops below 15% HP). [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.22 (mirror: https://wiki.leagueoflegends.com/en-us/V5.22)",
+      "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-522-notes"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Layout: each 5-rank row is [mastery, null, mastery] in DDragon (icons on the row edges), matching the repo's airFiveRankLayout 'edge'. Cunning T4 order Bandit / Dangerous Game, Cunning T2 Runic Affinity / Secret Stash. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/mastery.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Use 5.22.3: 5.22.1 had pre-release Vampirism 0.5-2.5% and Legendary Guardian 0.4-2 per enemy (fixed in 5.22.2). Sorcery (6114) is named 'game_mastery_displayname_6112' in 5.22.1-5.24.1. [DD intra-patch]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V5.23",
+   "season": "s6",
+   "reason": "change",
+   "date": "2015-11-24",
+   "source": {"ddragon":"5.23.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/5.23.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V5.23 (mirror: https://wiki.leagueoflegends.com/en-us/V5.23)",
+    "https://leagueoflegends.fandom.com/wiki/Bond_of_Stone_(Season_2016_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Perseverance_(Season_2016_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Thunderlord's Decree cooldown 30 -> 20 s. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.23.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.23 (mirror: https://wiki.leagueoflegends.com/en-us/V5.23)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Bond of Stone base damage reduction 4% -> 2% (x4 = 8% near an ally; redirect 8%). [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.23.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.23 (mirror: https://wiki.leagueoflegends.com/en-us/V5.23)",
+      "https://leagueoflegends.fandom.com/wiki/Bond_of_Stone_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Perseverance_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Perseverance tooltip threshold 20% -> 25% health (tooltip correction: the real threshold was always 25%). [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.23.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.23 (mirror: https://wiki.leagueoflegends.com/en-us/V5.23)",
+      "https://leagueoflegends.fandom.com/wiki/Bond_of_Stone_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Perseverance_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Ignored: tooltip rewrites with the same numbers on ~25 masteries (Savagery, Runic Affinity, Secret Stash, Bandit 'attack or spell' -> 'basic attack', Intelligence 'cap +5%' -> 'cap to 45%', Meditation reordering, Recovery, Runic Armor, Insight, Grasp 'deals magic damage', Windspeaker's 'on other allies', Sorcery 'Ability and Spell damage' -> 'Ability damage', trailing periods). [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.23.1/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V5.24",
+   "season": "s6",
+   "reason": "change",
+   "date": "2015-12-09",
+   "source": {"ddragon":"5.24.2"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)",
+    "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Deathfire_Touch_(Season_2016_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Assassin added: Cunning T2 third option, 1.5% increased damage while no allied champions are nearby. Cunning T2 = Runic Affinity / Secret Stash / Assassin. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Precision armor penetration 0.6-3 (+0.06-0.3/level) -> 1-5 (+0.1-0.5/level); magic penetration unchanged. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Thunderlord's Decree bonus AD ratio 20% -> 30%. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Windspeaker's Blessing: +15% resists -> +5-22 armor (by level) and half as much MR. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Feast cooldown 20 -> 25 s. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Deathfire_Touch_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Fervor of Battle: stacks only from champions, melee attacks and ability hits give 2 stacks, ability stacks have a 2 s cooldown, stacks last 6 s (was 5). [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Deathfire_Touch_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Deathfire Touch: 8 + 50% bonus AD + 20% AP over 4 s (was 6 over 3 s); AoE 2 s, DoT 1 s. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Deathfire_Touch_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Unyielding 1.2-6% -> 1-5% bonus armor and MR. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Explorer 12 -> 15 movement speed in brush and river. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Veteran's Scars 0.8-4% max health -> flat 9/18/27/36/45 health. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Bond of Stone 3% damage reduction, 6% near an ally, 6% redirect, redirect stops below 5% HP (was 15%). DDragon 5.24-6.2 text omits the threshold; it reappears in 6.3. [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V5.24 (mirror: https://wiki.leagueoflegends.com/en-us/V5.24)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Deathfire_Touch_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {"text":"DDragon data fix: Sorcery name restored in 5.24.2. [DD intra-patch]","sources":["https://ddragon.leagueoflegends.com/cdn/5.24.2/data/en_US/mastery.json"],"confidence":"high"}
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.1",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-01-14",
+   "source": {"ddragon":"6.1.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+   "changes": [
+    {
+     "text": "Precision armor penetration back to 0.6-3 (+0.06-0.3/level). [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Stormraider's Surge window 2 -> 2.5 s, movement speed 35% -> 40%, new 75% slow resistance. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Warlord's Bloodlust crit heal 15% -> 5-25% by level, attack speed 20% -> 30%. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Fervor of Battle 1-8 -> 1-14 damage per stack, max stacks 10 -> 8. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Deathfire Touch ratios 50% bonus AD / 20% AP -> 60% / 25%. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Strength of the Ages capped heal 100 -> 6% max health, now also on large monster kills. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Bond of Stone 4% damage reduction, near-ally increase removed, redirect stays 6%. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.1.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Battering Blows / Piercing Thoughts point-split stat bug fixed (no data change). [WP]",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V6.1 (mirror: https://wiki.leagueoflegends.com/en-us/V6.1)"],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.2",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-01-28",
+   "source": {"ddragon":"6.2.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.2.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.2 (mirror: https://wiki.leagueoflegends.com/en-us/V6.2)"],
+   "changes": [
+    {
+     "text": "Assassin 1.5% -> 2%, now only against champions. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.2.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.2 (mirror: https://wiki.leagueoflegends.com/en-us/V6.2)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Thunderlord's Decree cooldown 20 s -> 25-15 s by level; mark window 5 -> 3 s (window not in DDragon text). [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.2.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.2 (mirror: https://wiki.leagueoflegends.com/en-us/V6.2)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Windspeaker's Blessing tooltip correction: no resist bonus on self (DDragon text already said 'other allies' since 5.23). [WP]",
+     "sources": ["https://leagueoflegends.fandom.com/wiki/V6.2 (mirror: https://wiki.leagueoflegends.com/en-us/V6.2)"],
+     "confidence": "medium"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.4",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-02-24",
+   "source": {"ddragon":"6.4.2"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/6.4.2/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V6.3 (mirror: https://wiki.leagueoflegends.com/en-us/V6.3)",
+    "https://leagueoflegends.fandom.com/wiki/V6.4 (mirror: https://wiki.leagueoflegends.com/en-us/V6.4)"
+   ],
+   "changes": [
+    {
+     "text": "Expose Weakness added: Ferocity T2 third option, damaged enemy champions take 3% more damage from your allies. Ferocity T2 = Double Edged Sword / Feast / Expose Weakness. [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.4.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.3 (mirror: https://wiki.leagueoflegends.com/en-us/V6.3)",
+      "https://leagueoflegends.fandom.com/wiki/V6.4 (mirror: https://wiki.leagueoflegends.com/en-us/V6.4)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Warlord's Bloodlust rework: crit heal + attack speed replaced by life steal that grows with missing health, up to 20% vs champions, 50% of that vs minions. [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.4.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.3 (mirror: https://wiki.leagueoflegends.com/en-us/V6.3)",
+      "https://leagueoflegends.fandom.com/wiki/V6.4 (mirror: https://wiki.leagueoflegends.com/en-us/V6.4)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Folded in (not listed): V6.3 DDragon text-only edits - Bond of Stone regains 'not redirected below 5% maximum health' (a V5.24 change), Thunderlord's 'damaging spell against the same enemy champion', Deathfire 'additional', Precision '.06' -> '0.06'. Live V6.3 only fixed a Strength of the Ages heal bug. [DD, WP V6.3]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.4.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.3 (mirror: https://wiki.leagueoflegends.com/en-us/V6.3)",
+      "https://leagueoflegends.fandom.com/wiki/V6.4 (mirror: https://wiki.leagueoflegends.com/en-us/V6.4)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.7",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-04-06",
+   "source": {"ddragon":"6.7.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.7.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.7 (mirror: https://wiki.leagueoflegends.com/en-us/V6.7)"],
+   "changes": [
+    {
+     "text": "Warlord's Bloodlust life steal vs minions for ranged champions 50% -> 25%. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.7.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.7 (mirror: https://wiki.leagueoflegends.com/en-us/V6.7)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.8",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-04-20",
+   "source": {"ddragon":"6.8.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.8.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.8 (mirror: https://wiki.leagueoflegends.com/en-us/V6.8)"],
+   "changes": [
+    {
+     "text": "Feast cooldown 25 -> 30 s. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.8.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.8 (mirror: https://wiki.leagueoflegends.com/en-us/V6.8)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Grasp of the Undying 3% -> 2.5% max health (ranged halved). [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.8.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.8 (mirror: https://wiki.leagueoflegends.com/en-us/V6.8)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Secret Stash biscuit 20 health + 10 mana -> 15 health + 15 mana. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.8.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.8 (mirror: https://wiki.leagueoflegends.com/en-us/V6.8)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Tooltip-only: Fervor 'Attacking enemy champions' -> 'Damaging enemy champions with an attack'. [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.8.1/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.12",
+   "season": "s6",
+   "reason": "change",
+   "date": "2016-06-15",
+   "source": {"ddragon":"6.12.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+   "changes": [
+    {
+     "text": "Double Edged Sword melee/ranged split removed: everyone deals 3% more and takes 1.5% more damage. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Fervor of Battle ability hits 2 -> 1 stack. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Grasp of the Undying damage 2.5% -> 3% max health, heal 2.5% -> 1.5%. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Natural Talent per-level only -> base + per-level (0.4-2 + 0.09-0.44/level AD, 0.6-3 + 0.13-0.67/level AP); level-18 totals unchanged. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Veteran's Scars 9-45 -> 10/20/30/40/50 health. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.12.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.12 (mirror: https://wiki.leagueoflegends.com/en-us/V6.12)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.21",
+   "season": "s6",
+   "reason": "season-end",
+   "date": "2016-10-19",
+   "source": {"ddragon":"6.21.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.21 (mirror: https://wiki.leagueoflegends.com/en-us/V6.21)"],
+   "changes": [
+    {
+     "text": "No calculator-relevant change since V6.12; V6.15-V6.19 were bug fixes only (Fervor traps, Grasp/Yasuo, Secret Stash refillables, Oppressor). Data = DDragon 6.21.1. [DD 6.12.1 = 6.21.1, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.21 (mirror: https://wiki.leagueoflegends.com/en-us/V6.21)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.22",
+   "season": "s7",
+   "reason": "season-start+change",
+   "date": "2016-11-10",
+   "source": {"ddragon":"6.22.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+    "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)",
+    "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-622-notes",
+    "https://leagueoflegends.fandom.com/wiki/Fresh_Blood_(Season_2017_Mastery)",
+    "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)"
+   ],
+   "changes": [
+    {
+     "text": "Ferocity T2: Fresh Blood added (first basic attack vs a champion deals 10 + 1/level bonus damage; 6 s cooldown per DDragon, client 7.x and wiki mastery page, Riot notes say 9 s). Double Edged Sword moved T2 -> T4 (DDragon id 6121 -> 6142) and buffed 3%/1.5% -> 5%/2.5%. [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)",
+      "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-622-notes",
+      "https://leagueoflegends.fandom.com/wiki/Fresh_Blood_(Season_2017_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Ferocity T4: Oppressor removed; Battle Trance added (up to 5% increased damage over 5 s in combat with champions); Bounty Hunter 1% -> 1.5% per unique kill. T4 = Bounty Hunter / Double Edged Sword / Battle Trance. [DD, WP, RN, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)",
+      "https://web.archive.org/web/2019/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-622-notes",
+      "https://leagueoflegends.fandom.com/wiki/Fresh_Blood_(Season_2017_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Fervor of Battle: on-hit damage -> 1-6 bonus AD per stack (by level), 10 stacks, 4 s, basic attacks only (ability stacks removed, undocumented). [DD, WP, WM]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)",
+      "https://leagueoflegends.fandom.com/wiki/Fresh_Blood_(Season_2017_Mastery)",
+      "https://leagueoflegends.fandom.com/wiki/Fervor_of_Battle_(Season_2016_Mastery)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Cunning T4: Greenfather's Gift added (after entering brush, next damaging attack or ability deals 3% current health magic damage, 9 s cd); T4 = Greenfather's Gift / Bandit / Dangerous Game. Precision: armor penetration -> 1.7/3.4/5.1/6.8/8.5 Lethality (magic penetration unchanged). [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Resolve T2: Siegemaster added (+8 armor and MR near an allied tower); T2 = Explorer / Tough Skin / Siegemaster. T4: Fearless added (10% + 2/level bonus armor and MR for 2 s when damaged by a champion, 9 s cd); T4 = Insight / Perseverance / Fearless. [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Resolve T6: Strength of the Ages removed; Courage of the Colossus added (shield 10 + 10/level + 7% max HP per nearby enemy champion for 4 s after hard CC, 30 s cd). [DD, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json",
+      "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V6.22 (mirror: https://wiki.leagueoflegends.com/en-us/V6.22)"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Layout: every 5-rank row loses its middle null cell (icons move from the row edges to a centred pair; repo airFiveRankLayout 'edge' -> centred); every T2/T4 row now has 3 options; 45 masteries in total (15 per tree, 39 ranks per tree). [DD]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/mastery.json"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V6.24",
+   "season": "s7",
+   "reason": "change",
+   "date": "2016-12-07",
+   "source": {"ddragon":"6.24.1"},
+   "sources": ["https://ddragon.leagueoflegends.com/cdn/6.24.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.24 (mirror: https://wiki.leagueoflegends.com/en-us/V6.24)"],
+   "changes": [
+    {
+     "text": "Fervor of Battle stack duration 4 -> 6 s, 1-6 -> 1-8 AD per stack, max stacks 10 -> 8. [DD, WP, WM]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.24.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.24 (mirror: https://wiki.leagueoflegends.com/en-us/V6.24)"],
+     "confidence": "high"
+    },
+    {
+     "text": "Courage of the Colossus 7% -> 5% max health per nearby enemy, cooldown 30 -> 45-30 s by level; tooltip now lists stun / taunt / snare / knock up. [DD, WP]",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/6.24.1/data/en_US/mastery.json","https://leagueoflegends.fandom.com/wiki/V6.24 (mirror: https://wiki.leagueoflegends.com/en-us/V6.24)"],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V7.2",
+   "season": "s7",
+   "reason": "change",
+   "date": "2017-01-25",
+   "source": {"ddragon":"7.2.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/7.2.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V7.2 (mirror: https://wiki.leagueoflegends.com/en-us/V7.2)",
+    "https://raw.communitydragon.org/7.2/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+   ],
+   "changes": [
+    {
+     "text": "Courage of the Colossus base shield 10 + 10/level (once) -> 3-54 by level per nearby enemy champion; duration 4 -> 3 s. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.2.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.2 (mirror: https://wiki.leagueoflegends.com/en-us/V7.2)",
+      "https://raw.communitydragon.org/7.2/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V7.4",
+   "season": "s7",
+   "reason": "change",
+   "date": "2017-02-23",
+   "source": {"ddragon":"7.4.3"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+    "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+   ],
+   "changes": [
+    {
+     "text": "Battle Trance 5% over 5 s -> 3% over 3 s. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Bounty Hunter 1.5% -> 1% per unique kill (max 5%). [DD, WP, WM, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Double Edged Sword 5% / 2.5% -> 3% / 1.5%. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Fearless flat resists 2/level -> 1.5/level. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Fervor of Battle stack duration 6 -> 8 s. [DD, WP, WM, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Meditation 0.3-1.5% -> 0.25/0.5/0.75/1/1.25% missing mana per 5 s. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Merciless 1-5% -> 0.6/1.2/1.8/2.4/3%. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Precision Lethality 1.7-8.5 -> 1.2/2.4/3.6/4.8/6; magic penetration 0.6-3 + 0.06-0.3/level -> 0.3-1.5 + 0.05-0.25/level. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Warlord's Bloodlust max life steal 20% -> 15%. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.4.3/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.4 (mirror: https://wiki.leagueoflegends.com/en-us/V7.4)",
+      "https://raw.communitydragon.org/7.4/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V7.5",
+   "season": "s7",
+   "reason": "change",
+   "date": "2017-03-08",
+   "source": {"ddragon":"7.5.2"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/7.5.2/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V7.5 (mirror: https://wiki.leagueoflegends.com/en-us/V7.5)",
+    "https://raw.communitydragon.org/7.5/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+   ],
+   "changes": [
+    {
+     "text": "Bond of Stone reworked and renamed Stoneborn Pact (same cell 6263): +5% max health; movement-impairing CC brands enemy champions for 4 s, allies attacking them heal 5 + 2.5% of your max health over 2 s (halved if you are ranged). [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.5.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.5 (mirror: https://wiki.leagueoflegends.com/en-us/V7.5)",
+      "https://raw.communitydragon.org/7.5/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Warlord's Bloodlust rework: moving/attacking charges an Energized attack with 1-50% life steal (by level) and 30% movement speed for 0.75 s. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.5.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.5 (mirror: https://wiki.leagueoflegends.com/en-us/V7.5)",
+      "https://raw.communitydragon.org/7.5/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    },
+    {
+     "text": "Deathfire Touch bonus AD ratio 60% -> 45%. [DD, WP, WM, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.5.2/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.5 (mirror: https://wiki.leagueoflegends.com/en-us/V7.5)",
+      "https://raw.communitydragon.org/7.5/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V7.6",
+   "season": "s7",
+   "reason": "change",
+   "date": "2017-03-22",
+   "source": {"ddragon":"7.6.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/7.6.1/data/en_US/mastery.json",
+    "https://leagueoflegends.fandom.com/wiki/V7.6 (mirror: https://wiki.leagueoflegends.com/en-us/V7.6)",
+    "https://raw.communitydragon.org/7.6/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+   ],
+   "changes": [
+    {
+     "text": "Warlord's Bloodlust Energized heal 1-50% life steal -> heal for 5-40% of total AD by level, amplified by critical strikes. [DD, WP, LC]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.6.1/data/en_US/mastery.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.6 (mirror: https://wiki.leagueoflegends.com/en-us/V7.6)",
+      "https://raw.communitydragon.org/7.6/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "patch": "V7.21",
+   "season": "s7",
+   "reason": "season-end",
+   "date": "2017-10-25",
+   "source": {"ddragon":"7.21.1"},
+   "sources": [
+    "https://ddragon.leagueoflegends.com/cdn/7.21.1/data/en_US/mastery.json",
+    "https://raw.communitydragon.org/7.21/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json",
+    "https://leagueoflegends.fandom.com/wiki/V7.8 (mirror: https://wiki.leagueoflegends.com/en-us/V7.8)",
+    "https://leagueoflegends.fandom.com/wiki/V7.22 (mirror: https://wiki.leagueoflegends.com/en-us/V7.22)"
+   ],
+   "changes": [
+    {
+     "text": "No calculator-relevant change since V7.6: DDragon 7.6.1 = 7.21.1 and League Client data 7.6 = 7.21; V7.8 / V7.9 / V7.16 were visual and bug fixes only (Stormraider's effect, Deathfire instance overwrite and DoT tagging). Last patch with masteries; V7.22 replaces them with Runes Reforged (DDragon 7.22.1 / 7.23.1 still ship an unchanged mastery.json). [DD, LC, WP]",
+     "sources": [
+      "https://ddragon.leagueoflegends.com/cdn/7.21.1/data/en_US/mastery.json",
+      "https://raw.communitydragon.org/7.21/plugins/rcp-be-lol-game-data/global/default/v1/summoner-masteries.json",
+      "https://leagueoflegends.fandom.com/wiki/V7.8 (mirror: https://wiki.leagueoflegends.com/en-us/V7.8)",
+      "https://leagueoflegends.fandom.com/wiki/V7.22 (mirror: https://wiki.leagueoflegends.com/en-us/V7.22)"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "confidence": "high"
+  }
+ ]
+}

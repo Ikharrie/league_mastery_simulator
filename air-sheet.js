@@ -1,25 +1,34 @@
 // air-sheet.js — the AIR profile sheet shell (css/air-sheet.css), shared by
-// index.html (classic + keystone AIR masteries) and runes.html (V3.14-V6.24).
-// Loaded in <head> right after nav.js; no jQuery, no DOM work at load time.
+// index.html (classic + keystone AIR masteries) and runes.html (pre-Reforged
+// runes). Loaded in <head> right after nav.js; no jQuery, no DOM work at
+// load time.
 //
-// Keeps the period-dependent sheet chrome in step with the active season:
-//   .air-sheet[data-air-season]  "s1" … "s7"
-//   .air-sheet[data-air-period]  2010 | 2012 | 2013 | 2014  (client look)
+// Keeps the period-dependent sheet chrome in step with the active dataset:
+//   .air-sheet[data-air-season]  "s1" … "s7"           (entry.season)
+//   .air-sheet[data-air-period]  2010 | 2012 | 2013 | 2014  (entry.airPeriod)
 //   nav.air-subtabs              the pill labels of that client; Masteries /
 //                                Runes are real links (nav.js seasonNavUrl)
 //                                to the current season, the rest are inert
-//   .air-page-chips              page chips 1..N (+ "+"), page 1 selected
-// The season comes from the header's #season-select, which nav.js
-// buildSeasonNav() rebuilds on every dataset switch (in-page included), so
-// a MutationObserver on it is enough. The air/lcu flip itself is pure CSS
-// (body[data-client]).
+//   .air-page-chips              page chips 1..N (+ "+"), page 1 selected,
+//                                per page and season (CHIPS)
+// The air/lcu flip itself is pure CSS (body[data-client]).
 //
-// Public: AirSheet.boot()     sync + watch now (inline after the sheet markup)
-//         AirSheet.refresh()  re-sync now (e.g. after replacing markup).
-//         AirMasterySidebar   the Masteries sidebar (second module below).
+// Public: AirSheet.sync(entry)  the calculators call it on every dataset
+//                               switch, with the registry entry (DESIGN §2.5)
+//         AirSheet.boot()       first sync, from the hash (LolPatches
+//                               .fromHash; inline after the sheet markup)
+//         AirSheet.refresh()    re-sync now (e.g. after replacing markup)
+//         AirSheet.current()    the entry of the last sync(entry), or null
+//         AirMasterySidebar     the Masteries sidebar (second module below)
+// TRANSITION: while LolPatches.shellMode() is "legacy" (lol-data.js header)
+// and no sync(entry) has happened, the season comes from the header's
+// #season-select (nav.js buildSeasonNav rebuilds it on every switch; a
+// MutationObserver follows it) and the period from the season-keyed PERIOD
+// table, as before the registry. sync(entry) ends that for the page.
 
 var AirSheet = window.AirSheet = (function(){
-    // Which client look each season's calculator belongs to.
+    // TRANSITION: which client look each season's calculator belongs to
+    // (legacy mode only; registry entries carry airPeriod).
     var PERIOD = {
         masteries: { s1: "2010", s2: "2012", s3: "2012", s4: "2014", s5: "2014", s6: "2014", s7: "2014" },
         runes:     { s3: "2013", s4: "2014", s5: "2014", s6: "2014", s7: "2014" }
@@ -34,19 +43,26 @@ var AirSheet = window.AirSheet = (function(){
     // Page chips [count, has "+"] per season, as seen in that season's
     // captures (Dec 2012: 1-10 +; 4.20: 1-20; Apr 2015: 1-6 +; Oct 2015
     // PBE: 1-8 +; 2016: 1-20; rune pages: 3 in 2013, 6 in 2015, 20 late).
+    // Runes S1/S2: the starting page count, 2 (DESIGN §3.5; to confirm
+    // against a capture, task T6).
     var CHIPS = {
         masteries: { s2: [10, true], s3: [10, true], s4: [20, false], s5: [6, true], s6: [8, true], s7: [20, false] },
-        runes:     { s3: [3, false], s4: [6, false], s5: [6, false], s6: [20, false], s7: [20, false] }
+        runes:     { s1: [2, false], s2: [2, false], s3: [3, false], s4: [6, false], s5: [6, false], s6: [20, false], s7: [20, false] }
     };
     var LABELS = { masteries: "Masteries", runes: "Runes" };
+    var explicit = null;      // the entry of the last sync(entry)
 
     function sheets() { return document.querySelectorAll(".air-sheet[data-air-page]"); }
 
+    function legacyShell() { return !window.LolPatches || LolPatches.shellMode() === "legacy"; }
+
+    // TRANSITION: the legacy ids' season ("s5-final" / "preReforged-V5.21" -> s5).
     function seasonFromDatasetId(id) {
         var m = /^s(\d+)-/.exec(id || "") || /^preReforged-V(\d+)\./.exec(id || "");
         return m ? "s" + m[1] : null;
     }
 
+    // TRANSITION: legacy mode's season (from the hash, else the header).
     function currentSeason(fromHash) {
         if (fromHash) {
             var key = seasonFromDatasetId(String(location.hash || "").replace(/^#/, "").split("|")[0]);
@@ -116,19 +132,23 @@ var AirSheet = window.AirSheet = (function(){
         }
     }
 
-    function sync(season) {
+    // season + period -> every sheet of the page. period null = the legacy
+    // season-keyed PERIOD table.
+    function apply(season, period) {
         if (!season) return;
         var def = typeof seasonNavFind === "function" ? seasonNavFind(season) : null;
         var list = sheets();
         for (var i = 0; i < list.length; i++) {
             var sheet = list[i];
             var page = sheet.getAttribute("data-air-page");
-            var period = (PERIOD[page] || {})[season] || "2014";
-            if (sheet.getAttribute("data-air-season") === season && sheet._airSynced) continue;
+            var p = period || (PERIOD[page] || {})[season] || "2014";
+            var stamp = season + "|" + p;
+            if (sheet._airStamp === stamp && sheet._airSynced) continue;
             sheet.setAttribute("data-air-season", season);
-            sheet.setAttribute("data-air-period", period);
-            renderSubtabs(sheet, page, period, def);
+            sheet.setAttribute("data-air-period", p);
+            renderSubtabs(sheet, page, p, def);
             renderChips(sheet, page, season);
+            sheet._airStamp = stamp;
             sheet._airSynced = true;
             // The sidebar's Save state depends on the period (2010: always
             // live); repaint it in case it rendered before this sync.
@@ -136,20 +156,50 @@ var AirSheet = window.AirSheet = (function(){
         }
     }
 
-    function refresh() {
+    function unsync() {
         var list = sheets();
         for (var i = 0; i < list.length; i++) list[i]._airSynced = false;
-        sync(currentSeason(false));
+    }
+
+    // sync(entry): the registry entry of the active dataset (season, period).
+    // sync("s4"): TRANSITION, a legacy season key (ignored after a sync(entry)).
+    function sync(x) {
+        if (!x) return;
+        if (typeof x === "object") {
+            if (!explicit) {
+                if (window.LolPatches) LolPatches.useRegistry();
+                unsync();                       // the links now use the registry table
+            }
+            explicit = x;
+            apply(x.season, x.airPeriod || null);
+            return;
+        }
+        if (explicit) return;
+        apply(String(x), null);
+    }
+
+    function refresh() {
+        unsync();
+        if (explicit) apply(explicit.season, explicit.airPeriod || null);
+        else if (legacyShell()) apply(currentSeason(false), null);
     }
 
     var booted = false;
     function init() {
         if (booted || !sheets().length) return;
         booted = true;
-        sync(currentSeason(true));             // deep link: right look before first paint
+        if (!legacyShell()) {
+            // Deep link: right look before first paint (the calculators
+            // call sync(entry) again on every switch).
+            var r = LolPatches.fromHash(LolPatches.page());
+            if (r.entry) sync(r.entry);
+            return;
+        }
+        // TRANSITION: the legacy calculators only rebuild #season-select.
+        apply(currentSeason(true), null);
         var sel = document.getElementById("season-select");
         if (sel && window.MutationObserver) {
-            new MutationObserver(function(){ sync(currentSeason(false)); })
+            new MutationObserver(function(){ if (!explicit) apply(currentSeason(false), null); })
                 .observe(sel, { childList: true });
         }
     }
@@ -160,7 +210,11 @@ var AirSheet = window.AirSheet = (function(){
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
     else init();
 
-    return { boot: init, refresh: refresh, sync: sync, PERIOD: PERIOD, SUBTABS: SUBTABS, CHIPS: CHIPS };
+    return {
+        boot: init, refresh: refresh, sync: sync,
+        current: function(){ return explicit; },
+        PERIOD: PERIOD, SUBTABS: SUBTABS, CHIPS: CHIPS
+    };
 })();
 
 // ---------------------------------------------------------------------------

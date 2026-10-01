@@ -1,0 +1,40 @@
+{
+ "patch": "V13.6",
+ "ddragon": "13.6.1",
+ "cdragonBranch": "13.6",
+ "cdragonCarriedFrom": null,
+ "perkText": {
+  "8009": [
+   null,
+   "Damaging an enemy champion increases your mana regeneration by 1.5-11 (80% for ranged) mana per second for 4 seconds. All energy users gain 1.5 energy per second, instead.<br><br>Takedowns restore 15% of your maximum mana or energy. "
+  ]
+ },
+ "subStyleBonus": null,
+ "shards": {
+  "rows": [{"label":"Offense","perks":[5008,5005,5007]},{"label":"Flex","perks":[5008,5002,5003]},{"label":"Defense","perks":[5001,5002,5003]}],
+  "perks": {
+   "5001": {"name":"Health Scaling","desc":"+15-140 Health (based on level)","icon":"StatModsHealthScalingIcon.png"},
+   "5002": {"name":"Armor","desc":"+6 Armor","icon":"StatModsArmorIcon.png"},
+   "5003": {"name":"Magic Resist","desc":"+8 Magic Resist","icon":"StatModsMagicResIcon.MagicResist_Fix.png"},
+   "5005": {"name":"Attack Speed","desc":"+10% Attack Speed","icon":"StatModsAttackSpeedIcon.png"},
+   "5007": {
+    "name": "Ability Haste",
+    "desc": "+8 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> ",
+    "icon": "StatModsCDRScalingIcon.png"
+   },
+   "5008": {
+    "name": "Adaptive Force",
+    "desc": "+9 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive Force</font></lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsAdaptiveForceIcon.png"
+   }
+  }
+ },
+ "unresolved": {},
+ "catalogHash": "2afed1a4fc96cbbc39f54704e3222e8eab74e0a44ac00e2d1fa2408ba4f6f8ec",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/13.6.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/13.6/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/13.6/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

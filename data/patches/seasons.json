@@ -1,0 +1,155 @@
+{
+  "_comment": [
+    "Season table for every page (DESIGN.md 3.1, 3.3, 3.4). Hand-maintained; read it through tools/lib/patches.js (seasons(), seasonOf(), seasonDefault(), labelFor()).",
+    "Rule: a preseason patch belongs to the season that follows it. Pre-Season One (launch, 2009) is Season 1. From 2024 on there is no preseason patch.",
+    "Patches are written as Riot's official names. Compare them with patches.compare: V25.S1.1 == V25.1, V26.01 == V26.1, V3.04 == V3.4.",
+    "seasons[].first/last: the season boundaries (3.1), identical on every page. seasons[].pages.<page>: that page's first/last listed patch, the number of listed patches (0) and the season default id (3.4). A page that is absent did not exist in that season.",
+    "Each new live patch: move live.patch/live.ddragon and the last season's last / pages.reforged.last / count / default."
+  ],
+  "live": { "patch": "V26.19", "ddragon": "16.19.1", "tag": "Current" },
+  "pageDefaults": { "masteries": "m-V1.0.0.152", "runes": "preReforged-V7.21", "reforged": "rr-v26-19" },
+  "seasons": [
+    {
+      "key": "s1", "label": "Season 1", "startTag": "Launch",
+      "first": "V1.0.0.32", "firstDate": "2009-10-21", "last": "V1.0.0.128", "lastDate": "2011-11-01",
+      "note": "Includes Pre-Season One (the launch era).",
+      "pages": {
+        "masteries": { "first": "V1.0.0.32", "last": "V1.0.0.128", "count": 10, "default": "m-V1.0.0.128" },
+        "runes": { "first": "V1.0.0.63", "last": "V1.0.0.128", "count": 8, "default": "preReforged-V1.0.0.128",
+                   "firstNote": "V1.0.0.63 is the first rune state that can be reconstructed (D2); the runes page does not start at the season boundary." }
+      }
+    },
+    {
+      "key": "s2", "label": "Season 2", "startTag": "Preseason 2",
+      "first": "V1.0.0.129", "firstDate": "2011-11-15", "last": "V1.0.0.151", "lastDate": "2012-11-13",
+      "pages": {
+        "masteries": { "first": "V1.0.0.129", "last": "V1.0.0.151", "count": 4, "default": "m-V1.0.0.131" },
+        "runes": { "first": "V1.0.0.129", "last": "V1.0.0.151", "count": 5, "default": "preReforged-V1.0.0.151" }
+      }
+    },
+    {
+      "key": "s3", "label": "Season 3", "startTag": "Preseason 3",
+      "first": "V1.0.0.152", "firstDate": "2012-12-04", "last": "V3.13", "lastDate": "2013-10-29",
+      "pages": {
+        "masteries": { "first": "V1.0.0.152", "last": "V3.13", "count": 2, "default": "m-V1.0.0.152" },
+        "runes": { "first": "V1.0.0.152", "last": "V3.13", "count": 3, "default": "preReforged-V3.13" }
+      }
+    },
+    {
+      "key": "s4", "label": "Season 4", "startTag": "Preseason 4",
+      "first": "V3.14", "firstDate": "2013-11-20", "last": "V4.19", "lastDate": "2014-11-05",
+      "pages": {
+        "masteries": { "first": "V3.14", "last": "V4.19", "count": 5, "default": "m-V4.19" },
+        "runes": { "first": "V3.14", "last": "V4.19", "count": 3, "default": "preReforged-V4.19" }
+      }
+    },
+    {
+      "key": "s5", "label": "Season 5", "startTag": "Preseason 5",
+      "first": "V4.20", "firstDate": "2014-11-20", "last": "V5.21", "lastDate": "2015-10-29",
+      "pages": {
+        "masteries": { "first": "V4.20", "last": "V5.21", "count": 4, "default": "m-V5.21" },
+        "runes": { "first": "V4.20", "last": "V5.21", "count": 2, "default": "preReforged-V5.21" }
+      }
+    },
+    {
+      "key": "s6", "label": "Season 6", "startTag": "Preseason 6",
+      "first": "V5.22", "firstDate": "2015-11-11", "last": "V6.21", "lastDate": "2016-10-19",
+      "pages": {
+        "masteries": { "first": "V5.22", "last": "V6.21", "count": 10, "default": "m-V5.22" },
+        "runes": { "first": "V5.22", "last": "V6.21", "count": 2, "default": "preReforged-V6.21" }
+      }
+    },
+    {
+      "key": "s7", "label": "Season 7", "startTag": "Preseason 7",
+      "first": "V6.22", "firstDate": "2016-11-10", "last": "V7.21", "lastDate": "2017-10-25",
+      "pages": {
+        "masteries": { "first": "V6.22", "last": "V7.21", "count": 7, "default": "m-V7.21" },
+        "runes": { "first": "V6.22", "last": "V7.21", "count": 2, "default": "preReforged-V7.21" }
+      }
+    },
+    {
+      "key": "s8", "label": "Season 8 (2018)", "startTag": "Runes Reforged",
+      "first": "V7.22", "firstDate": "2017-11-08", "last": "V8.22", "lastDate": "2018-11-07",
+      "pages": {
+        "reforged": { "first": "V7.22", "last": "V8.22", "count": 21, "default": "rr-v8-22" }
+      }
+    },
+    {
+      "key": "s9", "label": "Season 9 (2019)", "startTag": "Preseason 9",
+      "first": "V8.23", "firstDate": "2018-11-20", "last": "V9.22", "lastDate": "2019-11-06",
+      "pages": {
+        "reforged": { "first": "V8.23", "last": "V9.22", "count": 14, "default": "rr-v9-22" }
+      }
+    },
+    {
+      "key": "s10", "label": "Season 10 (2020)", "startTag": "Preseason 10",
+      "first": "V9.23", "firstDate": "2019-11-20", "last": "V10.22", "lastDate": "2020-10-28",
+      "pages": {
+        "reforged": { "first": "V9.23", "last": "V10.22", "count": 16, "default": "rr-v10-22" }
+      }
+    },
+    {
+      "key": "s11", "label": "Season 11 (2021)", "startTag": "Preseason 11",
+      "first": "V10.23", "firstDate": "2020-11-11", "last": "V11.22", "lastDate": "2021-11-03",
+      "pages": {
+        "reforged": { "first": "V10.23", "last": "V11.22", "count": 11, "default": "rr-v11-22" }
+      }
+    },
+    {
+      "key": "s12", "label": "Season 12 (2022)", "startTag": "Preseason 12",
+      "first": "V11.23", "firstDate": "2021-11-17", "last": "V12.21", "lastDate": "2022-11-02",
+      "pages": {
+        "reforged": { "first": "V11.23", "last": "V12.21", "count": 13, "default": "rr-v12-21" }
+      }
+    },
+    {
+      "key": "s13", "label": "Season 13 (2023)", "startTag": "Preseason 13",
+      "first": "V12.22", "firstDate": "2022-11-16", "last": "V13.24", "lastDate": "2023-12-06",
+      "pages": {
+        "reforged": { "first": "V12.22", "last": "V13.24", "count": 11, "default": "rr-v13-24" }
+      }
+    },
+    {
+      "key": "s14", "label": "Season 14 (2024)", "startTag": "Season start",
+      "first": "V14.1", "firstDate": "2024-01-10", "last": "V14.24", "lastDate": "2024-12-11",
+      "pages": {
+        "reforged": { "first": "V14.1", "last": "V14.24", "count": 15, "default": "rr-v14-19" }
+      }
+    },
+    {
+      "key": "s2025", "label": "Season 2025", "startTag": "Season start",
+      "first": "V25.S1.1", "firstDate": "2025-01-09", "last": "V25.24", "lastDate": "2025-12-10",
+      "pages": {
+        "reforged": { "first": "V25.S1.1", "last": "V25.24", "count": 12, "default": "rr-v25-24" }
+      }
+    },
+    {
+      "key": "s2026", "label": "Season 2026 (Current)", "startTag": "Season start",
+      "first": "V26.01", "firstDate": "2026-01-08", "last": "V26.19", "lastDate": "2026-09-23",
+      "note": "Open season: last = the current live patch (live.patch).",
+      "pages": {
+        "reforged": { "first": "V26.01", "last": "V26.19", "count": 10, "default": "rr-v26-19" }
+      }
+    }
+  ],
+  "labels": {
+    "_comment": "DESIGN.md 3.3. Label = V<patch> plus an optional (tag). Precedence: listing label > listing tag > curated > season startTag > live tag > seasonEndOverrides > seasonEnd. Low confidence appends (approx.).",
+    "approx": "approx.",
+    "seasonEnd": "Season end",
+    "seasonEndOverrides": {
+      "masteries": { "V7.21": "Final masteries" },
+      "runes": { "V7.21": "Final pre-Reforged" }
+    },
+    "curated": {
+      "masteries": { "V5.10": "Utility rework", "V5.12": "Defense rework" },
+      "runes": { "V4.5": "Rune rework", "V6.22": "Lethality" },
+      "reforged": {
+        "V8.6": "Conqueror",
+        "V8.23": "Preseason 9 · Stat shards",
+        "V14.10": "Rune rework",
+        "V25.S1.1": "Season start · Domination rework",
+        "V26.09": "Deathfire Touch"
+      }
+    }
+  }
+}

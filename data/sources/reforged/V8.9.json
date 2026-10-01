@@ -1,0 +1,48 @@
+{
+ "patch": "V8.9",
+ "ddragon": "8.9.1",
+ "cdragonBranch": "8.9",
+ "cdragonCarriedFrom": null,
+ "perkText": null,
+ "subStyleBonus": {
+  "8000": {
+   "8100": "+9% Attack Speed<br>+6 Attack Damage or +10 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8200": "+9% Attack Speed<br>+6 Attack Damage or +10 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8300": "+18% Attack Speed",
+   "8400": "+9% Attack Speed<br>+15-135 Health based on level"
+  },
+  "8100": {
+   "8000": "+8 Attack Damage or +13 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword><br>+5.5% Attack Speed",
+   "8200": "+11 Attack Damage or +18 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8300": "+11 Attack Damage or +18 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8400": "+5 Attack Damage or +9 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword><br>+15-135 Health based on level"
+  },
+  "8200": {
+   "8000": "+8 Attack Damage or +14 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword><br>+5.5% Attack Speed",
+   "8100": "+12 Attack Damage or +20 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8300": "+12 Attack Damage or +20 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8400": "+6 Attack Damage or +10 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword><br>+15-135 Health based on level"
+  },
+  "8300": {
+   "8000": "+20% Attack Speed",
+   "8100": "+13 Attack Damage or +22 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8200": "+13 Attack Damage or +22 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8400": "+35-300 Health based on level"
+  },
+  "8400": {
+   "8000": "+15-135 Health based on level<br>+9% Attack Speed",
+   "8100": "+15-135 Health based on level<br>+5 Attack Damage or +9 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8200": "+15-135 Health based on level<br>+6 Attack Damage or +10 Ability Power, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive</font></lol-uikit-tooltipped-keyword>",
+   "8300": "+30-270 Health based on level"
+  }
+ },
+ "shards": null,
+ "unresolved": {},
+ "catalogHash": "f83d43879c293adb05466356873c774bd8657eaa169636e6b9442efa7ccc9da5",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/8.9.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/8.9/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/8.9/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

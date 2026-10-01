@@ -1,0 +1,35 @@
+{
+ "patch": "V8.24",
+ "ddragon": "8.24.1",
+ "cdragonBranch": "8.24",
+ "cdragonCarriedFrom": null,
+ "perkText": null,
+ "subStyleBonus": null,
+ "shards": {
+  "rows": [{"label":"Offense","perks":[5008,5005,5007]},{"label":"Flex","perks":[5008,5002,5003]},{"label":"Defense","perks":[5001,5002,5003]}],
+  "perks": {
+   "5001": {"name":"HealthScaling","desc":"+15-90 Health (based on level)","icon":"StatModsHealthScalingIcon.png"},
+   "5002": {"name":"Armor","desc":"+5 Armor","icon":"StatModsArmorIcon.png"},
+   "5003": {"name":"MagicRes","desc":"+6 Magic Resist","icon":"StatModsMagicResIcon.png"},
+   "5005": {"name":"AttackSpeed","desc":"+9% Attack Speed","icon":"StatModsAttackSpeedIcon.png"},
+   "5007": {
+    "name": "CDRScaling",
+    "desc": "+1-10% <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>CDR</lol-uikit-tooltipped-keyword> (based on level)",
+    "icon": "StatModsCDRScalingIcon.png"
+   },
+   "5008": {
+    "name": "Adaptive",
+    "desc": "+10 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive Force</font></lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsAdaptiveForceIcon.png"
+   }
+  }
+ },
+ "unresolved": {},
+ "catalogHash": "dbc067717b3588b5673517672ff506cf7db739823ce1b5a324870d31ea2ab5f1",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/8.24.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/8.24/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/8.24/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

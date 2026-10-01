@@ -1,0 +1,1270 @@
+{
+ "_comment": [
+  "Runes Reforged: every Data Dragon / CommunityDragon difference the research classified as noise, and the rule that dropped it (DESIGN §1.3).",
+  "Imported by tools/import-reforged.js from the research's noise_log.json (finalize.py). rule = markup/format, @placeholder@ <-> value, lore quote, spelling fix, icon path, internal key or name, or manual: <reason>.",
+  "build-reforged.js --audit (C3) allows an unlisted patch to differ from its predecessor only when it has an entry here."
+ ],
+ "page": "reforged",
+ "source": "research reforged/noise_log.json",
+ "items": [
+  {
+   "patch": "V7.23",
+   "rule": "manual: wording (\"Get Summoner Shards and exchange them\" -> \"Exchange Summoner Shards\")",
+   "what": "Unsealed Spellbook shortDesc [text] {prev:cdragon,cur:cdragon}: [Get => Exchange] ; Get Summoner Shards [and exchange them => ] ; Spells have reduced [cooldown. => cooldowns.]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "manual: wording (\"some of your missing health\" -> \"some missing health\")",
+   "what": "Second Wind shortDesc [text] {prev:cdragon,cur:cdragon}: heal back some [of your => ]"
+  },
+  {"patch":"V7.23","rule":"spelling fix","what":"Press the Attack shortDesc [typo] {prev:cdragon,cur:cdragon}: times makes them [vunerable, => vulnerable,]"},
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Lethal Tempo shortDesc [markup] {prev:cdragon,cur:cdragon}: large amount of [attack speed. => Attack Speed.]"},
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Cut Down shortDesc [markup] {prev:cdragon,cur:cdragon}: champions with more [maximum => max]"},
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "Fleet Footwork longDesc [markup] {prev:cdragon,cur:cdragon}: 5 - 50 [(+0.10 => (+0.1] ; (+0.10 Bonus AD, [+0.20 => +0.2]"
+  },
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Electrocute longDesc [markup] {prev:cdragon,cur:cdragon}: 50 - 220 [(+0.50 => (+0.5]"},
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "Eyeball Collection longDesc [markup] {prev:cdragon,cur:cdragon}: bonus of 6 [attack damage, => Attack Damage,] ; damage, or 10 [ability power. => Ability Power.]"
+  },
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Taste of Blood longDesc [markup] {prev:cdragon,cur:cdragon}: champion. Healing: 18-35 [(+0.20 => (+0.2]"},
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Nullifying Orb longDesc [markup] {prev:cdragon,cur:cdragon}: based on level [(+0.10 => (+0.1]"},
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Arcane Comet longDesc [markup] {prev:cdragon,cur:cdragon}: based on level [(+0.20 => (+0.2]"},
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "Waterwalking longDesc [markup] {prev:cdragon,cur:cdragon}: up to 18 [attack damage => Attack Damage] ; damage or 30 [ability power => Ability Power]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "Absolute Focus longDesc [markup] {prev:cdragon,cur:cdragon}: up to 24 [attack damage => Attack Damage] ; damage or 40 [ability power => Ability Power]"
+  },
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Last Stand longDesc [markup] {prev:cdragon,cur:cdragon}: Deal [5%-12% => 5% - 12%]"},
+  {
+   "patch": "V7.23",
+   "rule": "spelling fix",
+   "what": "Celestial Body shortDesc [typo] {prev:cdragon,cur:cdragon}: [+ 100 => +100] ; 100 Health permanently [- 10% => -10%] ; to champions and [monster => monsters]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "spelling fix",
+   "what": "Celestial Body longDesc [typo] {prev:cdragon,cur:cdragon}: [+ 100 => +100] ; 100 Health permanently [- 10% => -10%] ; to champions and [monster => monsters]"
+  },
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Font of Life longDesc [markup] {prev:cdragon,cur:cdragon}: for 5 + [1.0% => 1%]"},
+  {"patch":"V7.23","rule":"markup/format/abbreviation/number-format only","what":"Guardian longDesc [markup] {prev:cdragon,cur:cdragon}: 60 - 150 [+(0.20 => +(0.2]"},
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Domination+Precision [markup]: +11 [attack damage => Attack Damage] ; damage or +18 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Domination+Sorcery [markup]: +11 [attack damage => Attack Damage] ; damage or +18 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Domination+Inspiration [markup]: +11 [attack damage => Attack Damage] ; damage or +18 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Domination+Resolve [markup]: +11 [attack damage => Attack Damage] ; damage or +18 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Sorcery+Precision [markup]: +15 [attack damage => Attack Damage] ; damage or +25 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Sorcery+Domination [markup]: +15 [attack damage => Attack Damage] ; damage or +25 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Sorcery+Inspiration [markup]: +15 [attack damage => Attack Damage] ; damage or +25 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Sorcery+Resolve [markup]: +15 [attack damage => Attack Damage] ; damage or +25 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Inspiration+Domination [markup]: Elixir Duration +16 [attack damage => Attack Damage] ; damage or +27 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V7.23",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "PATH BONUS Inspiration+Sorcery [markup]: Elixir Duration +16 [attack damage => Attack Damage] ; damage or +27 [ability power, adaptive => Ability Power, Adaptive]"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8210, \"name\": \"Transcendence\", \"from\": \"Overcharger\", \"to\": \"Transcendence\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8210, \"name\": \"Transcendence\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Overcharger/Overcharger.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/Transcendence/Transcendence.dds\", \"no"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8214, \"name\": \"Summon Aery\", \"from\": \"KSPerxie\", \"to\": \"SummonAery\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8214, \"name\": \"Summon Aery\", \"from\": \"ASSETS/Perks/Styles/Sorcery/KSPerxie/KSPerxie.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/SummonAery/SummonAery.dds\", \"noise_rule\": \"ic"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8224, \"name\": \"Nullifying Orb\", \"from\": \"SpellparrySigil\", \"to\": \"NullifyingOrb\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8224, \"name\": \"Nullifying Orb\", \"from\": \"ASSETS/Perks/Styles/Sorcery/PokeShield/Pokeshield.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/NullifyingOrb/Pokeshield.dds\", \"noise_"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8226, \"name\": \"Manaflow Band\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Clearcasting/Clearcasting.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/ManaflowBand/ManaflowBand.dds\", \"no"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8229, \"name\": \"Arcane Comet\", \"from\": \"KSDoomsayer\", \"to\": \"ArcaneComet\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8229, \"name\": \"Arcane Comet\", \"from\": \"ASSETS/Perks/Styles/Sorcery/KSDoomsayer/KSDoomsayer.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/ArcaneComet/ArcaneComet.dds\", \"noise_r"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8230, \"name\": \"Phase Rush\", \"from\": \"KSSpellslingersSurge\", \"to\": \"PhaseRush\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8230, \"name\": \"Phase Rush\", \"from\": \"ASSETS/Perks/Styles/Sorcery/KSSpellslingersSurge/KSSpellslingersSurge.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/PhaseRush/PhaseRush.dd"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8232, \"name\": \"Waterwalking\", \"from\": \"Roamer\", \"to\": \"Waterwalking\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8232, \"name\": \"Waterwalking\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Roamer/Roamer.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/Waterwalking/Waterwalking.dds\", \"noise_rule\": \"i"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8233, \"name\": \"Absolute Focus\", \"from\": \"FlawlessCombatant\", \"to\": \"AbsoluteFocus\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8233, \"name\": \"Absolute Focus\", \"from\": \"ASSETS/Perks/Styles/Sorcery/FlawlessCombatant/FlawlessCombatant.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/AbsoluteFocus/AbsoluteFo"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8234, \"name\": \"Celerity\", \"from\": \"Surge\", \"to\": \"Celerity\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8234, \"name\": \"Celerity\", \"from\": \"ASSETS/Perks/Styles/Sorcery/SpeedDemon/SpeedDemonTemp.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/Celerity/CelerityTemp.dds\", \"noise_rule\""
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8236, \"name\": \"Gathering Storm\", \"from\": \"ElderGod\", \"to\": \"GatheringStorm\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8236, \"name\": \"Gathering Storm\", \"from\": \"ASSETS/Perks/Styles/Sorcery/ElderGod/ElderGod.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/GatheringStorm/GatheringStorm.dds\", \"nois"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8237, \"name\": \"Scorch\", \"from\": \"Spellburn\", \"to\": \"Scorch\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8237, \"name\": \"Scorch\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Spellburn/Spellburn.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/Scorch/Scorch.dds\", \"noise_rule\": \"icon path onl"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8243, \"name\": \"The Ultimate Hat\", \"from\": \"UltiMore\", \"to\": \"TheUltimateHat\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8243, \"name\": \"The Ultimate Hat\", \"from\": \"ASSETS/Perks/Styles/Sorcery/UltiMore/UltiMore.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/TheUltimateHat/TheUltimateHat.dds\", \"noi"
+  },
+  {"patch":"V8.1","rule":"spelling fix","what":"Grasp of the Undying longDesc [typo] {prev:cdragon,cur:cdragon}: your max health [Heal => Heals]"},
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8105, \"name\": \"Relentless Hunter\", \"from\": \"ProlificHunter\", \"to\": \"RelentlessHunter\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8105, \"name\": \"Relentless Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/ProlificHunter/ProlificHunter.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/RelentlessHunter/Rele"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8112, \"name\": \"Electrocute\", \"from\": \"StormlordsMandate\", \"to\": \"Electrocute\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8112, \"name\": \"Electrocute\", \"from\": \"ASSETS/Perks/Styles/Domination/TLords/TLords.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/Electrocute/Electrocute.dds\", \"noise_rule\":"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8120, \"name\": \"Ghost Poro\", \"from\": \"ViciousPoro\", \"to\": \"GhostPoro\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8120, \"name\": \"Ghost Poro\", \"from\": \"ASSETS/Perks/Styles/Domination/ViciousPoro/ViciousPoro.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/GhostPoro/GhostPoro.dds\", \"noise_r"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8124, \"name\": \"Predator\", \"from\": \"KSLycanthropy\", \"to\": \"Predator\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8124, \"name\": \"Predator\", \"from\": \"ASSETS/Perks/Styles/Domination/KSLycanthropy/KSLycanthropy.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/Predator/Predator.dds\", \"noise_r"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8126, \"name\": \"Cheap Shot\", \"from\": \"ASSETS/Perks/Styles/Domination/Bully/Bully.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/CheapShot/CheapShot.dds\", \"noise_rule\": \"icon "
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8128, \"name\": \"Dark Harvest\", \"from\": \"KSSoulReaper\", \"to\": \"DarkHarvest\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8128, \"name\": \"Dark Harvest\", \"from\": \"ASSETS/Perks/Styles/Domination/KSSoulReaper/KSSoulReaper.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/DarkHarvest/DarkHarvest.dds\", "
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8134, \"name\": \"Ingenious Hunter\", \"from\": \"BigGameHunter\", \"to\": \"IngeniousHunter\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8134, \"name\": \"Ingenious Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/BigGameHunter/BigGameHunter.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/IngeniousHunter/Ingeniou"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8135, \"name\": \"Ravenous Hunter\", \"from\": \"InsatiableHunter\", \"to\": \"RavenousHunter\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8135, \"name\": \"Ravenous Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/InsatiableHunter/InsatiableHunter.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/RavenousHunter/Rave"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8138, \"name\": \"Eyeball Collection\", \"from\": \"WardSlayer\", \"to\": \"EyeballCollection\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8138, \"name\": \"Eyeball Collection\", \"from\": \"ASSETS/Perks/Styles/Domination/WardSlayer/WardSlayer.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/EyeballCollection/EyeballCol"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8139, \"name\": \"Taste of Blood\", \"from\": \"Feast\", \"to\": \"TasteOfBlood\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8139, \"name\": \"Taste of Blood\", \"from\": \"ASSETS/Perks/Styles/Domination/Feast/GreenTerror_Feast.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/TasteOfBlood/GreenTerror_Taste"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8143, \"name\": \"Sudden Impact\", \"from\": \"DashAttack\", \"to\": \"SuddenImpact\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.2",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8143, \"name\": \"Sudden Impact\", \"from\": \"ASSETS/Perks/Styles/Domination/DashAttack/DashAttack.dds\", \"to\": \"ASSETS/Perks/Styles/Domination/SuddenImpact/SuddenImpact.dds\", \""
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8242, \"name\": \"Unflinching\", \"from\": \"Recharge\", \"to\": \"Unflinching\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8242, \"name\": \"Unflinching\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Recharge/Recharge.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/Unflinching/Unflinching.dds\", \"noise_rule\": \""
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8429, \"name\": \"Conditioning\", \"from\": \"NemFighter\", \"to\": \"Conditioning\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8429, \"name\": \"Conditioning\", \"from\": \"ASSETS/Perks/Styles/Resolve/NemFighter/NemFighter.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/Conditioning/Conditioning.dds\", \"noise_r"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8430, \"name\": \"Iron Skin\", \"from\": \"NemMarks\", \"to\": \"IronSkin\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8430, \"name\": \"Iron Skin\", \"from\": \"ASSETS/Perks/Styles/Resolve/NemMarks/NemMarks.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/IronSkin/IronSkin.dds\", \"noise_rule\": \"icon pat"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8435, \"name\": \"Mirror Shell\", \"from\": \"NemMage\", \"to\": \"MirrorShell\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8435, \"name\": \"Mirror Shell\", \"from\": \"ASSETS/Perks/Styles/Resolve/NemMage/NemMage.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/MirrorShell/MirrorShell.dds\", \"noise_rule\": \"i"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8437, \"name\": \"Grasp of the Undying\", \"from\": \"KSRuinedKing\", \"to\": \"GraspOfTheUndying\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8437, \"name\": \"Grasp of the Undying\", \"from\": \"ASSETS/Perks/Styles/Resolve/KSRuinedKing/KSRuinedKing.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/GraspOfTheUndying/GraspOfThe"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8439, \"name\": \"Aftershock\", \"from\": \"Vengeance\", \"to\": \"Aftershock\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8439, \"name\": \"Aftershock\", \"from\": \"ASSETS/Perks/Styles/Resolve/VeteranVengeance/VeteranVengeance.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/VeteranAftershock/VeteranAfter"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8446, \"name\": \"Demolish\", \"from\": \"Siege\", \"to\": \"Demolish\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8446, \"name\": \"Demolish\", \"from\": \"ASSETS/Perks/Styles/Resolve/BrickHitHouse/BrickHitHouse.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/Demolish/Demolish.dds\", \"noise_rule\": "
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8451, \"name\": \"Overgrowth\", \"from\": \"HealthBandit\", \"to\": \"Overgrowth\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8451, \"name\": \"Overgrowth\", \"from\": \"ASSETS/Perks/Styles/Resolve/HealthBandit/HealthBandit.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/Overgrowth/Overgrowth.dds\", \"noise_rul"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8453, \"name\": \"Revitalize\", \"from\": \"AmpShields\", \"to\": \"Revitalize\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8453, \"name\": \"Revitalize\", \"from\": \"ASSETS/Perks/Styles/Resolve/AmpShields/AmpShields.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/Revitalize/Revitalize.dds\", \"noise_rule\": "
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8463, \"name\": \"Font of Life\", \"from\": \"BloodFromStone\", \"to\": \"FontOfLife\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8463, \"name\": \"Font of Life\", \"from\": \"ASSETS/Perks/Styles/Resolve/BloodFromStone/BloodFromStone.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/FontOfLife/FontOfLife.dds\", \"noi"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8465, \"name\": \"Guardian\", \"from\": \"KSBuddyShield\", \"to\": \"Guardian\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.3",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8465, \"name\": \"Guardian\", \"from\": \"ASSETS/Perks/Styles/Resolve/KSBuddyShield/KSBuddyShield.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/Guardian/Guardian.dds\", \"noise_rule\": "
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8005, \"name\": \"Press the Attack\", \"from\": \"PressThreeAttacks\", \"to\": \"PressTheAttack\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8005, \"name\": \"Press the Attack\", \"from\": \"ASSETS/Perks/Styles/Precision/PressThreeAttacks/PressThreeAttacks.dds\", \"to\": \"ASSETS/Perks/Styles/Precision/PressTheAttack/Pre"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8008, \"name\": \"Lethal Tempo\", \"from\": \"Berserk\", \"to\": \"LethalTempo\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8009, \"name\": \"Presence of Mind\", \"from\": \"CastOnKill\", \"to\": \"PresenceOfMind\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8017, \"name\": \"Cut Down\", \"from\": \"GiantSlayer\", \"to\": \"CutDown\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8017, \"name\": \"Cut Down\", \"from\": \"ASSETS/Perks/Styles/Precision/GiantSlayer/GiantSlayer.dds\", \"to\": \"ASSETS/Perks/Styles/Precision/CutDown/CutDown.dds\", \"noise_rule\": \"i"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8021, \"name\": \"Fleet Footwork\", \"from\": \"KSFleetFootwork\", \"to\": \"FleetFootwork\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8021, \"name\": \"Fleet Footwork\", \"from\": \"ASSETS/Perks/Styles/Precision/KSFleetFootwork/KSFleetFootwork.dds\", \"to\": \"ASSETS/Perks/Styles/Precision/FleetFootwork/FleetFootw"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8299, \"name\": \"Last Stand\", \"from\": \"ToTheDeath\", \"to\": \"LastStand\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8299, \"name\": \"Last Stand\", \"from\": \"ASSETS/Perks/Styles/Sorcery/ToTheDeath/ToTheDeath.dds\", \"to\": \"ASSETS/Perks/Styles/Sorcery/LastStand/LastStand.dds\", \"noise_rule\": \"i"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 9103, \"name\": \"Legend: Bloodline\", \"from\": \"LegendInfamy\", \"to\": \"LegendBloodline\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 9104, \"name\": \"Legend: Alacrity\", \"from\": \"LegendDauntless\", \"to\": \"LegendAlacrity\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.4",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 9111, \"name\": \"Triumph\", \"from\": \"AdrenalineRush\", \"to\": \"Triumph\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Fleet Footwork shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Relentless Hunter shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Electrocute shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Predator shortDesc [markup]: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Cheap Shot shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Dark Harvest shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Ingenious Hunter shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Ravenous Hunter shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Eyeball Collection shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Transcendence shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Phase Rush shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Waterwalking shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Absolute Focus shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Celerity shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Gathering Storm shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Magical Footwear shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8306, \"name\": \"Hextech Flashtraption\", \"from\": \"DontBlink\", \"to\": \"HextechFlashtraption\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8306, \"name\": \"Hextech Flashtraption\", \"from\": \"ASSETS/Perks/Styles/Inspiration/DontBlink/DontBlink.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/HextechFlashtraption/Hext"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8313, \"name\": \"Perfect Timing\", \"from\": \"AllInGoodTime\", \"to\": \"PerfectTiming\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8313, \"name\": \"Perfect Timing\", \"from\": \"ASSETS/Perks/Styles/Style5/AllInGoodTime/AllInGoodTime.dds\", \"to\": \"ASSETS/Perks/Styles/Style5/PerfectTiming/PerfectTiming.dds\", "
+  },
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Perfect Timing shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8316, \"name\": \"Minion Dematerializer\", \"from\": \"TheClearChoice\", \"to\": \"MinionDematerializer\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8316, \"name\": \"Minion Dematerializer\", \"from\": \"ASSETS/Perks/Styles/Inspiration/TheClearChoice/TheClearChoice.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/MinionDemateria"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8321, \"name\": \"Future's Market\", \"from\": \"NanaTaxman\", \"to\": \"FuturesMarket\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8321, \"name\": \"Future's Market\", \"from\": \"ASSETS/Perks/Styles/Style5/NanaTaxman/NanaTaxman.dds\", \"to\": \"ASSETS/Perks/Styles/Style5/FuturesMarket/FuturesMarket.dds\", \"nois"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8326, \"name\": \"Unsealed Spellbook\", \"from\": \"KSAlchemicalEsoterica\", \"to\": \"UnsealedSpellbook\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8326, \"name\": \"Unsealed Spellbook\", \"from\": \"ASSETS/Perks/Styles/Inspiration/KSAlchemicalEsoterica/KSAlchemicalEsoterica.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/Unse"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8345, \"name\": \"Biscuit Delivery\", \"from\": \"BiscuitsAndBonuses\", \"to\": \"BiscuitDelivery\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8345, \"name\": \"Biscuit Delivery\", \"from\": \"ASSETS/Perks/Styles/Inspiration/BiscuitsAndBonuses/BiscuitsAndBonuses.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/BiscuitDeliv"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8347, \"name\": \"Cosmic Insight\", \"from\": \"Intelligence\", \"to\": \"CosmicInsight\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8347, \"name\": \"Cosmic Insight\", \"from\": \"ASSETS/Perks/Styles/Inspiration/Intelligence/Intelligence.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/CosmicInsight/CosmicInsigh"
+  },
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Cosmic Insight shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8351, \"name\": \"Glacial Augment\", \"from\": \"KSGlacialAugment\", \"to\": \"GlacialAugment\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8351, \"name\": \"Glacial Augment\", \"from\": \"ASSETS/Perks/Styles/Inspiration/KSGlacialAugment/KSGlacialAugment.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/GlacialAugment/Gl"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8359, \"name\": \"Kleptomancy\", \"from\": \"KSLooter\", \"to\": \"Kleptomancy\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8359, \"name\": \"Kleptomancy\", \"from\": \"ASSETS/Perks/Styles/Inspiration/KSLooter/KSLooter.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/Kleptomancy/Kleptomancy.dds\", \"noise_"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8410, \"name\": \"Approach Velocity\", \"from\": \"HotPursuit\", \"to\": \"ApproachVelocity\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.5",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8410, \"name\": \"Approach Velocity\", \"from\": \"ASSETS/Perks/Styles/Resolve/HotPursuit/HotPursuit.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/ApproachVelocity/ApproachVelocity.d"
+  },
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Approach Velocity shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Aftershock shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Font of Life shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Legend: Bloodline shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Legend: Alacrity shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Legend: Tenacity shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.5","rule":"markup/format/abbreviation/number-format only","what":"Triumph shortDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {"patch":"V8.6","rule":"markup/format/abbreviation/number-format only","what":"Celerity longDesc [markup] {prev:cdragon,cur:cdragon}: "},
+  {
+   "patch": "V8.6",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8313, \"name\": \"Perfect Timing\", \"from\": \"ASSETS/Perks/Styles/Style5/PerfectTiming/PerfectTiming.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/PerfectTiming/PerfectTiming.d"
+  },
+  {
+   "patch": "V8.6",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8321, \"name\": \"Future's Market\", \"from\": \"ASSETS/Perks/Styles/Style5/FuturesMarket/FuturesMarket.dds\", \"to\": \"ASSETS/Perks/Styles/Inspiration/FuturesMarket/FuturesMarket."
+  },
+  {
+   "patch": "V8.6",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8473, \"name\": \"Bone Plating\", \"from\": \"BucklerRing\", \"to\": \"BonePlating\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V8.6",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8473, \"name\": \"Bone Plating\", \"from\": \"ASSETS/Perks/Styles/Resolve/BucklerRing/BucklerRing.dds\", \"to\": \"ASSETS/Perks/Styles/Resolve/BonePlating/BonePlating.dds\", \"noise_r"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "manual: text-source switch artifact: V7.22-V8.7 texts come from the CDragon client perks.json (DDragon had @placeholders@); DDragon 8.8.2 omits the \"Debt limit: 150 + 5/min\" line the client still shows - no game change",
+   "what": "Future's Market longDesc [numbers+text] {prev:cdragon}: Fee: 50 gold [Debt limit: 150 + 5/min (Debt doesn't become available until 2 minutes) => ]"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "path icon path only",
+   "what": "{\"type\": \"path_icon\", \"path\": 8000, \"from\": \"ASSETS/Perks/Styles/7201_Precision.dds\", \"to\": \"perk-images/Styles/7201_Precision.png\", \"noise_rule\": \"path icon path only\"}"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "path icon path only",
+   "what": "{\"type\": \"path_icon\", \"path\": 8100, \"from\": \"ASSETS/Perks/Styles/7200_Domination.dds\", \"to\": \"perk-images/Styles/7200_Domination.png\", \"noise_rule\": \"path icon path only\"}"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "path icon path only",
+   "what": "{\"type\": \"path_icon\", \"path\": 8200, \"from\": \"ASSETS/Perks/Styles/7202_Sorcery.dds\", \"to\": \"perk-images/Styles/7202_Sorcery.png\", \"noise_rule\": \"path icon path only\"}"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "path icon path only",
+   "what": "{\"type\": \"path_icon\", \"path\": 8300, \"from\": \"ASSETS/Perks/Styles/7203_Whimsy.dds\", \"to\": \"perk-images/Styles/7203_Whimsy.png\", \"noise_rule\": \"path icon path only\"}"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "path icon path only",
+   "what": "{\"type\": \"path_icon\", \"path\": 8400, \"from\": \"ASSETS/Perks/Styles/7204_Resolve.dds\", \"to\": \"perk-images/Styles/7204_Resolve.png\", \"noise_rule\": \"path icon path only\"}"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8005, \"name\": \"Press the Attack\", \"from\": \"ASSETS/Perks/Styles/Precision/PressTheAttack/PressTheAttack.dds\", \"to\": \"perk-images/Styles/Precision/PressTheAttack/PressTheAt"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8008, \"name\": \"Lethal Tempo\", \"from\": \"ASSETS/Perks/Styles/Precision/FlowofBattle/FlowofBattleTemp.dds\", \"to\": \"perk-images/Styles/Precision/FlowofBattle/FlowofBattleTemp"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8009, \"name\": \"Presence of Mind\", \"from\": \"ASSETS/Perks/Styles/Precision/LastResort/LastResortIcon.dds\", \"to\": \"perk-images/Styles/Precision/LastResort/LastResortIcon.png"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8010, \"name\": \"Conqueror\", \"from\": \"ASSETS/Perks/Styles/Precision/Conqueror/Conqueror.dds\", \"to\": \"perk-images/Styles/Precision/Conqueror/Conqueror.png\", \"noise_rule\": \"i"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8014, \"name\": \"Coup de Grace\", \"from\": \"ASSETS/Perks/Styles/Precision/CoupDeGrace/CoupDeGrace.dds\", \"to\": \"perk-images/Styles/Precision/CoupDeGrace/CoupDeGrace.png\", \"noi"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8017, \"name\": \"Cut Down\", \"from\": \"ASSETS/Perks/Styles/Precision/CutDown/CutDown.dds\", \"to\": \"perk-images/Styles/Precision/CutDown/CutDown.png\", \"noise_rule\": \"icon path "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8021, \"name\": \"Fleet Footwork\", \"from\": \"ASSETS/Perks/Styles/Precision/FleetFootwork/FleetFootwork.dds\", \"to\": \"perk-images/Styles/Precision/FleetFootwork/FleetFootwork.p"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8105, \"name\": \"Relentless Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/RelentlessHunter/RelentlessHunter.dds\", \"to\": \"perk-images/Styles/Domination/RelentlessHunter/R"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8112, \"name\": \"Electrocute\", \"from\": \"ASSETS/Perks/Styles/Domination/Electrocute/Electrocute.dds\", \"to\": \"perk-images/Styles/Domination/Electrocute/Electrocute.png\", \"noi"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8120, \"name\": \"Ghost Poro\", \"from\": \"ASSETS/Perks/Styles/Domination/GhostPoro/GhostPoro.dds\", \"to\": \"perk-images/Styles/Domination/GhostPoro/GhostPoro.png\", \"noise_rule\":"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8124, \"name\": \"Predator\", \"from\": \"ASSETS/Perks/Styles/Domination/Predator/Predator.dds\", \"to\": \"perk-images/Styles/Domination/Predator/Predator.png\", \"noise_rule\": \"icon"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8126, \"name\": \"Cheap Shot\", \"from\": \"ASSETS/Perks/Styles/Domination/CheapShot/CheapShot.dds\", \"to\": \"perk-images/Styles/Domination/CheapShot/CheapShot.png\", \"noise_rule\":"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8128, \"name\": \"Dark Harvest\", \"from\": \"ASSETS/Perks/Styles/Domination/DarkHarvest/DarkHarvest.dds\", \"to\": \"perk-images/Styles/Domination/DarkHarvest/DarkHarvest.png\", \"no"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8134, \"name\": \"Ingenious Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/IngeniousHunter/IngeniousHunter.dds\", \"to\": \"perk-images/Styles/Domination/IngeniousHunter/Ingen"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8135, \"name\": \"Ravenous Hunter\", \"from\": \"ASSETS/Perks/Styles/Domination/RavenousHunter/RavenousHunter.dds\", \"to\": \"perk-images/Styles/Domination/RavenousHunter/RavenousH"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8136, \"name\": \"Zombie Ward\", \"from\": \"ASSETS/Perks/Styles/Domination/ZombieWard/ZombieWard.dds\", \"to\": \"perk-images/Styles/Domination/ZombieWard/ZombieWard.png\", \"noise_r"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8138, \"name\": \"Eyeball Collection\", \"from\": \"ASSETS/Perks/Styles/Domination/EyeballCollection/EyeballCollection.dds\", \"to\": \"perk-images/Styles/Domination/EyeballCollecti"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8139, \"name\": \"Taste of Blood\", \"from\": \"ASSETS/Perks/Styles/Domination/TasteOfBlood/GreenTerror_TasteOfBlood.dds\", \"to\": \"perk-images/Styles/Domination/TasteOfBlood/Gree"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8143, \"name\": \"Sudden Impact\", \"from\": \"ASSETS/Perks/Styles/Domination/SuddenImpact/SuddenImpact.dds\", \"to\": \"perk-images/Styles/Domination/SuddenImpact/SuddenImpact.png\""
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8210, \"name\": \"Transcendence\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Transcendence/Transcendence.dds\", \"to\": \"perk-images/Styles/Sorcery/Transcendence/Transcendence.png\", "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8214, \"name\": \"Summon Aery\", \"from\": \"ASSETS/Perks/Styles/Sorcery/SummonAery/SummonAery.dds\", \"to\": \"perk-images/Styles/Sorcery/SummonAery/SummonAery.png\", \"noise_rule\": "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8224, \"name\": \"Nullifying Orb\", \"from\": \"ASSETS/Perks/Styles/Sorcery/NullifyingOrb/Pokeshield.dds\", \"to\": \"perk-images/Styles/Sorcery/NullifyingOrb/Pokeshield.png\", \"nois"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8226, \"name\": \"Manaflow Band\", \"from\": \"ASSETS/Perks/Styles/Sorcery/ManaflowBand/ManaflowBand.dds\", \"to\": \"perk-images/Styles/Sorcery/ManaflowBand/ManaflowBand.png\", \"noi"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8229, \"name\": \"Arcane Comet\", \"from\": \"ASSETS/Perks/Styles/Sorcery/ArcaneComet/ArcaneComet.dds\", \"to\": \"perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png\", \"noise_ru"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8230, \"name\": \"Phase Rush\", \"from\": \"ASSETS/Perks/Styles/Sorcery/PhaseRush/PhaseRush.dds\", \"to\": \"perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png\", \"noise_rule\": \"icon"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8232, \"name\": \"Waterwalking\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Waterwalking/Waterwalking.dds\", \"to\": \"perk-images/Styles/Sorcery/Waterwalking/Waterwalking.png\", \"nois"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8233, \"name\": \"Absolute Focus\", \"from\": \"ASSETS/Perks/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.dds\", \"to\": \"perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png\","
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8234, \"name\": \"Celerity\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Celerity/CelerityTemp.dds\", \"to\": \"perk-images/Styles/Sorcery/Celerity/CelerityTemp.png\", \"noise_rule\": \"ic"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8236, \"name\": \"Gathering Storm\", \"from\": \"ASSETS/Perks/Styles/Sorcery/GatheringStorm/GatheringStorm.dds\", \"to\": \"perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm."
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8237, \"name\": \"Scorch\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Scorch/Scorch.dds\", \"to\": \"perk-images/Styles/Sorcery/Scorch/Scorch.png\", \"noise_rule\": \"icon path only (same"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8242, \"name\": \"Unflinching\", \"from\": \"ASSETS/Perks/Styles/Sorcery/Unflinching/Unflinching.dds\", \"to\": \"perk-images/Styles/Sorcery/Unflinching/Unflinching.png\", \"noise_rul"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8243, \"name\": \"The Ultimate Hat\", \"from\": \"ASSETS/Perks/Styles/Sorcery/TheUltimateHat/TheUltimateHat.dds\", \"to\": \"perk-images/Styles/Sorcery/TheUltimateHat/TheUltimateHat"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8299, \"name\": \"Last Stand\", \"from\": \"ASSETS/Perks/Styles/Sorcery/LastStand/LastStand.dds\", \"to\": \"perk-images/Styles/Sorcery/LastStand/LastStand.png\", \"noise_rule\": \"icon"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8304, \"name\": \"Magical Footwear\", \"from\": \"ASSETS/Perks/Styles/Inspiration/MagicalFootwear/MagicalFootwear.dds\", \"to\": \"perk-images/Styles/Inspiration/MagicalFootwear/Mag"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8306, \"name\": \"Hextech Flashtraption\", \"from\": \"ASSETS/Perks/Styles/Inspiration/HextechFlashtraption/HextechFlashtraption.dds\", \"to\": \"perk-images/Styles/Inspiration/Hext"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8313, \"name\": \"Perfect Timing\", \"from\": \"ASSETS/Perks/Styles/Inspiration/PerfectTiming/PerfectTiming.dds\", \"to\": \"perk-images/Styles/Inspiration/PerfectTiming/PerfectTimi"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8316, \"name\": \"Minion Dematerializer\", \"from\": \"ASSETS/Perks/Styles/Inspiration/MinionDematerializer/MinionDematerializer.dds\", \"to\": \"perk-images/Styles/Inspiration/Mini"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8321, \"name\": \"Future's Market\", \"from\": \"ASSETS/Perks/Styles/Inspiration/FuturesMarket/FuturesMarket.dds\", \"to\": \"perk-images/Styles/Inspiration/FuturesMarket/FuturesMar"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8326, \"name\": \"Unsealed Spellbook\", \"from\": \"ASSETS/Perks/Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.dds\", \"to\": \"perk-images/Styles/Inspiration/UnsealedSpell"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8345, \"name\": \"Biscuit Delivery\", \"from\": \"ASSETS/Perks/Styles/Inspiration/BiscuitDelivery/BiscuitDelivery.dds\", \"to\": \"perk-images/Styles/Inspiration/BiscuitDelivery/Bis"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8347, \"name\": \"Cosmic Insight\", \"from\": \"ASSETS/Perks/Styles/Inspiration/CosmicInsight/CosmicInsight.dds\", \"to\": \"perk-images/Styles/Inspiration/CosmicInsight/CosmicInsig"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8351, \"name\": \"Glacial Augment\", \"from\": \"ASSETS/Perks/Styles/Inspiration/GlacialAugment/GlacialAugment.dds\", \"to\": \"perk-images/Styles/Inspiration/GlacialAugment/Glacial"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8352, \"name\": \"Time Warp Tonic\", \"from\": \"ASSETS/Perks/Styles/Inspiration/TimeWarpTonic/TimeWarpTonic.dds\", \"to\": \"perk-images/Styles/Inspiration/TimeWarpTonic/TimeWarpTo"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8359, \"name\": \"Kleptomancy\", \"from\": \"ASSETS/Perks/Styles/Inspiration/Kleptomancy/Kleptomancy.dds\", \"to\": \"perk-images/Styles/Inspiration/Kleptomancy/Kleptomancy.png\", \"n"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8410, \"name\": \"Approach Velocity\", \"from\": \"ASSETS/Perks/Styles/Resolve/ApproachVelocity/ApproachVelocity.dds\", \"to\": \"perk-images/Styles/Resolve/ApproachVelocity/Approac"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8429, \"name\": \"Conditioning\", \"from\": \"ASSETS/Perks/Styles/Resolve/Conditioning/Conditioning.dds\", \"to\": \"perk-images/Styles/Resolve/Conditioning/Conditioning.png\", \"nois"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8437, \"name\": \"Grasp of the Undying\", \"from\": \"ASSETS/Perks/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.dds\", \"to\": \"perk-images/Styles/Resolve/GraspOfTheUndying/G"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8439, \"name\": \"Aftershock\", \"from\": \"ASSETS/Perks/Styles/Resolve/VeteranAftershock/VeteranAftershock.dds\", \"to\": \"perk-images/Styles/Resolve/VeteranAftershock/VeteranAfte"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8444, \"name\": \"Second Wind\", \"from\": \"ASSETS/Perks/Styles/Resolve/SecondWind/SecondWind.dds\", \"to\": \"perk-images/Styles/Resolve/SecondWind/SecondWind.png\", \"noise_rule\": "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8446, \"name\": \"Demolish\", \"from\": \"ASSETS/Perks/Styles/Resolve/Demolish/Demolish.dds\", \"to\": \"perk-images/Styles/Resolve/Demolish/Demolish.png\", \"noise_rule\": \"icon path "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8451, \"name\": \"Overgrowth\", \"from\": \"ASSETS/Perks/Styles/Resolve/Overgrowth/Overgrowth.dds\", \"to\": \"perk-images/Styles/Resolve/Overgrowth/Overgrowth.png\", \"noise_rule\": \""
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8453, \"name\": \"Revitalize\", \"from\": \"ASSETS/Perks/Styles/Resolve/Revitalize/Revitalize.dds\", \"to\": \"perk-images/Styles/Resolve/Revitalize/Revitalize.png\", \"noise_rule\": \""
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8463, \"name\": \"Font of Life\", \"from\": \"ASSETS/Perks/Styles/Resolve/FontOfLife/FontOfLife.dds\", \"to\": \"perk-images/Styles/Resolve/FontOfLife/FontOfLife.png\", \"noise_rule\":"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8465, \"name\": \"Guardian\", \"from\": \"ASSETS/Perks/Styles/Resolve/Guardian/Guardian.dds\", \"to\": \"perk-images/Styles/Resolve/Guardian/Guardian.png\", \"noise_rule\": \"icon path "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8472, \"name\": \"Chrysalis\", \"from\": \"ASSETS/Perks/Styles/Resolve/Chrysalis/Chrysalis.dds\", \"to\": \"perk-images/Styles/Resolve/Chrysalis/Chrysalis.png\", \"noise_rule\": \"icon "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8473, \"name\": \"Bone Plating\", \"from\": \"ASSETS/Perks/Styles/Resolve/BonePlating/BonePlating.dds\", \"to\": \"perk-images/Styles/Resolve/BonePlating/BonePlating.png\", \"noise_ru"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9101, \"name\": \"Overheal\", \"from\": \"ASSETS/Perks/Styles/Precision/Overheal.dds\", \"to\": \"perk-images/Styles/Precision/Overheal.png\", \"noise_rule\": \"icon path only (same run"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9103, \"name\": \"Legend: Bloodline\", \"from\": \"ASSETS/Perks/Styles/Precision/Legend_Infamy.dds\", \"to\": \"perk-images/Styles/Precision/Legend_Infamy.png\", \"noise_rule\": \"icon "
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9104, \"name\": \"Legend: Alacrity\", \"from\": \"ASSETS/Perks/Styles/Precision/Legend_Heroism.dds\", \"to\": \"perk-images/Styles/Precision/Legend_Heroism.png\", \"noise_rule\": \"icon"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9105, \"name\": \"Legend: Tenacity\", \"from\": \"ASSETS/Perks/Styles/Precision/Legend_Tenacity.dds\", \"to\": \"perk-images/Styles/Precision/Legend_Tenacity.png\", \"noise_rule\": \"ic"
+  },
+  {
+   "patch": "V8.8",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9111, \"name\": \"Triumph\", \"from\": \"ASSETS/Perks/Styles/Precision/DangerousGame.dds\", \"to\": \"perk-images/Styles/Precision/DangerousGame.png\", \"noise_rule\": \"icon path only "
+  },
+  {
+   "patch": "V8.14",
+   "rule": "manual: wording \"Earn a Bounty Hunter stack\" -> \"Bounty Hunter stacks are earned\"",
+   "what": "Relentless Hunter longDesc [text]: Bounty Hunter stack. [Earn a => ] ; a Bounty Hunter [stack => stacks are earned]"
+  },
+  {
+   "patch": "V8.14",
+   "rule": "manual: wording \"Earn a Bounty Hunter stack\" -> \"Bounty Hunter stacks are earned\"",
+   "what": "Ultimate Hunter longDesc [text]: Bounty Hunter stack. [Earn a => ] ; a Bounty Hunter [stack => stacks are earned]"
+  },
+  {
+   "patch": "V8.14",
+   "rule": "manual: wording \"Earn a Bounty Hunter stack\" -> \"Bounty Hunter stacks are earned\"",
+   "what": "Ingenious Hunter longDesc [text]: stack (includes Trinkets). [Earn a => ] ; a Bounty Hunter [stack => stacks are earned]"
+  },
+  {
+   "patch": "V8.14",
+   "rule": "manual: wording \"Earn a Bounty Hunter stack\" -> \"Bounty Hunter stacks are earned\"",
+   "what": "Ravenous Hunter longDesc [text]: Bounty Hunter stack. [Earn a => ] ; a Bounty Hunter [stack => stacks are earned]"
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8008, \"name\": \"Lethal Tempo\", \"from\": \"perk-images/Styles/Precision/FlowofBattle/FlowofBattleTemp.png\", \"to\": \"perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.pn"
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8009, \"name\": \"Presence of Mind\", \"from\": \"perk-images/Styles/Precision/LastResort/LastResortIcon.png\", \"to\": \"perk-images/Styles/Precision/PresenceOfMind/PresenceOfMind."
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9103, \"name\": \"Legend: Bloodline\", \"from\": \"perk-images/Styles/Precision/Legend_Infamy.png\", \"to\": \"perk-images/Styles/Precision/LegendBloodline/LegendBloodline.png\", \"no"
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9104, \"name\": \"Legend: Alacrity\", \"from\": \"perk-images/Styles/Precision/Legend_Heroism.png\", \"to\": \"perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png\", \"nois"
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9105, \"name\": \"Legend: Tenacity\", \"from\": \"perk-images/Styles/Precision/Legend_Tenacity.png\", \"to\": \"perk-images/Styles/Precision/LegendTenacity/LegendTenacity.png\", \"noi"
+  },
+  {
+   "patch": "V8.17",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9111, \"name\": \"Triumph\", \"from\": \"perk-images/Styles/Precision/DangerousGame.png\", \"to\": \"perk-images/Styles/Precision/Triumph.png\", \"noise_rule\": \"icon path only (same r"
+  },
+  {
+   "patch": "V9.2",
+   "rule": "manual: sentence moved (\"Ranged Champions: ... 20% effective\" -> \"20% effective for Ranged Champions\")",
+   "what": "Fleet Footwork longDesc [text]: next attack is [Energized. => Energized] ; speed for 1s. [Ranged Champions: => ] ; minions is 20% [effective. => effective for Ranged Champions.]"
+  },
+  {"patch":"V9.2","rule":"markup/format/abbreviation/number-format only","what":"Legend: Alacrity longDesc [markup]: "},
+  {"patch":"V9.2","rule":"markup/format/abbreviation/number-format only","what":"Legend: Tenacity longDesc [markup]: "},
+  {"patch":"V9.10","rule":"markup/format/abbreviation/number-format only","what":"Electrocute longDesc [markup]: "},
+  {"patch":"V9.10","rule":"markup/format/abbreviation/number-format only","what":"Waterwalking longDesc [markup]: "},
+  {"patch":"V9.10","rule":"markup/format/abbreviation/number-format only","what":"Triumph longDesc [markup]: "},
+  {
+   "patch": "V10.7",
+   "rule": "manual: item name \"Perfectly Timed Stopwatch\" -> \"Stopwatch\" in text only",
+   "what": "Perfect Timing longDesc [text]: transforms into a [Perfectly Timed => ] ; by 120 seconds. [Perfectly Timed => ]"
+  },
+  {"patch":"V10.22","rule":"markup/format/abbreviation/number-format only","what":"Nimbus Cloak longDesc [markup]: that lasts for [2.0s => 2s]"},
+  {
+   "patch": "V10.23",
+   "rule": "manual: item name \"Slightly Magical Boots\" -> \"Slightly Magical Footware\", \"Movement\" -> \"Move\"",
+   "what": "Magical Footwear longDesc [text]: free Slightly Magical [Boots => Footware] ; sooner. Slightly Magical [Boots give => Footware grant] ; you an additional [+10 Movement => 10 Move]"
+  },
+  {
+   "patch": "V10.24",
+   "rule": "manual: client text correction: \"+8 Ability Haste (based on level)\" -> \"+8 Ability Haste\"; value unchanged since V10.23",
+   "what": "SHARD CDRScaling (5007) [text]: +8 Ability Haste [(based on level) => ]"
+  },
+  {"patch":"V10.24","rule":"spelling fix","what":"Magical Footwear longDesc [typo]: free Slightly Magical [Footware => Footwear] ; sooner. Slightly Magical [Footware grant => Footwear grants]"},
+  {"patch":"V10.24","rule":"markup/format/abbreviation/number-format only","what":"Revitalize shortDesc [markup]: "},
+  {"patch":"V11.1","rule":"markup/format/abbreviation/number-format only","what":"Ingenious Hunter longDesc [markup]: "},
+  {"patch":"V11.1","rule":"markup/format/abbreviation/number-format only","what":"Revitalize longDesc [markup]: "},
+  {
+   "patch": "V11.2",
+   "rule": "manual: word order only (\"5 out of combat Movement Speed\" -> \"5 Move Speed out of combat\")",
+   "what": "Relentless Hunter longDesc [text]: Gain 5 [ => Move Speed] ; out of combat [Movement Speed => ]"
+  },
+  {
+   "patch": "V11.2",
+   "rule": "manual: wording only (\"Movement Speed\" -> \"Move Speed\", sentence merged); values unchanged",
+   "what": "Phase Rush longDesc [text]: 25 - 40% [Movement => Move] ; 75% Slow Resistance. [Movement speed => This] ; 40 - 60% [ => Move Speed]"
+  },
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Fleet Footwork longDesc [markup]: AP) and grant [+20% movement speed => 20% Move Speed]"},
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Waterwalking longDesc [markup]: Gain 25 [Movement => Move]"},
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Celerity shortDesc [markup]: All [movement speed => Move Speed] ; and gain 1% [Movement => Move]"},
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Celerity longDesc [markup]: and gain 1% [Movement => Move]"},
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Nimbus Cloak shortDesc [markup]: gain a short [movement speed => Move Speed]"},
+  {
+   "patch": "V11.2",
+   "rule": "markup/format/abbreviation/number-format only",
+   "what": "Nimbus Cloak longDesc [markup]: Spell, gain a [movement speed => Move Speed] ; 5% - 35% [Movement => Move] ; Spells grant more [Movement => Move]"
+  },
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Time Warp Tonic longDesc [markup]: addition, gain 5% [Movement => Move]"},
+  {"patch":"V11.2","rule":"markup/format/abbreviation/number-format only","what":"Approach Velocity longDesc [markup]: Gain 7.5% [Movement => Move] ; increased to 15% [Movement => Move]"},
+  {
+   "patch": "V11.7",
+   "rule": "manual: \"Omnivamp: 0% + 1.5% per stack\" -> \"Omnivamp: 1.5% per stack\"; same value (V11.6 already set the base to 0%)",
+   "what": "Ravenous Hunter longDesc [numbers+text]: Omnivamp: [0% + => ]"
+  },
+  {
+   "patch": "V12.4",
+   "rule": "manual: cooldown text moved (\"25s cooldown.\" -> \"Cooldown: 25s\")",
+   "what": "Glacial Augment shortDesc [text]: nearby enemies and [reducing => reduce] ; to your allies. [ => Cooldown:] ; your allies. 25s [cooldown. => ]"
+  },
+  {
+   "patch": "V12.4",
+   "rule": "manual: cooldown text moved (\"25s cooldown.\" -> \"Cooldown: 25s\")",
+   "what": "Glacial Augment longDesc [text]: (not including yourself). [ => Cooldown:] ; including yourself). 25s [cooldown. => ]"
+  },
+  {
+   "patch": "V12.6",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8135, \"name\": \"Treasure Hunter\", \"from\": \"RavenousHunter\", \"to\": \"TreasureHunter\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V12.6",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8135, \"name\": \"Treasure Hunter\", \"from\": \"perk-images/Styles/Domination/RavenousHunter/RavenousHunter.png\", \"to\": \"perk-images/Styles/Domination/TreasureHunter/TreasureHu"
+  },
+  {
+   "patch": "V12.10",
+   "rule": "manual: cooldown line dropped from the short description only (long description still lists 25s)",
+   "what": "Glacial Augment shortDesc [numbers+text]: to your allies. [Cooldown: 25s => ]"
+  },
+  {"patch":"V12.10","rule":"manual: unit added (\"25-15\" -> \"25 - 15s\")","what":"First Strike longDesc [text]: as gold. Cooldown: [25-15 => 25 - 15s]"},
+  {"patch":"V12.10","rule":"manual: spelling \"Lifesteal\" -> \"Life Steal\"","what":"Legend: Bloodline shortDesc [text]: enemies grant permanent [Lifesteal, => Life Steal,]"},
+  {"patch":"V12.10","rule":"manual: spelling \"lifesteal\" -> \"Life Steal\"","what":"Legend: Bloodline longDesc [text]: Gain 0.4% [lifesteal => Life Steal]"},
+  {"patch":"V12.10","rule":"markup/format/abbreviation/number-format only","what":"Lethal Tempo shortDesc [markup]: Gain [attack speed => Attack Speed]"},
+  {
+   "patch": "V12.11",
+   "rule": "shard icon file only",
+   "what": "{\"type\": \"shard_icon\", \"shard\": 5003, \"from\": \"StatModsMagicResIcon.png\", \"to\": \"StatModsMagicResIcon.MagicResist_Fix.png\", \"noise_rule\": \"shard icon file only\"}"
+  },
+  {"patch":"V12.14","rule":"lore/flavour quote only","what":"Phase Rush longDesc [lore]: champions.Duration: 3s Cooldown: [ => 30s -] ; 3s Cooldown: 10s [- 30s => ]"},
+  {
+   "patch": "V12.22",
+   "rule": "internal shard name only",
+   "what": "{\"type\": \"shard_name\", \"shard\": 5001, \"from\": \"HealthScaling\", \"to\": \"Health Scaling\", \"noise_rule\": \"internal shard name only\"}"
+  },
+  {
+   "patch": "V12.22",
+   "rule": "internal shard name only",
+   "what": "{\"type\": \"shard_name\", \"shard\": 5003, \"from\": \"MagicRes\", \"to\": \"Magic Resist\", \"noise_rule\": \"internal shard name only\"}"
+  },
+  {
+   "patch": "V12.22",
+   "rule": "internal shard name only",
+   "what": "{\"type\": \"shard_name\", \"shard\": 5005, \"from\": \"AttackSpeed\", \"to\": \"Attack Speed\", \"noise_rule\": \"internal shard name only\"}"
+  },
+  {
+   "patch": "V12.22",
+   "rule": "internal shard name only",
+   "what": "{\"type\": \"shard_name\", \"shard\": 5007, \"from\": \"CDRScaling\", \"to\": \"Ability Haste\", \"noise_rule\": \"internal shard name only\"}"
+  },
+  {
+   "patch": "V12.22",
+   "rule": "internal shard name only",
+   "what": "{\"type\": \"shard_name\", \"shard\": 5008, \"from\": \"Adaptive\", \"to\": \"Adaptive Force\", \"noise_rule\": \"internal shard name only\"}"
+  },
+  {
+   "patch": "V13.4",
+   "rule": "manual: ratio notation only: \"35 - 110 based on level (+0.09 AP and +0.14 bonus AD)\" -> \"35 to 110 (+14% bonus AD) + (9% AP) based on level\"",
+   "what": "Nullifying Orb longDesc [numbers+text]: would reduce your [Health => health] ; Health below 30%, [ => first] ; that absorbs 35 [- => to] ; 35 - 110 [ => (+14% bonus attack damage) + (9% ability power)] ; based on level [(+0.09 AP and +0.14 "
+  },
+  {"patch":"V13.4","rule":"markup/format/abbreviation/number-format only","what":"Overheal longDesc [markup]: 20 to 300 [health, => Health,]"},
+  {
+   "patch": "V13.10",
+   "rule": "manual: lending-fee sentence reworded; 50 gold unchanged",
+   "what": "Future's Market longDesc [text]: increases over time. [Lending Fee: => If you enter debt, you will be charged a lending fee of] ; Lending Fee: 50 [gold => gold.]"
+  },
+  {
+   "patch": "V13.16",
+   "rule": "shard icon file only",
+   "what": "{\"type\": \"shard_icon\", \"shard\": 5003, \"from\": \"StatModsMagicResIcon.MagicResist_Fix.png\", \"to\": \"StatModsMagicResIcon.png\", \"noise_rule\": \"shard icon file only\"}"
+  },
+  {"patch":"V13.21","rule":"lore/flavour quote only","what":"Phase Rush longDesc [lore]: is increased to [30 => 25] ; to 30 - [60% => 50%]"},
+  {
+   "patch": "V14.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8313, \"name\": \"Triple Tonic\", \"from\": \"perk-images/Styles/Inspiration/PerfectTiming/PerfectTiming.png\", \"to\": \"perk-images/Styles/Inspiration/PerfectTiming/AlchemistCabin"
+  },
+  {
+   "patch": "V14.2",
+   "rule": "shard icon file only",
+   "what": "{\"type\": \"shard_icon\", \"shard\": 5001, \"from\": \"StatModsHealthScalingIcon.png\", \"to\": \"StatModsHealthPlusIcon.png\", \"noise_rule\": \"shard icon file only\"}"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8316, \"name\": \"Jack Of All Trades\", \"from\": \"MinionDematerializer\", \"to\": \"JackOfAllTrades\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8316, \"name\": \"Jack Of All Trades\", \"from\": \"perk-images/Styles/Inspiration/MinionDematerializer/MinionDematerializer.png\", \"to\": \"perk-images/Styles/Inspiration/JackOfAl"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 8321, \"name\": \"Cash Back\", \"from\": \"FuturesMarket\", \"to\": \"CashBack\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8321, \"name\": \"Cash Back\", \"from\": \"perk-images/Styles/Inspiration/FuturesMarket/FuturesMarket.png\", \"to\": \"perk-images/Styles/Inspiration/CashBack/CashBack2.png\", \"noise"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 9101, \"name\": \"Absorb Life\", \"from\": \"Overheal\", \"to\": \"AbsorbLife\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9101, \"name\": \"Absorb Life\", \"from\": \"perk-images/Styles/Precision/Overheal.png\", \"to\": \"perk-images/Styles/Precision/AbsorbLife/AbsorbLife.png\", \"noise_rule\": \"icon path"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "internal key only (same rune id)",
+   "what": "{\"type\": \"rune_key\", \"rune\": 9105, \"name\": \"Legend: Haste\", \"from\": \"LegendTenacity\", \"to\": \"LegendHaste\", \"noise_rule\": \"internal key only (same rune id)\"}"
+  },
+  {
+   "patch": "V14.10",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 9105, \"name\": \"Legend: Haste\", \"from\": \"perk-images/Styles/Precision/LegendTenacity/LegendTenacity.png\", \"to\": \"perk-images/Styles/Precision/LegendHaste/LegendHaste.png\","
+  },
+  {"patch":"V14.16","rule":"manual: \"ability damage\" -> \"abilities\"; same effect","what":"Sudden Impact shortDesc [text]: basic attacks and [ability damage => abilities]"},
+  {"patch":"V14.16","rule":"manual: \"ability damage\" -> \"abilities\"; same effect","what":"Sudden Impact longDesc [text]: basic attacks and [ability damage => abilities]"},
+  {
+   "patch": "V14.20",
+   "rule": "manual: lore quote appended to the body (no <hr> separator)",
+   "what": "Electrocute longDesc [text]: damage. Cooldown: 20s [ => 'We called them the Thunderlords, for to speak of their lightning was to invite disaster.']"
+  },
+  {"patch":"V14.20","rule":"manual: article added (\"plus bonus\" -> \"plus a bonus\")","what":"Zombie Ward shortDesc [text]: Ward spawned plus [ => a]"},
+  {
+   "patch": "V14.20",
+   "rule": "manual: sentence order swapped; values unchanged",
+   "what": "Zombie Ward longDesc [numbers+text]: from their corpses. [ => Zombie Wards are visible, last for 120s and do not count towards your ward limit.] ; 10 adaptive force. [Zombie Wards are visible, last for 120s and do not count towards your war"
+  },
+  {
+   "patch": "V14.20",
+   "rule": "manual: equivalent rescale \"(+9% per 10% Heal and Shield Power)\" -> \"(+90% per 100% ...)\", \"(+ 100% of\" wording",
+   "what": "Glacial Augment longDesc [numbers+text]: for 3 (+ [100% of => ] ; enemies for 20% [(+9% => (+90%] ; 20% (+9% per [10% => 100%]"
+  },
+  {"patch":"V14.20","rule":"manual: \"(based on level)\" clarification added; 30-60 unchanged","what":"Bone Plating shortDesc [text]: them deal 30-60 [ => (based on level)]"},
+  {"patch":"V14.20","rule":"manual: \"(based on level)\" clarification added; 30-60 unchanged","what":"Bone Plating longDesc [text]: them deal 30-60 [ => (based on level)]"},
+  {"patch":"V14.20","rule":"markup/format/abbreviation/number-format only","what":"Lethal Tempo longDesc [markup]: "},
+  {"patch":"V14.20","rule":"markup/format/abbreviation/number-format only","what":"Relentless Hunter longDesc [markup]: "},
+  {"patch":"V14.20","rule":"markup/format/abbreviation/number-format only","what":"Ultimate Hunter longDesc [markup]: "},
+  {"patch":"V14.20","rule":"markup/format/abbreviation/number-format only","what":"Transcendence longDesc [markup]: "},
+  {
+   "patch": "V14.21",
+   "rule": "manual: \"Heals you for 0 + 1.3%\" -> \"Heal for 1.3%\"; same value",
+   "what": "Grasp of the Undying longDesc [numbers+text]: your max health [Heals => Heal] ; Heals you for [0 + => ]"
+  },
+  {"patch":"V14.21","rule":"spelling fix","what":"Summon Aery longDesc [typo]: (+0.1 bonus AD). [Empower => Empowering]"},
+  {
+   "patch": "V25.S1.1",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8224, \"name\": \"Axiom Arcanist\", \"from\": \"perk-images/Styles/Sorcery/NullifyingOrb/Pokeshield.png\", \"to\": \"perk-images/Styles/Sorcery/NullifyingOrb/Axiom_Arcanist.png\", \"n"
+  },
+  {"patch":"V25.S1.1","rule":"markup/format/abbreviation/number-format only","what":"Time Warp Tonic longDesc [markup]: "},
+  {
+   "patch": "V25.20",
+   "rule": "manual: \"initial swap cooldown is at 4.5 mins\" -> \"@f3@ seconds\": DDragon and CDragon both leave @f3@ unresolved; game data (perks.cdtb.bin.json ShardRechargeMinutes) is 4.5 in every branch 15.19-16.19, so the value is unchanged",
+   "what": "Unsealed Spellbook longDesc [numbers+text] {cur:cdragon}: swap cooldown is [at 4.5 mins). => @f3@ seconds).]"
+  },
+  {"patch":"V25.23","rule":"markup/format/abbreviation/number-format only","what":"Hail of Blades longDesc [markup]: temporarily exceed the [attack speed => Attack Speed]"},
+  {
+   "patch": "V26.09",
+   "rule": "icon path only (same rune id)",
+   "what": "{\"type\": \"rune_icon\", \"rune\": 8230, \"name\": \"Stormraider's Surge\", \"from\": \"perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png\", \"to\": \"perk-images/Styles/Sorcery/PhaseRush/StormraidersSurgeRuneIcon2."
+  },
+  {"patch":"V26.12","rule":"spelling fix","what":"Deathfire Touch longDesc [typo]: (+2.5% bonus AD) [magical => magic]"}
+ ]
+}

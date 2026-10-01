@@ -1,0 +1,274 @@
+{
+  "_comment": [
+    "Listed pre-Reforged rune patches (DESIGN.md 0, 1.4, 3.2), oldest first. Hand-maintained; seeded from the research runes-legacy/changed-patches.json and reconstructed/prov-*.json. Read by generate-runes-data.js and tools/build-registry.js.",
+    "patch: Riot's patch name. season: patches.seasonOf(patch). reason: season-start | change | season-end, plus \"+change\" on a season boundary that also changes the catalog. A season-start / season-end without +change has the same catalog as the previous listed patch (C2), unless `noise` names the noise items (data/patches/noise/runes.json) that make up the whole difference.",
+    "source: the base catalog, {ddragon: <build>} = data/sources/runes/ddragon/<build>.json, {wiki: <name>} = data/sources/runes/wiki/<name>.json. sources: citations for the reason itself (G4). changes: what changed against the previous listed patch, each with sources and confidence. notes: other facts for a later patch-notes panel (client tooltip mistakes, data decisions); never shown by the calculator.",
+    "confidence: of the catalog as a whole; \"low\" adds (approx.) to the label. The label and tag come from patches.labelFor('runes', record) (curated tags and season tags in seasons.json)."
+  ],
+  "page": "runes",
+  "patches": [
+    {
+      "patch": "V1.0.0.63", "season": "s1", "reason": "season-start", "date": "2009-12-17",
+      "source": { "wiki": "V1.0.0.63" }, "confidence": "low",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/V1.0.0.63",
+        "https://leagueoflegends.fandom.com/wiki/Season_One"
+      ],
+      "changes": [],
+      "notes": [
+        { "text": "First rune state that can be reconstructed (D2): the runes page starts here, not at the V1.0.0.32 launch. Before V1.0.0.63 the notes give only percentages and no table survives.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63"], "confidence": "high" },
+        { "text": "Catalog as of V1.0.0.63: AD-per-level runes +11.1%, attack speed runes +150%, magic penetration runes +13.6%, flat health runes -17.6%, armor and MR (also per level) -10%; Clarity seals obtainable. 2009 Snowdown event runes (2009-12-16 to 2010-01-06).", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63", "https://leagueoflegends.fandom.com/wiki/Snowdown_Showdown"], "confidence": "low" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.72", "season": "s1", "reason": "change", "date": "2010-02-02",
+      "source": { "wiki": "V1.0.0.72" }, "confidence": "medium",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.72"],
+      "changes": [
+        { "text": "Critical damage runes -10%; flat ability power runes +10%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.72"], "confidence": "medium" },
+        { "text": "2010 Winter Games event runes (2010-02-12 to 2010-03-02), among them Seal of the Extreme (dodge).", "sources": ["https://leagueoflegends.fandom.com/wiki/2010_Winter_Games_Celebration"], "confidence": "medium" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.94(b)", "season": "s1", "reason": "change", "date": "2010-06-29",
+      "source": { "wiki": "V1.0.0.94b" }, "confidence": "medium",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.94(b)"],
+      "changes": [
+        { "text": "Energy runes added: Meditation and Lucidity seals, Acumen and Sapience glyphs, Meditation and Acumen quintessences.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.94(b)"], "confidence": "high" }
+      ],
+      "notes": [
+        { "text": "Season One started with V1.0.0.96 (2010-07-13) on this catalog, so V1.0.0.96 is not listed.", "sources": ["https://leagueoflegends.fandom.com/wiki/Season_One", "https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=28010"], "confidence": "medium" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.103", "season": "s1", "reason": "change", "date": "2010-10-19",
+      "source": { "wiki": "V1.0.0.103" }, "confidence": "medium",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.103"],
+      "changes": [
+        { "text": "Marks and Quintessences of Desolation armor penetration -15%; Marks, Glyphs and Seals of Strength attack damage +200%; Marks, Glyphs and Seals of Might attack damage per level +35%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.103"], "confidence": "high" },
+        { "text": "Limited-edition 2010 Harrowing quintessences: Piercing Screech, Bountiful Treats, Speedy Specter, Elusive Werewolf (dodge), Witches Brew, Headless Horseman.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.103", "https://leagueoflegends.fandom.com/wiki/Harrowing"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.105", "season": "s1", "reason": "change", "date": "2010-11-16",
+      "source": { "wiki": "V1.0.0.105" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.105"],
+      "changes": [
+        { "text": "Event rune only: Quintessence of the Headless Horseman armor penetration 3.62 -> 3.08.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.105", "https://leagueoflegends.fandom.com/wiki/Rune_(Historical)"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.107", "season": "s1", "reason": "change", "date": "2010-12-14",
+      "source": { "wiki": "V1.0.0.107" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.107"],
+      "changes": [
+        { "text": "Flat energy, energy per level and energy regen per level runes +10%; flat energy regen runes +5%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.107"], "confidence": "high" },
+        { "text": "Festive tier 3 event quintessences (2010 Snowdown Showdown): Frosty Fortitude, Sugar Rush, Piercing Present, Deadly Wreath.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.107", "https://leagueoflegends.fandom.com/wiki/Snowdown_Showdown"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.110", "season": "s1", "reason": "change", "date": "2011-02-01",
+      "source": { "wiki": "V1.0.0.110" }, "confidence": "medium",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110"],
+      "changes": [
+        { "text": "Clarity runes (scaling mana regen seals and glyphs) about -33%; Quintessences of Fortitude (health) about -20%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.110", "https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=102986"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.128", "season": "s1", "reason": "season-end+change", "date": "2011-11-01",
+      "source": { "wiki": "V1.0.0.128" }, "confidence": "medium",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_One",
+        "https://leagueoflegends.fandom.com/wiki/V1.0.0.128"
+      ],
+      "changes": [
+        { "text": "Event runes: Razer Mark of Precision and Razer Quintessence of Speed (2011 Razer PAX promotion codes, late August or September 2011; no patch, date approximate). Folded into V1.0.0.128 (D9).", "sources": ["https://leagueoflegends.fandom.com/wiki/2011_Razer_PAX_Promotion", "https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=383292"], "confidence": "low" }
+      ],
+      "notes": [
+        { "text": "Last Season One patch (V1.0.0.129 starts Preseason 2). The research state is V1.0.0.124-V1.0.0.130; V1.0.0.124 is not listed (D9).", "sources": ["https://leagueoflegends.fandom.com/wiki/Season_Two"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.129", "season": "s2", "reason": "season-start", "date": "2011-11-15",
+      "source": { "wiki": "V1.0.0.128" }, "confidence": "medium",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Two",
+        "https://leagueoflegends.fandom.com/wiki/V1.0.0.129"
+      ],
+      "changes": [],
+      "notes": [
+        { "text": "Preseason 2 (Season Two masteries); the rune catalog is unchanged from V1.0.0.128.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.129"], "confidence": "medium" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.131", "season": "s2", "reason": "change", "date": "2011-12-13",
+      "source": { "wiki": "V1.0.0.131" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.131"],
+      "changes": [
+        { "text": "New rune types: Destruction (hybrid armor and magic penetration marks and quintessences), Avarice seals (gold per 10 s), Endurance (% health seals and quintessences), Vampirism (life steal quintessences), Transmutation (spell vamp quintessences).", "sources": ["https://www.nerfplz.com/2011/12/dodge-rune-refund-patch-preview-and-new.html", "https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=509680"], "confidence": "high" },
+        { "text": "Greater Quintessence of Studio Rumble (tournament-only event rune, December 2011).", "sources": ["https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=1571068"], "confidence": "medium" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.132", "season": "s2", "reason": "change", "date": "2012-01-17",
+      "source": { "wiki": "V1.0.0.132" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.132"],
+      "changes": [
+        { "text": "Dodge removed from the game: the Seals and Quintessences of Evasion and the dodge event runes (Elusive Snowflake, Extreme, Elusive Werewolf) are gone (refunded from 2011-12-16).", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.132", "https://leagueoflegends.fandom.com/wiki/Season_Two", "https://www.nerfplz.com/2011/12/dodge-rune-refund-patch-preview-and-new.html"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.138", "season": "s2", "reason": "change", "date": "2012-04-18",
+      "source": { "wiki": "V1.0.0.138" }, "confidence": "medium",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.138"],
+      "changes": [
+        { "text": "Marks of Warding MR -20%; Glyphs of Insight magic penetration +20%, Potency AP +20%, Warding MR -10%; Quintessences of Insight magic penetration +15%, Warding MR -11.1%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.138"], "confidence": "high" },
+        { "text": "Hotfix: Greater Quintessence of the Piercing Present now matches Greater Quintessence of Insight.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.138"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V1.0.0.151", "season": "s2", "reason": "season-end", "date": "2012-11-13",
+      "source": { "wiki": "V1.0.0.138" }, "confidence": "medium",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Three",
+        "https://leagueoflegends.fandom.com/wiki/V1.0.0.151"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V1.0.0.152", "season": "s3", "reason": "season-start+change", "date": "2012-12-04",
+      "source": { "wiki": "V1.0.0.152" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Three",
+        "https://leagueoflegends.fandom.com/wiki/V1.0.0.152"
+      ],
+      "changes": [
+        { "text": "Runes renamed after their stat (for example Mark of Desolation -> Mark of Armor Penetration).", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152"], "confidence": "high" },
+        { "text": "Armor penetration, magic penetration and hybrid penetration marks, glyphs and quintessences rebalanced (exact values in the patch notes).", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152"], "confidence": "high" }
+      ],
+      "notes": [
+        { "text": "Client tooltip mistake, kept (D3): Greater Mark of Hybrid Penetration (5402) says +0.62 magic penetration; the stat, the wiki and the V1.0.0.152 notes give 0.61. It stays so until V7.21.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152", "https://ddragon.leagueoflegends.com/cdn/3.6.15/data/en_US/rune.json"], "confidence": "high" },
+        { "text": "Quintessence of Destruction magic penetration before V1.0.0.152: the patch notes' \"from\" values 0.72/1.01/1.3 are used; the wiki rune table (December 2011 to November 2012) said 0.63/0.88/1.13.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152", "https://leagueoflegends.fandom.com/wiki/List_of_runes_(Historical)?oldid=1453504"], "confidence": "medium" }
+      ]
+    },
+    {
+      "patch": "V3.04", "season": "s3", "reason": "change", "date": "2013-03-19",
+      "source": { "ddragon": "3.6.15" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V3.04"],
+      "changes": [
+        { "text": "Cooldown Reduction and Scaling Cooldown Reduction runes increased at all tiers (2-35%); for example 9 Greater Glyphs of Scaling CDR 8.62% -> 10% at level 18.", "sources": ["https://leagueoflegends.fandom.com/wiki/V3.04"], "confidence": "high" }
+      ],
+      "notes": [
+        { "text": "Source is Data Dragon 3.6.15, the first build Data Dragon has; the wiki reconstruction of V3.04 is the same catalog at calculator level (checked by tools/import-runes.js).", "sources": ["https://ddragon.leagueoflegends.com/cdn/3.6.15/data/en_US/rune.json"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V3.13", "season": "s3", "reason": "season-end", "date": "2013-10-29",
+      "source": { "ddragon": "3.13.24" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Four",
+        "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/rune.json"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V3.14", "season": "s4", "reason": "season-start", "date": "2013-11-20",
+      "source": { "ddragon": "3.14.41" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Four",
+        "https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/rune.json"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V4.5", "season": "s4", "reason": "change", "date": "2014-04-03",
+      "source": { "ddragon": "4.5.4" }, "confidence": "high",
+      "sources": ["https://leagueoflegends.fandom.com/wiki/V4.5"],
+      "changes": [
+        { "text": "Rune rework (39 runes, all tiers; the notes list only tier 3): Seals of Armor 1.41 -> 1 and Health 5.35 -> 8 (Greater), Scaling Armor, Scaling Health and HP5 seals up; Scaling CDR, Scaling MR, MP5 and Scaling MP5 glyphs up; Quintessences of CDR 1.67% -> 2.5%, Scaling CDR 2.5% -> 5%, Attack Speed 3.4% -> 4.5%, Life Steal 2% -> 1.5%.", "sources": ["https://leagueoflegends.fandom.com/wiki/V4.5", "https://ddragon.leagueoflegends.com/cdn/4.4.3/data/en_US/rune.json", "https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/rune.json"], "confidence": "high" }
+      ],
+      "notes": [
+        { "text": "Also in this catalog against V3.14: the Life Steal quintessence text \"Lifesteal\" -> \"Life Steal\", and Greater Seal of Scaling Energy Regeneration 0.064 -> 0.0642 per level (Data Dragon added the stats block in V4.1; noise rn-002).", "sources": ["https://ddragon.leagueoflegends.com/cdn/4.1.43/data/en_US/rune.json", "https://ddragon.leagueoflegends.com/cdn/4.5.4/data/en_US/rune.json"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V4.19", "season": "s4", "reason": "season-end", "date": "2014-11-05",
+      "source": { "ddragon": "4.19.3" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Five",
+        "https://ddragon.leagueoflegends.com/cdn/4.19.3/data/en_US/rune.json"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V4.20", "season": "s5", "reason": "season-start", "date": "2014-11-20",
+      "source": { "ddragon": "4.20.2" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Five",
+        "https://ddragon.leagueoflegends.com/cdn/4.20.2/data/en_US/rune.json"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V5.21", "season": "s5", "reason": "season-end", "date": "2015-10-29",
+      "source": { "ddragon": "5.21.1" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Five",
+        "https://ddragon.leagueoflegends.com/cdn/5.21.1/data/en_US/rune.json"
+      ],
+      "changes": [],
+      "notes": [
+        { "text": "No rune data change in Season 5. V5.1 removed the Rune Combiner and changed store prices and availability (client and store only; the combiner is per-patch chrome, combinerOf).", "sources": ["https://leagueoflegends.fandom.com/wiki/V5.1"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V5.22", "season": "s6", "reason": "season-start", "date": "2015-11-11",
+      "source": { "ddragon": "5.22.3" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Six",
+        "https://ddragon.leagueoflegends.com/cdn/5.22.3/data/en_US/rune.json"
+      ],
+      "changes": []
+    },
+    {
+      "patch": "V6.21", "season": "s6", "reason": "season-end", "date": "2016-10-19",
+      "source": { "ddragon": "6.21.1" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Six",
+        "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/rune.json"
+      ],
+      "changes": [],
+      "noise": ["rn-003"],
+      "notes": [
+        { "text": "Same stats as V5.22. The only difference is client text: since V6.5 Mark of Hybrid Penetration (5401) reads \"+0.7 AMP / +0.48 MP\" (noise rn-003), so this patch has its own catalog file.", "sources": ["https://ddragon.leagueoflegends.com/cdn/6.4.2/data/en_US/rune.json", "https://ddragon.leagueoflegends.com/cdn/6.5.1/data/en_US/rune.json"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V6.22", "season": "s7", "reason": "season-start+change", "date": "2016-11-10",
+      "source": { "ddragon": "6.22.1" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Seven",
+        "https://leagueoflegends.fandom.com/wiki/V6.22"
+      ],
+      "changes": [
+        { "text": "Preseason 7: flat armor penetration replaced by Lethality. Marks and Quintessences of Armor Penetration become Lethality (x1.25: 1.28 -> 1.6 and 2.56 -> 3.2 at tier 3), Hybrid Penetration becomes Precision, and the Headless Horseman and Deadly Wreath quintessences move to lethality (14 runes).", "sources": ["https://leagueoflegends.fandom.com/wiki/V6.22", "https://ddragon.leagueoflegends.com/cdn/6.21.1/data/en_US/rune.json", "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/rune.json"], "confidence": "high" }
+      ],
+      "notes": [
+        { "text": "Mark of Precision (5401): Data Dragon says \"+0.7 Leth / +0.48 M.Pen\", the stale armor-penetration number. The client data says +0.88 Lethality (0.7 x 1.25); runes-overrides.json ro-001 (text) and ro-003 (value) apply from V6.22 to V7.21 (D7).", "sources": ["https://raw.communitydragon.org/7.21/plugins/rcp-be-lol-game-data/global/default/v1/runes.json", "https://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/rune.json"], "confidence": "high" }
+      ]
+    },
+    {
+      "patch": "V7.21", "season": "s7", "reason": "season-end", "date": "2017-10-25",
+      "source": { "ddragon": "7.21.1" }, "confidence": "high",
+      "sources": [
+        "https://leagueoflegends.fandom.com/wiki/Season_Seven",
+        "https://leagueoflegends.fandom.com/wiki/V7.22",
+        "https://ddragon.leagueoflegends.com/cdn/7.21.1/data/en_US/rune.json"
+      ],
+      "changes": [],
+      "notes": [
+        { "text": "Final pre-Reforged patch (V7.22 is Runes Reforged). From 7.3.1 on Data Dragon rounds the raw rune stats to 4 decimals with no patch note and unchanged tooltips; the full-precision 7.2.1 values are used (D8, ro-002), so V7.21 shares the V6.22 catalog. Without it, 9 Greater Glyphs of Scaling CDR would give 14.58% instead of 15% at level 18.", "sources": ["https://ddragon.leagueoflegends.com/cdn/7.2.1/data/en_US/rune.json", "https://ddragon.leagueoflegends.com/cdn/7.3.1/data/en_US/rune.json"], "confidence": "high" }
+      ]
+    }
+  ]
+}

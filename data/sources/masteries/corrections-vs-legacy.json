@@ -1,0 +1,189 @@
+{
+ "_comment": [
+  "Where the pre-rework mastery data files (season*-data.js, data.js, keystone data) disagreed with Data Dragon / the wiki, and which side the per-patch datasets follow. Imported by tools/import-masteries.js from the research discrepancy lists; documentation only (the build does not read it)."
+ ],
+ "ddragonEra": [
+  {
+   "where": "season4-data.js + season5-data.js",
+   "mastery": "Martial Mastery",
+   "ours": "+5 AD",
+   "ddragon": "+4 (3.15.5 onwards)",
+   "wiki": "+4 from V3.15 (WP, WM)",
+   "winner": "DDragon/wiki",
+   "note": "repo keeps the V3.14 launch value"
+  },
+  {"where":"season4-data.js + season5-data.js","mastery":"Arcane Mastery","ours":"+8 AP","ddragon":"+6 (3.15.5 onwards)","wiki":"+6 from V3.15","winner":"DDragon/wiki"},
+  {
+   "where": "season4-data.js + season5-data.js",
+   "mastery": "Scout",
+   "ours": "wards and trinkets +10% cast range",
+   "ddragon": "trinket items +15% (3.14.20 onwards)",
+   "wiki": "mastery page 15% trinkets; V3.14 patch page 10% wards+trinkets = pre-release text",
+   "winner": "DDragon"
+  },
+  {
+   "where": "season4-data.js + season5-data.js",
+   "mastery": "Bladed Armor",
+   "ours": "bleed 4 s, true damage",
+   "ddragon": "physical damage (4.3 onwards), no duration",
+   "wiki": "2 s bleed, physical damage",
+   "winner": "wiki for duration, DDragon/wiki for damage type"
+  },
+  {
+   "where": "season5-data.js",
+   "mastery": "Expanded Mind",
+   "ours": "rankInfo [20, 50, 75] (changed from 25 by seasons-4-5-verification-report.md)",
+   "ddragon": "25/50/75 (5.10.1-5.21.1)",
+   "wiki": "WP V5.10 25/50/75; WM effect line 25, WM history line 20; Riot 5.10 notes 25/50/75",
+   "winner": "DDragon (revert the report's 'fix')"
+  },
+  {
+   "where": "season5-data.js",
+   "mastery": "Bandit",
+   "ours": "desc: melee 10 gold on hit (rankDesc already DDragon '+8')",
+   "ddragon": "+3 (+8 melee)",
+   "wiki": "WP V5.10 8; WM 10; Riot 5.10 notes 8",
+   "winner": "DDragon/Riot notes (8)"
+  },
+  {
+   "where": "season4-data.js header, data.js s4-final, research notes",
+   "mastery": "(patch date)",
+   "ours": "V4.20 = Oct 29, 2014",
+   "ddragon": "-",
+   "wiki": "V4.20 released 2014-11-20 (V4.19: 2014-11-05)",
+   "winner": "wiki"
+  },
+  {
+   "where": "data.js s3-pbe (V1.0.0.152)",
+   "mastery": "Legendary Armor",
+   "ours": "[2, 4, 6]",
+   "ddragon": "2/3.5/5 (3.6.14)",
+   "wiki": "2/3.5/5 since V1.0.0.152 (WM)",
+   "winner": "DDragon/wiki (same class of bug as the Sunder/Hardiness/Resistance fix)"
+  },
+  {"where":"data.js s3-pbe (V1.0.0.152)","mastery":"Scout (S3)","ours":"first 3 seconds","ddragon":"first 5 seconds (3.6.14)","wiki":"5 seconds since V1.0.0.152 (WM)","winner":"DDragon/wiki"},
+  {
+   "where": "season6-keystone-data.js (V5.22)",
+   "mastery": "Deathfire Touch",
+   "ours": "5 (+50% bAD +20% AP) over 3 s; AoE/DoT 2.5 over 1.5 s",
+   "ddragon": "6 over 3 s; AoE/DoT half (3) over 1.5 s",
+   "wiki": "WP/WM V5.22 entry 5; WM/WP V5.24 entry 'from 6' and AoE 'from 3'; Riot 5.22 notes give ratios only",
+   "winner": "DDragon (medium confidence)"
+  },
+  {
+   "where": "season6-keystone-data.js (V5.22)",
+   "mastery": "Perseverance",
+   "ours": "+200% below 20% health",
+   "ddragon": "20% (5.22.3), 25% from 5.23.1",
+   "wiki": "V5.23: tooltip corrected, real threshold was 25%",
+   "winner": "keep 20% if the page shows the V5.22 client tooltip; 25% is the real mechanic"
+  },
+  {
+   "where": "preseason7-keystone-data.js (V6.22)",
+   "mastery": "Bounty Hunter",
+   "ours": "+1% per unique kill (max 5%)",
+   "ddragon": "1.5% (6.22.1-7.3.3)",
+   "wiki": "WP, WM, Riot 6.22 notes: 1% -> 1.5% (max 7.5%); V7.4 back to 1%",
+   "winner": "DDragon/wiki (1.5%, max 7.5%)"
+  },
+  {
+   "where": "preseason7-keystone-data.js (V6.22)",
+   "mastery": "Bond of Stone",
+   "ours": "4% DR, 8% near an ally, 8% redirect, stops below 15% HP (the V5.22 launch text)",
+   "ddragon": "4% DR, 6% redirect from the nearest ally, not below 5% HP",
+   "wiki": "V5.23 2%, V5.24 3%/6%/6%/5%, V6.1 4% and near-ally bonus removed",
+   "winner": "DDragon/wiki"
+  },
+  {
+   "where": "preseason7-keystone-data.js (V6.22)",
+   "mastery": "Fervor of Battle",
+   "ours": "basic attacks and abilities grant stacks",
+   "ddragon": "basic attacks only",
+   "wiki": "WM V6.22: undocumented, no longer stacks on ability damage",
+   "winner": "DDragon/wiki"
+  },
+  {
+   "where": "preseason7-keystone-data.js (V6.22)",
+   "mastery": "Warlord's Bloodlust",
+   "ours": "50% effectiveness vs minions",
+   "ddragon": "50% (25% for ranged)",
+   "wiki": "V6.7 ranged 25%",
+   "winner": "DDragon/wiki (wording gap)"
+  },
+  {
+   "where": "DDragon vs Riot notes",
+   "mastery": "Fresh Blood",
+   "ours": "6 s (both keystone files)",
+   "ddragon": "6 s (6.22.1-7.21.1), League Client 7.1-7.21 6 s",
+   "wiki": "WM 6 s; WP and Riot 6.22 notes 9 s",
+   "winner": "client/DDragon 6 s; V6.22 itself unresolved"
+  },
+  {
+   "where": "DDragon defects (not live)",
+   "mastery": "various",
+   "ours": "-",
+   "ddragon": "3.14.12-3.14.19 pre-release data; 3.14.x 'Runic Shield', 'Veteran Scars'; 'Perseverance ' trailing space (2014); 5.22.1 pre-release Vampirism/Legendary Guardian; 'game_mastery_displayname_6112' for Sorcery 5.22.1-5.24.1; Bond of Stone threshold missing 5.24.2-6.2.1; no ranges in Legendary Guardian / Scavenger text",
+   "wiki": "-",
+   "winner": "use the last build per patch, alias the names, take ranges from the wiki"
+  },
+  {
+   "where": "DDragon = live client bug",
+   "mastery": "Tenacious / Legendary Guardian (V3.14)",
+   "ours": "s4-final uses the fixed names",
+   "ddragon": "swapped in 3.14.x, fixed 3.15",
+   "wiki": "V3.15 bug fix",
+   "winner": "for a V3.14 entry show the swapped names (that is what the client showed) or the fixed ones with a note"
+  },
+  {
+   "where": "Inspiration ranks",
+   "mastery": "Inspiration",
+   "ours": "ranks 2 (hashRanks 1 keeps old links)",
+   "ddragon": "2 ranks in every build 3.14.12-5.21.1",
+   "wiki": "2 ranks (5/10, 10/20 from V5.10); Utility total 33 needs 2",
+   "winner": "DDragon right; repo already fixed"
+  }
+ ],
+ "wikiEra": [
+  {
+   "area": "S1 dataset",
+   "issue": "season1-data.js keeps Demolisher (Offense tier 4) but it was removed with Promote in V1.0.0.63 (2009-12-17) and never returned",
+   "evidence": ["fandom V1.0.0.63","fandom Promote history","Riot 2010 client screenshot: Offense tier 4 = Brute Force only"],
+   "impact": "every S1 patch from V1.0.0.63 on, including the current late-S1 label; share-code slot = Offense array position 11"
+  },
+  {
+   "area": "S1 dataset label",
+   "issue": "patchLabel 'V1.0.0.130 (Late Season 1)' is a Season 2 patch (2011-11-29, after the V1.0.0.129 rework of 2011-11-15). Last S1-masteries patch is V1.0.0.128 (2011-11-01)",
+   "evidence": ["fandom Patch/Season Two","fandom V1.0.0.129"]
+  },
+  {
+   "area": "S3 dataset",
+   "issue": "s3-pbe is dpatti's 11/28 PBE data (commit 46150fc), labelled V1.0.0.152 live. Live 152: Legendary Armor 2/3.5/5 (ours 2/4/6), Scout 5 s (ours 3 s), Bladed Armor true damage vs minions and monsters (ours: monsters only)",
+   "evidence": ["fandom/wiki/Leaguepedia per-mastery pages","DDragon 3.6.14","surrenderat20 11/28 PBE"]
+  },
+  {
+   "area": "S2 wiki vs Riot",
+   "issue": "fandom, wiki.leagueoflegends.com and Leaguepedia S2 tabs give Hardiness 2/3.5/5, Executioner 5% below 50%, Summoner's Insight Teleport 0.5 s and the S3 Summoner's Resolve lines (Barrier +20 shield, Heal +5 hp/level). Riot's own 2011-11-14 Season Two page (and dpatti, and our s2-ahri) give 2/4/6, 6% below 40%, 1 s, Revive/Cleanse/Heal/Smite/Garrison. The wiki S2 tabs look copied from S3; kept Riot values",
+   "evidence": ["riot-2011-11-14-masteries-in-season-two.html","pages_2012_2013_compact.txt"]
+  },
+  {
+   "area": "S1 Mender's Faith",
+   "issue": "per-mastery page: 10-180 bonus heal since June 2009 -> 30 s CDR in V1.0.0.61. Heal page + V1.0.0.52 note: +75 heal and -10 s CD until V1.0.0.52, then 10 x level. Used the Heal page / patch notes",
+   "evidence": ["fandom Heal","fandom V1.0.0.52"]
+  },
+  {
+   "area": "S1 Strength of Spirit V1.0.0.110",
+   "issue": "mastery page says 'increased to 0.33/0.66/1% from 0.1/0.2/0.3%', overview says 'reduced by about 33%'. Consistent once units are read as per-second (old) vs per-5-seconds (new): 0.5/1/1.5 -> 0.33/0.66/1 per 5 s",
+   "evidence": ["fandom Strength of Spirit (2011)","fandom Summoner Mastery","fandom V1.0.0.110"]
+  },
+  {
+   "area": "S1 Lethality",
+   "issue": "2011 page history says 'with 4 ranks', header and dataset say 3; 3 confirmed by the 2010 client screenshot (1/3)",
+   "evidence": ["fandom Lethality (2011)","Riot 2010 client screenshot"]
+  },
+  {
+   "area": "Season boundaries",
+   "issue": "fandom's patch lists end ranked Season One at V1.0.0.125 and start 'Season Two' at V1.0.0.126; the mastery system changed only at V1.0.0.129, so S1 masteries run to V1.0.0.128",
+   "evidence": ["fandom Patch/Season One","fandom Patch/Season Two"]
+  }
+ ]
+}

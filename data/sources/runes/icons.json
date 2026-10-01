@@ -1,0 +1,34 @@
+{
+  "_comment": [
+    "Provenance of the three rune icons the bundled set lacked (DESIGN.md 5.1): the dodge event runes, which exist only in the catalogs before V1.0.0.132.",
+    "CommunityDragon 7.21 was tried first, as the design says: its runes.json names the art (image 8004.png, 8010.png, 8018.png) but it hosts no rune images (directory listings of plugins/rcp-be-lol-game-data/global/default/v1/, rcp-fe-lol-runes and rcp-fe-lol-collections for 7.21). Data Dragon has no such files either (cdn/3.6.14/img/rune/8004.png and cdn/7.21.1/img/rune/8004.png answer 403).",
+    "The art therefore comes from the League of Legends wiki, which hosts the original 293x295 client art. Recipe: crop (0, 2, 293, 295), bicubic resize to 64x64 (Pillow 12.3.0), PNG optimize. The recipe was calibrated on two event runes Data Dragon does ship (8001.png Crippling Candy Cane, 8003.png Special Stocking): the same recipe applied to their wiki art matches the Data Dragon icons to a mean premultiplied channel error of 4.0/255.",
+    "tools/import-runes.js --check verifies the sha256 of each output file. The downloaded originals are cached in the research folder raw/rune-img/ (wiki-*.png)."
+  ],
+  "icons": {
+    "8004.png": {
+      "rune": "8004",
+      "name": "Seal of the Elusive Snowflake",
+      "wikiFile": "https://leagueoflegends.fandom.com/wiki/File:SealElusiveSnowflake.png",
+      "url": "https://static.wikia.nocookie.net/leagueoflegends/images/7/7b/SealElusiveSnowflake.png/revision/latest?cb=20091215225203",
+      "downloadedSha256": "9a2472d79993c1b6047186857893e86ef834e4aefa8484f883f0ab53b583cddc",
+      "sha256": "f2af788dadd4be399eb95a607a6f9a16ba0daac722ce902b3d32cfb4248a30d9"
+    },
+    "8010.png": {
+      "rune": "8010",
+      "name": "Seal of the Extreme",
+      "wikiFile": "https://leagueoflegends.fandom.com/wiki/File:SealExtreme.png",
+      "url": "https://static.wikia.nocookie.net/leagueoflegends/images/b/b9/SealExtreme.png/revision/latest?cb=20100212182648",
+      "downloadedSha256": "bd0399d0e44a2f46ef47376b1c1220357d363ff90df77d5f8777336cf64eec09",
+      "sha256": "fe5172f2400d30a1d986851d2f9264a44ecf9507ac6bf1541ec99c1b76f9f39a"
+    },
+    "8018.png": {
+      "rune": "8018",
+      "name": "Quintessence of the Elusive Werewolf",
+      "wikiFile": "https://leagueoflegends.fandom.com/wiki/File:QuintessenceoftheElusiveWerewolf.png",
+      "url": "https://static.wikia.nocookie.net/leagueoflegends/images/9/96/QuintessenceoftheElusiveWerewolf.png/revision/latest?cb=20101020025053",
+      "downloadedSha256": "6dcf0553d3434ebf93ddf8a71a19f1433cd9bf0b4325a85cd05ed3c378e24c12",
+      "sha256": "888b52cdca821c156673a55a8a7567f65a2083bd9e86522c8927b8855a37485b"
+    }
+  }
+}

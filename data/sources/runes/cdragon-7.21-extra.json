@@ -1,0 +1,15 @@
+{
+ "_comment": [
+  "League Client (LCU) game data for patch 7.21, from CommunityDragon. Only what the rune generator needs (DESIGN.md 1.3, D7):",
+  "5401 Mark of Precision: description \"+0.88 Lethality / +0.48 Magic Penetration\" and rPhysicalLethality 0.88 (the Data Dragon text \"+0.7 Leth\" is stale; runes-overrides.json ro-001/ro-003 are checked against this entry).",
+  "8004, 8010, 8018: the dodge event runes. The client names their art (image) but CommunityDragon 7.21 hosts no rune images; see icons.json for the art actually used."
+ ],
+ "source": "https://raw.communitydragon.org/7.21/plugins/rcp-be-lol-game-data/global/default/v1/runes.json",
+ "sha256": "d64ac4c71c29cd054983aa21d26f2919af2be81b6247a4dd06a8e596a86dbc7c",
+ "runes": {
+  "5401": {"id":5401,"name":"Precision","description":"+0.88 Lethality / +0.48 Magic Penetration","longDescription":"+0.7 Leth / +0.48 M.Pen","image":"r_1_2.png","stats":{"rFlatMagicPenetrationMod":0.48,"rPhysicalLethality":0.88},"rune":{"tier":2,"type":"red"}},
+  "8004": {"id":8004,"name":"Elusive Snowflake","description":"+0.67% dodge","longDescription":"+0.67% dodge","image":"8004.png","stats":{"rFlatDodgeMod":0.0067},"rune":{"tier":2,"type":"yellow"}},
+  "8010": {"id":8010,"name":"Extreme","description":"+0.67% dodge","longDescription":"+0.67% dodge","image":"8010.png","stats":{"rFlatDodgeMod":0.0067},"rune":{"tier":2,"type":"yellow"}},
+  "8018": {"id":8018,"name":"Elusive Werewolf","description":"+1.39% dodge","longDescription":"+1.39% dodge","image":"8018.png","stats":{"rFlatDodgeMod":0.0139},"rune":{"tier":2,"type":"black"}}
+ }
+}

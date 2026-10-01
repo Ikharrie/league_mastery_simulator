@@ -1,12 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" data-lol-page="reforged" data-lol-shell="legacy">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Runes Reforged · Legacy LoL Calculator</title>
         <link rel="icon" type="image/png" href="images/lcu/runes-icon-32.png" />
+        <script type="text/javascript" src="patch-registry.js"></script>
+        <script type="text/javascript" src="lol-data.js"></script>
         <script type="text/javascript" src="nav.js"></script>
+        <script type="text/javascript">lolPreloadDataset("reforged");</script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Marcellus&amp;family=Marcellus+SC&amp;family=Source+Sans+3:wght@400;600;700&amp;family=Spectral+SC:wght@500;600;700&amp;family=Spectral:wght@500;600;700&amp;display=swap" />
@@ -51,6 +54,8 @@
         <div id="toast" class="lol-toast" role="status" aria-live="polite"></div>
 
         <script type="text/javascript" src="vendor/jquery-1.7.0.min.js"></script>
+        <!-- runes-reforged-data.js stays (shard eras, helpers). TRANSITION: phase 2
+             deletes data-lol-shell="legacy" on <html>. -->
         <script type="text/javascript" src="runes-reforged-data.js"></script>
         <script type="text/javascript" src="runes-reforged.js"></script>
     </body>

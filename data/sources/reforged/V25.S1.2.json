@@ -1,0 +1,46 @@
+{
+ "patch": "V25.S1.2",
+ "ddragon": "15.2.1",
+ "cdragonBranch": "15.2",
+ "cdragonCarriedFrom": null,
+ "perkText": {
+  "8463": [
+   null,
+   "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"
+  ],
+  "9101": [null,"Killing a target restores 1 - 23 Health based on level."]
+ },
+ "subStyleBonus": null,
+ "shards": {
+  "rows": [{"label":"Offense","perks":[5008,5005,5007]},{"label":"Flex","perks":[5008,5010,5001]},{"label":"Defense","perks":[5011,5013,5001]}],
+  "perks": {
+   "5001": {"name":"Health Scaling","desc":"+10-180 Health (based on level)","icon":"StatModsHealthPlusIcon.png"},
+   "5005": {"name":"Attack Speed","desc":"+10% Attack Speed","icon":"StatModsAttackSpeedIcon.png"},
+   "5007": {
+    "name": "Ability Haste",
+    "desc": "+8 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> ",
+    "icon": "StatModsCDRScalingIcon.png"
+   },
+   "5008": {
+    "name": "Adaptive Force",
+    "desc": "+9 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive Force</font></lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsAdaptiveForceIcon.png"
+   },
+   "5010": {
+    "name": "Move Speed",
+    "desc": "+2% <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_MS'>Move Speed</lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsMovementSpeedIcon.png"
+   },
+   "5011": {"name":"Health","desc":"+65 Health","icon":"StatModsHealthScalingIcon.png"},
+   "5013": {"name":"Tenacity and Slow Resist","desc":"+10% Tenacity and Slow Resist","icon":"StatModsTenacityIcon.png"}
+  }
+ },
+ "unresolved": {},
+ "catalogHash": "15f9f5c9506e049ff844761a554fde1989b0e39171e8d67194e912f261d6ab6a",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/15.2.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/15.2/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/15.2/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

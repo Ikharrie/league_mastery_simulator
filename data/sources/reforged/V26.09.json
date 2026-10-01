@@ -1,0 +1,54 @@
+{
+ "patch": "V26.09",
+ "ddragon": "16.9.1",
+ "cdragonBranch": "16.9",
+ "cdragonCarriedFrom": null,
+ "perkText": {
+  "8463": [
+   null,
+   "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"
+  ],
+  "9101": [null,"Killing a target restores 1 - 23 Health based on level."]
+ },
+ "subStyleBonus": null,
+ "shards": {
+  "rows": [{"label":"Offense","perks":[5008,5005,5007]},{"label":"Flex","perks":[5008,5010,5001]},{"label":"Defense","perks":[5011,5013,5001]}],
+  "perks": {
+   "5001": {"name":"Health Scaling","desc":"+10-180 Health (based on level)","icon":"StatModsHealthPlusIcon.png"},
+   "5005": {"name":"Attack Speed","desc":"+10% Attack Speed","icon":"StatModsAttackSpeedIcon.png"},
+   "5007": {
+    "name": "Ability Haste",
+    "desc": "+8 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> ",
+    "icon": "StatModsCDRScalingIcon.png"
+   },
+   "5008": {
+    "name": "Adaptive Force",
+    "desc": "+9 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive Force</font></lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsAdaptiveForceIcon.png"
+   },
+   "5010": {
+    "name": "Move Speed",
+    "desc": "+2.5% <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_MS'>Move Speed</lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsMovementSpeedIcon.png"
+   },
+   "5011": {"name":"Health","desc":"+65 Health","icon":"StatModsHealthScalingIcon.png"},
+   "5013": {"name":"Tenacity and Slow Resist","desc":"+15% Tenacity and Slow Resist","icon":"StatModsTenacityIcon.png"}
+  }
+ },
+ "unresolved": {
+  "8360": {
+   "placeholders": ["@f3@"],
+   "text": [
+    null,
+    "Swap one of your equipped Summoner Spells to a new, single use Summoner Spell. Each unique Summoner Spell you swap to permanently decreases your swap cooldown by 25s (initial swap cooldown is @f3@ seconds). <br><br>Your first swap becomes available at 6 mins. <br><rules><br>Summoner Spells can only be swapped while out of combat. <br>After using a swapped Summoner Spell you must swap 3 more times before the first can be selected again.<br>Smite damage increases after two Summoner Spell swaps. </rules>"
+   ]
+  }
+ },
+ "catalogHash": "e200333b615d915922c7dc3c96203fa829cd852392420a03748ac0a799932b97",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/16.9.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/16.9/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/16.9/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

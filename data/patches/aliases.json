@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "Legacy dataset ids (DESIGN.md 4.2). Every id that existed before the per-patch datasets keeps resolving to the same build. Read it through tools/lib/patches.js (aliases()).",
+    "masteries / runes / reforged: alias id -> { to: canonical id, codec?: legacy codec key (masteries only; data/masteries/legacy-codecs.js), note? }. These three maps are LOL_ALIASES in patch-registry.js.",
+    "plain: a hash with no '<id>|' prefix (index.html#<code> = s3-pbe codes, runes.html#<30 ids> = V7.21).",
+    "keep: legacy ids that stay canonical (they name a listed patch). aliases + keep + plain.masteries = the 24 legacy ids that must resolve (check G5)."
+  ],
+  "masteries": {
+    "s1-final": { "to": "m-V1.0.0.128", "codec": "s1-final", "note": "Old label V1.0.0.130 was wrong (.130 is a Season 2 patch). A Demolisher point is dropped (removed in V1.0.0.63); Preservation hashRanks 3 stays." },
+    "s2-ahri": { "to": "m-V1.0.0.131", "codec": "s2-ahri" },
+    "s3-pbe": { "to": "m-V1.0.0.152", "codec": "s3-pbe", "note": "Was the 11/28 PBE values; now the live V1.0.0.152 values (Legendary Armor 2/3.5/5, Scout 5 s, Bladed Armor)." },
+    "s4-final": { "to": "m-V4.20", "codec": "s4-final", "note": "Same build, now in Season 5 (V4.20 is Preseason 5). ~-prefixed codes still decode." },
+    "s5-final": { "to": "m-V5.21", "codec": "s5-final", "note": "~-prefixed codes still decode." },
+    "s6-launch": { "to": "m-V5.22", "codec": "s6-launch", "note": "The legacy slot order in Cunning T2/T4 is handled by the codec." },
+    "s7-preseason": { "to": "m-V6.22", "codec": "s7-preseason" },
+    "s7-final": { "to": "m-V7.21", "codec": "s7-final" }
+  },
+  "runes": {
+    "preReforged-V6.24": { "to": "preReforged-V6.22", "note": "Identical catalog (the V6.22-V7.2 state); now in Season 7." }
+  },
+  "reforged": {
+    "rr-v12-23": { "to": "rr-v12-22", "note": "No change V12.20 -> V12.23; now in Season 13." }
+  },
+  "plain": {
+    "masteries": { "to": "m-V1.0.0.152", "codec": "s3-pbe" },
+    "runes": { "to": "preReforged-V7.21" }
+  },
+  "keep": {
+    "runes": ["preReforged-V3.14", "preReforged-V4.20", "preReforged-V5.21", "preReforged-V7.21"],
+    "reforged": ["rr-v7-22", "rr-v8-23", "rr-v9-23", "rr-v10-23", "rr-v11-23", "rr-v13-24", "rr-v14-19", "rr-v25-24", "rr-v26-13"]
+  }
+}

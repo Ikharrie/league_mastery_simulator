@@ -1,0 +1,53 @@
+{
+ "_comment": [
+  "Mastery tree families and stable mastery keys (DESIGN §1.7). Hand-maintained; read by tools/build-masteries.js.",
+  "families: every listed masteries patch belongs to exactly one family (first..last, listing order). Carry-over between patches maps points by key and only within a family; a family change resets the page. rankTotals = ranks per tree (offense/defense/utility, or ferocity/cunning/resolve); the build checks every dataset of the family against them (M1/M2). legacy = old dataset ids that decode into the family (data/patches/aliases.json codec).",
+  "key = slug of the mastery name (lowercase, accents and apostrophes dropped, other runs of non-alphanumerics -> '-'), after the export fixes of data/patches/masteries-overrides.json. aliases[] override that for one cell (DDragon id) over a patch range; the build fails when an alias matches nothing in a patch of its range (stale alias).",
+  "Keystone masteries carry the key as both `id` and `key`."
+ ],
+ "families": [
+  { "id": "classic-2011", "system": "classic", "first": "V1.0.0.32", "last": "V1.0.0.128", "legacy": ["s1-final"],
+    "rankTotals": [{ "from": "V1.0.0.32", "to": "V1.0.0.61", "trees": [32, 31, 32] }, { "from": "V1.0.0.63", "to": "V1.0.0.128", "trees": [31, 31, 32], "note": "Demolisher (1 rank) removed" }],
+    "note": "Season 1 tree (2010 client look). Demolisher exists until V1.0.0.61 (removed with Promote in V1.0.0.63)." },
+  { "id": "classic-2012", "system": "classic", "first": "V1.0.0.129", "last": "V1.0.0.151", "legacy": ["s2-ahri"],
+    "rankTotals": [{ "from": "V1.0.0.129", "to": "V1.0.0.151", "trees": [44, 37, 38] }],
+    "note": "Season 2 rework of V1.0.0.129." },
+  { "id": "classic-2013", "system": "classic", "first": "V1.0.0.152", "last": "V3.13", "legacy": ["s3-pbe"],
+    "rankTotals": [{ "from": "V1.0.0.152", "to": "V3.13", "trees": [42, 37, 41], "note": "56 masteries (research: DDragon 3.6.14 / 3.13.24)" }],
+    "note": "Season 3 tree; plain codes (index.html#<code>, no '<id>|') decode with the s3-pbe codec." },
+  { "id": "classic-2014a", "system": "classic", "first": "V3.14", "last": "V5.10", "legacy": ["s4-final"],
+    "rankTotals": [{ "from": "V3.14", "to": "V5.10", "trees": [38, 34, 33], "note": "57 masteries: 20 / 19 / 18" }],
+    "note": "Preseason 4 tree up to and including the V5.10 utility overhaul." },
+  { "id": "classic-2014b", "system": "classic", "first": "V5.12", "last": "V5.21", "legacy": ["s5-final"],
+    "rankTotals": [{ "from": "V5.12", "to": "V5.21", "trees": [38, 34, 33], "note": "V5.12: still 19 defense masteries / 34 ranks" }],
+    "note": "After the V5.12 defense overhaul." },
+  { "id": "keystone-2016", "system": "keystone", "first": "V5.22", "last": "V6.21", "legacy": ["s6-launch"],
+    "rankTotals": [{ "from": "V5.22", "to": "V5.23", "trees": [37, 37, 37], "note": "13 masteries per tree" }, { "from": "V5.24", "to": "V6.2", "trees": [37, 38, 37], "note": "V5.24 Assassin (Cunning T2)" }, { "from": "V6.4", "to": "V6.21", "trees": [38, 38, 37], "note": "V6.4 Expose Weakness (Ferocity T2)" }],
+    "note": "Ferocity / Cunning / Resolve, Preseason 6 layout (5-rank icons on the row edges)." },
+  { "id": "keystone-2017", "system": "keystone", "first": "V6.22", "last": "V7.21", "legacy": ["s7-preseason", "s7-final"],
+    "rankTotals": [{ "from": "V6.22", "to": "V7.21", "trees": [39, 39, 39], "note": "15 masteries per tree" }],
+    "note": "Preseason 7 revision (three options on every 1-rank row, centred 5-rank pair)." }
+ ],
+ "aliases": [
+  { "family": "classic-2014a", "from": "V3.14", "to": "V3.14", "cell": "4253", "name": "Runic Shield", "key": "runic-blessing",
+    "reason": "DDragon 3.14 export name; the client, the wiki and the patch notes call it Runic Blessing (DDragon fixed it in 3.15). The name itself is fixed by export-fix mo-001.",
+    "sources": ["https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json", "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json"] },
+  { "family": "classic-2014a", "from": "V3.14", "to": "V3.14", "cell": "4222", "name": "Veteran Scars", "key": "veterans-scars",
+    "reason": "DDragon 3.14 export name for Veteran's Scars (fixed in 3.15). The name itself is fixed by export-fix mo-002.",
+    "sources": ["https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json", "https://ddragon.leagueoflegends.com/cdn/3.15.5/data/en_US/mastery.json"] },
+  { "family": "classic-2014a", "from": "V3.14", "to": "V3.14", "cell": "4252", "name": "Tenacious", "key": "legendary-guardian",
+    "reason": "V3.14 client bug (D4): the tier-5 4-rank armor / magic resist aura is named Tenacious; the key follows the effect, which is Legendary Guardian from V3.15 on (same cell).",
+    "sources": ["https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json", "https://wiki.leagueoflegends.com/en-us/V3.15"] },
+  { "family": "classic-2014a", "from": "V3.14", "to": "V3.14", "cell": "4262", "name": "Legendary Guardian", "key": "tenacious",
+    "reason": "V3.14 client bug (D4): the tier-6 15% crowd-control reduction capstone is named Legendary Guardian; the key follows the effect, which is Tenacious from V3.15 on (same cell).",
+    "sources": ["https://ddragon.leagueoflegends.com/cdn/3.14.41/data/en_US/mastery.json", "https://wiki.leagueoflegends.com/en-us/V3.15"] },
+  { "family": "keystone-2017", "from": "V7.5", "to": "V7.21", "cell": "6263", "name": "Stoneborn Pact", "key": "bond-of-stone",
+    "reason": "Bond of Stone was reworked and renamed Stoneborn Pact in V7.5 in the same cell (6263, Resolve keystone); points carry over.",
+    "sources": ["https://ddragon.leagueoflegends.com/cdn/7.5.2/data/en_US/mastery.json", "https://wiki.leagueoflegends.com/en-us/V7.5"] }
+ ],
+ "notes": [
+  "Double-Edged Sword keeps its key (the slug of its name) through the DDragon id change 6121 -> 6142 in V6.22; Fresh Blood takes 6121. No alias is needed because keys come from names, not cells.",
+  "The S2 V1.0.0.129 Perseverance (Utility, 3/6/9% health and mana regen) has its own key `perseverance`, distinct from `strength-of-spirit`, which takes its cell in V1.0.0.131; points on it do not carry over.",
+  "V5.10 swaps the cells of Meditation and Expanded Mind (4313 <-> 4343); keys follow the names, so their points move with them."
+ ]
+}

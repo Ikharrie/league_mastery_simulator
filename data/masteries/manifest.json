@@ -1,0 +1,212 @@
+{
+  "m-V1.0.0.32": {
+    "data": "m-V1.0.0.32",
+    "file": "data/masteries/m-V1.0.0.32.js",
+    "hash": "b94b3fa78dc5dcb328e665924ea0de9a1b3f72b3b04391dced371ea8c47ba098"
+  },
+  "m-V1.0.0.52": {
+    "data": "m-V1.0.0.52",
+    "file": "data/masteries/m-V1.0.0.52.js",
+    "hash": "fe7ba60b60cc300d2320f9b3796e7624f6bbe31b280b027efe5cd4240aea8bf2"
+  },
+  "m-V1.0.0.61": {
+    "data": "m-V1.0.0.61",
+    "file": "data/masteries/m-V1.0.0.61.js",
+    "hash": "3657593ae84bca64bd4ba8646d9a989866095bb21b1ffb9f2d83636de7097252"
+  },
+  "m-V1.0.0.63": {
+    "data": "m-V1.0.0.63",
+    "file": "data/masteries/m-V1.0.0.63.js",
+    "hash": "13f65d5aa237eefccfa53192b66625992f5a356a340651f4ae7146cfcfc80b28"
+  },
+  "m-V1.0.0.72": {
+    "data": "m-V1.0.0.72",
+    "file": "data/masteries/m-V1.0.0.72.js",
+    "hash": "bcf96d7447a476b5270c5fef054e4f208d0c917d9de52e3e1bf202e409bcb0aa"
+  },
+  "m-V1.0.0.101": {
+    "data": "m-V1.0.0.101",
+    "file": "data/masteries/m-V1.0.0.101.js",
+    "hash": "95d7ad0208bf51d084c896a2cb97ee75f8ef78df85f989db3c491a303eaa4b97"
+  },
+  "m-V1.0.0.109": {
+    "data": "m-V1.0.0.109",
+    "file": "data/masteries/m-V1.0.0.109.js",
+    "hash": "5a219839e7d925b696cc6e2de872b5d8a6098b3ad6ba066bb246b8f25b0b2363"
+  },
+  "m-V1.0.0.110": {
+    "data": "m-V1.0.0.110",
+    "file": "data/masteries/m-V1.0.0.110.js",
+    "hash": "2f13d620cfe5feb3be0e408d1117b9e5d5b3d5d3ffb7d60bccc6a9390b466f67"
+  },
+  "m-V1.0.0.118b": {
+    "data": "m-V1.0.0.118b",
+    "file": "data/masteries/m-V1.0.0.118b.js",
+    "hash": "84535aa61c51badb979339d2531ec792d0d492ef6b8b982dff2329db59e0fa8b"
+  },
+  "m-V1.0.0.128": {
+    "data": "m-V1.0.0.128",
+    "file": "data/masteries/m-V1.0.0.128.js",
+    "hash": "c44be32b49f4a158a3198b8cd7a90c65537d49db19f7a1fad7bdf3a4d0f1c46c"
+  },
+  "m-V1.0.0.129": {
+    "data": "m-V1.0.0.129",
+    "file": "data/masteries/m-V1.0.0.129.js",
+    "hash": "3628e6a85d2f1ce5dcb619c224846982ad1986cdefd9156f98ddebc10d3c05a2"
+  },
+  "m-V1.0.0.131": {
+    "data": "m-V1.0.0.131",
+    "file": "data/masteries/m-V1.0.0.131.js",
+    "hash": "5339c7c46a38f63cb6ce717d20e254f839de82adb7949fe16a537033a0f838f5"
+  },
+  "m-V1.0.0.133": {
+    "data": "m-V1.0.0.133",
+    "file": "data/masteries/m-V1.0.0.133.js",
+    "hash": "4a77483b8577ec971ed0488668d36c010f20384e0267fb9c2c343ceaf23754dc"
+  },
+  "m-V1.0.0.151": {
+    "data": "m-V1.0.0.133",
+    "file": "data/masteries/m-V1.0.0.133.js",
+    "hash": "4a77483b8577ec971ed0488668d36c010f20384e0267fb9c2c343ceaf23754dc"
+  },
+  "m-V1.0.0.152": {
+    "data": "m-V1.0.0.152",
+    "file": "data/masteries/m-V1.0.0.152.js",
+    "hash": "c815c8826acfa977ed8b8bf043562b8c81b949f3959d51584b7236e56e2f6dc8"
+  },
+  "m-V3.13": {
+    "data": "m-V1.0.0.152",
+    "file": "data/masteries/m-V1.0.0.152.js",
+    "hash": "c815c8826acfa977ed8b8bf043562b8c81b949f3959d51584b7236e56e2f6dc8"
+  },
+  "m-V3.14": {
+    "data": "m-V3.14",
+    "file": "data/masteries/m-V3.14.js",
+    "hash": "84544297cefc2df633e396051f358dedf76ce8ebd7927e99375434284f8a6ff1"
+  },
+  "m-V3.15": {
+    "data": "m-V3.15",
+    "file": "data/masteries/m-V3.15.js",
+    "hash": "aaebd11744c52baacf2da8019b7f025b03fa9d8b954ffbec4808af5c60e3c617"
+  },
+  "m-V4.2": {
+    "data": "m-V4.2",
+    "file": "data/masteries/m-V4.2.js",
+    "hash": "9c2c444a2bdbfe16c1ffb061bc209c13dedab551b9e2a369bc331a014aedffc3"
+  },
+  "m-V4.5": {
+    "data": "m-V4.5",
+    "file": "data/masteries/m-V4.5.js",
+    "hash": "d14b2afa06335705826d1a3afb885136760f6ae19838d84a83632f76785459a1"
+  },
+  "m-V4.19": {
+    "data": "m-V4.19",
+    "file": "data/masteries/m-V4.19.js",
+    "hash": "a0231302441bcd0cb9ec1c8a2b987c51e200a854571ce46f02a85abbbe0b24ba"
+  },
+  "m-V4.20": {
+    "data": "m-V4.19",
+    "file": "data/masteries/m-V4.19.js",
+    "hash": "a0231302441bcd0cb9ec1c8a2b987c51e200a854571ce46f02a85abbbe0b24ba"
+  },
+  "m-V5.10": {
+    "data": "m-V5.10",
+    "file": "data/masteries/m-V5.10.js",
+    "hash": "1376018acea9a595939de78559559d582096cf762f6bcc6022ae8f4fc76f768f"
+  },
+  "m-V5.12": {
+    "data": "m-V5.12",
+    "file": "data/masteries/m-V5.12.js",
+    "hash": "f3e99fcb4c16498bd29d0e3e044979dabf09129ec1b3a37ce28236eda0333344"
+  },
+  "m-V5.21": {
+    "data": "m-V5.21",
+    "file": "data/masteries/m-V5.21.js",
+    "hash": "e93834d448bd29aa56c061430de2b221809560de14823fea2b2cbd85afc46d53"
+  },
+  "m-V5.22": {
+    "data": "m-V5.22",
+    "file": "data/masteries/m-V5.22.js",
+    "hash": "ca433ef6c81efc2b392a56ed2faa9c25a609be8ff37ae3b717b330a27e312b5d"
+  },
+  "m-V5.23": {
+    "data": "m-V5.23",
+    "file": "data/masteries/m-V5.23.js",
+    "hash": "ef5ca592842e01d78c7550a952be7d17ff257fac6a6abfb4007e817fc53bee75"
+  },
+  "m-V5.24": {
+    "data": "m-V5.24",
+    "file": "data/masteries/m-V5.24.js",
+    "hash": "ddc642a12a3aa855dcc4e8f62ad040263084d5f7a7f839cca9df208e95aa5cd7"
+  },
+  "m-V6.1": {
+    "data": "m-V6.1",
+    "file": "data/masteries/m-V6.1.js",
+    "hash": "f7acb19e78f700f838116450018c13a3394731aa1ba23770b8e05771831537ca"
+  },
+  "m-V6.2": {
+    "data": "m-V6.2",
+    "file": "data/masteries/m-V6.2.js",
+    "hash": "e27c36502916f4587f06e0d1fdae28dd419f7c697b10903dbf62edbce268537f"
+  },
+  "m-V6.4": {
+    "data": "m-V6.4",
+    "file": "data/masteries/m-V6.4.js",
+    "hash": "37454ae297d99a88997d90abed3f9048638699370af96395af8ad0a6aca885d2"
+  },
+  "m-V6.7": {
+    "data": "m-V6.7",
+    "file": "data/masteries/m-V6.7.js",
+    "hash": "68c6c9496229ecf454c6bdadbe0e31bc5389a88bd22e08b9c83b45d882c3f86d"
+  },
+  "m-V6.8": {
+    "data": "m-V6.8",
+    "file": "data/masteries/m-V6.8.js",
+    "hash": "48843bf4210197d5f703867414f2e3e93837412b9a2b6b123de89d19990bb71b"
+  },
+  "m-V6.12": {
+    "data": "m-V6.12",
+    "file": "data/masteries/m-V6.12.js",
+    "hash": "ff7db092d07f8207fb99e6e766e097a9b3b3190bc252d09a4ce7635c2f434898"
+  },
+  "m-V6.21": {
+    "data": "m-V6.12",
+    "file": "data/masteries/m-V6.12.js",
+    "hash": "ff7db092d07f8207fb99e6e766e097a9b3b3190bc252d09a4ce7635c2f434898"
+  },
+  "m-V6.22": {
+    "data": "m-V6.22",
+    "file": "data/masteries/m-V6.22.js",
+    "hash": "2e80f51b5e2ec7f730c8c04316cab29c9a3ca5030ad914fdbba377dafee1b73f"
+  },
+  "m-V6.24": {
+    "data": "m-V6.24",
+    "file": "data/masteries/m-V6.24.js",
+    "hash": "4659bd0cb484a344d643cb73a1cb9f6b40206b56c19f2a60d972808d1c9e7f8f"
+  },
+  "m-V7.2": {
+    "data": "m-V7.2",
+    "file": "data/masteries/m-V7.2.js",
+    "hash": "5a67225f5958e6e5ce52ef5e5eb5e263816d2c68265f452a6b23a907d54c2934"
+  },
+  "m-V7.4": {
+    "data": "m-V7.4",
+    "file": "data/masteries/m-V7.4.js",
+    "hash": "b75df0e588926958944270177782fb4fc6f6f6778ecbbcd2a8c4102d8c669528"
+  },
+  "m-V7.5": {
+    "data": "m-V7.5",
+    "file": "data/masteries/m-V7.5.js",
+    "hash": "928ebe275fadf2817f84b37a055607696a9065cff2f8592b6391f8b69cdca929"
+  },
+  "m-V7.6": {
+    "data": "m-V7.6",
+    "file": "data/masteries/m-V7.6.js",
+    "hash": "fd89143576ba284e9be0974a87074a8137193d90880ef8c456c646668247fd65"
+  },
+  "m-V7.21": {
+    "data": "m-V7.6",
+    "file": "data/masteries/m-V7.6.js",
+    "hash": "fd89143576ba284e9be0974a87074a8137193d90880ef8c456c646668247fd65"
+  }
+}

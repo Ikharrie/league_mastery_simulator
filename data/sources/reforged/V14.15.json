@@ -1,0 +1,50 @@
+{
+ "patch": "V14.15",
+ "ddragon": "14.15.1",
+ "cdragonBranch": "14.15",
+ "cdragonCarriedFrom": null,
+ "perkText": {
+  "8009": [
+   null,
+   "Damaging an enemy champion increases your mana regeneration by 1.5-11 (80% for ranged) mana per second for 4 seconds. All energy users gain 1.5 energy per second, instead.<br><br>Takedowns restore 15% of your maximum mana or energy. "
+  ],
+  "8463": [
+   null,
+   "Impairing the movement of an enemy champion restores Health to you and the lowest health nearby allied champion.<br><br>70% effect for Ranged Users.<br><br>Cooldown: 20s"
+  ],
+  "9101": [null,"Killing a target restores 1 - 23 Health based on level."]
+ },
+ "subStyleBonus": null,
+ "shards": {
+  "rows": [{"label":"Offense","perks":[5008,5005,5007]},{"label":"Flex","perks":[5008,5010,5001]},{"label":"Defense","perks":[5011,5013,5001]}],
+  "perks": {
+   "5001": {"name":"Health Scaling","desc":"+10-180 Health (based on level)","icon":"StatModsHealthPlusIcon.png"},
+   "5005": {"name":"Attack Speed","desc":"+10% Attack Speed","icon":"StatModsAttackSpeedIcon.png"},
+   "5007": {
+    "name": "Ability Haste",
+    "desc": "+8 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> ",
+    "icon": "StatModsCDRScalingIcon.png"
+   },
+   "5008": {
+    "name": "Adaptive Force",
+    "desc": "+9 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>Adaptive Force</font></lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsAdaptiveForceIcon.png"
+   },
+   "5010": {
+    "name": "Move Speed",
+    "desc": "+2% <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_MS'>Move Speed</lol-uikit-tooltipped-keyword>",
+    "icon": "StatModsMovementSpeedIcon.png"
+   },
+   "5011": {"name":"Health","desc":"+65 Health","icon":"StatModsHealthScalingIcon.png"},
+   "5013": {"name":"Tenacity and Slow Resist","desc":"+10% Tenacity and Slow Resist","icon":"StatModsTenacityIcon.png"}
+  }
+ },
+ "unresolved": {},
+ "catalogHash": "2952a5319b4a0accf2acc74ecd6c20bca89426489bac38ae398a33098d856447",
+ "sources": [
+  "https://ddragon.leagueoflegends.com/cdn/14.15.1/data/en_US/runesReforged.json",
+  "https://raw.communitydragon.org/14.15/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
+  "https://raw.communitydragon.org/14.15/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json"
+ ],
+ "research": "reforged/listed_patches_data.json"
+}

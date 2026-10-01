@@ -1,31 +1,51 @@
 // nav.js — shared shell for all three pages (index.html, runes.html,
-// runes-reforged.html). Loaded in <head>, before jQuery: nothing here may
-// touch the DOM or `$` at load time; DOM work waits for DOMContentLoaded
-// (which fires before jQuery's ready handlers in the calculators).
+// runes-reforged.html). Loaded in <head> after patch-registry.js and
+// lol-data.js, before jQuery: nothing here may touch the DOM or `$` at load
+// time; DOM work waits for DOMContentLoaded (which fires before jQuery's
+// ready handlers in the calculators).
 //
 // Public API
-//   clientEraFor(datasetId)      -> "air" | "lcu"
-//   setClientEra(era)            sets body[data-client] (and html[data-client])
+//   clientEraFor(entryOrId)      -> "air" | "lcu" (registry entry.era)
+//   setClientEra(era | entry)    sets body[data-client] (and html[data-client])
 //   buildSeasonNav(opts)         season dropdown + header tabs
+//   seasonNavFind(key), seasonNavUrl(def, page)
+//   lolBootClientEra()           inline after <body>: deep-link era
 //   lolBootHeader()              inline after </header>: deep-link prefill
+//   lolPageType()                = LolPatches.page()
 //   LolTooltip.show(anchorOrEvent, html, skin, opts) / .move(evt) / .hide()
 //   LolTooltip.attach(target, htmlOrFn, skin, opts)
 //   LolToast.show(msg, opts)
 //   LolStage.fit() / LolStage.scale(el)
 //   LolDropdown.close()
+//
+// Seasons, patches, eras and labels come from the registry (patch-registry.js
+// via lol-data.js LolPatches); nothing here parses dataset ids any more.
+// TRANSITION: while LolPatches.shellMode() is "legacy" (lol-data.js header)
+// the season table and the boot helpers keep their pre-registry behaviour for
+// the calculators that still run on the old data files. Those branches are
+// marked TRANSITION; phase 2 deletes them.
+
+function lolShellLegacy() {
+    return !window.LolPatches || LolPatches.shellMode() === "legacy";
+}
 
 // ---------------------------------------------------------------------------
-// 1. Client era (DECISIONS.md §1)
-//   air: every S1-S5 mastery set, V5.22 (s6-launch), V6.22 (s7-preseason),
-//        rune pages V3.14 / V4.20 / V5.21 / V6.24.
-//   lcu: V7.21 masteries (s7-final), V7.21 runes, every Runes Reforged patch.
+// 1. Client era (DECISIONS.md §1). The registry entry carries it (DESIGN
+// §3.5: lcu for V7.1+ and every Runes Reforged patch, air otherwise).
 // ---------------------------------------------------------------------------
 
+// TRANSITION: the pre-registry rule, kept as the fallback for ids the
+// registry cannot resolve (it agrees with the registry on every legacy id).
 var LCU_ERA_DATASETS = { "s7-final": true, "preReforged-V7.21": true };
 
-function clientEraFor(datasetId) {
-    var id = String(datasetId || "");
+function clientEraFor(x) {
+    if (x && typeof x === "object") return x.era === "lcu" ? "lcu" : "air";
+    var id = String(x || "");
     if (id === "air" || id === "lcu") return id;
+    if (window.LolPatches) {
+        var page = LolPatches.pageOfId(id), r = page ? LolPatches.resolve(page, id) : null;
+        if (r && r.entry.era) return r.entry.era;
+    }
     if (/^rr-/.test(id)) return "lcu";
     return LCU_ERA_DATASETS[id] ? "lcu" : "air";
 }
@@ -43,13 +63,17 @@ function setClientEra(era) {
 }
 
 // Called from an inline <script> right after <body>, so the first paint
-// already has the right backdrop for deep links. Only trusts a hash that
-// starts with a dataset id; otherwise the static body attribute (the page's
-// default dataset era) stands until the calculator activates its dataset.
+// already has the right backdrop for deep links: the era of the entry the
+// hash opens (the page default for an empty or unknown hash).
 function lolBootClientEra() {
-    var first = String(location.hash || "").replace(/^#/, "").split("|")[0];
-    if (/^(s\d+-|preReforged-|rr-)/.test(first)) setClientEra(clientEraFor(first));
-    else if (document.body) setClientEra(document.body.getAttribute("data-client") || "air");
+    if (lolShellLegacy()) {                                   // TRANSITION
+        var first = String(location.hash || "").replace(/^#/, "").split("|")[0];
+        if (/^(s\d+-|preReforged-|rr-)/.test(first)) setClientEra(clientEraFor(first));
+        else if (document.body) setClientEra(document.body.getAttribute("data-client") || "air");
+        return;
+    }
+    var r = LolPatches.fromHash(LolPatches.page());
+    setClientEra(r.entry ? r.entry.era : (document.body && document.body.getAttribute("data-client")) || "air");
 }
 
 // ---------------------------------------------------------------------------
@@ -58,12 +82,14 @@ function lolBootClientEra() {
 // existed in that era —
 //   Seasons 1-7 (separate systems):  [Masteries] [Runes]
 //   Seasons 8+  (combined system):   [Runes Reforged]
-// Each entry carries the default dataset id per page so cross-page jumps
-// land on the right season. A null page means "did not exist / no catalog
-// yet" and renders as a disabled tab.
+// SEASON_NAV (patch-registry.js) carries each page's default id per season,
+// so cross-page jumps land on the right season. A page absent from a season
+// did not exist then.
 // ---------------------------------------------------------------------------
 
-var SEASON_NAV = [
+// TRANSITION: the pre-registry season table (legacy dataset ids), used while
+// the old calculators run (lolShellLegacy()).
+var LOL_LEGACY_SEASON_NAV = [
     { key: "s1",    label: "Season 1",           masteries: "s1-final",    runes: null },
     { key: "s2",    label: "Season 2",           masteries: "s2-ahri",     runes: null },
     { key: "s3",    label: "Season 3",           masteries: "s3-pbe",      runes: "preReforged-V3.14" },
@@ -84,7 +110,9 @@ var SEASON_NAV = [
 
 var SEASON_NAV_PAGE_NAMES = { masteries: "Masteries", runes: "Runes", reforged: "Runes Reforged" };
 
-// Why a tab is disabled, shown in the LCU tooltip on hover/focus.
+// TRANSITION: why a tab is disabled, shown in the LCU tooltip on hover/focus.
+// Only the legacy table has a season without a page (S1/S2 runes); with the
+// registry every season S1-S7 has both pages.
 var SEASON_NAV_DISABLED_TIPS = {
     runes: {
         title: "No rune catalog",
@@ -92,9 +120,16 @@ var SEASON_NAV_DISABLED_TIPS = {
     }
 };
 
+// The season table in use: the registry's SEASON_NAV, or the legacy one.
+function seasonNavTable() {
+    if (lolShellLegacy() || typeof SEASON_NAV === "undefined") return LOL_LEGACY_SEASON_NAV;   // TRANSITION
+    return SEASON_NAV;
+}
+
 function seasonNavFind(key) {
-    for (var i = 0; i < SEASON_NAV.length; i++)
-        if (SEASON_NAV[i].key === key) return SEASON_NAV[i];
+    var table = seasonNavTable();
+    for (var i = 0; i < table.length; i++)
+        if (table[i].key === key) return table[i];
     return null;
 }
 
@@ -154,10 +189,16 @@ function seasonNavTitle(def, page) {
         + (SEASON_NAV_PAGE_NAMES[page] || "") + " · Legacy LoL Calculator";
 }
 
-// SEASON_NAV key of a dataset id ("s5-final" → s5, "preReforged-V5.21" →
-// s5, "rr-v14-19" → s14, "rr-v26-13" → s2026), or null.
+// SEASON_NAV key of a dataset id (canonical or legacy: the registry entry's
+// season, so "s4-final" -> s5), or null.
 function seasonKeyForDataset(id) {
     id = String(id || "");
+    if (!lolShellLegacy()) {
+        var page = LolPatches.pageOfId(id), r = page ? LolPatches.resolve(page, id) : null;
+        return r ? r.entry.season : null;
+    }
+    // TRANSITION: the legacy ids' own season ("s5-final" -> s5,
+    // "preReforged-V5.21" -> s5, "rr-v14-19" -> s14, "rr-v26-13" -> s2026).
     var m = /^s(\d+)-/.exec(id) || /^preReforged-V(\d+)\./.exec(id);
     if (m) return "s" + m[1];
     m = /^rr-v(\d+)-/.exec(id);
@@ -166,21 +207,20 @@ function seasonKeyForDataset(id) {
 }
 
 function lolPageType() {
+    if (window.LolPatches) return LolPatches.page();
     var p = location.pathname || "";
     if (/runes-reforged\.html$/i.test(p)) return "reforged";
     if (/runes\.html$/i.test(p)) return "runes";
     return "masteries";
 }
 
-// Inline right after </header>: make the static header match a deep link
-// before the calculators (and the jQuery CDN) arrive, so a slow load never
-// shows "Season 3" over an #s5-final page. The calculator's buildSeasonNav
-// replaces all of it once it runs.
+// Inline right after </header>: make the static header match the deep link
+// (or the page default) before the calculators (and jQuery) arrive, so a slow
+// load never shows "Season 3" over an #m-V5.21 page. Fills the season and
+// patch dropdowns, the tabs and the title from the registry; the
+// calculator's buildSeasonNav replaces it once it runs.
 function lolBootHeader() {
-    var id = String(location.hash || "").replace(/^#/, "").split("|")[0];
-    var key = seasonKeyForDataset(id), def = key ? seasonNavFind(key) : null;
     var page = lolPageType();
-    if (!def || !def[page]) return;
     var season = document.querySelector(".legacy-header select.header-season");
     var patch = document.querySelector(".legacy-header select.header-patch");
     var only = function(sel, value, text) {
@@ -190,11 +230,33 @@ function lolBootHeader() {
         o.value = value; o.textContent = text; o.selected = true;
         sel.appendChild(o);
     };
-    if (season && season.value !== key) only(season, key, def.label);
-    if (patch && patch.value !== id) {
-        var v = /V(\d+\.\d+)$/.exec(id), r = /^rr-v(\d+)-(\d+)$/.exec(id);
-        only(patch, id, v ? "V" + v[1] : r ? "V" + r[1] + "." + r[2] : "…");
+    if (lolShellLegacy()) {                                   // TRANSITION
+        var id = String(location.hash || "").replace(/^#/, "").split("|")[0];
+        var key = seasonKeyForDataset(id), legacyDef = key ? seasonNavFind(key) : null;
+        if (!legacyDef || !legacyDef[page]) return;
+        if (season && season.value !== key) only(season, key, legacyDef.label);
+        if (patch && patch.value !== id) {
+            var v = /V(\d+\.\d+)$/.exec(id), rr = /^rr-v(\d+)-(\d+)$/.exec(id);
+            only(patch, id, v ? "V" + v[1] : rr ? "V" + rr[1] + "." + rr[2] : "…");
+        }
+        renderSeasonNavTabs({ page: page }, legacyDef);
+        seasonNavTitle(legacyDef, page);
+        return;
     }
+    var entry = LolPatches.fromHash(page).entry;
+    var def = entry ? seasonNavFind(entry.season) : null;
+    if (!def || !def[page]) return;
+    if (season) {
+        while (season.firstChild) season.removeChild(season.firstChild);
+        seasonNavTable().forEach(function(d){
+            var o = document.createElement("option");
+            o.value = d.key; o.textContent = d.label;
+            if (d.key === def.key) o.selected = true;
+            season.appendChild(o);
+        });
+        season.value = def.key;
+    }
+    if (patch) LolPatches.fillPatchSelect(patch, page, def.key, entry.id);
     renderSeasonNavTabs({ page: page }, def);
     seasonNavTitle(def, page);
 }
@@ -202,19 +264,24 @@ function lolBootHeader() {
 // (Re)build the season dropdown + tabs. `opts`:
 //   page          "masteries" | "runes" | "reforged"
 //   seasonSelect  selector of this page's season <select>
-//   currentKey    SEASON_NAV key of the active dataset
+//   entry         the active registry entry (its season is the current one;
+//                 passing it puts the page on the registry: useRegistry())
+//   currentKey    TRANSITION: SEASON_NAV key, for callers without an entry
 //   onSeason(def) called when the chosen season exists on THIS page type;
-//                 switch datasets in-page and return true. Returning a
-//                 falsy value falls back to a cross-page navigation.
+//                 switch datasets in-page (LolPatches.seasonDefault(page,
+//                 def.key)) and return true. Returning a falsy value falls
+//                 back to a cross-page navigation.
 function buildSeasonNav(opts) {
+    if (opts.entry && window.LolPatches) LolPatches.useRegistry();
+    var currentKey = opts.entry ? opts.entry.season : opts.currentKey;
     var $season = $(opts.seasonSelect);
     if (!$season.length) return;
     $season.empty();
-    SEASON_NAV.forEach(function(def){
+    seasonNavTable().forEach(function(def){
         $season.append($("<option>").attr("value", def.key).text(def.label));
     });
-    $season.val(opts.currentKey);
-    var current = seasonNavFind(opts.currentKey);
+    $season.val(currentKey);
+    var current = seasonNavFind(currentKey);
     renderSeasonNavTabs(opts, current);
     if (current) seasonNavTitle(current, opts.page);
 

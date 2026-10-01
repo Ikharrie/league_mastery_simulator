@@ -1,0 +1,198 @@
+{
+ "_source": "research masteries-wiki/snapshots/s3-pbe__V1.0.0.152.json (built by build_deltas.py from base dataset s3-pbe + ops; see ops below)",
+ "_imported": "tools/import-masteries.js (sha256 9788f47168fe00cd507bbe8e165357c8593d39d90eaf92d18c14fc4bb359e02d)",
+ "patch": "V1.0.0.152",
+ "season": 3,
+ "base": "s3-pbe",
+ "trees": ["Offense","Defense","Utility"],
+ "ops": [
+  {
+   "op": "set",
+   "tree": "Defense",
+   "name": "Legendary Armor",
+   "field": "rankInfo",
+   "value": [2,3.5,5],
+   "confidence": "medium",
+   "src": ["fandom-mastery-pages","wiki-mastery-pages","leaguepedia","ddragon-3.6.14","sa20-1128-pbe","dpatti-46150fc"],
+   "note": "s3-pbe carries the 11/28 PBE value 2/4/6; every wiki and DDragon 3.6.14 give 2/3.5/5 from V1.0.0.152 with no later change recorded."
+  },
+  {
+   "op": "set",
+   "tree": "Utility",
+   "name": "Scout",
+   "field": "desc",
+   "value": "Wards gain 25% increased vision range for the first 5 seconds after placing them",
+   "confidence": "medium",
+   "src": ["fandom-mastery-pages","leaguepedia","ddragon-3.6.14","sa20-1115-pbe"],
+   "note": "s3-pbe has the 11/15 PBE value (3 seconds)."
+  },
+  {
+   "op": "set",
+   "tree": "Defense",
+   "name": "Bladed Armor",
+   "field": "desc",
+   "value": "Deals 6 true damage to any minion or monster that attacks you",
+   "confidence": "medium",
+   "src": ["fandom-mastery-pages","ddragon-3.6.14"],
+   "note": "s3-pbe text says \"enemy monster\" only and omits true damage; wiki V1.0.0.152 entry and DDragon 3.6.14 include minions and true damage."
+  }
+ ],
+ "data": [
+  [
+   {
+    "index": 1,
+    "name": "Summoner's Wrath",
+    "icon": "511",
+    "ranks": 1,
+    "desc": "Improves the following Summoner Spells:\n\n|Exhaust:| Reduces target's Magic Resist and Armor by 10\n|Ignite:| Increases Ability Power and Attack Damage by 5 while on cooldown\n|Ghost:| Increases Movement Speed bonus to 35%\n|Garrison:| Allied Garrisoned turrets deal 50% splash damage.",
+    "rankInfo": []
+   },
+   {"index":2,"name":"Fury","icon":"512","ranks":4,"desc":"+#% Attack Speed","rankInfo":[1,2,3,4]},
+   {"index":3,"name":"Sorcery","icon":"513","ranks":4,"desc":"+#% Cooldown Reduction","rankInfo":[1,2,3,4]},
+   {"index":4,"name":"Butcher","icon":"514","ranks":2,"desc":"Basic attacks deal # bonus damage to minions and monsters","rankInfo":[2,4]},
+   {
+    "index": 6,
+    "name": "Deadliness",
+    "icon": "522",
+    "ranks": 4,
+    "desc": "+# Attack Damage per level\n(# Attack Damage at champion level 18)",
+    "rankInfo": [0.17,0.33,0.5,0.67],
+    "perlevel": 1
+   },
+   {
+    "index": 7,
+    "name": "Blast",
+    "icon": "523",
+    "ranks": 4,
+    "desc": "+# Ability Power per level\n(# Ability Power at champion level 18)",
+    "rankInfo": [0.25,0.5,0.75,1],
+    "perlevel": 1
+   },
+   {"index":8,"name":"Destruction","icon":"524","ranks":1,"desc":"Increase damage to turrets by 5%","rankInfo":[]},
+   {"index":9,"name":"Havoc","icon":"531","ranks":3,"desc":"Increases damage dealt by #%","rankInfo":[0.67,1.33,2]},
+   {"index":10,"name":"Weapon Expertise","icon":"532","ranks":1,"desc":"+8% Armor Penetration","rankInfo":[],"parent":4},
+   {"index":11,"name":"Arcane Knowledge","icon":"533","ranks":1,"desc":"+8% Magic Penetration","rankInfo":[],"parent":5},
+   {"index":13,"name":"Lethality","icon":"541","ranks":2,"desc":"+#% Critical Strike Damage\n (#% for melee champions)","rankInfo":[2.5,5],"rankInfo2":[5,10]},
+   {"index":14,"name":"Brute Force","icon":"542","ranks":2,"desc":"+# Attack Damage","rankInfo":[1.5,3]},
+   {"index":15,"name":"Mental Force","icon":"543","ranks":3,"desc":"# Ability Power","rankInfo":[2,4,6]},
+   {
+    "index": 16,
+    "name": "Spellsword",
+    "icon": "544",
+    "ranks": 1,
+    "desc": "Deals 5% of your Ability Power in magic damage to the target on each basic attack",
+    "rankInfo": []
+   },
+   {"index":17,"name":"Frenzy","icon":"551","ranks":1,"desc":"Grants 10% attack speed for 2 seconds after landing a critical hit","rankInfo":[],"parent":10},
+   {"index":18,"name":"Sunder","icon":"552","ranks":3,"desc":"+# Armor Penetration","rankInfo":[2,3.5,5]},
+   {"index":19,"name":"Archmage","icon":"553","ranks":4,"desc":"Increases Ability Power by #%","rankInfo":[1.25,2.5,3.75,5]},
+   {"index":22,"name":"Executioner","icon":"562","ranks":1,"desc":"Increases damage dealt by 5% to targets below 50% Health","rankInfo":[]}
+  ],
+  [
+   {
+    "index": 1,
+    "name": "Summoner's Resolve",
+    "icon": "611",
+    "ranks": 1,
+    "desc": "Improves the following Summoner Spells:\n\n|Cleanse:| Increases duration of disable reduction by 1 second\n|Heal:| Passively increases Health by 5 per level\n|Smite:| Grants 10 bonus gold on use\n|Barrier:| Increases Barrier shield amount by 20",
+    "rankInfo": []
+   },
+   {"index":2,"name":"Perseverance","icon":"612","ranks":3,"desc":"Grants up to +# Health Regen per 5 seconds based on missing Health","rankInfo":[2,4,6]},
+   {"index":3,"name":"Durability","icon":"613","ranks":4,"desc":"+# Health per level\n(+# Health at champion level 18)","rankInfo":[1.5,3,4.5,6],"perlevel":1},
+   {"index":4,"name":"Tough Skin","icon":"614","ranks":2,"desc":"Reduces damage taken from monsters by #","rankInfo":[1,2]},
+   {"index":5,"name":"Hardiness","icon":"621","ranks":3,"desc":"+# Armor","rankInfo":[2,3.5,5]},
+   {"index":6,"name":"Resistance","icon":"622","ranks":3,"desc":"+# Magic Resist","rankInfo":[2,3.5,5]},
+   {"index":8,"name":"Bladed Armor","icon":"624","ranks":1,"desc":"Deals 6 true damage to any minion or monster that attacks you","rankInfo":[],"parent":3},
+   {"index":9,"name":"Unyielding","icon":"631","ranks":2,"desc":"Reduces the damage taken from enemy champions by #","rankInfo":[1,2]},
+   {"index":10,"name":"Relentless","icon":"632","ranks":2,"desc":"Reduces the effectiveness of slows by #%","rankInfo":[7.5,15]},
+   {"index":11,"name":"Veteran's Scars","icon":"633","ranks":1,"desc":"+30 Health","rankInfo":[],"parent":2},
+   {"index":12,"name":"Safeguard","icon":"634","ranks":1,"desc":"Reduces damage taken from turrets by 5%","rankInfo":[]},
+   {"index":13,"name":"Block","icon":"641","ranks":1,"desc":"Reduces damage taken from champion basic attacks by 3","rankInfo":[],"parent":7},
+   {
+    "index": 14,
+    "name": "Tenacious",
+    "icon": "642",
+    "ranks": 3,
+    "desc": "Reduces the duration of crowd control effects by #% (stacks multiplicatively with Tenacity)",
+    "rankInfo": [5,10,15]
+   },
+   {"index":15,"name":"Juggernaut","icon":"643","ranks":3,"desc":"Increases your maximum Health by #%","rankInfo":[1.5,2.75,4]},
+   {"index":17,"name":"Defender","icon":"651","ranks":1,"desc":"Grants +1 Armor and Magic Resist for each nearby enemy champion","rankInfo":[]},
+   {"index":18,"name":"Legendary Armor","icon":"652","ranks":3,"desc":"Increases bonus Armor and Magic Resist by +#%","rankInfo":[2,3.5,5]},
+   {"index":19,"name":"Good Hands","icon":"653","ranks":1,"desc":"Reduce time spent dead by 10%","rankInfo":[]},
+   {"index":20,"name":"Reinforced Armor","icon":"654","ranks":1,"desc":"Reduce damage taken from critical strikes by 10%","rankInfo":[]},
+   {"index":22,"name":"Honor Guard","icon":"662","ranks":1,"desc":"Reduces damage taken from all sources by 3%","rankInfo":[]}
+  ],
+  [
+   {
+    "index": 1,
+    "name": "Summoner's Insight",
+    "icon": "711",
+    "ranks": 1,
+    "desc": "Improves the following Summoner Spells:\n\n|Teleport:| Reduces cast time by # second\n|Revive:| Grants bonus Health on Revive for 2 minutes\n|Flash:| Reduces cooldown by 15 seconds\n|Clarity:| Increases Mana restored by 25%\n|Clairvoyance:| Grants additional vision of enemy units revealed",
+    "rankInfo": [0.5]
+   },
+   {"index":2,"name":"Wanderer","icon":"712","ranks":3,"desc":"Grants +#% increased Movement Speed when out of combat","rankInfo":[0.66,1.33,2]},
+   {"index":3,"name":"Meditation","icon":"713","ranks":3,"desc":"+# Mana Regen per 5 seconds","rankInfo":[1,2,3]},
+   {
+    "index": 4,
+    "name": "Improved Recall",
+    "icon": "714",
+    "ranks": 1,
+    "desc": "Reduces the cast time of Recall by 1 second and Enhanced Recall by # seconds",
+    "rankInfo": [0.5]
+   },
+   {"index":5,"name":"Scout","icon":"721","ranks":1,"desc":"Wards gain 25% increased vision range for the first 5 seconds after placing them","rankInfo":[]},
+   {"index":6,"name":"Mastermind","icon":"722","ranks":3,"desc":"Reduces the cooldown of Summoner Spells by #%","rankInfo":[4,7,10]},
+   {"index":7,"name":"Expanded Mind","icon":"723","ranks":3,"desc":"+# mana per level (+# at level 18)","rankInfo":[4,7,10],"perlevel":1},
+   {"index":8,"name":"Artificer","icon":"724","ranks":2,"desc":"Reduces the cooldown of activated items by #%","rankInfo":[7.5,15]},
+   {"index":9,"name":"Greed","icon":"731","ranks":4,"desc":"Grants an additional +# gold every 10 seconds","rankInfo":[0.5,1,1.5,2]},
+   {
+    "index": 10,
+    "name": "Runic Affinity",
+    "icon": "732",
+    "ranks": 1,
+    "desc": "Increases the duration of shrine, relic, quest, and neutral monster buffs by 20%",
+    "rankInfo": []
+   },
+   {"index":11,"name":"Vampirism","icon":"733","ranks":3,"desc":"+#% Lifesteal and Spell Vamp","rankInfo":[1,2,3]},
+   {
+    "index": 12,
+    "name": "Biscuiteer",
+    "icon": "734",
+    "ranks": 1,
+    "desc": "Start the game with a regenerative biscuit that restores 80 Health and 50 Mana over 10 seconds",
+    "rankInfo": []
+   },
+   {"index":13,"name":"Wealth","icon":"741","ranks":2,"desc":"Increases starting gold by #","rankInfo":[25,50],"parent":8},
+   {"index":14,"name":"Awareness","icon":"742","ranks":4,"desc":"Increases Experience earned by #%","rankInfo":[1.25,2.5,3.75,5]},
+   {
+    "index": 15,
+    "name": "Strength of Spirit",
+    "icon": "743",
+    "ranks": 3,
+    "desc": "Up to +# Health Regen per 5 seconds for each 400 Mana you possess",
+    "rankInfo": [1,2,3]
+   },
+   {
+    "index": 16,
+    "name": "Explorer",
+    "icon": "744",
+    "ranks": 1,
+    "desc": "On Summoners Rift, grants a Ward at the start of the game that can be placed to reveal the surrounding area for 60 seconds. On all other maps, grants 25 starting gold.",
+    "rankInfo": [],
+    "parent": 11
+   },
+   {
+    "index": 17,
+    "name": "Pickpocket",
+    "icon": "751",
+    "ranks": 1,
+    "desc": "Grants 5 gold for melee champions and 3 gold for ranged champions each time you perform a basic attack against an enemy champion (5 second cooldown)",
+    "rankInfo": []
+   },
+   {"index":18,"name":"Intelligence","icon":"752","ranks":3,"desc":"+#% Cooldown Reduction","rankInfo":[2,4,6]},
+   {"index":22,"name":"Nimble","icon":"762","ranks":1,"desc":"Grants 3% increased Movement Speed","rankInfo":[]}
+  ]
+ ]
+}
