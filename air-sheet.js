@@ -16,6 +16,7 @@
 //
 // Public: AirSheet.boot()     sync + watch now (inline after the sheet markup)
 //         AirSheet.refresh()  re-sync now (e.g. after replacing markup).
+//         AirMasterySidebar   the Masteries sidebar (second module below).
 
 var AirSheet = window.AirSheet = (function(){
     // Which client look each season's calculator belongs to.
@@ -157,4 +158,201 @@ var AirSheet = window.AirSheet = (function(){
     else init();
 
     return { boot: init, refresh: refresh, sync: sync, PERIOD: PERIOD, SUBTABS: SUBTABS, CHIPS: CHIPS };
+})();
+
+// ---------------------------------------------------------------------------
+// AirMasterySidebar — the AIR client's Masteries sidebar (css/air-sheet.css
+// §5b, markup: aside.air-ms in index.html). One component for classic
+// S1-S5 (calculator.js) and keystone AIR V5.22 / V6.22 (keystone-
+// calculator.js): the keystone era kept the S2-S5 sidebar. The calculators
+// own the build; this module owns the page name, the "*" unsaved marker
+// and the Save / Revert / Delete states. Hidden under body[data-client=lcu].
+//
+//   AirMasterySidebar.render(cfg)   configure for the active dataset (call
+//                                   on every dataset switch); the current
+//                                   build becomes the saved baseline.
+//     cfg.trees        [{ name, emblem }] in data (= display) order; emblem
+//                      offense | defense | utility | ferocity | cunning |
+//                      resolve (images/air/ms-emblems.png)
+//     cfg.maxPoints    budget, for update() callers that omit `available`
+//     cfg.getCode()    -> string, the current build code; drives "dirty"
+//     cfg.onReturn()   Return Points
+//     cfg.onDelete()   Delete (default: onReturn); the name then resets
+//     cfg.onRevert(code)  re-import the saved build `code`
+//     cfg.onSave()     Save Masteries (default: click #share, i.e. copy the
+//                      share link); then the baseline moves to "now"
+//     cfg.onTreeReset(i)  double-click on emblem i (optional)
+//   AirMasterySidebar.update({ points: [n, n, n], available: n })
+//                                   after every build change
+//   AirMasterySidebar.markSaved()   current build + name = saved (on load /
+//                                   hashchange import, after Save)
+//   AirMasterySidebar.isDirty()     build or name differs from the baseline
+//   AirMasterySidebar.pageName([s]) get / set the page name (no "*")
+//   AirMasterySidebar.save() / .revert() / .del() / .ret()  = the buttons
+//   AirMasterySidebar.element()     the <aside> (null when absent)
+//   AirMasterySidebar.DEFAULT_NAME  "Mastery Page 1"
+// Dirty state is mirrored on the aside as [data-dirty="true|false"].
+// ---------------------------------------------------------------------------
+
+var AirMasterySidebar = window.AirMasterySidebar = (function(){
+    var DEFAULT_NAME = "Mastery Page 1";
+    var cfg = {}, root = null, bound = false;
+    var name = DEFAULT_NAME;
+    var saved = { code: "", name: DEFAULT_NAME };
+    var last = { points: [0, 0, 0], available: null };
+
+    function q(sel) { return root ? root.querySelector(sel) : null; }
+    function qa(sel) { return root ? root.querySelectorAll(sel) : []; }
+    function code() {
+        try { return typeof cfg.getCode === "function" ? String(cfg.getCode() || "") : ""; }
+        catch (e) { return ""; }
+    }
+    function isDirty() { return code() !== saved.code || name !== saved.name; }
+
+    function paint() {
+        if (!root) return;
+        var dirty = isDirty();
+        root.setAttribute("data-dirty", dirty ? "true" : "false");
+        var t = q(".air-ms-name-text");
+        if (t) {
+            t.textContent = (dirty ? "*" : "") + name;
+            t.setAttribute("title", name);
+        }
+        var save = q(".air-ms-save"), rev = q(".air-ms-revert");
+        if (save) save.disabled = !dirty;
+        if (rev) rev.disabled = !dirty;
+    }
+
+    function update(s) {
+        s = s || {};
+        if (s.points) last.points = s.points.slice(0);
+        if (s.available != null) last.available = s.available;
+        else if (s.points && cfg.maxPoints != null)
+            last.available = cfg.maxPoints - last.points.reduce(function(a, b){ return a + (+b || 0); }, 0);
+        var counts = qa(".air-ms-count");
+        for (var i = 0; i < counts.length; i++) counts[i].textContent = String(last.points[i] || 0);
+        var n = q(".air-ms-points-n");
+        if (n && last.available != null) n.textContent = String(last.available);
+        paint();
+    }
+
+    function markSaved() {
+        saved = { code: code(), name: name };
+        paint();
+    }
+
+    function pageName(v) {
+        if (v === undefined) return name;
+        v = String(v).replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
+        name = v || DEFAULT_NAME;
+        paint();
+        return name;
+    }
+
+    // --- buttons ---------------------------------------------------------
+    function save() {
+        if (typeof cfg.onSave === "function") cfg.onSave();
+        else {
+            var share = document.getElementById("share");
+            if (share) share.click();
+        }
+        markSaved();
+    }
+    function revert() {
+        if (!isDirty()) return;
+        var target = saved;
+        if (code() !== target.code && typeof cfg.onRevert === "function") cfg.onRevert(target.code);
+        name = target.name;
+        paint();
+    }
+    function ret() { if (typeof cfg.onReturn === "function") cfg.onReturn(); }
+    function del() {
+        if (typeof cfg.onDelete === "function") cfg.onDelete(); else ret();
+        name = DEFAULT_NAME;
+        paint();
+    }
+
+    // --- page-name editing (pencil) --------------------------------------
+    function startEdit() {
+        var box = q(".air-ms-name"), input = q(".air-ms-name-input");
+        if (!box || !input || box.classList.contains("is-editing")) return;
+        input.value = name;
+        box.classList.add("is-editing");
+        input.focus();
+        input.select();
+    }
+    function endEdit(commit) {
+        var box = q(".air-ms-name"), input = q(".air-ms-name-input");
+        if (!box || !box.classList.contains("is-editing")) return;
+        box.classList.remove("is-editing");
+        if (commit) pageName(input.value);
+    }
+
+    function treeTip() { return "Double click to reset tree"; }
+
+    function bind() {
+        if (bound || !root) return;
+        bound = true;
+        root.addEventListener("click", function(e){
+            var btn = e.target.closest ? e.target.closest("button") : null;
+            if (!btn || btn.disabled || !root.contains(btn)) return;
+            if (btn.classList.contains("air-ms-save")) save();
+            else if (btn.classList.contains("air-ms-return")) ret();
+            else if (btn.classList.contains("air-ms-delete")) del();
+            else if (btn.classList.contains("air-ms-revert")) revert();
+            else if (btn.classList.contains("air-ms-pencil")) {
+                if (q(".air-ms-name.is-editing")) endEdit(true); else startEdit();
+            }
+        });
+        // mousedown on the pencil would blur (= commit) the input first
+        var pencil = q(".air-ms-pencil");
+        if (pencil) pencil.addEventListener("mousedown", function(e){
+            if (q(".air-ms-name.is-editing")) e.preventDefault();
+        });
+        var input = q(".air-ms-name-input");
+        if (input) {
+            input.addEventListener("keydown", function(e){
+                if (e.key === "Enter") { e.preventDefault(); endEdit(true); }
+                else if (e.key === "Escape") { e.preventDefault(); endEdit(false); }
+            });
+            input.addEventListener("blur", function(){ endEdit(true); });
+        }
+        root.addEventListener("dblclick", function(e){
+            var tree = e.target.closest ? e.target.closest(".air-ms-tree") : null;
+            if (!tree || typeof cfg.onTreeReset !== "function") return;
+            if (window.getSelection) { try { window.getSelection().removeAllRanges(); } catch (err) {} }
+            cfg.onTreeReset(+tree.getAttribute("data-tree"));
+        });
+        var trees = qa(".air-ms-tree");
+        if (window.LolTooltip) LolTooltip.attach(trees, function(){
+            return typeof cfg.onTreeReset === "function" ? treeTip() : null;
+        }, "air-mastery");
+    }
+
+    function render(c) {
+        root = document.querySelector(".air-ms");
+        cfg = c || {};
+        if (!root) return;
+        bind();
+        var trees = cfg.trees || [];
+        var nodes = qa(".air-ms-tree");
+        for (var i = 0; i < nodes.length; i++) {
+            var t = trees[i] || {};
+            var em = nodes[i].querySelector(".air-ms-emblem");
+            if (em) em.setAttribute("data-emblem", t.emblem || "");
+            nodes[i].setAttribute("data-tree", String(i));
+            nodes[i].setAttribute("aria-label", (t.name || "Tree " + (i + 1)) + " points");
+        }
+        endEdit(false);
+        last = { points: [0, 0, 0], available: cfg.maxPoints != null ? cfg.maxPoints : null };
+        update({});
+        markSaved();
+    }
+
+    return {
+        render: render, update: update, markSaved: markSaved, isDirty: isDirty,
+        pageName: pageName, save: save, revert: revert, del: del, ret: ret,
+        element: function(){ return root || document.querySelector(".air-ms"); },
+        DEFAULT_NAME: DEFAULT_NAME
+    };
 })();

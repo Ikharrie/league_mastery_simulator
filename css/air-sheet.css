@@ -28,7 +28,9 @@
          nav.air-subtabs     .air-subtab[.is-active|.is-link|.is-disabled|
                              .is-unavailable]… + .air-search
        .air-sheet-body       (9-slice variant) the tan folder frame; flex row:
-         [.air-sheet-side]   optional left column (classic/keystone sidebar)
+         [.air-sheet-side]   optional left column; masteries: aside.air-ms,
+                             the Masteries sidebar (§5b, air-sheet.js
+                             AirMasterySidebar), hidden in the LCU era
          .air-sheet-main     .air-sheet-toolbar > .air-chips.air-page-chips,
                              then the calculator
      .air-sheet.air-sheet--painted   (runes) no 9-slice: the page's own
@@ -62,7 +64,10 @@ body[data-client="air"] .air-sheet {
     min-width: calc(1618 * var(--a));
     min-height: calc(972 * var(--a));
     margin: 0;
-    padding: calc(25 * var(--u)) calc(44 * var(--u)) calc(58 * var(--u)) calc(40 * var(--u));
+    /* right 36: strip / tree frame end 36 native px before the torn right
+       edge [Apr 2015: line x 1112, edge 1148]; keeps the sidebar sheet at
+       ~1278px (trees are 920px = 836 native vs 823 in the client). */
+    padding: calc(25 * var(--u)) calc(36 * var(--u)) calc(58 * var(--u)) calc(40 * var(--u));
     color: var(--air-ink);
     font: 400 calc(12 * var(--u))/1.3 var(--font-air-body);
     text-align: left;
@@ -145,25 +150,12 @@ body[data-client="air"] .air-folder-tab {
     color: #1a0e02;
     white-space: nowrap;
 }
-/* Dec 2012 client: the second tab is the ranked-team DROPDOWN ("Da Go Go
-   Power Rangers ▼" in yt-uOygL_Bof5Q): flat tan face, label centred on the
-   tab, dark-red ▼ 10u from the right edge [sampled core #3e0b00, 15x13u]. */
+/* 2012 client: flat tan face on the second tab (Dec 2012 yt-uOygL_Bof5Q).
+   The label is the plain "Ranked Teams" of the Nov 2012 capture
+   (refs/chrome/yt-air-masteries-2012.png) — no ▼: the dropdown arrow only
+   appears once the summoner is on a ranked team. */
 body[data-client="air"] .air-sheet[data-air-period="2012"] .air-folder-tab {
-    position: relative;
     background: linear-gradient(to bottom, #eddaa6 0, #e6d29d 12%, #e4cf9d 50%, #e8d4a2 88%, #dcc795 100%);
-}
-body[data-client="air"] .air-sheet[data-air-period="2012"] .air-folder-tab::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: calc(10 * var(--u));
-    width: 0;
-    height: 0;
-    margin-top: calc(-6 * var(--u));
-    border-style: solid;
-    border-width: calc(12 * var(--u)) calc(7.5 * var(--u)) 0 calc(7.5 * var(--u));
-    border-color: #4a0f02 transparent transparent transparent;
-    filter: drop-shadow(0 1px 0 rgba(255, 244, 214, 0.5));
 }
 body[data-client="air"] .air-sheet .air-btn.air-sheet-cta {
     flex: none;
@@ -264,13 +256,18 @@ body[data-client="air"] .air-sheet-body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: calc(12 * var(--u));
+    gap: calc(13 * var(--u));       /* sidebar box → tree frame [2010, Apr 2015] */
     box-sizing: border-box;
     padding: 0 calc(10 * var(--u)) calc(4 * var(--u)) calc(8 * var(--u));
     border: 1px solid var(--air-line);
     border-top: 0;
 }
-body[data-client="air"] .air-sheet-side { flex: none; width: calc(220 * var(--u)); }
+body[data-client="air"] .air-sheet-side {
+    flex: none;
+    align-self: stretch;            /* column runs down to the trees' bottom */
+    width: calc(217 * var(--u));
+}
+body[data-client="lcu"] .air-sheet-side { display: none; }
 body[data-client="air"] .air-sheet-main { flex: none; min-width: 0; }
 body[data-client="air"] .air-sheet-toolbar {
     box-sizing: border-box;
@@ -280,10 +277,9 @@ body[data-client="air"] .air-sheet-toolbar {
 body[data-client="air"] .air-sheet-toolbar:empty,
 body[data-client="air"] .air-sheet[data-air-chips="0"] .air-sheet-toolbar { visibility: hidden; }
 
-/* Old masteries panel text: masteries-keystone.css lifts it to cream for
-   the slate box; on parchment it must stay dark (surface CSS restyles it). */
-body[data-client="air"] .air-sheet #panel,
-body[data-client="air"] .air-sheet #points { color: var(--air-ink); }
+/* The old top #panel row (Points Available + Return Points) is replaced by
+   the sidebar in the AIR era; it only survives for the V7.21 LCU skin. */
+body[data-client="air"] .air-sheet #panel { display: none; }
 
 /* ==========================================================================
    4. AIR page chips at sheet scale (base.css .air-chip = the component;
@@ -356,6 +352,293 @@ body[data-client="air"] .air-sheet .air-btn.is-icon {
     height: calc(27 * var(--u));
     padding: 0;
 }
+
+/* ==========================================================================
+   5b. Mastery sidebar (.air-ms in .air-sheet-side; air-sheet.js
+       AirMasterySidebar). Classic S1-S5 and keystone AIR (V5.22, V6.22):
+       the keystone era kept the S2-S5 sidebar (Oct 2015 PBE, 2016 live).
+       Native geometry, Apr 2015 capture (refs/runes-legacy/
+       fandom_PVP.net_Summoner_profile_06.jpg, 1:1 client px):
+         column 217 wide, 13 left of the trees; "Mastery Pages" (+ grey
+         wyrm flourish) in the toolbar band; page box 217x226 at the trees'
+         top: name field 26 tall (6/7/6 inset) with a 21px pencil, emblem
+         row (35x43 frames, pitch 64.5), "Points Available: N", Save 175x24,
+         Return, Delete + Revert 78x24; 3px gap; "Mastery Points" help box
+         down to the trees' bottom.
+       2010 (wb-riot-2010-masteries.jpg): one 218x516 tan panel — emblems,
+         help text, Points Available, Return Points over Save Masteries.
+         <aside class="air-sheet-side air-ms">
+           .air-ms-head > h2.air-ms-title
+           .air-ms-box.air-ms-page
+             .air-ms-name[.is-editing] > .air-ms-name-text + input + .air-ms-pencil
+             .air-ms-trees > .air-ms-tree[data-tree] > .air-ms-emblem[data-emblem] + .air-ms-count
+             .air-ms-hint (2010) · .air-ms-points > .air-ms-points-n
+             .air-ms-actions > .air-ms-save · .air-ms-return · .air-ms-row > .air-ms-delete + .air-ms-revert
+           .air-ms-box.air-ms-info > h3 + p + p
+   ========================================================================== */
+body[data-client="air"] .air-ms {
+    --air-ms-box: #c9b173;          /* inset fill [sampled Apr 2015] */
+    --air-ms-line: #937c39;         /* inset outline [sampled #937c39 #917c43] */
+    --air-ms-ink: #1c1003;          /* counts, help body [cores #0a0000-#0e0000] */
+    --air-ms-red: var(--air-points); /* headings + Points Available [cores #450a00 2015, #5e0100 2010] */
+    display: flex;
+    flex-direction: column;
+    color: var(--air-ms-ink);
+    font: 400 calc(14 * var(--u))/1.2 var(--font-air-body);
+    cursor: default;
+}
+body[data-client="air"] .air-ms :where(h2, h3, p) { margin: 0; }
+
+/* --- Head: "Mastery Pages" over the faint grey wyrm flourish ----------- */
+body[data-client="air"] .air-ms-head {
+    position: relative;
+    flex: none;
+    height: calc(40 * var(--u));    /* = .air-sheet-toolbar: box top = trees top */
+}
+body[data-client="air"] .air-ms-head::before {
+    content: "";
+    position: absolute;
+    top: calc(5 * var(--u));
+    left: calc(-4 * var(--u));
+    width: calc(160 * var(--u));
+    height: calc(30 * var(--u));
+    background: url(../images/air/ms-flourish.png) no-repeat 0 0 / 100% 100%;
+    pointer-events: none;
+}
+body[data-client="air"] .air-ms-title,
+body[data-client="air"] .air-ms-info-title {
+    position: relative;
+    font: 400 calc(17.6 * var(--u))/1 var(--font-air-body);   /* Myriad runs ~7% wider */
+    color: var(--air-ms-red);
+    white-space: nowrap;
+}
+body[data-client="air"] .air-ms-title {
+    margin-left: calc(-2 * var(--u));
+    padding-top: calc(12 * var(--u));
+}
+
+/* --- Inset boxes ---------------------------------------------------------- */
+body[data-client="air"] .air-ms-box {
+    position: relative;
+    flex: none;
+    box-sizing: border-box;
+    border: 1px solid var(--air-ms-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--air-ms-box);
+}
+body[data-client="air"] .air-ms-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(226 * var(--u));
+}
+
+/* Page-name field + pencil (rename). "*" = unsaved changes. */
+body[data-client="air"] .air-ms-name {
+    position: relative;
+    flex: none;
+    box-sizing: border-box;
+    height: calc(26 * var(--u));
+    margin: calc(5 * var(--u)) calc(5 * var(--u)) 0 calc(6 * var(--u));
+    padding: 0 calc(28 * var(--u)) 0 calc(5 * var(--u));
+    border: 1px solid #957b40;
+    border-top-color: #9b8345;
+    border-radius: calc(3 * var(--u));
+    background: var(--air-ms-box);
+}
+body[data-client="air"] .air-ms-name-text,
+body[data-client="air"] .air-ms-name-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: 400 calc(15.3 * var(--u))/calc(24 * var(--u)) var(--font-air-body);
+    color: #2b1a02;                 /* [cores #241a00-#2d1600] */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body[data-client="air"] .air-ms-name-text { padding-top: calc(1.2 * var(--u)); }
+body[data-client="air"] .air-ms-name-input { display: none; outline: none; }
+body[data-client="air"] .air-ms-name.is-editing .air-ms-name-text { display: none; }
+body[data-client="air"] .air-ms-name.is-editing .air-ms-name-input { display: block; }
+body[data-client="air"] .air-ms-name.is-editing {
+    border-color: #6e5620;
+    background: #d6c28a;
+}
+/* #mastery-sidebar: beats base.css's legacy `#s2masteries button` rule. */
+body[data-client="air"] #mastery-sidebar .air-ms-pencil {
+    position: absolute;
+    top: calc(1 * var(--u));
+    right: calc(2 * var(--u));
+    box-sizing: border-box;
+    width: calc(21 * var(--u));
+    height: calc(21 * var(--u));
+    margin: 0;
+    padding: 0;
+    border: 1px solid #8a6a30;
+    border-top-color: #9d7434;
+    border-bottom-color: #533710;
+    border-radius: calc(2 * var(--u));
+    /* [sampled column: #aa7736 #8d540f #74410c #613c08 #522e00 #462600 #3b2000] */
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 19'%3E%3Cpath d='M3.6 15.4l.5-2.6 1.9 2z' fill='%23e3d8cb'/%3E%3Cpath d='M4.3 12.6l8.4-8.4 2.2 2.2-8.4 8.4z' fill='%23bba897'/%3E%3Cpath d='M4.3 12.6l8.4-8.4.9.9-8.4 8.4z' fill='%23d6c9ba'/%3E%3Cpath d='M12.7 4.2l1-1 2.2 2.2-1 1z' fill='%23c9a78b'/%3E%3C/svg%3E") no-repeat center / 100% 100%,
+        linear-gradient(to bottom, #aa7736 0, #8d540f 16%, #74410c 33%, #613c08 48%, #522e00 63%, #462600 78%, #3b2000 92%, #3e2101 100%);
+    cursor: pointer;
+    outline: none;
+}
+body[data-client="air"] #mastery-sidebar .air-ms-pencil:hover,
+body[data-client="air"] #mastery-sidebar .air-ms-pencil:active {
+    border-style: solid;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 19'%3E%3Cpath d='M3.6 15.4l.5-2.6 1.9 2z' fill='%23f0e8de'/%3E%3Cpath d='M4.3 12.6l8.4-8.4 2.2 2.2-8.4 8.4z' fill='%23cdbcab'/%3E%3Cpath d='M4.3 12.6l8.4-8.4.9.9-8.4 8.4z' fill='%23e6dacc'/%3E%3Cpath d='M12.7 4.2l1-1 2.2 2.2-1 1z' fill='%23d8b89c'/%3E%3C/svg%3E") no-repeat center / 100% 100%,
+        linear-gradient(to bottom, #b8843f 0, #9a5f16 16%, #804a12 33%, #6b440c 48%, #5b3502 63%, #4e2c02 78%, #432603 92%, #452604 100%);
+}
+body[data-client="air"] #mastery-sidebar .air-ms-pencil:focus-visible { box-shadow: 0 0 0 1px #f3e2a8; }
+
+/* Emblem row: tree emblem + point count; double-click resets that tree. */
+body[data-client="air"] .air-ms-trees {
+    display: flex;
+    flex: none;
+    height: calc(43 * var(--u));
+    margin: calc(7 * var(--u)) 0 0 calc(16 * var(--u));
+}
+body[data-client="air"] .air-ms-tree {
+    display: flex;
+    align-items: center;
+    flex: none;
+    width: calc(64.5 * var(--u));
+    cursor: pointer;
+}
+body[data-client="air"] .air-ms-emblem {
+    flex: none;
+    width: calc(35 * var(--u));
+    height: calc(43 * var(--u));
+    background: url(../images/air/ms-emblems.png) no-repeat 0 0 / calc(35 * var(--u)) calc(172 * var(--u));
+}
+body[data-client="air"] .air-ms-emblem[data-emblem="defense"],
+body[data-client="air"] .air-ms-emblem[data-emblem="resolve"] { background-position: 0 calc(-43 * var(--u)); }
+body[data-client="air"] .air-ms-emblem[data-emblem="utility"] { background-position: 0 calc(-86 * var(--u)); }
+body[data-client="air"] .air-ms-emblem[data-emblem="cunning"] { background-position: 0 calc(-129 * var(--u)); }
+body[data-client="air"] .air-ms-count {
+    position: relative;
+    top: calc(1.5 * var(--u));
+    margin-left: calc(4 * var(--u));  /* count starts 41/36/42 past the frame [Apr 2015] */
+    font: 400 calc(15 * var(--u))/1 var(--font-air-body);
+    color: #140800;
+}
+body[data-client="air"] .air-ms-emblem:is([data-emblem="defense"], [data-emblem="resolve"]) + .air-ms-count { margin-left: calc(1 * var(--u)); }
+body[data-client="air"] .air-ms-emblem:is([data-emblem="utility"], [data-emblem="cunning"]) + .air-ms-count { margin-left: calc(7 * var(--u)); }
+
+body[data-client="air"] .air-ms-hint { display: none; }
+body[data-client="air"] .air-ms-points {
+    flex: none;
+    margin-top: calc(7.5 * var(--u));
+    font: 400 calc(17.6 * var(--u))/calc(20 * var(--u)) var(--font-air-body);
+    color: var(--air-ms-red);
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Save Masteries / Return Points / Delete + Revert: 26u slots; the navy
+   face fills the slot (dark 1px outline), the disabled grey face sits 1px
+   inside it [Apr 2015: Save grey 287-310 / Return 316-341 / Delete 349-374
+   / Revert grey 350-373]. */
+body[data-client="air"] .air-ms-actions {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    margin: calc(20 * var(--u)) calc(21 * var(--u)) 0 calc(19 * var(--u));
+}
+body[data-client="air"] .air-ms .air-btn { height: calc(26 * var(--u)); }
+body[data-client="air"] .air-ms .air-btn:disabled {
+    border-color: transparent;
+    background-clip: padding-box;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 calc(1.5 * var(--u)) calc(1.5 * var(--u)) -1px rgba(60, 45, 15, 0.4);
+}
+body[data-client="air"] .air-ms-actions > .air-btn + .air-btn { margin-top: calc(4 * var(--u)); }
+body[data-client="air"] .air-ms-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: calc(7 * var(--u));
+}
+
+/* "Mastery Points" help box: fills down to the trees' bottom. */
+body[data-client="air"] .air-ms-info {
+    flex: 1 0 auto;
+    margin-top: calc(3 * var(--u));
+    padding: calc(1.5 * var(--u)) calc(2 * var(--u)) calc(8 * var(--u)) calc(5 * var(--u));
+}
+body[data-client="air"] .air-ms-info-title { margin-left: calc(1 * var(--u)); }
+body[data-client="air"] .air-ms-info p {
+    font: 400 calc(15.2 * var(--u))/calc(16.5 * var(--u)) var(--font-air-body);
+    /* Line breaks as captured (<br>, per period); the lines fit with Source
+       Sans 3, a wider fallback font simply wraps. */
+}
+body[data-client="air"] .air-ms-info p:first-of-type { margin-top: calc(21.5 * var(--u)); }
+body[data-client="air"] .air-ms-info p + p { margin-top: calc(16.5 * var(--u)); }
+/* 2012 clients: browner ink for the red labels [cores #693100 #6d3f04
+   #491e00 in both Nov and Dec 2012 captures]. */
+body[data-client="air"] .air-sheet[data-air-period="2012"] .air-ms { --air-ms-red: #683104; }
+body[data-client="air"] .air-sheet:not([data-air-period="2012"]) .air-ms-br12,
+body[data-client="air"] .air-sheet[data-air-period="2012"] .air-ms-br14 { display: none; }
+
+/* 2014+ clients: the disabled grey is neutral [Apr 2015: #9e9e9e → #666262,
+   white label]; 2012 keeps the greener base token [Dec 2012]. */
+body[data-client="air"] .air-sheet[data-air-period="2014"] .air-ms .air-btn:disabled {
+    background: linear-gradient(to bottom, #a3a3a3 0, #9a9b9a 10%, #8b8d8c 30%, #7b7d7c 52%, #6e706f 70%, #696464 86%, #666060 100%) padding-box;
+    color: #f6f6f6;
+}
+
+/* --- 2010 (S1): one tall tan panel, no pages ---------------------------- */
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-head,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-name,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-row,
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-info { display: none; }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-side { width: calc(218 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-page {
+    flex: 1 0 auto;                 /* = the trees' height (516 native in 2010) */
+    height: auto;
+    border-color: #977c2f;
+    border-radius: calc(5 * var(--u));
+    background: #c9b06d;            /* [sampled #c9b06d / #c5b265] */
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-trees {
+    margin: calc(44 * var(--u)) 0 0 calc(25 * var(--u));
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-count {
+    margin-left: calc(5 * var(--u));  /* 40/46/44 past the frame [2010] */
+    font-size: calc(12.5 * var(--u));
+    color: #0b0a08;
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-emblem[data-emblem="defense"] + .air-ms-count { margin-left: calc(11 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-emblem[data-emblem="utility"] + .air-ms-count { margin-left: calc(9 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-hint {
+    display: block;
+    flex: none;
+    margin-top: calc(58 * var(--u));
+    font: 400 calc(15.2 * var(--u))/calc(19 * var(--u)) var(--font-air-body);
+    color: #020100;
+    text-align: center;
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-points { margin-top: calc(84 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions {
+    margin: calc(10 * var(--u)) calc(20 * var(--u)) 0 calc(20 * var(--u));
+}
+/* The 2010 star-shield is the smaller cut (24x33 visible vs 29x43). */
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-emblem[data-emblem="defense"] {
+    transform: translateX(calc(-4.5 * var(--u))) scale(0.8);
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions .air-btn { font-size: calc(15 * var(--u)); }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions .air-btn:not(:disabled) {
+    box-shadow: inset 0 1px 0 rgba(160, 200, 245, 0.5), 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(70, 50, 0, 0.5);
+}
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-return { order: -1; }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions > .air-btn + .air-btn { margin-top: 0; }
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-save { margin-top: calc(19 * var(--u)); }
 
 /* ==========================================================================
    6. Season 1 (2010) look: slate folder outline, the name tab flows into

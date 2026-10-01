@@ -136,6 +136,10 @@ body[data-client="lcu"]::before {
     width: 100%;
     min-width: 0;
     padding: 24px 24px 32px;   /* calculator top edge = 24px below the rule */
+    /* A bled stage (data-stage-bleed, §3) may run a few px of its dark art
+       margin past the window edge: clip it instead of scrolling. clip (not
+       hidden) makes no scroll container, so the y axis stays visible. */
+    overflow-x: clip;
 }
 
 .site-footer {
@@ -179,9 +183,19 @@ body[data-client="lcu"]::before {
    Gutter first, then scale: a stage wider than the padded column may use
    the parent's side padding down to a 4px gutter at scale 1 (1270px AIR
    sheet at 1280) before any scaling starts.
+   Bleed: data-stage-bleed="[era:]left[ right]" marks the outer px of the
+   content as expendable dark margin (AIR sheet art: 7px left, 15px right,
+   all #010101-range). Only the rest keeps the 4px gutter, so an AIR sheet
+   up to 1279px wide stays at scale 1 in a 1265px window (1280 minus a
+   classic 17px scrollbar); the overhang is clipped by .site-main
+   (overflow-x: clip). index.html / runes.html use "air:7 15" (AIR era
+   only: in the lcu era the same stages hold edge-to-edge calculators).
    Pan mode: below data-stage-min-scale (default 0.5) the stage keeps that
    scale and becomes a horizontal pan well (.is-panning) the width of the
    column, so phones get usable targets and the page never h-scrolls.
+   Overlay scrollbars are invisible on phones, so the well fades out over
+   28px at each edge that has more to pan to: right until .at-end, left
+   once scrolled (not .at-start). nav.js toggles both on scroll.
    ========================================================================== */
 .lol-stage {
     position: relative;
@@ -189,13 +203,24 @@ body[data-client="lcu"]::before {
     margin: 0 auto;
 }
 .lol-stage.is-panning {
+    --lol-pan-fade: 28px;
+    --lol-pan-fade-l: var(--lol-pan-fade);
+    --lol-pan-fade-r: var(--lol-pan-fade);
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--hx-gold-4) transparent;
+    /* The mask sits on the well's own box, so it stays put while the
+       content scrolls under it. */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--lol-pan-fade-l),
+                                        #000 calc(100% - var(--lol-pan-fade-r)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--lol-pan-fade-l),
+                                #000 calc(100% - var(--lol-pan-fade-r)), transparent 100%);
 }
+.lol-stage.is-panning.at-start { --lol-pan-fade-l: 0px; }
+.lol-stage.is-panning.at-end   { --lol-pan-fade-r: 0px; }
 /* Out of flow, so the pan extent is the SCALED box (an in-flow inner would
    keep its unscaled layout width as scrollable overflow). */
 .lol-stage.is-panning > .lol-stage-inner {
@@ -244,15 +269,23 @@ body[data-client="lcu"]::before {
    Breakpoints are CONTAINER queries on the header, so they track the width
    the header really has (viewport minus a classic scrollbar), not 100vw.
    Tiers (measured with the web fonts; index.html has the widest tabs):
-     A  ≥1264  wordmark + SEASON/PATCH labels
-     B  1100-1263  wordmark, labels visually hidden (the values say it)
-     C  960-1099   icon-only brand, labels back
+     A  ≥1400      wordmark + SEASON/PATCH labels
+     B  1240-1399  wordmark, labels visually hidden (the values say it)
+     C  960-1239   icon-only brand, labels hidden
      D  <960   two rows: 61px (brand, tabs, SHARE) + 48px (selects, icon link)
      E  <560   D with the labels hidden and tighter tabs
    The selects are fixed-basis flex items (season 190, patch 320) that only
-   shrink when the bar is short of room, down to per-tier minimums. The tabs
-   reserve the width of the widest tab set (MASTERIES RUNES), so a given
-   width renders the same strip on all three pages.
+   shrink when the bar is short of room. The season gives up room first
+   (shrink 3 vs 0.5) but never below 180px, which still holds the longest
+   season ("Season 2026 (Current)", 137px of text + 42px frame); the patch
+   select gets the rest. Room left for both selects (container width W):
+     A: W - 903 (1400 → 497)   B: W - 766 (1240 → 474, 1265 → 499)
+     C: W - 487 (960 → 473)
+   so the patch select is ≥ 293px from 960 up and holds every S1-S7 label
+   ("V7.21 (Final pre-Reforged — Keystone)" = 230px + 42 = 272) and most
+   Reforged ones (≤278px of text) at 1280-1399. The tabs reserve the width
+   of the widest tab set (MASTERIES RUNES), so a given width renders the
+   same strip on all three pages.
    ========================================================================== */
 .legacy-header {
     --hdr-tab-pad: 15px;
@@ -407,27 +440,29 @@ body[data-client="lcu"]::before {
     color: var(--hx-grey-1);
 }
 /* Basis fits the longest season ("Season 2026 (Current)", 137px of text)
-   and most patch labels (≤278px); the patch select gives up room first. */
-.legacy-header .lcu-select.header-season { flex: 0 0.25 190px; width: 190px; min-width: 160px; }
-.legacy-header .lcu-select.header-patch  { flex: 0 2 320px; width: 320px; min-width: 190px; }
+   and most patch labels (≤278px). The season box is mostly empty space
+   ("Season 7" is 55px of text), so it gives up room first, down to 180px;
+   only then does the patch select shrink. */
+.legacy-header .lcu-select.header-season { flex: 0 3 190px; width: 190px; min-width: 180px; }
+.legacy-header .lcu-select.header-patch  { flex: 0 0.5 320px; width: 320px; min-width: 190px; }
 .header-link,
 .header-share { flex: none; }
 
-/* B: 1100-1263 — keep the wordmark, drop the inline labels. */
-@container lolhdr (max-width: 1263px) {
+/* B: 1240-1399 — keep the wordmark, drop the inline labels (109px). */
+@container lolhdr (max-width: 1399px) {
     .legacy-header .header-bar { gap: 24px; }
     .legacy-header .header-tabs { --hdr-tab-pad: 12px; }
-    .legacy-header .lcu-select.header-season { min-width: 150px; }
     .legacy-header .lcu-select.header-patch  { min-width: 180px; }
 }
-@container lolhdr (min-width: 1100px) and (max-width: 1263px) {
+@container lolhdr (min-width: 960px) and (max-width: 1399px) {
     .header-select-text {
         position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden;
         clip: rect(0 0 0 0); white-space: nowrap;
     }
 }
-/* C: 960-1099 — icon-only brand, labels back. */
-@container lolhdr (max-width: 1099px) {
+/* C: 960-1239 — icon-only brand (the wordmark is 263px), labels still
+   hidden: below 1240 the wordmark would starve the patch select. */
+@container lolhdr (max-width: 1239px) {
     .legacy-header .header-bar { gap: 20px; }
     .legacy-header .header-tabs { --hdr-tab-pad: 10px; }
     .header-title { display: none; }

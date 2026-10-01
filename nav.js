@@ -252,8 +252,11 @@ function lolOnReady(fn) {
 // 3. LolTooltip — ONE tooltip element for every surface (DECISIONS §5).
 //   LolTooltip.show(anchorOrEvent, html, skin, opts)
 //     anchorOrEvent  DOM element, jQuery object, or a mouse event (native or
-//                    jQuery). AIR skins follow the cursor when given an event;
-//                    "lcu" always anchors to the element (event.currentTarget).
+//                    jQuery). AIR skins follow the cursor (+16/+16) when
+//                    given an event — pass the event on hover and call
+//                    .move(evt) on mousemove; given an element (keyboard
+//                    focus) they hang below it, left-aligned. "lcu" always
+//                    anchors to the element (event.currentTarget).
 //     html           string of HTML (or a DOM node) — the content template.
 //     skin           "air-mastery" | "air-rune" | "lcu". Default follows
 //                    body[data-client]: lcu → "lcu", air → "air-mastery".
@@ -321,9 +324,13 @@ var LolTooltip = window.LolTooltip = (function(){
     function placeAnchored(anchor, pref, withCaret, isAir) {
         var vp = viewport(), w = el.offsetWidth, h = el.offsetHeight;
         var r = anchor.getBoundingClientRect();
-        if (isAir) {                       // AIR: below-right of the element, flip at edges
-            var ax = r.right + 4, ay = r.bottom + 4;
-            if (ax + w > vp.w - MARGIN) ax = r.left - w - 4;
+        if (isAir) {
+            // AIR without a cursor (keyboard focus, or a caller that passed
+            // an element): hang below the element, left edges aligned, the
+            // way the cursor-following tip sits below-right of the pointer.
+            // Clamp at the right edge; go above when there is no room below.
+            var ax = r.left, ay = r.bottom + 4;
+            if (ax + w > vp.w - MARGIN) ax = vp.w - MARGIN - w;
             if (ay + h > vp.h - MARGIN) ay = r.top - h - 4;
             el.style.left = Math.max(4, Math.round(ax)) + "px";
             el.style.top = Math.max(4, Math.round(ay)) + "px";
@@ -438,6 +445,10 @@ var LolTooltip = window.LolTooltip = (function(){
 })();
 
 // data-lol-tip="…" hover hints (header controls, disabled tabs). Markup only.
+// lcu skin (default): anchored to the element with a caret. air-* skins
+// (data-lol-tip-skin="air-mastery", e.g. the AIR sheet's unavailable Runes
+// pill): follow the cursor like every AIR tooltip; on keyboard focus they
+// hang below the element, left-aligned.
 function lolTipHtmlFor(node) {
     var title = node.getAttribute("data-lol-tip-title");
     var body = node.getAttribute("data-lol-tip");
@@ -445,10 +456,14 @@ function lolTipHtmlFor(node) {
     return lolEscapeHtml(body);
 }
 function lolInitTipAttributes() {
-    var current = null;
-    var showFor = function(node){
+    var current = null, currentAir = false, lastDown = null;
+    var skinOf = function(node){ return node.getAttribute("data-lol-tip-skin") || "lcu"; };
+    // evt: the mouse event that brought the pointer here (null = keyboard).
+    var showFor = function(node, evt){
+        var skin = skinOf(node);
         current = node;
-        LolTooltip.show(node, lolTipHtmlFor(node), node.getAttribute("data-lol-tip-skin") || "lcu", {
+        currentAir = /^air/.test(skin);
+        LolTooltip.show(currentAir && evt ? evt : node, lolTipHtmlFor(node), skin, {
             position: node.getAttribute("data-lol-tip-pos") || "bottom",
             system: !node.getAttribute("data-lol-tip-title"),
             className: "is-hint"                              // centred, 12px title (LCU hints)
@@ -456,7 +471,10 @@ function lolInitTipAttributes() {
     };
     document.addEventListener("mouseover", function(e){
         var node = lolClosest(e.target, "[data-lol-tip]");
-        if (node && node !== current) showFor(node);
+        if (node && node !== current) showFor(node, e);
+    });
+    document.addEventListener("mousemove", function(e){
+        if (current && currentAir) LolTooltip.move(e);      // no-op unless cursor mode
     });
     document.addEventListener("mouseout", function(e){
         if (!current) return;
@@ -468,12 +486,17 @@ function lolInitTipAttributes() {
     });
     document.addEventListener("focusin", function(e){
         var node = lolClosest(e.target, "[data-lol-tip]");
-        if (node) showFor(node);
+        if (!node) return;
+        // Focus that follows a click re-shows the hint where the pointer is
+        // (AIR: at the cursor, not jumping to the keyboard anchor).
+        var byPointer = lastDown && Date.now() - lastDown.t < 600;
+        showFor(node, byPointer ? lastDown.evt : null);
     });
     document.addEventListener("focusout", function(e){
         if (current && lolClosest(e.target, "[data-lol-tip]") === current) { current = null; LolTooltip.hide(); }
     });
-    document.addEventListener("mousedown", function(){
+    document.addEventListener("mousedown", function(e){
+        lastDown = { t: Date.now(), evt: e };
         if (current) { current = null; LolTooltip.hide(); }
     }, true);
 }
@@ -610,11 +633,23 @@ var LolDropdown = window.LolDropdown = (function(){
 
 // ---------------------------------------------------------------------------
 // 6. Stage scale-to-fit. <div class="lol-stage" [data-stage-width="1012"]
-// [data-stage-height] [data-stage-min-scale="0.5"]> wraps a fixed-size
-// calculator (no width attribute = its own laid-out width). Order of
-// resort when it is too wide: spill into the parent's side padding (down
-// to a 4px gutter) at scale 1, then scale down (never up), and below the
-// min scale pan horizontally inside the column (.is-panning). base.css §3.
+// [data-stage-height] [data-stage-min-scale="0.5"]
+// [data-stage-bleed="air:7 15"]> wraps a fixed-size calculator (no width
+// attribute = its own laid-out width). Order of resort when it is too wide:
+// spill into the parent's side padding (down to a 4px gutter) at scale 1,
+// then scale down (never up), and below the min scale pan horizontally
+// inside the column (.is-panning, with .at-start / .at-end for the edge
+// fades). base.css §3.
+//
+// data-stage-bleed="[era:]left[ right]" (px; one value = both sides): the
+// outer px of the content are expendable dark margin (the AIR sheet art: 7
+// CSS px of #010101-range on the left, 15 on the right). They may run past
+// the window edge (.site-main clips them), so only the rest has to keep the
+// 4px gutter: an AIR sheet up to 1279px wide stays at scale 1 in a 1265px
+// window (1280 minus a classic scrollbar). Centred as before; shifted only
+// when centring would put the content inside the gutter. "air:" = only
+// while body[data-client="air"] (the same stages hold edge-to-edge LCU
+// calculators in the lcu era).
 // ---------------------------------------------------------------------------
 
 var LolStage = window.LolStage = (function(){
@@ -636,6 +671,30 @@ var LolStage = window.LolStage = (function(){
     var MIN_GUTTER = 4;          // px kept free at each side before scaling
     var DEFAULT_MIN_SCALE = 0.5; // below this the stage pans instead
 
+    // data-stage-bleed="[era:]left[ right]" → {l, r} px ({0, 0} when absent,
+    // malformed or for another era). One value = both sides.
+    function bleedOf(stage) {
+        var none = { l: 0, r: 0 };
+        var m = /^\s*(?:(air|lcu)\s*:\s*)?(\d+(?:\.\d+)?)(?:\s+(\d+(?:\.\d+)?))?\s*$/
+            .exec(stage.getAttribute("data-stage-bleed") || "");
+        if (!m) return none;
+        if (m[1] && !(document.body && document.body.getAttribute("data-client") === m[1])) return none;
+        var l = parseFloat(m[2]) || 0;
+        return { l: l, r: m[3] != null ? (parseFloat(m[3]) || 0) : l };
+    }
+
+    // Pan wells: .at-start / .at-end drive the edge fades (base.css §3).
+    function panEdges(stage) {
+        if (!stage.classList.contains("is-panning")) {
+            stage.classList.remove("at-start", "at-end");
+            return;
+        }
+        var x = stage.scrollLeft, max = stage.scrollWidth - stage.clientWidth;
+        stage.classList.toggle("at-start", x <= 1);
+        stage.classList.toggle("at-end", x >= max - 1);
+    }
+    function onPanScroll(e) { panEdges(e.currentTarget); }
+
     function fitOne(stage) {
         var inner = innerOf(stage);
         var W = parseFloat(stage.getAttribute("data-stage-width")) || 0;
@@ -652,8 +711,11 @@ var LolStage = window.LolStage = (function(){
         var h = Math.max(H, inner.offsetHeight);
         // Gutter first: the stage may spill into the parent's side padding
         // (down to MIN_GUTTER a side) at scale 1; only then does it scale.
+        // Bleed px are not content: only w - bleed.l - bleed.r has to fit.
+        var bleed = bleedOf(stage);
+        if (bleed.l + bleed.r >= w) bleed = { l: 0, r: 0 };
         var room = Math.max(column, full - 2 * MIN_GUTTER);
-        var s = w > 0 && room > 0 ? Math.min(1, room / w) : 1;
+        var s = w > 0 && room > 0 ? Math.min(1, room / (w - bleed.l - bleed.r)) : 1;
         var panning = s < minScale;
         if (panning) s = minScale;
         var vw = Math.floor(w * s), vh = Math.ceil(h * s);
@@ -666,12 +728,29 @@ var LolStage = window.LolStage = (function(){
             stage.style.height = vh + "px";
             var bar = stage.offsetHeight - stage.clientHeight;  // classic scrollbar
             if (bar > 0) stage.style.height = (vh + bar) + "px";
+            if (!stage._lolPanBound) {
+                stage._lolPanBound = true;
+                stage.addEventListener("scroll", onPanScroll, { passive: true });
+            }
         } else {
+            // Centred. A bled stage may overhang the window (clipped by
+            // .site-main); if centring would push its content (inside the
+            // bleed) closer than MIN_GUTTER to an edge, shift it just
+            // enough — only uneven bleeds (7 left, 15 right) ever need it.
             var spill = Math.max(0, vw - column);
+            var dx = 0;
+            if (bleed.l || bleed.r) {
+                var x0 = (full - vw) / 2;                    // centred box left
+                var lo = MIN_GUTTER - bleed.l * s - x0;
+                var hi = full - MIN_GUTTER - vw + bleed.r * s - x0;
+                dx = lo > hi ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, 0));
+            }
             stage.style.width = vw + "px";
             stage.style.height = vh + "px";
-            stage.style.marginLeft = stage.style.marginRight = spill ? (-spill / 2) + "px" : "";
+            stage.style.marginLeft = (spill || dx) ? (-spill / 2 + dx) + "px" : "";
+            stage.style.marginRight = (spill || dx) ? (-spill / 2 - dx) + "px" : "";
         }
+        panEdges(stage);
         stage.style.setProperty("--lol-stage-scale", s);
         stage.setAttribute("data-stage-scale", s.toFixed(4));
         stage.classList.add("is-fitted");
@@ -692,6 +771,7 @@ var LolStage = window.LolStage = (function(){
     function init() {
         fit();
         window.addEventListener("resize", schedule);
+        document.addEventListener("lol:client-era", schedule);   // era-scoped bleed
         if (window.ResizeObserver) {
             observer = new ResizeObserver(schedule);
             var stages = document.querySelectorAll(".lol-stage");

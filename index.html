@@ -16,10 +16,12 @@
         <link rel="stylesheet" href="css/masteries-keystone.css" type="text/css" />
         <link rel="stylesheet" href="css/air-sheet.css" type="text/css" />
         <script type="text/javascript">
-            // Preload sprites
-            (new Image()).src = "images/button-icons.jpg";
-            (new Image()).src = "images/req-bars.png";
-            (new Image()).src = "images/tree-icons.png";
+            // Preload the classic tree art + frames (calculator.js / masteries-classic.css)
+            (new Image()).src = "images/classic/trees-client.jpg";
+            (new Image()).src = "images/classic/frame-grey.png";
+            (new Image()).src = "images/classic/frame-green.png";
+            (new Image()).src = "images/classic/frame-gold.png";
+            (new Image()).src = "images/air/ms-emblems.png";
         </script>
     </head>
     <body data-client="air">
@@ -44,7 +46,7 @@
         <script type="text/javascript">lolBootHeader();</script>
 
         <main class="site-main">
-        <div class="lol-stage"><div class="lol-stage-inner">
+        <div class="lol-stage" data-stage-bleed="air:7 15"><div class="lol-stage-inner">
         <!-- AIR profile sheet (css/air-sheet.css, air-sheet.js). The same
              sheet wraps runes.html. body[data-client="lcu"] hides the sheet
              chrome and #s2masteries falls back to the plain keystone box. -->
@@ -69,10 +71,46 @@
                 </nav>
             </div>
             <div class="air-sheet-body">
+            <!-- AIR mastery sidebar (air-sheet.css §5b, air-sheet.js
+                 AirMasterySidebar; fed by calculator.js / keystone-
+                 calculator.js). 2010 shows only the tan panel: emblems,
+                 hint, Points Available, Return Points / Save Masteries. -->
+            <aside class="air-sheet-side air-ms" id="mastery-sidebar" aria-label="Mastery page" data-dirty="false">
+                <div class="air-ms-head"><h2 class="air-ms-title">Mastery Pages</h2></div>
+                <div class="air-ms-box air-ms-page">
+                    <div class="air-ms-name">
+                        <span class="air-ms-name-text">Mastery Page 1</span>
+                        <input class="air-ms-name-input" type="text" maxlength="30" spellcheck="false" autocomplete="off" aria-label="Mastery page name" />
+                        <button class="air-ms-pencil" type="button" aria-label="Rename mastery page"></button>
+                    </div>
+                    <div class="air-ms-trees">
+                        <div class="air-ms-tree" data-tree="0"><span class="air-ms-emblem" data-emblem="offense"></span><span class="air-ms-count">0</span></div>
+                        <div class="air-ms-tree" data-tree="1"><span class="air-ms-emblem" data-emblem="defense"></span><span class="air-ms-count">0</span></div>
+                        <div class="air-ms-tree" data-tree="2"><span class="air-ms-emblem" data-emblem="utility"></span><span class="air-ms-count">0</span></div>
+                    </div>
+                    <p class="air-ms-hint">Spend mastery points earned<br />to build your summoner skills</p>
+                    <div class="air-ms-points">Points Available: <span class="air-ms-points-n">30</span></div>
+                    <div class="air-ms-actions">
+                        <button class="air-btn is-block air-ms-save" type="button" disabled="disabled">Save Masteries</button>
+                        <button class="air-btn is-block air-ms-return" type="button">Return Points</button>
+                        <div class="air-ms-row">
+                            <button class="air-btn is-half air-ms-delete" type="button">Delete</button>
+                            <button class="air-btn is-half air-ms-revert" type="button" disabled="disabled">Revert</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="air-ms-box air-ms-info">
+                    <h3 class="air-ms-info-title">Mastery Points</h3>
+                    <p>Assign mastery points earned<br class="air-ms-br12" /> by<br class="air-ms-br14" /> left-clicking skills, or using<br class="air-ms-br12" /> the<br class="air-ms-br14" /> mouse wheel.</p>
+                    <p>Remove mastery points by right<br />clicking or using the mouse<br />wheel.</p>
+                </div>
+            </aside>
             <div class="air-sheet-main">
             <div class="air-sheet-toolbar" aria-hidden="true">
                 <div class="air-chips air-page-chips"><span class="air-chip is-selected">1</span><span class="air-chip">2</span><span class="air-chip">3</span><span class="air-chip">4</span><span class="air-chip">5</span><span class="air-chip">6</span><span class="air-chip">7</span><span class="air-chip">8</span><span class="air-chip">9</span><span class="air-chip">10</span><span class="air-chip air-chip-add"></span></div>
             </div>
+            <!-- V7.21 LCU skin only (AIR: the sidebar replaces this row;
+                 air-sheet.css hides it). -->
             <div id="panel">
                 <div class="left">
                     <div id="points">
@@ -82,7 +120,6 @@
                 <div class="right">
                     <button id="return">Return Points</button>
                 </div>
-                <div id="tree-summaries"></div>
             </div>
             <div id="calculator"></div>
             <!-- Alternate render target for the Ferocity/Cunning/Resolve
