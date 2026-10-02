@@ -1,8 +1,10 @@
 // Keystone mastery system calculator (Ferocity / Cunning / Resolve,
-// V5.22 – V7.21). Runs when the active masteryDataSet has
-// `system: "keystone"`. The dataset stores the tree definition in its
-// `data` field (an object with `trees`), not the array shape used by the
-// classic 30-point system.
+// V5.22 – V7.21). Runs when the active dataset (calculator.js: registry
+// entry + data/masteries/m-*.js payload) has `system: "keystone"`. The
+// dataset stores the tree definition in its `data` field (an object with
+// `trees`), not the array shape used by the classic 30-point system. Tier
+// and in-tier order are the client's display order (DDragon `tree` layout),
+// which is also the share-code order.
 //
 // Rules implemented (matching the 2016-2017 client):
 //   - The dataset's maxPoints per page (30); a tree holds at most 18.
@@ -19,13 +21,13 @@
 //   - Click model per client: AIR +1 / -1 per click (the AIR help box), the
 //     LCU fills / empties a mastery per click (see "LCU click model").
 //
-// Two skins (see "Skins" below): the AIR client (V5.22, V6.22) inside the
-// shared AIR sheet + sidebar, and the League Client mastery panel (V7.21).
+// Two skins (see "Skins" below): the AIR client (V5.22 - V6.24) inside the
+// shared AIR sheet + sidebar, and the League Client mastery panel (V7.2 -
+// V7.21), by the dataset's client era (entry.era).
 //
-// Icons come from Riot Data Dragon's mastery.json for the dataset's
-// `ddragonVersion` (masteries shipped in DDragon through 7.23.1), matched
-// by normalized name with an optional per-mastery `iconId` override for
-// entries whose DDragon name is corrupted (e.g. Sorcery in 5.22.3).
+// Icons are Data Dragon's per-id mastery art, vendored per build (see
+// "Icons" below). Tooltips show the client's own per-rank text (`rankDesc`,
+// DDragon mastery.json of the patch).
 
 var keystoneActiveDataSetId = null;
 var keystoneActiveDataSet = null;
@@ -105,14 +107,14 @@ function isKeystoneTierUnlocked(treeId, tierNumber) {
 }
 
 // ---------- Skins -------------------------------------------------------------
-// Two client screens, picked by the client era of the dataset (nav.js
-// clientEraFor → body[data-client]):
-//   air  V5.22 / V6.22 — the Adobe AIR client's Masteries tab: the shared AIR
+// Two client screens, picked by the client era of the dataset (entry.era,
+// nav.js clientEraFor → body[data-client]):
+//   air  V5.22 - V6.24 — the Adobe AIR client's Masteries tab: the shared AIR
 //        sheet + sidebar (air-sheet.css / air-sheet.js), a 827x479 native px
 //        tree panel (css/masteries-keystone.css §AIR). Every mastery is
 //        absolutely placed on the capture grid (KS_AIR below; native px,
 //        CSS multiplies by --u).
-//   lcu  V7.21 — the League Client rcp-fe-lol-mastery-panel (7.21 CSS 1:1):
+//   lcu  V7.2 - V7.21 — the League Client rcp-fe-lol-mastery-panel (7.21 CSS 1:1):
 //        info bar, three 322px trees with header / glow / square + ring
 //        frames (css/masteries-keystone.css §LCU).
 // The DOM is built once per dataset + skin (buildKeystoneView) and updated
@@ -139,23 +141,32 @@ var keystoneHover = null;  // { pick, evt } while the pointer is on a mastery
 
 function keystoneSkin() {
     if (!keystoneActiveDataSet) return "air";
-    return typeof clientEraFor === "function" ? clientEraFor(keystoneActiveDataSet.id) : "air";
+    if (keystoneActiveDataSet.era) return keystoneActiveDataSet.era === "lcu" ? "lcu" : "air";
+    return typeof clientEraFor === "function" ? clientEraFor(keystoneActiveDataSet) : "air";
 }
 
 // ---------- Icons ------------------------------------------------------------
-// Icons are bundled under images/masteries/<ddragonVersion>/ (from Data
-// Dragon; see embed-mastery-icon-ids.js). gray_<id>.png is DDragon's pre-baked
-// greyscale (Rec.601 luma) that the AIR client showed for unranked masteries.
-
-// `airIconVersion` (optional, per mastery): the icon art the AIR client
-// actually drew when it differs from the dataset's DDragon version — the
-// V6.22 AIR client kept the 5.22.3 art for Fresh Blood and Double-Edged
-// Sword (nerf_tankmasteries.png); the LCU skin keeps the DDragon art.
+// Data Dragon art per cell id, vendored under images/masteries/<build>/ only
+// where the art changed (tools/fetch-mastery-icons.js). The dataset's
+// `ddragonVersion` is its main icon folder; a mastery whose art lives in
+// another build's folder names it (`iconVer`, or a full `iconBase`).
+// gray_<id>.png is DDragon's pre-baked greyscale (Rec.601 luma) that the AIR
+// client showed for unranked masteries.
+// `airIcon` {ver, id} (optional): the art the AIR client actually drew when
+// it differs from the patch's DDragon art — the V6.22 / V6.24 AIR client kept
+// the 5.22.3 art for Fresh Blood and Double-Edged Sword
+// (nerf_tankmasteries.png); the LCU skin keeps the DDragon art.
 function keystoneIconUrl(mastery, gray, skin) {
-    if (!mastery.iconId || !keystoneActiveDataSet || !keystoneActiveDataSet.ddragonVersion)
-        return null;
-    var ver = (skin === "air" && mastery.airIconVersion) || keystoneActiveDataSet.ddragonVersion;
-    return "images/masteries/" + ver + "/" + (gray ? "gray_" : "") + mastery.iconId + ".png";
+    var ds = keystoneActiveDataSet;
+    if (!ds) return null;
+    var file = function(id){ return (gray ? "gray_" : "") + id + ".png"; };
+    if (skin === "air" && mastery.airIcon && mastery.airIcon.ver && mastery.airIcon.id)
+        return "images/masteries/" + mastery.airIcon.ver + "/" + file(mastery.airIcon.id);
+    if (!mastery.iconId) return null;
+    if (mastery.iconBase) return mastery.iconBase + file(mastery.iconId);
+    var ver = mastery.iconVer || ds.ddragonVersion;
+    if (!ver) return ds.iconBase ? ds.iconBase + file(mastery.iconId) : null;
+    return "images/masteries/" + ver + "/" + file(mastery.iconId);
 }
 
 // ---------- Tooltip (LolTooltip: air-mastery / lcu skins) --------------------
@@ -171,14 +182,16 @@ function keystoneTierThreshold(treeDef, tierNumber) {
     return needed;
 }
 
-// The description at a given rank: every "a/b/c/d/e" list with one entry
-// per rank collapses to that rank's value ("+0.8/1.6/2.4/3.2/4% Attack
-// Speed" at rank 3 → "+2.4% Attack Speed").
+// The description at a given rank: the client's own text for that rank
+// (`rankDesc`, DDragon mastery.json). Without it, every "a/b/c/d/e" list
+// with one entry per rank collapses to that rank's value
+// ("+0.8/1.6/2.4/3.2/4% Attack Speed" at rank 3 → "+2.4% Attack Speed").
 function keystoneDescAt(mastery, rank) {
     var ranks = mastery.ranks || 1;
+    var r = Math.min(Math.max(rank, 1), ranks) - 1;
+    if (mastery.rankDesc && mastery.rankDesc[r] != null) return String(mastery.rankDesc[r]);
     var desc = String(mastery.desc || "");
     if (ranks < 2) return desc;
-    var r = Math.min(Math.max(rank, 1), ranks) - 1;
     return desc.replace(/-?\d+(?:\.\d+)?(?:\/-?\d+(?:\.\d+)?)+/g, function(list){
         var parts = list.split("/");
         return parts.length === ranks ? parts[r] : list;
@@ -186,7 +199,11 @@ function keystoneDescAt(mastery, rank) {
 }
 
 function keystoneTipHtml(pick, skin) {
-    var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
+    // Client text keeps its line breaks (e.g. V5.22 Double Edged Sword's
+    // melee / ranged lines); escaping alone would collapse them.
+    var esc = function(s){
+        return (typeof lolEscapeHtml === "function" ? lolEscapeHtml(s) : String(s)).replace(/\n/g, "<br>");
+    };
     var tree = pick.tree, tierDef = pick.tierDef, mastery = pick.mastery;
     var ranks = keystoneMasteryRanks(pick), max = mastery.ranks || 1;
     var locked = !isKeystoneTierUnlocked(tree.id, tierDef.tier);
@@ -321,12 +338,12 @@ function keystoneAirState(pick) {
 
 // Public entry point — calculator.js calls this when switching to a
 // keystone-system dataset. `dataSet` is optional; when provided, switch to
-// it before rendering.
+// it (with an empty page) before rendering.
 function drawKeystoneCalculator(dataSet) {
-    if (dataSet && keystoneActiveDataSetId !== dataSet.id) {
+    if (dataSet) {
         keystoneActiveDataSetId = dataSet.id;
         keystoneActiveDataSet = dataSet;
-        if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
+        if (typeof setClientEra === "function") setClientEra(dataSet.era === "lcu" ? "lcu" : "air");
         initKeystoneState(dataSet);
     }
     if (!keystoneActiveDataSet) { $("#keystone-calculator").empty(); keystoneView = null; return; }
@@ -387,12 +404,8 @@ function buildKeystoneView(skin) {
             level.setAttribute("data-tier", tierDef.tier);
             var n = tierDef.masteries.length;
             var xs = pool > 1 ? five : (n >= 3 ? KS_AIR.pos3 : KS_AIR.pos2);
-            // Display order: the optional per-mastery `slot` (client position
-            // when it differs from the data / share-hash order).
-            var order = tierDef.masteries.map(function(m, mi){ return { m: m, pos: m.slot != null ? m.slot : mi }; })
-                .sort(function(a, b){ return a.pos - b.pos; });
-            order.forEach(function(o){
-                var mastery = o.m, mi = o.pos;
+            // Data order = the client's left-to-right order = share-code order.
+            tierDef.masteries.forEach(function(mastery, mi){
                 var pick = buildKeystonePick(tree, tierDef, mastery, pool, skin);
                 pick.pos = mi;
                 if (skin === "air") {
@@ -887,6 +900,164 @@ function resetKeystoneTree(treeId) {
 // Empty tiers serialize as "". A build with nothing spent has no code.
 // The hash is "#<dataset>|<code>", plus "|<page name>" (URI-encoded) when the
 // page has a custom name (calculator.js pageNameHashSegment / parseHash).
+// Indexes are positions in the dataset's tiers (= display order). A legacy
+// link (s6-launch, s7-preseason, s7-final) is decoded with its legacy codec
+// (data/masteries/legacy-codecs.js: the old tier lists as mastery keys) and
+// imported into the canonical dataset by key (keystoneCarryInto).
+
+// Codec spec: [{id, tiers: [{keys: [key], ranks: [n], pool, isKeystone}]}]
+function keystoneCodecSpec(ds) {
+    return ds.data.trees.map(function(tree){
+        return { id: tree.id, tiers: tree.tiers.map(function(t){
+            return {
+                keys: t.masteries.map(function(m){ return m.key || m.id; }),
+                ranks: t.masteries.map(function(m){ return m.ranks || 1; }),
+                isKeystone: !!t.isKeystone,
+                pool: t.isKeystone ? 1 : keystoneTierPool(t)
+            };
+        }) };
+    });
+}
+
+// A legacy codec's spec: tier lists of keys, pools 5/1/5/1/5/1 unless the
+// codec names them, the last tier holds the keystones.
+function keystoneLegacySpec(codec) {
+    return (codec.trees || []).map(function(t){
+        var n = t.tiers.length;
+        var pools = t.pools || t.tiers.map(function(_, j){ return j === n - 1 ? 1 : (j % 2 === 0 ? 5 : 1); });
+        var kTier = t.keystoneTier != null ? t.keystoneTier : n - 1;
+        return { id: t.id, tiers: t.tiers.map(function(list, j){
+            list = Array.isArray(list) ? list : (list.keys || list.masteries || []);
+            var keyOf = function(k){ return k && typeof k === "object" ? (k.key || k.id) : k; };
+            return {
+                keys: list.map(keyOf),
+                ranks: list.map(function(k){
+                    if (k && typeof k === "object" && k.ranks) return k.ranks;
+                    var m = t.masteries && t.masteries[keyOf(k)];
+                    return m && m.ranks ? m.ranks : pools[j];
+                }),
+                isKeystone: j === kTier,
+                pool: pools[j]
+            };
+        }) };
+    });
+}
+
+// code -> { trees: {treeId: {key: rank}}, keystone: key | null } with the
+// client's rules on the way in, as importKeystones always applied them: a
+// tier counts only when the previous one is full, a row holds its pool,
+// the page its budget, one keystone.
+function keystoneDecodeCode(spec, code, maxPoints) {
+    var max = maxPoints || 30;
+    var st = {}, ks = null, total = 0;
+    spec.forEach(function(t){ st[t.id] = t.tiers.map(function(){ return {}; }); });
+    var tierTotal = function(tid, j){ var n = 0, o = st[tid][j]; for (var k in o) n += o[k]; return n; };
+    if (code) {
+        var treeParts = String(code).split(";");
+        spec.forEach(function(tree, ti){
+            var tierParts = (treeParts[ti] || "").split(",");
+            tree.tiers.forEach(function(tier, j){
+                var part = tierParts[j];
+                if (!part) return;
+                if (j > 0) {
+                    var prev = tree.tiers[j - 1];
+                    if (!prev || prev.isKeystone || tierTotal(tree.id, j - 1) < prev.pool) return;
+                }
+                if (tier.isKeystone) {
+                    if (part.charAt(0) !== "k" || ks) return;
+                    var key = tier.keys[parseInt(part.slice(1), 10)];
+                    if (!key || total >= max) return;
+                    ks = { tree: tree.id, key: key };
+                    total++;
+                    return;
+                }
+                part.split("+").forEach(function(pair){
+                    if (!/^\d\d$/.test(pair)) return;
+                    var idx = +pair.charAt(0);
+                    var k = tier.keys[idx];
+                    if (!k) return;
+                    var r = Math.min(+pair.charAt(1), tier.ranks[idx] || 1);
+                    r = Math.min(r, tier.pool - tierTotal(tree.id, j), max - total);
+                    if (r > 0) { st[tree.id][j][k] = r; total += r; }
+                });
+            });
+        });
+    }
+    var maps = {};
+    spec.forEach(function(t){
+        var o = maps[t.id] = {};
+        st[t.id].forEach(function(tier){ for (var k in tier) if (tier[k] > 0) o[k] = tier[k]; });
+        if (ks && ks.tree === t.id) o[ks.key] = 1;
+    });
+    return { trees: maps, keystone: ks ? ks.key : null };
+}
+
+// The current build by key: { trees: {treeId: {key: rank}} (the keystone at
+// 1), keystone: key | null, total }.
+function captureKeystoneMaps() {
+    var ds = keystoneActiveDataSet;
+    if (!ds) return null;
+    var maps = {}, ksKey = null, total = 0;
+    ds.data.trees.forEach(function(tree){
+        var s = keystoneState[tree.id], o = maps[tree.id] = {};
+        tree.tiers.forEach(function(tierDef){
+            tierDef.masteries.forEach(function(m){
+                var key = m.key || m.id;
+                var r = tierDef.isKeystone ? (s.keystone === m.id ? 1 : 0) : (s.tiers[tierDef.tier][m.id] || 0);
+                if (r > 0) { o[key] = r; total += r; if (tierDef.isKeystone) ksKey = key; }
+            });
+        });
+    });
+    return { trees: maps, keystone: ksKey, total: total };
+}
+
+// Carry-over into the active keystone dataset (DESIGN §4.5): map by key
+// within the tree (a mastery lands in whatever tier it lives in now), cap
+// each tier at its pool (a one-point row keeps the first match), then walk
+// tiers 1-6 per tree: a tier counts only when the previous one is full, the
+// keystone needs tier 5 full, one keystone at most, the page budget caps the
+// total. Sets keystoneState; -> { total, kept }.
+function keystoneCarryInto(maps, ksKey) {
+    var ds = keystoneActiveDataSet;
+    if (!ds) return { total: 0, kept: 0 };
+    initKeystoneState(ds);
+    var total = 0;
+    Object.keys(maps || {}).forEach(function(t){ for (var k in maps[t]) total += maps[t][k] || 0; });
+    var budget = ds.maxPoints || 30;
+    ds.data.trees.forEach(function(tree){
+        var src = (maps && maps[tree.id]) || {};
+        var s = keystoneState[tree.id];
+        var open = true;
+        tree.tiers.forEach(function(tierDef, j){
+            if (j > 0) {
+                var prev = tree.tiers[j - 1];
+                open = open && !prev.isKeystone && keystoneTierTotal(tree.id, prev.tier) >= keystoneTierPool(prev);
+            }
+            if (!open) return;
+            if (tierDef.isKeystone) {
+                tierDef.masteries.forEach(function(m){
+                    var key = m.key || m.id;
+                    if (key !== ksKey || !(src[key] > 0) || keystoneState.__activeKeystone || budget <= 0) return;
+                    s.keystone = m.id;
+                    keystoneState.__activeKeystone = { treeId: tree.id, masteryId: m.id };
+                    budget--;
+                });
+                return;
+            }
+            var pool = keystoneTierPool(tierDef), room = pool;
+            tierDef.masteries.forEach(function(m){
+                var want = Math.min(src[m.key || m.id] || 0, m.ranks || 1);
+                if (!want || room <= 0 || budget <= 0) return;
+                if (pool === 1 && keystoneTierTotal(tree.id, tierDef.tier) > 0) return;
+                var take = Math.min(want, room, budget);
+                s.tiers[tierDef.tier][m.id] = take;
+                room -= take;
+                budget -= take;
+            });
+        });
+    });
+    return { total: total, kept: (ds.maxPoints || 30) - budget };
+}
 
 function exportKeystones() {
     if (!keystoneActiveDataSet) return "";
@@ -910,44 +1081,16 @@ function exportKeystones() {
     return /[^;,]/.test(code) ? code : "";
 }
 
-function importKeystones(code) {
-    if (!keystoneActiveDataSet) return;
-    initKeystoneState(keystoneActiveDataSet);
-    if (code) {
-        var treeParts = code.split(";");
-        keystoneActiveDataSet.data.trees.forEach(function(tree, treeIdx){
-            var tierParts = (treeParts[treeIdx] || "").split(",");
-            tree.tiers.forEach(function(tierDef, tierIdx){
-                var part = tierParts[tierIdx];
-                if (!part) return;
-                if (!isKeystoneTierUnlocked(tree.id, tierDef.tier)) return;
-                if (tierDef.isKeystone) {
-                    if (part.charAt(0) !== "k" || keystoneState.__activeKeystone) return;
-                    var kIdx = parseInt(part.slice(1), 10);
-                    var km = tierDef.masteries[kIdx];
-                    if (!km) return;
-                    if (getKeystoneTotalPoints() >= keystoneActiveDataSet.maxPoints) return;
-                    keystoneState[tree.id].keystone = km.id;
-                    keystoneState.__activeKeystone = { treeId: tree.id, masteryId: km.id };
-                    return;
-                }
-                var pool = keystoneTierPool(tierDef);
-                part.split("+").forEach(function(pair){
-                    if (!/^\d\d$/.test(pair)) return;
-                    var mIdx = +pair.charAt(0);
-                    var r = +pair.charAt(1);
-                    var m = tierDef.masteries[mIdx];
-                    if (!m) return;
-                    r = Math.min(r, m.ranks || 1);
-                    var room = pool - keystoneTierTotal(tree.id, tierDef.tier);
-                    var budget = keystoneActiveDataSet.maxPoints - getKeystoneTotalPoints();
-                    r = Math.min(r, room, budget);
-                    if (r > 0) keystoneState[tree.id].tiers[tierDef.tier][m.id] = r;
-                });
-            });
-        });
-    }
+// Import a code into the active dataset: canonical (codec null; the sidebar
+// Revert, a canonical link) or a legacy link's code. -> { total, kept }.
+function importKeystones(code, codec) {
+    if (!keystoneActiveDataSet) return null;
+    var ds = keystoneActiveDataSet;
+    var spec = codec ? keystoneLegacySpec(codec) : keystoneCodecSpec(ds);
+    var dec = keystoneDecodeCode(spec, code, (codec && codec.maxPoints) || ds.maxPoints);
+    var info = keystoneCarryInto(dec.trees, dec.keystone);
     drawKeystoneCalculator();
+    return info;
 }
 
 function updateKeystoneLink() {

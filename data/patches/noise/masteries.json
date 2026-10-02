@@ -3,21 +3,9 @@
   "What the masteries research ignored as noise, and why (DESIGN §1.3). Imported by tools/import-masteries.js.",
   "ddragon: Data Dragon text differences between consecutive patches that change no number or mechanic. listed=false entries fall in unlisted patches: the --audit pass of tools/build-masteries.js accepts an unlisted patch only when every text difference to the listed patch in effect is one of these (check C3).",
   "wiki: wiki-era patch-note items with no tree data change.",
-  "crossCheck: derived from the S3 ddragon entries. The S3 templates keep the V1.0.0.152 text, so numbers a later S3 build added to a tooltip may be in DDragon without being in the template (S3 numeric cross-check, M5)."
+  "crossCheck: numbers an unlisted S3 build added to a tooltip, allowed in its DDragon text while the listed patch in effect (whose template it is audited against, M5 / C3) does not show them; from/to = the unlisted patches concerned."
  ],
  "ddragon": [
-  {
-   "patch": "V3.12",
-   "vs": "V3.11",
-   "listed": false,
-   "mastery": "Summoner's Insight",
-   "change": "text",
-   "rank": 1,
-   "kind": "value",
-   "reason": "tooltip clarification: Revive bonus-health figure (200 + 20 per level) added to the text; no patch note (WP V3.12)",
-   "old": "Improves the following Summoner Spells:\nRevive: Grants bonus Health for 2 minutes upon reviving\nTeleport: Reduces cast time by 0.5 seconds\nFlash: Reduces cooldown by 15 seconds\nClarity: Increases Mana restored by 25%\nClairvoyance: Grants lingering vision of enemy champions revealed",
-   "new": "Improves the following Summoner Spells:\nRevive: Grants (200 + 20 per level) bonus Health for 2 minutes upon reviving\nTeleport: Reduces cast time by 0.5 seconds\nFlash: Reduces cooldown by 15 seconds\nClarity: Increases Mana restored by 25%\nClairvoyance: Grants lingering vision of enemy champions revealed"
-  },
   {
    "patch": "V3.15",
    "vs": "V3.14",
@@ -1496,10 +1484,11 @@
  "crossCheck": [
   {
    "from": "V3.12",
+   "to": "V3.12",
    "mastery": "Summoner's Insight",
    "rank": 1,
    "extraNumbers": [200,20],
-   "reason": "logged noise V3.12: tooltip clarification: Revive bonus-health figure (200 + 20 per level) added to the text; no patch note (WP V3.12)"
+   "reason": "V3.12 (not listed): DDragon 3.12.x adds the Revive figure '(200 + 20 per level)' to the client text; no patch note (WP V3.12). Its builds are audited against V1.0.0.152, whose template has no figure; V3.13 shows it (mo-008)."
   }
  ]
 }

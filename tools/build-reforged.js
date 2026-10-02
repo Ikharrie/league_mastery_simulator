@@ -2,7 +2,7 @@
 // tools/build-reforged.js — Runes Reforged per-patch extras (DESIGN §1.3-§1.6, §3.2, §7 F1-F5).
 //
 // Reads (committed, offline):
-//   data/patches/reforged.json            the 123 listed patches (curation, seeded by tools/import-reforged.js)
+//   data/patches/reforged.json            the 124 listed patches (curation, seeded by tools/import-reforged.js)
 //   data/patches/reforged-overrides.json  layer 2-4 records (DESIGN §1.2), one JSON object per line
 //   data/sources/reforged/<patch>.json    per listed patch: CommunityDragon client texts (perkText),
 //                                         the V7.22-V8.22 path-pair bonus, the stat shards, the
@@ -12,7 +12,7 @@
 // Writes:
 //   data/reforged/rr-<patch>.js           one LolData.register("reforged", key, {perkText, subStyleBonus})
 //                                         per distinct payload; later patches share the earlier file
-//   data/reforged/manifest.json           { id: { data, file, hash, stateHash } } for all 123 entries;
+//   data/reforged/manifest.json           { id: { data, file, hash, stateHash } } for all 124 entries;
 //                                         data/file/hash are null when a patch has no extras
 //
 // Usage:
@@ -73,15 +73,19 @@ var EXPECTED = {
     s11: ["V10.23", "V11.1", "V11.2", "V11.6", "V11.10", "V11.11", "V11.13", "V11.17", "V11.19", "V11.21", "V11.22"],
     s12: ["V11.23", "V11.24", "V12.1", "V12.2", "V12.6", "V12.7", "V12.10", "V12.11", "V12.12", "V12.14", "V12.15",
           "V12.20", "V12.21"],
-    s13: ["V12.22", "V13.1", "V13.3", "V13.4", "V13.5", "V13.6", "V13.12", "V13.15", "V13.20", "V13.21", "V13.24"],
+    // V13.17: listed for the client's Future's Market debt limit (rro-004, an export fix; the design's
+    // §3.2 had 11 S13 patches before that fix).
+    s13: ["V12.22", "V13.1", "V13.3", "V13.4", "V13.5", "V13.6", "V13.12", "V13.15", "V13.17", "V13.20", "V13.21",
+          "V13.24"],
     s14: ["V14.1", "V14.2", "V14.4", "V14.10", "V14.11", "V14.12", "V14.13", "V14.14", "V14.15", "V14.17", "V14.18",
           "V14.19", "V14.20", "V14.21", "V14.24"],
     s2025: ["V25.S1.1", "V25.S1.2", "V25.S1.3", "V25.05", "V25.09", "V25.10", "V25.12", "V25.14", "V25.19", "V25.21",
             "V25.22", "V25.24"],
     s2026: ["V26.01", "V26.03", "V26.09", "V26.10", "V26.11", "V26.13", "V26.15", "V26.16", "V26.17", "V26.19"]
 };
-var EXPECTED_COUNTS = { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 11, s14: 15, s2025: 12, s2026: 10 };
-var EXPECTED_TOTAL = 123;
+var EXPECTED_COUNTS = { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 12, s14: 15, s2025: 12, s2026: 10 };
+var EXPECTED_TOTAL = 124;
+var EXPECTED_CHANGES = 115;   // listed patches with a change; the other 9 are EXPECTED_NO_CHANGE
 // Boundary patches: ° = no change, * = with a change (§3.2).
 var EXPECTED_NO_CHANGE = ["V7.22", "V9.22", "V10.22", "V11.22", "V12.21", "V12.22", "V13.24", "V14.24", "V26.19"];
 var EXPECTED_BOUNDARY_CHANGE = ["V8.22", "V8.23", "V9.23", "V10.23", "V11.23", "V14.1", "V25.S1.1", "V25.24", "V26.01"];
@@ -293,16 +297,30 @@ function validateOverrides(list, errors) {
         if (o.page !== PAGE) errors.push(w + ": page must be reforged");
         if (!P.tryParse(o.from)) errors.push(w + ": bad from");
         if (o.to != null && !P.tryParse(o.to)) errors.push(w + ": bad to");
-        if (o.op !== "fill-placeholder") errors.push(w + ": unknown op " + JSON.stringify(o.op) + " (fill-placeholder)");
+        if (OPS.indexOf(o.op) < 0) errors.push(w + ": unknown op " + JSON.stringify(o.op) + " (" + OPS.join(", ") + ")");
         if (FIELDS.indexOf(o.field) < 0) errors.push(w + ": field must be shortDesc or longDesc");
         if (!/^\d+$/.test(String(o.target || ""))) errors.push(w + ": target must be a rune id");
-        if (typeof o.placeholder !== "string" || !hasPlaceholder(o.placeholder)) errors.push(w + ": placeholder missing");
-        if (typeof o.value !== "string" || hasPlaceholder(o.value)) errors.push(w + ": value must be a resolved string");
+        if (o.op === "fill-placeholder" && (typeof o.placeholder !== "string" || !hasPlaceholder(o.placeholder))) errors.push(w + ": placeholder missing");
+        if (o.op === "set-text") {
+            if (o.placeholder != null) errors.push(w + ": set-text takes no placeholder");
+            if (o.kind !== "export-fix") errors.push(w + ": set-text is an export fix (the client text Data Dragon dropped)");
+            // The build has no Data Dragon catalog (the page fetches it), so the client text is
+            // proven in --audit: verify.cdragon names the perks.json field it must equal.
+            if (!o.verify || o.verify.cdragon !== "perks.json" || String(o.verify.perkId) !== String(o.target) || o.verify.field !== o.field)
+                errors.push(w + ": set-text needs verify {cdragon: \"perks.json\", perkId: <target>, field: <field>}");
+        }
+        if (typeof o.value !== "string" || !o.value || hasPlaceholder(o.value)) errors.push(w + ": value must be a resolved string");
         if (!o.reason) errors.push(w + ": reason missing");
         if (!Array.isArray(o.sources) || !o.sources.length) errors.push(w + ": sources missing");
         if (["high", "medium", "low"].indexOf(o.confidence) < 0) errors.push(w + ": confidence missing");
     });
 }
+
+// Override ops (reforged-overrides.json `op`):
+//   fill-placeholder  replace `placeholder` in a field that still shows it after the client text
+//   set-text          the whole field is `value`: the client text where Data Dragon dropped part of it
+//                     (export fix, DESIGN §1.2 layer 2); --audit proves value = CommunityDragon perks.json
+var OPS = ["fill-placeholder", "set-text"];
 
 function inRange(patch, o) {
     return P.compare(patch, o.from) >= 0 && (o.to == null || P.compare(patch, o.to) <= 0);
@@ -318,6 +336,17 @@ function applyOverrides(patch, perkText, unresolved, overrides) {
         if (!inRange(patch, o)) return;
         var fi = FIELDS.indexOf(o.field);
         var u = un[o.target];
+        if (o.op === "set-text") {
+            if (u && u.text && u.text[fi] != null)
+                fail(o.id + ": target " + o.target + " " + o.field + " still shows " + placeholdersIn(u.text[fi]).join(" ") + " in " + P.parse(patch).label + " (use fill-placeholder)");
+            var had = pt[o.target] || [null, null];
+            if (had[fi] === o.value) fail(o.id + ": stale in " + P.parse(patch).label + " (the source already has this " + o.field + ")");
+            var next = had.slice();
+            next[fi] = o.value;
+            pt[o.target] = next;
+            applied.push(o.id);
+            return;
+        }
         if (!u || !u.text || u.text[fi] == null || u.text[fi].indexOf(o.placeholder) < 0)
             fail(o.id + ": target " + o.target + " " + o.field + " has no " + o.placeholder + " in " + P.parse(patch).label
                  + " (override range " + o.from + "-" + (o.to || "open") + ")");
@@ -573,8 +602,8 @@ function checkListing(ctx, results) {
         if (!r || !/^season-(start|end)\+change$/.test(r.reason)) problems.push(p + " must be a boundary with a change, is " + (r && r.reason));
     });
     var changes = recs.filter(function(r){ return /change$/.test(r.reason); }).length;
-    if (changes !== 114) problems.push(changes + " patches with a change, expected 114");
-    if (recs.length - changes !== 9) problems.push((recs.length - changes) + " boundaries with no change, expected 9");
+    if (changes !== EXPECTED_CHANGES) problems.push(changes + " patches with a change, expected " + EXPECTED_CHANGES);
+    if (recs.length - changes !== EXPECTED_NO_CHANGE.length) problems.push((recs.length - changes) + " boundaries with no change, expected " + EXPECTED_NO_CHANGE.length);
     // dropped by the re-cut (§0)
     ["V10.25", "V12.23"].forEach(function(p){ if (byPatch[p]) problems.push(p + " must not be listed"); });
     // every source file belongs to a listed patch
@@ -633,18 +662,22 @@ function checkF1(ctx, results) {
         });
     }
     // T7b's table in runes-reforged-data.js, once it carries the 7 era ids (read-only cross-check).
-    var note = crossCheckShardTable(eras, order, problems);
+    var note = crossCheckShardTable(ctx, eras, order, problems);
     check("F1 shard eras", !problems.length, problems.length ? problems.join("; ")
         : order.map(function(id){ return id + " " + eras[id].first + "-" + eras[id].last; }).join(", ")
           + "; s25-22 scaling Health 10-180 (CommunityDragon); " + note, results);
 }
 
-function crossCheckShardTable(eras, order, problems) {
+// The client gave the shards display names in V12.22; earlier perks.json names are
+// internal ids ("HealthScaling", "CDRScaling"), which the page does not show.
+var SHARD_NAMES_FROM = "V12.22";
+
+function crossCheckShardTable(ctx, eras, order, problems) {
     var text = readText(FILES.shardTable);
     if (text === null) return "runes-reforged-data.js not found";
-    var table;
+    var table, sandbox = {};
     try {
-        var vm = require("vm"), sandbox = {};
+        var vm = require("vm");
         vm.createContext(sandbox);
         vm.runInContext(text + "\n;this.__eras = typeof reforgedShardEras !== 'undefined' ? reforgedShardEras : null;", sandbox, { timeout: 2000 });
         table = sandbox.__eras;
@@ -659,7 +692,47 @@ function crossCheckShardTable(eras, order, problems) {
             if (got.slice(0, want.length).join(",") !== want.join(",")) problems.push("runes-reforged-data.js " + id + " " + s.id + " \"" + s.desc + "\" != CommunityDragon \"" + stripText(era.src.perks[s.id].desc) + "\"");
         }); });
     });
-    return "runes-reforged-data.js tables agree";
+    // Per listed patch, what the page shows: the client's text (markup and spacing
+    // dropped) and name, a vendored icon file for every shard, the client's icon for
+    // it (perks.json iconPath; from V14.2 scaling Health 5001 is StatModsHealthPlusIcon
+    // and flat Health 5011 StatModsHealthScalingIcon), and the cyan Magic Resist set
+    // wherever the client already used StatModsMagicResIcon.MagicResist_Fix.png.
+    var rowsOf = sandbox.getReforgedShardRows, iconOf = sandbox.getReforgedShardIconUrl;
+    if (typeof rowsOf !== "function" || typeof iconOf !== "function") {
+        problems.push("runes-reforged-data.js lacks getReforgedShardRows / getReforgedShardIconUrl");
+        return "runes-reforged-data.js tables agree";
+    }
+    var patches = 0, texts = 0, names = 0, iconNames = 0, icons = {}, seen = {};
+    var report = function(msg){ if (!seen[msg]) { seen[msg] = true; problems.push(msg); } };   // 5002/5003/5008 sit in two rows
+    ctx.entries.forEach(function(e){
+        if (!e.src.shards) return;
+        var p = e.rec.patch, cd = e.src.shards.perks, ds = { patch: p, shardEra: e.rec.shardEra, ddragonVersion: e.src.ddragon };
+        var rows = rowsOf(ds);
+        if (!rows) { problems.push(p + ": runes-reforged-data.js has no shard rows"); return; }
+        patches++;
+        rows.forEach(function(r){ r.shards.forEach(function(s){
+            var c = cd[s.id];
+            if (!c) { report(p + ": shard " + s.id + " not in CommunityDragon"); return; }
+            texts++;
+            if (stripText(s.desc) !== stripText(c.desc)) report(p + ": shard " + s.id + " text \"" + s.desc + "\" != client \"" + stripText(c.desc) + "\"");
+            if (P.compare(p, SHARD_NAMES_FROM) >= 0) {
+                names++;
+                if (s.name !== stripText(c.name)) report(p + ": shard " + s.id + " name \"" + s.name + "\" != client \"" + stripText(c.name) + "\"");
+            }
+            var url = iconOf(ds, s.icon);
+            if (!icons[url]) icons[url] = fs.existsSync(path.join(ROOT, url)) ? 1 : -1;
+            if (icons[url] < 0) report(p + ": shard " + s.id + " icon " + url + " missing");
+            if (String(s.id) === "5003" && /MagicResist_Fix/i.test(c.icon || "") && /\/2018\//.test(url)) report(p + ": Magic Resist uses the pink 2018 icon, the client had " + c.icon);
+            // Vendored files are the lower-cased client names; MagicResist_Fix is the cyan art of the 2022 set.
+            var clientIcon = String(c.icon || "").toLowerCase().replace(/\.magicresist_fix(?=\.png$)/, "");
+            if (!clientIcon) report(p + ": shard " + s.id + " has no client iconPath");
+            else if (String(s.icon || "").toLowerCase() !== clientIcon) report(p + ": shard " + s.id + " icon " + s.icon + ", the client had " + c.icon);
+            else iconNames++;
+        }); });
+    });
+    return "runes-reforged-data.js tables agree; " + patches + " patches: " + texts + " shard texts equal the client's, "
+        + names + " names (" + SHARD_NAMES_FROM + "+), " + iconNames + " icons equal the client's iconPath, "
+        + Object.keys(icons).length + " icon files present";
 }
 
 function checkF2(ctx, results) {
@@ -711,7 +784,7 @@ function checkF4(ctx, results) {
         labels[l] = true;
     });
     check("F4 official labels", !problems.length, problems.length ? problems.join("; ")
-        : n + " labels from V25.S1.1 to V26.19 (Current) are Riot's official names; all 123 labels unique", results);
+        : n + " labels from V25.S1.1 to V26.19 (Current) are Riot's official names; all " + ctx.entries.length + " labels unique", results);
 }
 
 function checkF5(ctx, results) {
@@ -925,14 +998,40 @@ function readGameBinValue(rawDir, branch, perkId, field) {
     return null;
 }
 
-// Checks an override's `verify` record against CommunityDragon game data in the cache.
-// Returns { checked: [branches], problems: [] }.
-function verifyOverrideValue(rawDir, o, patches) {
+// CommunityDragon perks.json field of one perk in a cached branch: undefined = branch not cached,
+// null = perk or field missing.
+function readCdragonPerkField(rawDir, branch, perkId, field) {
+    var file = path.join(rawDir, "cdragon", branch + "_perks.json");
+    if (!fs.existsSync(file)) return undefined;
+    var q = readJson(file).filter(function(x){ return String(x.id) === String(perkId); })[0];
+    return q && q[field] != null ? q[field] : null;
+}
+
+// Checks an override's `verify` record against CommunityDragon data in the cache:
+//   {cdragonGame: "perks.cdtb.bin.json", perkId, field, multiply}  fill-placeholder values (game data)
+//   {cdragon: "perks.json", perkId, field}                         set-text: value = the client text of
+//       every branch in range, and the patch's Data Dragon text (ddragonOf(patch) -> build) differs
+// Returns { checked: [branches], missing: [branches], problems: [] }.
+function verifyOverrideValue(rawDir, o, patches, ddragonOf) {
     var res = { checked: [], missing: [], problems: [] };
     if (!o.verify) return res;
     patches.forEach(function(p){
         if (!inRange(p, o)) return;
         var branch = P.toDdragon(p);
+        if (o.verify.cdragon === "perks.json") {
+            var ver = ddragonOf ? ddragonOf(p) : null;
+            if (ver) {
+                var dd = ddragonPaths(readJson(path.join(rawDir, "reforged", "runesReforged-" + ver + ".json"))), rune = null;
+                Object.keys(dd).forEach(function(pid){ dd[pid].slots.forEach(function(row){ row.forEach(function(r){ if (String(r.id) === String(o.target)) rune = r; }); }); });
+                if (!rune) res.problems.push(o.id + ": rune " + o.target + " is not in the Data Dragon " + ver + " catalog");
+                else if (rune[o.field] === o.value) res.problems.push(o.id + ": Data Dragon " + ver + " already has this " + o.field + " (stale)");
+            }
+            var t = readCdragonPerkField(rawDir, branch, o.verify.perkId, o.verify.field);
+            if (t === undefined) { res.missing.push(branch); return; }
+            if (t !== o.value) res.problems.push(o.id + ": CommunityDragon " + branch + " " + o.verify.field + " is \"" + stripText(t) + "\", the override says \"" + stripText(o.value) + "\"");
+            else res.checked.push(branch);
+            return;
+        }
         var v = readGameBinValue(rawDir, branch, o.verify.perkId, o.verify.field);
         if (v === undefined) { res.missing.push(branch); return; }
         var want = v == null ? null : String(Math.round(v * (o.verify.multiply || 1) * 1000) / 1000);
@@ -981,7 +1080,10 @@ function audit(ctx, rawDir) {
     // Override values against CommunityDragon game data.
     var oProblems = [], oNotes = [];
     ctx.overrides.forEach(function(o){
-        var r = verifyOverrideValue(rawDir, o, derived.map(function(d){ return d.patch; }));
+        var r = verifyOverrideValue(rawDir, o, derived.map(function(d){ return d.patch; }), function(p){
+            var d = derived.filter(function(x){ return x.patch.key === P.parse(p).key; })[0];
+            return d ? d.ddragon : null;
+        });
         oProblems = oProblems.concat(r.problems);
         if (o.verify) oNotes.push(o.id + " verified in " + r.checked.length + " branches" + (r.missing.length ? " (" + r.missing.length + " not cached: " + r.missing.join(", ") + ")" : ""));
     });
@@ -1083,7 +1185,7 @@ module.exports = {
     ddragonPaths: ddragonPaths, coveredBy: coveredBy, catalogHashOf: catalogHashOf, stateHashOf: stateHashOf,
     shardSignature: shardSignature, applyOverrides: applyOverrides, validateOverrides: validateOverrides,
     derive: derive, sourceViewOf: sourceViewOf, rawDdragonBuilds: rawDdragonBuilds,
-    readGameBinValue: readGameBinValue, verifyOverrideValue: verifyOverrideValue,
+    readGameBinValue: readGameBinValue, readCdragonPerkField: readCdragonPerkField, verifyOverrideValue: verifyOverrideValue,
     build: build, runChecks: runChecks, audit: audit
 };
 

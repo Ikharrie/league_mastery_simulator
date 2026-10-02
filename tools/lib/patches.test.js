@@ -1,7 +1,8 @@
 // Unit tests for tools/lib/patches.js and data/patches/{seasons,aliases}.json.
 //   node tools/lib/patches.test.js
-//   node tools/lib/patches.test.js --ddragon <versions.json>   (also checks the
-//        DDragon-era season boundaries against Riot's live version list)
+//   node tools/lib/patches.test.js --ddragon <versions.json>
+// The DDragon-era season boundaries are checked against Riot's live version
+// list: data/sources/ddragon-versions.json, or the file --ddragon names.
 // The expectations below are transcribed from DESIGN.md §0, §3.1-§3.5 and
 // §4.1-§4.2; they are the spec, not derived from the code under test.
 
@@ -70,8 +71,8 @@ var LISTED = {
               "V11.21", "V11.22"],
         s12: ["V11.23", "V11.24", "V12.1", "V12.2", "V12.6", "V12.7", "V12.10", "V12.11", "V12.12",
               "V12.14", "V12.15", "V12.20", "V12.21"],
-        s13: ["V12.22", "V13.1", "V13.3", "V13.4", "V13.5", "V13.6", "V13.12", "V13.15", "V13.20",
-              "V13.21", "V13.24"],
+        s13: ["V12.22", "V13.1", "V13.3", "V13.4", "V13.5", "V13.6", "V13.12", "V13.15", "V13.17",
+              "V13.20", "V13.21", "V13.24"],   // V13.17: Future's Market client text (rro-004)
         s14: ["V14.1", "V14.2", "V14.4", "V14.10", "V14.11", "V14.12", "V14.13", "V14.14", "V14.15",
               "V14.17", "V14.18", "V14.19", "V14.20", "V14.21", "V14.24"],
         s2025: ["V25.S1.1", "V25.S1.2", "V25.S1.3", "V25.05", "V25.09", "V25.10", "V25.12", "V25.14",
@@ -85,7 +86,7 @@ var LISTED = {
 var COUNTS = {
     masteries: { s1: 10, s2: 4, s3: 2, s4: 5, s5: 4, s6: 10, s7: 7, total: 42 },
     runes: { s1: 8, s2: 5, s3: 3, s4: 3, s5: 2, s6: 2, s7: 2, total: 25 },
-    reforged: { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 11, s14: 15, s2025: 12, s2026: 10, total: 123 }
+    reforged: { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 12, s14: 15, s2025: 12, s2026: 10, total: 124 }
 };
 
 // §3.4
@@ -210,13 +211,13 @@ test("compare: chronological order", function(){
     assert.deepEqual(P.sortPatches(shuffled), chain);
 });
 
-test("compare: all 190 listed patches sort into §3.2 order on each page", function(){
+test("compare: all 191 listed patches sort into §3.2 order on each page", function(){
     P.PAGES.forEach(function(page){
         var ordered = listedOf(page).map(function(e){ return e.patch; });
         var scrambled = ordered.slice().sort(function(a, b){ return a.length - b.length || (a < b ? 1 : -1); });
         assert.deepEqual(P.sortPatches(scrambled), ordered, page);
     });
-    assert.equal(listedOf("masteries").length + listedOf("runes").length + listedOf("reforged").length, 190);
+    assert.equal(listedOf("masteries").length + listedOf("runes").length + listedOf("reforged").length, 191);
 });
 
 test("compareBuild and latestAtOrBefore", function(){
@@ -361,8 +362,8 @@ test("validateSeasons catches broken tables", function(){
     assert.equal(P.seasonOf("V4.20"), "s5");
 });
 
-test("--ddragon: DDragon-era boundaries are adjacent live patches", { skip: !ddragonArg() }, function(){
-    var versions = P.readJson(ddragonArg());
+test("DDragon-era boundaries are adjacent live patches (data/sources/ddragon-versions.json or --ddragon)", { skip: !ddragonFile() }, function(){
+    var versions = ddragonVersions(ddragonFile());
     var live = [];
     versions.forEach(function(v){
         var m = /^(?:lolpatch_)?(\d+)\.(\d+)(\.\d+)?$/.exec(v);
@@ -386,9 +387,20 @@ test("--ddragon: DDragon-era boundaries are adjacent live patches", { skip: !ddr
     });
 });
 
-function ddragonArg() {
+// The DDragon versions list: --ddragon <file> (Riot's api/versions.json array,
+// or the committed format), default data/sources/ddragon-versions.json.
+function ddragonFile() {
     var i = process.argv.indexOf("--ddragon");
-    return i > 0 ? process.argv[i + 1] : null;
+    if (i > 0) return process.argv[i + 1];
+    var f = path.join(__dirname, "..", "..", "data", "sources", "ddragon-versions.json");
+    return fs.existsSync(f) ? f : null;
+}
+function ddragonVersions(file) {
+    var v = P.readJson(file);
+    if (Array.isArray(v)) return v;
+    var out = [];
+    (v.patches || []).forEach(function(e){ (e.builds || []).forEach(function(b){ out.push(b); }); });
+    return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -407,7 +419,7 @@ test("eraOf: lcu from V7.1 and for every Reforged patch", function(){
         assert.equal(P.eraOf(e.patch, "runes"), e.patch === "V7.21" ? "lcu" : "air", e.patch);
     });
     listedOf("reforged").forEach(function(e){ assert.equal(P.eraOf(e.patch, "reforged"), "lcu"); });
-    // today's views keep their era (nav.js LCU_ERA_DATASETS: s7-final, preReforged-V7.21)
+    // the legacy views keep their era (pre-registry rule: only s7-final and preReforged-V7.21 were LCU)
     assert.equal(P.eraOf("V6.22"), "air");    // s7-preseason
     assert.equal(P.eraOf("V5.22"), "air");    // s6-launch
 });
@@ -417,7 +429,7 @@ test("airPeriodOf: 2010 / 2012 / 2013 / 2014", function(){
         "V1.0.0.154": "2012", "V3.01": "2013", "V3.04": "2013", "V3.6": "2013", "3.6.15": "2013",
         "V3.7": "2014", "V3.13": "2014", "V3.14": "2014", "3.14.41": "2014", "V7.21": "2014" };
     Object.keys(cases).forEach(function(p){ assert.equal(P.airPeriodOf(p), cases[p], p); });
-    // today's PERIOD table (air-sheet.js) for the legacy views, plus the one documented change
+    // the pre-registry season-keyed AIR periods of the legacy views, plus the one documented change
     assert.equal(P.airPeriodOf("V1.0.0.128"), "2010");  // masteries s1
     assert.equal(P.airPeriodOf("V1.0.0.131"), "2012");  // masteries s2
     assert.equal(P.airPeriodOf("V1.0.0.152"), "2012");  // masteries s3 (s3-pbe)
@@ -516,7 +528,7 @@ test("idFor: §4.1 examples", function(){
     assert.throws(function(){ P.idFor("nope", "V4.5"); });
 });
 
-test("ids: unique, URL-safe, round-trip through parseId for all 190 listed patches", function(){
+test("ids: unique, URL-safe, round-trip through parseId for all 191 listed patches", function(){
     P.PAGES.forEach(function(page){
         var ids = listedIds(page), seen = {};
         listedOf(page).forEach(function(e, i){

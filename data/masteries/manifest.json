@@ -72,12 +72,12 @@
   "m-V1.0.0.152": {
     "data": "m-V1.0.0.152",
     "file": "data/masteries/m-V1.0.0.152.js",
-    "hash": "c815c8826acfa977ed8b8bf043562b8c81b949f3959d51584b7236e56e2f6dc8"
+    "hash": "d8c4f8766b5e2475334807b7f8c3f9fb7ebc3798d6b5388e4f864019e8bbc8f9"
   },
   "m-V3.13": {
-    "data": "m-V1.0.0.152",
-    "file": "data/masteries/m-V1.0.0.152.js",
-    "hash": "c815c8826acfa977ed8b8bf043562b8c81b949f3959d51584b7236e56e2f6dc8"
+    "data": "m-V3.13",
+    "file": "data/masteries/m-V3.13.js",
+    "hash": "a4cc14847cab627c8ec9fadf46b4654da1b5d04688cc656df8e8a177c5f25c0f"
   },
   "m-V3.14": {
     "data": "m-V3.14",

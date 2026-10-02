@@ -40,7 +40,6 @@
 //                                 one <option value=id>label</option> per entry
 //                                 of the season, oldest first; select = element,
 //                                 jQuery object or selector. Returns the count
-//   shellMode(), useRegistry()    TRANSITION, see below
 //
 // LolData
 //   register(kind, key, payload)  called by the generated data files; kind is
@@ -67,24 +66,14 @@
 //                                 is registered before the calculators' ready
 //                                 handlers run. After parsing (or where
 //                                 document.write is blocked) it injects instead.
-//                                 Returns the fromHash() result. TRANSITION: a
-//                                 legacy shell only resolves (loads nothing).
+//                                 Returns the fromHash() result.
 //
 // Local data is only ever loaded with <script src> (works over file:// and
 // http); never with fetch / XHR.
-//
-// TRANSITION (phase 1 of the per-patch rework). The calculators still run on
-// the old data files, which name datasets with the legacy ids. A page marked
-// <html data-lol-shell="legacy"> keeps nav.js / air-sheet.js on the legacy
-// season table and the season-keyed AIR periods (shellMode() "legacy") until
-// a registry-based calculator calls buildSeasonNav({entry}) or
-// AirSheet.sync(entry): those switch the page to "registry" (useRegistry()).
-// Phase 2 removes the attribute together with the old data <script> tags,
-// and then the legacy branches in nav.js / air-sheet.js (marked TRANSITION).
 
 var LolPatches = window.LolPatches = (function(){
     var PAGES = ["masteries", "runes", "reforged"];
-    var byId = null, mode = null;
+    var byId = null;
 
     function reg(name) { return typeof window[name] !== "undefined" ? window[name] : null; }
     function patchesOf(page) { var p = reg("LOL_PATCHES"); return (p && p[page]) || []; }
@@ -258,23 +247,13 @@ var LolPatches = window.LolPatches = (function(){
         return items.length;
     }
 
-    // TRANSITION: "legacy" while <html data-lol-shell="legacy"> and no
-    // registry-based calculator has run yet (see the header).
-    function shellMode() {
-        if (mode) return mode;
-        var el = document.documentElement;
-        return el && el.getAttribute("data-lol-shell") === "legacy" ? "legacy" : "registry";
-    }
-    function useRegistry() { mode = "registry"; }
-
     return {
         PAGES: PAGES,
         page: page, entries: entries, entry: entry, resolve: resolve, fromHash: fromHash,
         list: list, seasonDefault: seasonDefault, pageDefault: pageDefault,
         season: season, seasons: seasons, pageOfId: pageOfId,
         parse: parse, compare: compare, patchOfId: patchOfId,
-        fillPatchSelect: fillPatchSelect,
-        shellMode: shellMode, useRegistry: useRegistry
+        fillPatchSelect: fillPatchSelect
     };
 })();
 
@@ -410,12 +389,6 @@ var LolData = window.LolData = (function(){
 function lolPreloadDataset(page) {
     page = page || LolPatches.page();
     var r = LolPatches.fromHash(page);
-    // TRANSITION: the legacy calculators do not read LolData, so a legacy
-    // shell loads nothing here: the old pages stay independent of the data
-    // builds in progress (a registry older than the last data build cannot
-    // make them request a file that is gone). A registry-based calculator
-    // still gets its dataset through LolData.load().
-    if (LolPatches.shellMode() === "legacy") return r;
     var files = [];
     var e = r.entry;
     if (e && e.data !== null && e.file && !LolData.get(e)) files.push({ file: e.file, entry: e });

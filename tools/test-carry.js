@@ -25,8 +25,11 @@
 //      source link, change the Patch (or Season) dropdown, read the URL the
 //      page writes, decode it with the target's codec and apply the same
 //      four assertions, plus: the toast when something was dropped, the page
-//      name / champion level kept. Skipped while the pages still run the
-//      pre-rework calculators
+//      name / champion level kept. A consecutive pair across a season line
+//      (V4.19 -> V4.20) switches through the Patch dropdown's handler (no
+//      single UI control reaches it; see runBrowser). A tab that never drew
+//      is retried once. Skipped for a page that still runs the pre-rework
+//      calculators (an old --root site)
 //
 // Usage (from the repo root)
 //   node tools/test-carry.js [--root <site>] [--only masteries,runes,reforged] [--builds 50]
@@ -434,37 +437,63 @@ async function runBrowser(world, plan, c, args) {
     const b = await TL.launchBrowser(exe);
     const catalogDir = TL.reforgedCache(args);
     const res = [];
+    // One switch in a fresh tab. A same-season pair uses the Patch dropdown,
+    // a season-default pair the Season dropdown (it lands on the target
+    // season's default). A consecutive pair across a season line ("next"
+    // only, e.g. V4.19 -> V4.20) has no single control in the UI: the Patch
+    // dropdown lists one season, and the Season dropdown opens the season
+    // default, not the next patch. It goes through the Patch dropdown's
+    // change handler with the target added as an option, which is the code
+    // path every in-page switch takes (DESIGN §2.5).
+    const one = async function (it) {
+        const tab = await TL.openTab(b, { catalogDir: catalogDir });
+        try {
+            const src = sourceHash(it);
+            await tab.navigate(TL.fileUrl(path.join(world.root, TL.PAGE_FILE[it.page])) + "#" + src);
+            const before = await TL.settle(tab, it.page, 600, 25000);
+            if (before.timeout) return { it: it, src: src, before: before, switched: "page did not settle before the switch", errors: tab.errors.slice(), loadFailed: true };
+            const sameSeason = it.pair.from.season === it.pair.to.season;
+            const direct = !sameSeason && !/season/.test(it.pair.kind);
+            const sel = sameSeason || direct ? SELECTS[it.page].patch : SELECTS[it.page].season;
+            const val = sameSeason || direct ? it.pair.to.id : it.pair.to.season;
+            const add = direct ? "if(!Array.prototype.some.call(s.options,function(x){return x.value===" + JSON.stringify(val) + "})){var n=document.createElement('option');n.value=" + JSON.stringify(val) + ";n.textContent=" + JSON.stringify(val) + ";s.appendChild(n);}" : "";
+            const switched = await tab.eval("(function(){var s=document.querySelector(" + JSON.stringify(sel) + ");if(!s)return 'no select " + sel + "';" + add +
+                "var o=Array.prototype.some.call(s.options,function(x){return x.value===" + JSON.stringify(val) + "});if(!o)return 'no option " + val + " in " + sel + "';" +
+                "s.value=" + JSON.stringify(val) + ";s.dispatchEvent(new Event('change',{bubbles:true}));return 'ok';})()");
+            if (/^no select/.test(switched)) return { it: it, src: src, before: before, switched: switched, errors: tab.errors.slice(), loadFailed: true };
+            // Wait until the URL names the target (the load is async, §2.5),
+            // remembering a toast shown on the way, then let it settle.
+            let toast = null;
+            if (switched === "ok") {
+                const want = JSON.stringify("#" + it.pair.to.id + "|"), isDef = JSON.stringify(it.pair.to.id === SPEC.PAGE_DEFAULTS[it.page]);
+                for (let t = Date.now(); Date.now() - t < 20000;) {
+                    const v = await tab.eval("(function(){var h=location.hash,t=document.getElementById('toast');" +
+                        "return {hit:h.indexOf(" + want + ")===0||(" + isDef + "&&(h===''||h==='#')),toast:t&&t.classList.contains('visible')?t.textContent:null};})()").catch(function () { return {}; });
+                    if (v.toast) toast = v.toast;
+                    if (v.hit) break;
+                    await new Promise(function (r) { setTimeout(r, 100); });
+                }
+            }
+            const after = switched === "ok" ? await TL.settle(tab, it.page, 800, 25000) : null;
+            if (after && !after.toast && toast) after.toast = toast;
+            const patchNow = await tab.eval("(function(){var s=document.querySelector(" + JSON.stringify(SELECTS[it.page].patch) + ");return s?s.value:null;})()").catch(function () { return null; });
+            return { it: it, src: src, before: before, switched: switched, after: after, patchNow: patchNow, errors: tab.errors.slice() };
+        } finally { await tab.close(); }
+    };
+    // A tab that never drew the source page (a loaded machine can starve one
+    // headless tab) is retried once in a fresh tab; a hung DevTools call
+    // fails the item after 120 s instead of stalling the run.
+    const guarded = function (it) {
+        let timer;
+        const hung = new Promise(function (r) { timer = setTimeout(function () { r({ it: it, src: sourceHash(it), switched: "harness: item hung > 120 s (a DevTools call never returned)", errors: [] }); }, 120000); });
+        return Promise.race([one(it).catch(function (e) { return { it: it, src: sourceHash(it), switched: "harness: " + (e && e.message || e), errors: [], loadFailed: true }; }), hung])
+            .then(function (r) { clearTimeout(timer); return r; });
+    };
     try {
         await TL.pool(items, parseInt(args.par || "4", 10), async function (it) {
-            const tab = await TL.openTab(b, { catalogDir: catalogDir });
-            try {
-                const src = sourceHash(it);
-                await tab.navigate(TL.fileUrl(path.join(world.root, TL.PAGE_FILE[it.page])) + "#" + src);
-                const before = await TL.settle(tab, it.page, 600, 25000);
-                const sameSeason = it.pair.from.season === it.pair.to.season;
-                const sel = sameSeason ? SELECTS[it.page].patch : SELECTS[it.page].season;
-                const val = sameSeason ? it.pair.to.id : it.pair.to.season;
-                const switched = await tab.eval("(function(){var s=document.querySelector(" + JSON.stringify(sel) + ");if(!s)return 'no select " + sel + "';" +
-                    "var o=Array.prototype.some.call(s.options,function(x){return x.value===" + JSON.stringify(val) + "});if(!o)return 'no option " + val + " in " + sel + "';" +
-                    "s.value=" + JSON.stringify(val) + ";s.dispatchEvent(new Event('change',{bubbles:true}));return 'ok';})()");
-                // Wait until the URL names the target (the load is async, §2.5),
-                // remembering a toast shown on the way, then let it settle.
-                let toast = null;
-                if (switched === "ok") {
-                    const want = JSON.stringify("#" + it.pair.to.id + "|"), isDef = JSON.stringify(it.pair.to.id === SPEC.PAGE_DEFAULTS[it.page]);
-                    for (let t = Date.now(); Date.now() - t < 20000;) {
-                        const v = await tab.eval("(function(){var h=location.hash,t=document.getElementById('toast');" +
-                            "return {hit:h.indexOf(" + want + ")===0||(" + isDef + "&&(h===''||h==='#')),toast:t&&t.classList.contains('visible')?t.textContent:null};})()").catch(function () { return {}; });
-                        if (v.toast) toast = v.toast;
-                        if (v.hit) break;
-                        await new Promise(function (r) { setTimeout(r, 100); });
-                    }
-                }
-                const after = switched === "ok" ? await TL.settle(tab, it.page, 800, 25000) : null;
-                if (after && !after.toast && toast) after.toast = toast;
-                const patchNow = await tab.eval("(function(){var s=document.querySelector(" + JSON.stringify(SELECTS[it.page].patch) + ");return s?s.value:null;})()").catch(function () { return null; });
-                res.push({ it: it, src: src, before: before, switched: switched, after: after, patchNow: patchNow, errors: tab.errors.slice() });
-            } finally { await tab.close(); }
+            let r = await guarded(it);
+            if (r.loadFailed) { r = await guarded(it); r.retried = true; }
+            res.push(r);
         });
     } finally { await b.close(); }
     const by = {};

@@ -529,10 +529,15 @@ async function launchBrowser(exe) {
             if (msg.error) p.reject(new Error(p.method + ": " + msg.error.message)); else p.resolve(msg.result);
         } else listeners.forEach(function (l) { l(msg); });
     };
+    // Every DevTools call gets an answer or fails after 60 s: a starved
+    // headless tab on a loaded machine must not stall the whole run.
     const send = function (method, params, sessionId) {
         return new Promise(function (resolve, reject) {
             const id = ++seq;
-            pending.set(id, { resolve: resolve, reject: reject, method: method });
+            const timer = setTimeout(function () {
+                if (pending.has(id)) { pending.delete(id); reject(new Error(method + ": no answer in 60 s")); }
+            }, 60000);
+            pending.set(id, { resolve: function (v) { clearTimeout(timer); resolve(v); }, reject: function (e) { clearTimeout(timer); reject(e); }, method: method });
             ws.send(JSON.stringify(Object.assign({ id: id, method: method, params: params || {} }, sessionId ? { sessionId: sessionId } : {})));
         });
     };
@@ -677,9 +682,11 @@ async function checkL3(world, preds, c, args) {
         await pool(work, parseInt(args.par || "4", 10), async function (p) {
             // A page that never settles is retried once in a fresh tab (a
             // loaded machine can starve one headless tab); a second timeout fails.
+            // A DevTools call that fails (60 s without an answer) counts the same.
             for (let attempt = 0; attempt < 2; attempt++) {
-                const tab = await openTab(b, { catalogDir: catalogDir });
+                let tab = null;
                 try {
+                    tab = await openTab(b, { catalogDir: catalogDir });
                     const url = fileUrl(path.join(site, PAGE_FILE[p.page])) + "#" + p.record.hash;
                     await tab.navigate(url);
                     const t0 = Date.now();
@@ -688,7 +695,10 @@ async function checkL3(world, preds, c, args) {
                     results.push({ p: p, v: v, errors: tab.errors.slice(), ms: Date.now() - t0, retried: attempt > 0 });
                     if (results.length % 50 === 0) process.stderr.write("test-links L3: " + results.length + "/" + work.length + " links opened\n");
                     break;
-                } finally { await tab.close(); }
+                } catch (e) {
+                    if (attempt === 0) continue;
+                    results.push({ p: p, v: { timeout: true }, errors: ["harness: " + (e && e.message || e)], ms: 0, retried: true });
+                } finally { if (tab) await tab.close().catch(function () {}); }
             }
         });
     } finally { await b.close(); }

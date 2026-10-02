@@ -29,8 +29,11 @@ node tools/capture-legacy.js compare  <shotsA> <shotsB>                 # pixel 
   sha256 against `about.reforgedCatalogs`.
 * The code under test is read with `git show <rev>:<file>`; the default
   `<rev>` is the baseline commit. `--rev <commit>` or `--worktree` point it
-  elsewhere (`check --worktree` on a reworked tree is expected to fail: the
-  old data files are gone).
+  elsewhere (`check --worktree` and `verify-browser --worktree` on the
+  reworked tree are expected to fail: the old data files are gone, and the
+  reworked pages are checked by `tools/test-links.js` instead).
+  `shots --worktree` still works: it is the screenshot regression of the
+  reworked pages against the baseline set (`compare`).
 * `shots` and `verify-browser` export the commit with `git archive` into
   `<dir>/site-<short rev>` (or take `--root <site>`; `--worktree` copies the
   working tree first, so nothing is written into the repo). Node 22+ is

@@ -627,7 +627,10 @@ function s3CrossCheck(state, build, inputs, sink, label) {
     var dd = inputs.dd(build), issues = [];
     // Numbers a later S3 build added to a tooltip (logged noise) may be in
     // DDragon without being in the template (data/patches/noise crossCheck).
-    var allowed = (inputs.noise.crossCheck || []).filter(function(a){ return P.compare(P.fromDdragon(build), a.from) >= 0; });
+    var allowed = (inputs.noise.crossCheck || []).filter(function(a){
+        var p = P.fromDdragon(build);
+        return P.compare(p, a.from) >= 0 && (!a.to || P.compare(p, a.to) <= 0);
+    });
     CLASSIC_TREES.forEach(function(tname, ti){
         var cells = {};
         dd.tree[tname].forEach(function(row, r){ row.forEach(function(c, col){ if (c) cells[r * 4 + col + 1] = c; }); });
@@ -649,17 +652,15 @@ function s3CrossCheck(state, build, inputs, sink, label) {
                 allowed.forEach(function(a){ if (a.mastery === m.name && (a.rank == null || a.rank === r + 1)) extraOk = extraOk.concat(a.extraNumbers); });
                 var ddNums = numbersOf(d.description[Math.min(r, d.description.length - 1)]);
                 var ourNums = numbersOf(m.rankInfo.length ? renderTemplate(m, r) : m.desc);
-                // The level-18 total of a per-level mastery is derived
-                // (rankInfo x 18, shown to one decimal); DDragon prints it
-                // rounded to a whole number (0.17 x 18 = 3.06: "3.1" vs "3").
-                var derived = m.perlevel && m.rankInfo.length ? Math.round(m.rankInfo[r] * 180) / 10 : null;
-                // Every number we show is in the client text of that rank ...
+                // Every number we show is in the client text of that rank,
+                // including a per-level mastery's derived level-18 total
+                // (rankInfo x 18, one decimal): where the client printed a
+                // rounded total (Deadliness 3, not 0.17 x 18 = 3.1), the
+                // template carries it as rankInfo2 (mo-006 / mo-007) ...
                 var pool = ddNums.slice();
                 ourNums.forEach(function(v){
                     var k = -1;
                     for (var i = 0; i < pool.length; i++) if (Math.abs(pool[i] - v) < 0.011) { k = i; break; }
-                    if (k < 0 && derived !== null && v === derived)
-                        for (var j = 0; j < pool.length; j++) if (pool[j] === Math.round(m.rankInfo[r] * 18)) { k = j; break; }
                     if (k < 0) issues.push(w + " rank " + (r + 1) + ": " + v + " not in DDragon " + JSON.stringify(ddNums));
                     else pool.splice(k, 1);
                 });
@@ -734,6 +735,9 @@ var SPOT = [
     ["V1.0.0.152", 1, "legendary-armor", function(m){ return JSON.stringify(m.rankInfo) === "[2,3.5,5]"; }, "S3 Legendary Armor 2/3.5/5 (repo s3-pbe had the PBE 2/4/6)"],
     ["V1.0.0.152", 2, "scout", /first 5 seconds/, "S3 Scout 5 s (PBE 3 s)"],
     ["V1.0.0.152", 1, "bladed-armor", /true damage/, "S3 Bladed Armor true damage"],
+    ["V1.0.0.152", 0, "deadliness", function(m){ return !m.perlevel && JSON.stringify(m.rankInfo2) === "[3,6,9,12]"; }, "S3 Deadliness shows the client's whole level-18 totals 3/6/9/12 (mo-006, mo-007)"],
+    ["V1.0.0.152", 2, "summoners-insight", function(m){ return !/200/.test(m.desc); }, "V1.0.0.152 Summoner's Insight: no Revive figure (DDragon 3.6.14)"],
+    ["V3.13", 2, "summoners-insight", /Grants \(200 \+ 20 per level\) bonus Health on Revive/, "V3.13 Summoner's Insight shows the V3.12+ Revive figure (mo-008)"],
     ["V1.0.0.129", 2, "perseverance", function(m){ return m.index === 18; }, "S2 V1.0.0.129 Perseverance has its own key"],
     ["V1.0.0.131", 2, "strength-of-spirit", function(m){ return m.index === 18; }, "V1.0.0.131 Strength of Spirit in the Perseverance cell"]
 ];
@@ -741,7 +745,6 @@ var SPOT = [
 var SPOT_SAME = [
     ["V7.6", "V7.21", "V7.6-V7.21 no change (DDragon 7.6.1 = 7.21.1)"],
     ["V6.12", "V6.21", "DDragon 6.12.1 = 6.21.1"],
-    ["V1.0.0.152", "V3.13", "S3 V1.0.0.152 and V3.13 share the templates"],
     ["V1.0.0.133", "V1.0.0.151", "no change V1.0.0.133 -> V1.0.0.151"],
     ["V4.19", "V4.20", "DDragon 4.19.3 = 4.20.2"]
 ];

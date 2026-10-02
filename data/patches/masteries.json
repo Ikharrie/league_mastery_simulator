@@ -1,7 +1,7 @@
 {
  "_comment": [
   "Masteries listing (DESIGN §1.4): one record per listed patch, chronological. Seeded by tools/import-masteries.js from the research changed-patches.json files; hand-maintained afterwards (re-run the importer with --no-listing).",
-  "reason: season-start | change | season-end | season-start+change. source: {ddragon: <build>} (data/sources/masteries/ddragon/<build>.json) or {wiki: <patch>} (data/sources/masteries/wiki/<patch>.json); crossCheck = the DDragon builds the S3 templates are checked against (M5).",
+  "reason: season-start | change | season-end | season-start+change | season-end+change. source: {ddragon: <build>} (data/sources/masteries/ddragon/<build>.json) or {wiki: <patch>} (data/sources/masteries/wiki/<patch>.json); crossCheck = the DDragon builds the S3 templates of that patch are checked against (M5): V1.0.0.152 3.6.14, V3.13 3.13.24.",
   "textOnly: a season boundary whose payload differs from the previous listed patch in tooltip text only (DESIGN §0 counts it as a boundary with no change; check C2).",
   "changes[].text keeps the research wording; the trailing [..] names the evidence: DD = Data Dragon, WP = wiki patch page, WM = wiki mastery page, RN = Riot patch notes, LC = League Client game data (CommunityDragon).",
   "Labels, ids, era and chrome are not stored here: tools/lib/patches.js computes them (labelFor, idFor, chromeOf)."
@@ -34,6 +34,11 @@
       "https://leagueoflegends.fandom.com/wiki/V1.0.0.118b"
      ],
      "confidence": "medium"
+    },
+    {
+     "text": "Client look (not data): the S1 sheet head (cream pills, Achievements greyed and last, Find Summoner in the tab row) follows the dated live capture of September 2010 (YouTube Yq2BRjZSoX8, 2010-09-11; Apr / Jun 2011 captures agree), the same strip as the S1 rune page; Riot's 2010 press shots show a crimson active pill with Achievements third. V1.0.0.32-V1.0.0.94 (October 2009 - June 2010) reuse it: an evidence gap (css/air-sheet.css section 6).",
+     "sources": ["https://www.youtube.com/watch?v=Yq2BRjZSoX8"],
+     "confidence": "low"
     }
    ],
    "confidence": "medium"
@@ -333,7 +338,7 @@
    "season": "s3",
    "reason": "season-start+change",
    "date": "2012-12-04",
-   "source": {"wiki":"V1.0.0.152","crossCheck":["3.6.14","3.13.24"]},
+   "source": {"wiki":"V1.0.0.152","crossCheck":["3.6.14"]},
    "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.152"],
    "changes": [
     {
@@ -356,9 +361,9 @@
   {
    "patch": "V3.13",
    "season": "s3",
-   "reason": "season-end",
+   "reason": "season-end+change",
    "date": "2013-10-29",
-   "source": {"wiki":"V1.0.0.152","crossCheck":["3.6.14","3.13.24"]},
+   "source": {"wiki":"V1.0.0.152","crossCheck":["3.13.24"]},
    "sources": [
     "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json",
     "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
@@ -367,7 +372,7 @@
    ],
    "changes": [
     {
-     "text": "No calculator-relevant mastery change anywhere in V3.6-V3.13: DDragon 3.6.14 -> 3.13.24 is identical apart from one tooltip-only edit, and the wiki patch pages V3.6-V3.13 have no Masteries section. [DD, WP]",
+     "text": "No calculator-relevant mastery change anywhere in V3.6-V3.13: DDragon 3.6.14 -> 3.13.24 is identical apart from one tooltip edit (next note), and the wiki patch pages V3.6-V3.13 have no Masteries section. [DD, WP]",
      "sources": [
       "https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json",
       "https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json",
@@ -377,7 +382,7 @@
      "confidence": "high"
     },
     {
-     "text": "Ignored (tooltip-only): V3.12 Summoner's Insight (S3) Revive line gained '(200 + 20 per level)' bonus-health figure; no patch note. [DD]",
+     "text": "Client text: from V3.12 the Summoner's Insight (S3) Revive line names the bonus Health, '(200 + 20 per level)'; no patch note. V3.12 is not listed, so V3.13 is the first listed patch that shows it (override mo-008); V1.0.0.152 (and links to the unlisted V1.0.0.153-V3.12) keep the line without it. [DD]",
      "sources": ["https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json"],
      "confidence": "high"
     },
@@ -392,7 +397,7 @@
      "confidence": "high"
     },
     {
-     "text": "Shown with the V1.0.0.152 templates (desc + rankInfo), which the build checks number by number against DDragon 3.6.14 and 3.13.24; the V3.12 Summoner's Insight Revive figure is tooltip noise (data/patches/noise/masteries.json).",
+     "text": "Shown with the V1.0.0.152 templates (desc + rankInfo) plus mo-008, its own data file; the build checks every number against DDragon 3.13.24 (V1.0.0.152 against 3.6.14).",
      "sources": ["https://ddragon.leagueoflegends.com/cdn/3.6.14/data/en_US/mastery.json","https://ddragon.leagueoflegends.com/cdn/3.13.24/data/en_US/mastery.json"],
      "confidence": "high"
     }

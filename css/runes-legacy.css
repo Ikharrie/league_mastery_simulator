@@ -1,5 +1,5 @@
 /* ==========================================================================
-   runes-legacy.css — pre-Reforged rune page (runes.html, V3.14-V7.21).
+   runes-legacy.css — pre-Reforged rune page (runes.html, V1.0.0.63-V7.21).
    Markup: runes.html .legacy-app (the AIR sheet root) holds, as siblings:
      .rl-board#parchment > #rune-slots (.rune-slot[.filled] > .placed-rune:
                   img on AIR, span.rl-lcu-glyph on LCU)
@@ -14,7 +14,7 @@
      .rl-lcu-actions (LCU) clear-all circle button + SAVE
    runes-calculator.js builds the rows/slots and keys the per-era bits.
 
-   §A AIR (body[data-client=air], V3.14-V6.24): the AIR client Runes tab.
+   §A AIR (body[data-client=air], V1.0.0.63-V6.22): the AIR client Runes tab.
       Everything is overlaid on the painted panels of the full sheet art
       (images/runes/summoners_runes_bg.jpg, 1618x972 art px) that #parchment
       paints. air-sheet.css §7 sizes the sheet and places the head and the
@@ -43,10 +43,59 @@ body[data-client="lcu"] .rl-air-only { display: none !important; }
 .rl-library-title, .rl-board-emblem { display: none; }
 
 /* ==========================================================================
-   §A  AIR client (V3.14-V6.24). Ink and base font come from the sheet
+   §A  AIR client (V1.0.0.63-V6.22). Ink and base font come from the sheet
    (air-sheet.css .air-sheet, loaded before this file).
    ========================================================================== */
 body[data-client="air"] .legacy-app { -webkit-font-smoothing: antialiased; }
+
+/* --- A0. Offline font fallback. Without the Google Fonts stylesheet
+       (file:// offline, blocked fonts) "Source Sans 3" is missing and the
+       sheet's stack (base.css --font-air-body) lands on Arial: ~10% wider
+       and taller, so "Runes Type:" ran under the select, and with no
+       semibold the select's 600 "All" came out in Arial Bold. These faces
+       stand in before Arial: local Arial scaled to Source Sans 3's advance
+       widths and cap height (400: 0.91, 7804 / 8578 over this page's
+       strings, caps 66 / 72; 700: 0.915), with its ascent / descent (1.02 /
+       0.40 em; the overrides are divided by size-adjust) so lines sit where
+       they would; 600 is Segoe UI Semibold (0.945) or else Arial regular,
+       never bold. With Source Sans 3 loaded they are never used. ------- */
+@font-face {
+    font-family: "RL Air Sans Fallback";
+    src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Helvetica");
+    font-weight: 100 500;
+    size-adjust: 91%;
+    ascent-override: 112.1%;
+    descent-override: 44%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: "RL Air Sans Fallback";
+    src: local("Segoe UI Semibold"), local("SegoeUI-Semibold"), local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Helvetica");
+    font-weight: 600;
+    size-adjust: 94.5%;
+    ascent-override: 107.9%;
+    descent-override: 42.3%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: "RL Air Sans Fallback";
+    src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Bold");
+    font-weight: 700 900;
+    size-adjust: 91.5%;
+    ascent-override: 111.5%;
+    descent-override: 43.7%;
+    line-gap-override: 0%;
+}
+/* The rune page's own widgets (and its tooltip) only; the shared sheet head
+   keeps base.css's stack. Same list as base.css, the fallback before Arial. */
+body[data-client="air"] .legacy-app .rl-pagebar,
+body[data-client="air"] .legacy-app .rl-typebar,
+body[data-client="air"] .legacy-app .rl-library,
+body[data-client="air"] .legacy-app .rl-stats,
+body[data-client="air"] .legacy-app .rl-actions,
+.lol-tt.rl-tt-air {
+    --font-air-body: "Source Sans 3", "Myriad Pro", "PT Sans", "RL Air Sans Fallback", Arial, sans-serif;
+}
 
 /* --- A1. Board: the whole painted sheet; slots use % of the full art ---- */
 body[data-client="air"] .rl-board {
@@ -198,9 +247,13 @@ body[data-client="air"] .rl-typebar {
     display: flex;
     align-items: center;
 }
+/* The label box is the capture's 99.3 art px; a wider fallback font grows
+   it (min-width, not width) so the select moves right instead of covering
+   the colon. */
 body[data-client="air"] .rl-type-label {
     flex: none;
-    width: calc(99.3 * var(--a));
+    min-width: calc(99.3 * var(--a));
+    padding-right: calc(3 * var(--u));
     font: 400 calc(13 * var(--u))/1 var(--font-air-body);
     color: #6b2410;
     white-space: nowrap;
@@ -402,6 +455,22 @@ body[data-client="air"] .rl-rune-text {
     font: 400 calc(12.5 * var(--u))/calc(15.4 * var(--u)) var(--font-air-body);
     color: #1d140b;
     white-space: pre-line;
+}
+/* 2012 rows (Apr 2012 capture, refs crop_library_2012.png, client 1.58):
+   each stat line starts --rl-line-indent in from the text box, and a line
+   that wraps runs on from the box's left edge ("+1.9 Ability Power at
+   level" / "18" further left). The first line stays at x+47.5, so the box
+   moves left by the indent and keeps its width for the first line (same
+   wrap point). The Apr 2015 capture aligns the lines, so 2013+ keep the
+   plain pre-line text above. */
+body[data-client="air"] .legacy-app[data-air-period="2012"] { --rl-line-indent: calc(7 * var(--u)); }
+body[data-client="air"] .legacy-app[data-air-period="2012"] .rl-rune {
+    padding-left: calc(47.5 * var(--u) - var(--rl-line-indent));
+}
+body[data-client="air"] .legacy-app[data-air-period="2012"] .rl-rune-text { white-space: normal; }
+body[data-client="air"] .legacy-app[data-air-period="2012"] .rl-rune-line {
+    display: block;
+    text-indent: var(--rl-line-indent);
 }
 body[data-client="air"] .rl-rune-count {
     position: absolute;
@@ -642,7 +711,8 @@ body[data-client="air"] .rl-level-range:focus-visible::-webkit-slider-thumb { bo
        buttons 5.5u apart, centred. X = clear (enabled while the page has
        runes), ↶ = revert and floppy = save (enabled while unsaved).
        Glyphs are the client PNGs' white art as masks (images/runes/
-       rl-glyph-*.png); the disabled face is the rune tab's neutral grey
+       rl-glyph-*.png, inlined as data: URIs: a file:// page cannot load a
+       mask from a file URL); the disabled face is the rune tab's neutral grey
        (Apr 2015: #c7c3c4 top line, #a6a1a7 → #666b65). ------------------ */
 body[data-client="air"] .rl-actions {
     position: absolute;
@@ -695,15 +765,15 @@ body[data-client="air"] .rl-actions .air-btn.rl-btn:disabled {
 }
 /* The client drew the glyphs larger than the repo PNGs do (Apr 2015: X
    ~12u wide, floppy ~20u tall): scale the masks up. */
-.rl-btn-clear   { --rl-glyph: url(../images/runes/rl-glyph-clear.png);  --rl-glyph-size: 142%; }
-.rl-btn-revert  { --rl-glyph: url(../images/runes/rl-glyph-revert.png); --rl-glyph-size: 160%; }
-.rl-btn-save    { --rl-glyph: url(../images/runes/rl-glyph-save.png);   --rl-glyph-size: 150%; }
+.rl-btn-clear   { --rl-glyph: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJwAAAB7CAYAAACB+el3AAAFAElEQVR42u3dO6gcVRzH8f/Zx403SjBgECyCEGMhohZaqKhYWChaiUUKwTTamIAWiaZIZ6kIPgIqokFUEEQkgnCFWIiFFoGQQg0qKhijSMRHzO7dmZ9F/gcPo3t3zrnxsbPfDyybhJk5d3d/Oc+dc80AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBW6+KIkFb2uEILmsVzMd1h7/+Z51HDdqN2WzGxsZn0zkz8P/PUG/7fKH3VS01TxGjm1jqReCKGWtMHLmphZz8tqlhN/hr4/12Y2DCGcJnDz2YwOzewlM7vOzFaTsPUbgZv4o/a/BzMbmdnOEMKRGKIW5fZDCJWkO8zsGQ9alQRu7OVUyXs+8Ef8z3B/CGElXot6cM6aQ0lXS/pVZT6VtFlSmNUnk9Tz4y6V9ENheXtokrsRupslnZY0ljSRVLV4jD0Eb/o1BtNC50Hre+gO+3mrkuoW5Yz8+KcJWzdCN/Dn+5IgtBWP3Z9ea40y9meWEY97T9LQQxv41OY/dEN/fjIzEHVy7I6/C52kvj/f6jXWxM+bZeLPX0q6hNqtY6PVJBivFISu8n7gtY2QxSb7Mkkn/dg2Yav8uFOSrkmviW6FLkg6T9JHyQevlgGRpK8lbYkB8ettSK43aRngWAvevlZTje4MIrZK+iYzdDFMh7y/teSDhJcL+20PE7bFCF0/GbmOM/pcaVie8mvsLgzbE7NGvujmyPWBwv6cJL0r6ZekP9Y2bK+nTTKfxuKF7kDBdEmu2Bx/IGnZm2JGpAs4iIirA4cyOv1piOqMAcfnki5m+mPBBxEeuE2SjhSErm0T/FtzSgUMIi6X9H3myLXN9Ick3cOIFNNWC0aZI9dZg4RHCBvWGkTsPAeDiHjui4QNbUL37Dqa1njO+74K0WP6Azbja0ZB0sGC0MU5uY9ZkEfWyNX/fCIzdLEp3evnL/GOom2z+qgHqCqYBjkl6XqmQdA2bLuSAJX24b6VtJ1mFbPCdmfjK0TrWco6JmkTocO0ebgrJf3UWKRf79TIWz4QYbEef/mO3BfncKUhDd3zfB0Jadi2SDr6D6ylKrn7aw+TwMy59bzWWSn4XlxdsKa6g9AtbtjiIOG1grAps+mNAT0j6QamSxZ3RPpYZthiTXW3pL2Z58ZwnpB0BaFbvLA92LhDvu0AYF9yrYOZ/b543GeSNjNdsjjTH/dmfms3hu1VP3/o/b/lzFsE0+NW/JbFwMi12zXbjcmSVc4d8h9KuiBZ3I/h3S7px8y5uxjgN7ihpts12zZfcmobjnSZamuzCUxCfFeyLUSdOV3yOCPX7s61HcsYXcbpjFVJN03r5Ceh27eOzXIeInTduknmwoK+VqyBds0KQxK65wqmWJij69jEbr+xZ1tOzfNCmxA09od7JzPY1bTNcjBnG9c0ap3fPUizHnGDwMPJ/iEho+m+SNJxv8Yoo8yJpK8kbWO6ZA4HCb5kdaBw/fN4yU3LyeDkKkk/F5b9nW/bGroeukFXajff2HmjmX1iZrvt7ObSvWTjbNnZTaZH9ucG03GX82UzezuEcDJ3Y2cvtxdCOCrpNjO7pVFe7Y9+8rP0/L0f+zEbzez8EIKYKlmwZvm/ONf4PQ1zP/9W8rrqNtvkt+jTlTaJFb+RBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw//cH2FUzeTu1S+4AAAAASUVORK5CYII=");  --rl-glyph-size: 142%; }
+.rl-btn-revert  { --rl-glyph: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJwAAAB7CAYAAACB+el3AAAFZklEQVR42u3dSYgcVRzH8d+b6TjGgwsKLjEuiRdPiUYzCS4QYiQmRDCKB8GDelFRFMTgSUT04iWo4D0HcdDLKASieIgaRFT04HIQzIKJiUSDwYgzTnf9PMwrfSmrZ3qpTujq7weG7k66K1Dzy7/eUu+1BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMn2mO3AmcCZCNoYZwKDDtp4GjTba2wvi8+pdBhMRbO91vabnrc1DyNnClVXtI22d9tu+j93EThUXdFuSCpa7m/bme1tBA5VVrT3YrgcA9ZMntv25hjQJXlQac+h24q2zvY7hYrWLLxuxcfb2hwzxOM24g9B7EKjrhVNUhZCyOLrOyQ9JWmLpDFJlpTF5+0umffYnonv+UvSn5J+DSGcTD5/WhDjsf79d/F/oW5BCyG0ktfrJT0j6d7kba0FQraQOUm/SToo6RdJRyR9LulrSYdDCCcI32i10ULyepvtD5LLZN5Gy9y5Vofvy2wft73H9pO2V5dc1ul41DR4W21/vEgbrVdZEtym7bk2x85sf2L7OdvLmcWoT7hC/LnI9nbbewvVqaqgdRvE1Enbu2zf2q4aY8gm2G3fbvtQ8kue7fLSOYgAloVvyvaNhY4Nhq3Kxcelth+3/WPyC547y8ErazvO2X7V9oWEbshDF59fYPvF2IhP23BnO3jFtuQPcahGthv8FoezPddIXl9u+yXbv/cRvFZJB6HVZ3izeKz8+cOEbviDN568vtr2TtszFfdam31WzvSzD47S5TXU+DI7lg8Cx7GxHZLuTwZ92w0A5zMQU5J2Szpf0rWSrpe0QtI1kpbq9IHksR7OZT4g3JR0Swjhy+LANYazJ5tWvJttv5UM6mYlFS+vPKvbDDBfZ/uheJfJ8T4rZ/6Zb2L7k3nZGk/i71mgN5nZnoyT8+cU7zZJjnOJ7adt/1wS2E7lbbonaM/Vv+JtLkyBtZLqtzb/TJs7RcYLnZTXC5Wzm85Jy/Z3ts/ltvYRWJVle1MheM048b9gY76kk7Ilzi50E7osufFzZTHkqPek/3bbX8QAPNBp7zEGb0l+K1TsFbd6CN1GBoRHLHix+j1me7LbapOE7tkuOxL5+xiXG7XgVTEOGEO7t4vQ5e95pO6Bo62QCCG0ktCEHj7v+YeQSdrVw3josTy74hbzkQmdNT+Y26sshvUzSbOSJmKA2gXY8T9+JulA3QNHhRvAlTmGdr+kQ10E6JSkE3U/OQRuABXSdgghzHZ4iczi378bQjhme6zO6yAI3ABDFy+nnbTfgubnbms7v43B3xR6nu0DiyzIyafT9tmeGIUBXyrc4O7AWSnpikWqVt6ZeC1egqlu6LrCNeLQyvOLjMPlfz7NUkL0NU8bHz9cIHD5tNd+25fmNwVw9tDTTEW8/emPZAlhu1uS7mbuFFUEbroQrLKwvcK8KaoI2/pkwY1L9p5zXBwdWBSNfiftl8QhjrK2Wx62t9lvDn33TOPjyyVhS5cGTsVb1ukkoO+wbShZApgG742yxdtAL+22FbaPxqC1ClVtxvajfOEIqgrbctvfttm16Svb69g1CVVdRi+2/X3SKch7pqdsv5CswmLoA/3tYWJ7me1PCz1Q237f9qrizAPQz0KbTbYPFoY99tm+j40HUWVVC7Z3FGYNpm3fWVwszZlDv3vPTcbV8flWqjttr1GbRdFAr6G7Mu41d9T2R3HN6lXsUi5WbVVc2SYkbZC0StJPkm4KIRwpDIuY72FAVaGbsH1ZyZ4kDdpoYkPCQW9uqPlvlTFnBGek0wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMjH8ALV7N+5DMq6EAAAAASUVORK5CYII="); --rl-glyph-size: 160%; }
+.rl-btn-save    { --rl-glyph: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJwAAAB7CAYAAACB+el3AAAKeklEQVR42u1dW4gkZxX+TnVPz+zV1fW+MRtFIwoq0QQJ7j6IBIUV31TiZcEHr8SAGAQVRFEkBCNoQOIN3H0U8SHxwTuI8YJG40MMonlYHxZXw2Z3s7eZ6a76fOhTO2f/VPdU9/R0V/d8HzTdM/VX1V9dX3/n/Oec/y9AEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBmBJsXjtO0rz/HHJNnPsbZEbRVBB2oMLtBbAfQOFKZsmLvq1I1C5VRQ5QSQvHBYAstBukqha2F/535v8rwrmK8He5XzvsXwBoAbhqZpdEuNkSLTOzguT3AbwbQDfcVEuuqRhAkqrP3CbCtSoIl/urCPt1wnl7AJYA/NHMjpG0RTGt7Tnu+34A+xbcAi3c9c0z4ZZcLUo1AIBzQWVa4YZF01UAuBTMnW1iXhHaRZWqUsksqFYbwJ7kuKUSXw775K7S9P6u+DW1AFwV4RpgVQOhSpO1DuD9AB4Jpq8F4CYAJwC8wvf5J4D3ATgTzFc2hHCs8AuHEc6CKW0DeKmf/2bf3gPwYQC/Dm1z/3/u7X8C4GWJORZmHA4ByYe5gUskXzCg/S9Du1/MoL8nw/nPkFzZpP2fQ/vfxGuWws1uoEMAa+F/6wA6fmPiqLADIBLxIMm2q0k2TpzOzIo6A5tw/INh01UAyyTXB4yWOwD2JoMemdQGjrANAM2MJBk+rwNYDe3WzKwXfKeRlNWPeR+At7gZTEnzFIAPmdlFb5+TjGGNXQBaPsq+NvIMx84TkuUiXPN8ufI6sqoovRPwGuEmcN4jAG4fsO3p4HeVP4huxeBjELJ5jo0uOuGQKAGHmLZKtRpD3Sycr0jMdwbgrCvfoO+4qGHGFyo1V/WLWgS0airDSlC+kZXESVqOgDN/j6/OhL9TzntGaJEIZzXbtCasGKOaxLxGnG/Q9vaiKV22ID7cVFJ5bqLbQ461GeFskz4stP+2SISzKd4sG/I/q/hO2yMeO4MGDY312+r8oNqTimt5OGM1JN9jYr5MuhdDCJrVULhskRWvvSDqPEjhiknEsspBhg8a4mAhJf/zKipHLo1AoEEpMxGuYQpXDFAvJoRbLsubxkmnOX7n57rgitZFP9PRQz/weyVR02VcnxHJN1E4xeHmwIfrhRuZ+nbxGvd4CqwHwMqsRA0ForeHmX1ms4GFp88yjznvTSpc2iMQTia1weY1q6joTcMi581sdZvnIFyntok6rvgLA+ZjFIuYzlqU8qSshjOeJY79G0ieBHAawG7fZ7dvu+omL+7X9lcRshndUIO3XHGOrpvVdQAvBPD2UOa0ho30GmuEeuTDoblBYBtwA3th9NgB8MEp963ARqL/Mobnc5n4om0RrjnlSb2azvaBGV9nNPc3ANhN8qL7eNcqgf1zWoTQIdly08xxy6VEOEwsYY9QkZFXzOUsAHwVwI1OyJWwb5ZUdmQVxQBFheqwwl9k0q4d6uG6rmyZh0guef/yimu5mvDqrJnlUrjmxeFaA8qTcgDfbmDV8v4wes3Rr5PrAXgTgEPB53sNySMA/p2QuR2CzafNbE2Em25YZFAcDm6SrGY1Brc5FGFm1gXwPQDvCMpW3oe9SRnTywH8FsDF0Ne2/8DKTMcxAL8i2ZoHNVyUwK8NucN5k+bUYqPyd98IOe5hbVchkzoV9AY45vNQUnUhmeK4hv5MsqjGq2GSdxHmPBz2dqUaL4lwzS1Pakqf9ydTHN8J4PcJkdaSyT7lj+qTAO4LZH2OCDf9vs9bDjIuH3EZwF/N7Mqw0XhY4uIsnh3nE+FmoBycI6L1EsIsD1l+7Jrb4LG4lSGuhQiH7Y3gz6tJ7aRpuaQEqmrAUU59vJxs6kAVv1I41A9ad5ISprr3jCMUoopwOxzZBCtEMhFu+nML5k3hUrXLd4rfrUk0s/+xFAOKRzVrq8F+EOd4wLNVdS5EuNncwGKOlC2fQJbE5nHBG/lwzboWG1HZ507dF0Xhsjm7lnQ5h6UthEVMhMNMKkeyOS6tGsUsLlesdQxlGnbYkv/l7KxNVmbKSBYAzuP61FR3BPPYSa7/mfLvzVaEasLS+4s+iWZaZLuu+HHIje0mdXFppmFYLjUdJJTtDvk5e6OsdSfCja9wnBXhwiz+oyTvdUJ13EyuhcR6WQ5elpO/OfS77gib4dEA0R16gORdYfpikSyaaKG86QqADwA4NyviqR5u64vbZOjXsp1Hfw5q3b7nYbGdzgg/sOcGMuXorybwxprn/biZnRtnuQsNGjZMi806Dmdm6wDeC+Dv2JgMPWwwYGFm1zI2JmDXwYGw2marRsqsPPaDZvbgLMm20D5c6kBvh/lws1S4D3eB5HH0H06yEh7Q9jcAXwtmLUd/ln8vlJKfqTHHtCTvd9B/wElZoh6fcmNuNr8O4NW+vQPgFIB7XI31OMxxJqKQ/GHyYJAbSFo5cXiE1ZBqkyt9VcwOA8nPksxJrnvfHpvy93OY5H+8D12SPZJvi30Utka4wgl38yxDIr5qkpFcJvmk963r79/wdssk2yRb8TXGuVrJq02yQ3IXyb/4Odf8/RNNIts8m9RuMDV7APyc5Ck3ZXtCqIGJSSrC6M0qTLIlI+A4Az9PTNiuJMuRuzm9ERsB6RzA3SQfM7MfbHX+aMWsfZBsm9k6yS/7AGLNr/8hM/uWb+9JrramcD8Kpitn81B4v3r++TzJQxVxuC3HAP39mJ+3/D7+S/KmUn2h1NbE+r/U0OuwsH5Jjv50vpPlSgCTeGCbjzhzks8H8M1EfT9iZqcAZE1a8GYenwhdTjg5jP7jKYuK6ymSChKrWtESz168EAOeFF31xOdBi0Ez7LMLwL0AbikfQAfgi2b2pa2aufAgOwPwMPpLR5TnuN/M7pEp3ZkuwGE3bz03d6skb92qI+/LuoLkp92Urvr7IySXfDBhSoBP1pdrev9b7swfR/9BvaUCPQ7gKPqJd44aIywHHiRfC+BRdysM/UVvbjOzJ2cd4BVm98NoJ2GcUolOxO1jhEX2kvxTEgI5rnibCFfG5/aR/EdCkDtHJUgg8P0Jgb9bbl+kJ0gLWwtd3O5kKzMAT5cB6zqhi3Cc9yTEfcIVLxPZhFSZPpqQ5dE6Tn6IPx7ymF6ZuloneVSmVKj0vfzzzxLSfWGYPxf8tozkT5N9PyWyCZv5cy/2BHsZKumSfOsg4lT4bSXZfiy/TRjXDztN8kVpKiq0PxJSVyT5P5IvaVrqSmg26R5ISPdQsr2sQjnoI9zC266RfJdMqTBqOdOKDxoi6e4OZrIkXuq3fX6cGJ4glQPJ29xM9vy1SvL1od3HErI97nVvLfltwrihkrsqSLWb5K1OwDJu9wzJWyZd4iTsTKU7kQwKniD5VFI5fKf8NmFS/twBJ1kkGF3ZYupKZBMmVsX8OpKXQ6VwSbx/uYlV6kqYuD/3uaByZXn6HVI3YVtSX0n6iiS/ohCIsN2m9VVOtj84ARUCEbaddHeQfOW4E7cFYeS15kQ2YarxOQV3BUEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQJoP/A3fwyCUCozeqAAAAAElFTkSuQmCC");   --rl-glyph-size: 150%; }
 /* Rune Combiner (V3.14 / V4.20): the blue recycle button after save. */
 /* Rounded chasing-arrows (Moebius) loop, as on the 2012 / 2013 client
    button: three thick arcs on one circle, each ending in an arrowhead
-   (rl-glyph-combine.svg, drawn for this page). */
+   (images/runes/rl-glyph-combine.svg, drawn for this page; inlined). */
 .rl-btn-combine {
-    --rl-glyph: url(../images/runes/rl-glyph-combine.svg);
+    --rl-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9.17 10.45 L9.50 9.88 Q12.00 5.55 14.50 9.88 L14.68 10.19' fill='none' stroke='%23000' stroke-width='3.80' stroke-linejoin='round'/%3E%3Cpath d='M11.56 11.99 L16.38 13.14 L17.80 8.39 Z' stroke='%23000' stroke-width='0.6' stroke-linejoin='round'/%3E%3Cpath d='M16.62 13.55 L16.95 14.12 Q19.45 18.45 14.45 18.45 L14.09 18.45' fill='none' stroke='%23000' stroke-width='3.80' stroke-linejoin='round'/%3E%3Cpath d='M14.10 14.85 L10.69 18.45 L14.09 22.05 Z' stroke='%23000' stroke-width='0.6' stroke-linejoin='round'/%3E%3Cpath d='M10.21 18.45 L9.55 18.45 Q4.55 18.45 7.05 14.12 L7.23 13.81' fill='none' stroke='%23000' stroke-width='3.80' stroke-linejoin='round'/%3E%3Cpath d='M10.35 15.61 L8.93 10.86 L4.12 12.01 Z' stroke='%23000' stroke-width='0.6' stroke-linejoin='round'/%3E%3C/svg%3E");
     --rl-glyph-size: 112%;          /* 2013: the loop spans ~70% of the
                                        button height, ~56% of its width */
 }
@@ -737,6 +807,31 @@ body[data-client="air"] .rl-actions .air-btn.rl-btn:disabled {
     font-size: calc(13px * var(--k));
     font-weight: 400;
 }
+
+/* --- A8. Per-patch looks. The S1 (2010) and S2 (2012) rune pages had the
+       same panels as 2013-2015 (compare/runes-s1s2/refs: Sep 2010, Apr /
+       Jun 2011, Feb / Apr / Nov 2012); their sheet head is air-sheet.css
+       §6-§7b. What differs here is the tier filter. Up to V1.0.0.138 each
+       box carries its own label, "☑ Tier: 1 ☑ Tier: 2 ☑ Tier: 3" across
+       the band, 59u apart from 28u in (Apr 2011, Feb 2012 and Apr 2012
+       crop_library_2012.png agree); by Nov 2012 (U3roxt1ImV8, V1.0.0.150)
+       the client shows 2013-2015's "Tier: ☑1 ☑2 ☑3". The change is
+       undated in between, so runes-calculator.js applyEraChrome sets
+       .legacy-app[data-rl-tiers="each"] for patches before V1.0.0.151. -- */
+body[data-client="air"] .legacy-app[data-rl-tiers="each"] .rl-tier-label { display: none; }
+body[data-client="air"] .legacy-app[data-rl-tiers="each"] .rl-tiers { left: calc(28 * var(--u)); }
+body[data-client="air"] .legacy-app[data-rl-tiers="each"] .rl-tier {
+    width: calc(59 * var(--u));
+    margin-right: 0;
+    font-size: calc(12.5 * var(--u));
+}
+body[data-client="air"] .legacy-app[data-rl-tiers="each"] .rl-tier input { margin-right: calc(4.5 * var(--u)); }
+body[data-client="air"] .legacy-app[data-rl-tiers="each"] .rl-tier span::before { content: "Tier: "; }
+
+/* A patch switch whose catalog is still loading (runes-calculator.js
+   setRuneLoading, after 150 ms): the page on screen stays, busy cursor. */
+.legacy-app[data-rl-loading],
+.legacy-app[data-rl-loading] * { cursor: progress !important; }
 
 /* ==========================================================================
    §B  LCU client (V7.21): the League Client's legacy rune page, laid out
@@ -866,10 +961,12 @@ body[data-client="lcu"] .rl-lcu-actions {
     align-items: center;
     gap: 21px;
 }
+/* images/lcu/icon-clearall.png, inlined (file:// masks, see A6). */
 body[data-client="lcu"] .rl-lcu-clear.lcu-circle-btn::after {
     --lcu-icon-size: 16px;
-    -webkit-mask-image: url(../images/lcu/icon-clearall.png);
-    mask-image: url(../images/lcu/icon-clearall.png);
+    --rl-clearall: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAACJElEQVR42uzcv0rDcBAH8OSHCro4OPkQDi66VlAsiPoe4iA+gIO4V/BJBB1EEMGlgqDgQzg5dNBBh3g/rRBSf0nucq255HvwXUpo6Ye0ubv+iZMkiVDhciAAEIAABCAAAQhAAEIBSFBT2RsGL89QGdb84tIo0LDqPqDFeInhPQhAAAIQCkAA0m4UJ91n4AwCEIAAhAIQgAD0T61HCCgZc7i1QLmjdBSf+yplT9oo1qk8zjVlmXJJ2aLcKuBcUeYpM5RTqy+xNI6vuSFSRwnHV49yYBEoixMpIGVxoiIkZwynClIIJxeprkDnOTgSpCKcNNK+BaAjynuJ48oglcXxNaA8WAC6oWwrIHFxupR+GaB4zJkEUmUcC5d5KZIKjpVRQ4KkgmNpFuMiqeBYG1Y5SCo4FtcdGkilcazug6ogsXCsAkmR2Dh5645xfz9IY/n1RvlkHD9NmeU+iNUziNPnpK9uF5S1pgNJcMRIrkU4IiTXMhw2kmsgzoDRcRciuQbidJljSS6SayBOXzC7BZHqvA+qurJQQXINO3OqbgFGkOoKtKK4suAinVgAOqMcKs5WZZGeKDtW3qR7OUiSwbMI6ZGyTnm1dBX7C0k0lRcgeZyNLI6VPiiN5HE2hTghpCBO3rqjjkgf0c+HevcK9/eLdEzZDeF89zvZ/+5o2Q/qfE8W3H35H9S1/St4hYvBGP/+0qx9EIAABCAAAQgFIAABaEL1JcAAQDu8n20e6ngAAAAASUVORK5CYII=");
+    -webkit-mask-image: var(--rl-clearall);
+    mask-image: var(--rl-clearall);
 }
 /* SAVE: 112x32 uikit flat button. Spectral SC caps run wider than
    Beaufort's, so the client's 0.075em tracking is cut until the word spans

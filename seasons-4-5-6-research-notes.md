@@ -1,5 +1,7 @@
 # Seasons 4 / 5 / 6 (pre-rework) mastery research notes
 
+> **Superseded data (per-patch rework, 2026-10).** The files in the table below are gone. Seasons 4 and 5 are now 9 per-patch datasets (V3.14 … V5.21), generated from Data Dragon by `tools/build-masteries.js` into `data/masteries/`; see `data/patches/masteries.json` (listed patches, changes, sources), `data/patches/masteries-overrides.json` and `data/sources/masteries/corrections-vs-legacy.json`. Season boundaries follow `data/patches/seasons.json`: a preseason patch belongs to the next season, so V4.20 is now Season 5. Kept as research history.
+
 ## Files produced
 
 | File | Variable | Patch represented |

@@ -223,9 +223,16 @@ function main() {
         if (rc && rc.ui_flags && rc.ui_flags.length) rec.notes = rc.ui_flags.map(function(f){ return "UI: " + f; });
         records.push(rec);
     });
-    // stale source files
+    // stale source files. Patches listed by hand in the curated listing (e.g.
+    // V13.17, added for the Future's Market export fix) are not in the research
+    // seed, so keep their sources unless --reseed rebuilds the listing too.
+    var curated = {};
+    var listingPath = path.join(ROOT, "data", "patches", "reforged.json");
+    if (!args.reseed && fs.existsSync(listingPath)) {
+        (JSON.parse(fs.readFileSync(listingPath, "utf8")).patches || []).forEach(function(r){ curated[r.patch + ".json"] = true; });
+    }
     fs.readdirSync(srcDir).forEach(function(n){
-        if (/^V.*\.json$/.test(n) && !kept[n]) { fs.unlinkSync(path.join(srcDir, n)); written.push("data/sources/reforged/" + n + " (removed)"); }
+        if (/^V.*\.json$/.test(n) && !kept[n] && !curated[n]) { fs.unlinkSync(path.join(srcDir, n)); written.push("data/sources/reforged/" + n + " (removed)"); }
     });
 
     // 4. Shard eras (for T7b's runes-reforged-data.js tables).

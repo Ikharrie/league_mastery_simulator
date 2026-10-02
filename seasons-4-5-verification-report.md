@@ -1,5 +1,7 @@
 # Mastery Data Verification Report — Season 4 & Season 5
 
+> **Superseded data (per-patch rework, 2026-10).** `season4-data.js` and `season5-data.js` are gone; the values checked here now come from Data Dragon per patch (`data/masteries/`, built by `tools/build-masteries.js`). The discrepancies below are resolved in `data/sources/masteries/corrections-vs-legacy.json` and guarded by `tools/fixtures/spotchecks.json` (`tools/check-patches.js`, check M6). Kept as research history.
+
 Verifies the repo's Season 4 (`season4-data.js` / `season4FinalData`) and
 Season 5 (`season5-data.js` / `season5FinalData`) 30-point mastery datasets
 against the LoL wiki (https://wiki.leagueoflegends.com/en-us/) for the

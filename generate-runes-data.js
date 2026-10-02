@@ -4,14 +4,12 @@
 //     node generate-runes-data.js              build data/runes/catalog-*.js and
 //                                              data/runes/manifest.json, run R1-R7
 //     node generate-runes-data.js --check      build in memory only; exit 1 when an
-//                                              output (or runes-data.js) would change
+//                                              output would change
 //     node generate-runes-data.js --audit <raw cache>
 //                                              C3: every DDragon patch in <raw>/rune
 //                                              equals the listed patch in effect,
-//                                              apart from listed noise
-//     node generate-runes-data.js --legacy     write runes-data.js exactly as the
-//                                              pre-per-patch generator did (kept
-//                                              until phase 2 drops runes-data.js)
+//                                              apart from listed noise (no build;
+//                                              --check --audit <raw> runs both)
 //
 // Inputs (all committed):
 //   data/patches/runes.json             the 25 listed patches (season, reason, source, changes)
@@ -46,7 +44,6 @@ const NOISE_FILE = path.join(ROOT, "data", "patches", "noise", "runes.json");
 const OUT_DIR = path.join(ROOT, "data", "runes");
 const MANIFEST_FILE = path.join(OUT_DIR, "manifest.json");
 const IMAGE_DIR = path.join(ROOT, "images", "runes");
-const LEGACY_OUTPUT = path.join(ROOT, "runes-data.js");
 
 const GENERATOR = "generate-runes-data.js";
 const KIND = "runes";
@@ -709,11 +706,6 @@ function runCheck() {
         if (old !== o.text) problems.push((old === null ? "missing " : "out of date ") + relPath(o.file));
     }
     for (const f of staleOutputs(result.outputs)) problems.push("stale " + relPath(f));
-    if (fs.existsSync(LEGACY_OUTPUT)) {
-        const legacy = renderLegacy().text;
-        if (normalizeEol(fs.readFileSync(LEGACY_OUTPUT, "utf8")) !== legacy) problems.push("runes-data.js differs from the --legacy output");
-        else console.log("runes-data.js matches the --legacy output byte for byte.");
-    }
     summarize(result);
     if (problems.length) {
         console.error("Check failed:\n  " + problems.join("\n  "));
@@ -778,258 +770,16 @@ function runAudit(rawDir) {
 }
 
 // ---------------------------------------------------------------------------
-// Legacy runes-data.js (until phase 2 removes it). Byte-identical to the
-// output of the generator at commit 9a0c627; the catalogs now come from
-// data/sources/runes/ddragon/. The V6.24 dataset reads 6.22.1: the 6.24.1
-// catalog it used is identical at calculator level (the V6.22-V7.2 state), so
-// only its version string is carried over.
-// ---------------------------------------------------------------------------
-
-const LEGACY_DATASETS = [
-    {
-        source: "7.21.1",
-        catalog: "runes-V7.21.1.json",
-        id: "preReforged-V7.21",
-        season: 7,
-        seasonLabel: "Season 7 (Pre-Reforged)",
-        patch: "V7.21",
-        patchLabel: "V7.21 (Final pre-Reforged)",
-    },
-    {
-        source: "6.22.1",
-        version: "6.24.1",
-        catalog: "runes-V6.24.1.json",
-        id: "preReforged-V6.24",
-        season: 6,
-        seasonLabel: "Season 6",
-        patch: "V6.24",
-        patchLabel: "V6.24 (Late Season 6)",
-    },
-    {
-        source: "5.21.1",
-        catalog: "runes-V5.21.1.json",
-        id: "preReforged-V5.21",
-        season: 5,
-        seasonLabel: "Season 5",
-        patch: "V5.21",
-        patchLabel: "V5.21 (Late Season 5)",
-    },
-    {
-        source: "4.20.2",
-        catalog: "runes-V4.20.2.json",
-        id: "preReforged-V4.20",
-        season: 4,
-        seasonLabel: "Season 4",
-        patch: "V4.20",
-        patchLabel: "V4.20 (Late Season 4)",
-    },
-    {
-        source: "3.14.41",
-        catalog: "runes-V3.14.41.json",
-        id: "preReforged-V3.14",
-        season: 3,
-        seasonLabel: "Season 3",
-        patch: "V3.14",
-        patchLabel: "V3.14 (Late Season 3)",
-    },
-];
-
-// Legacy description fixes (the per-patch catalogs use runes-overrides.json
-// ro-001/ro-003 instead). 5401 Mark of Precision (V6.22-V7.21 catalogs):
-// "+0.7 Leth / +0.48 M.Pen" is stale short text; the client data says
-// "+0.88 Lethality / +0.48 Magic Penetration".
-const LEGACY_DESC_FIXES = {
-    "5401": { was: "+0.7 Leth / +0.48 M.Pen", desc: "+0.88 Lethality / +0.48 Magic Penetration" },
-};
-
-function legacyRuneDescription(id, entry) {
-    const fix = LEGACY_DESC_FIXES[id];
-    return fix && entry.description === fix.was ? fix.desc : entry.description;
-}
-
-function legacyConvertStats(id, entry) {
-    const base = {};
-    const perLevel = {};
-    for (const [ddKey, raw] of Object.entries(entry.stats || {})) {
-        if (!raw) continue;
-        const map = STAT_MAP[ddKey];
-        if (!map) throw new Error(`Unmapped stat key ${ddKey} on rune ${id} (${entry.name})`);
-        const target = map.perLevel ? perLevel : base;
-        target[map.key] = round4((target[map.key] || 0) + raw * (map.mult || 1));
-    }
-    const desc = legacyRuneDescription(id, entry);
-    if (/\bLeth\b/i.test(desc))
-        throw new Error(`Rune ${id} (${entry.name}): short lethality text "${desc}"; check it against the client data and add a DESC_FIXES entry`);
-    const descStat = (re, key, target = base) => {
-        const m = re.exec(desc);
-        if (m && !(key in target)) target[key] = round4(parseFloat(m[1]));
-    };
-    descStat(/\+([\d.]+)\s+lethality\b/i, "lethality");
-    descStat(/\+([\d.]+)\s+magic\s+penetration\b/i, "mpen");
-    descStat(/\+([\d.]+)%\s+life\s?steal/i, "ls");
-    descStat(/\+([\d.]+)%\s+spell\s?vamp/i, "sv");
-    descStat(/\+([\d.]+)\s+Energy regen\/5 sec per level/i, "energyRegen", perLevel);
-    if (!("energyRegen" in perLevel)) descStat(/\+([\d.]+)\s+Energy regen\/5 sec/i, "energyRegen");
-    descStat(/\+([\d.]+)\s+Energy\/level/i, "energy", perLevel);
-    if (!("energy" in perLevel)) descStat(/\+([\d.]+)\s+Energy(?!\s*regen|\/level)/i, "energy");
-    return { base, perLevel };
-}
-
-function legacyParseCatalog(catalog) {
-    const runes = [];
-    for (const [id, entry] of Object.entries(catalog.data)) {
-        const category = CATEGORY_BY_TYPE[entry.rune.type];
-        if (!category) throw new Error(`Unknown rune type ${entry.rune.type} on ${id}`);
-        const { base, perLevel } = legacyConvertStats(id, entry);
-        if (!Object.keys(base).length && !Object.keys(perLevel).length)
-            throw new Error(`Rune ${id} (${entry.name}) has no stats`);
-        runes.push({
-            id: id,
-            name: entry.name,
-            category: category,
-            tier: Number(entry.rune.tier),
-            icon: entry.image.full,
-            desc: legacyRuneDescription(id, entry),
-            event: isEventRune(id),
-            base: base,
-            perLevel: perLevel,
-        });
-    }
-    runes.sort((a, b) =>
-        CATEGORY_ORDER[a.category] - CATEGORY_ORDER[b.category]
-        || (a.event ? 1 : 0) - (b.event ? 1 : 0)
-        || b.tier - a.tier                       // Greater (T3) first
-        || a.name.localeCompare(b.name));
-    return runes;
-}
-
-function legacyRuneLines(runes) {
-    const lines = [];
-    for (const r of runes) {
-        const parts = [
-            `id: ${JSON.stringify(r.id)}`,
-            `name: ${JSON.stringify(r.name)}`,
-            `category: ${JSON.stringify(r.category)}`,
-            `tier: ${r.tier}`,
-            `icon: ${JSON.stringify(r.icon)}`,
-            `desc: ${JSON.stringify(r.desc)}`,
-        ];
-        if (r.event) parts.push("event: true");
-        if (Object.keys(r.base).length) parts.push(`base: ${JSON.stringify(r.base).replace(/"/g, "").replace(/,/g, ", ").replace(/:/g, ": ")}`);
-        if (Object.keys(r.perLevel).length) parts.push(`perLevel: ${JSON.stringify(r.perLevel).replace(/"/g, "").replace(/,/g, ", ").replace(/:/g, ": ")}`);
-        lines.push(`            { ${parts.join(", ")} },`);
-    }
-    return lines.join("\n");
-}
-
-function legacyDataSetBlock(cfg, version, runes) {
-    return `    {
-        id: ${JSON.stringify(cfg.id)},
-        season: ${cfg.season},
-        seasonLabel: ${JSON.stringify(cfg.seasonLabel)},
-        patch: ${JSON.stringify(cfg.patch)},
-        patchLabel: ${JSON.stringify(cfg.patchLabel)},
-        slots: { mark: 9, seal: 9, glyph: 9, quintessence: 3 },
-        ddragonVersion: ${JSON.stringify(version)},
-        iconBasePath: "images/runes/",
-        parchmentImage: "images/runes/summoners_runes_bg.jpg",
-        runes: [
-${legacyRuneLines(runes)}
-        ],
-    },`;
-}
-
-function renderLegacy() {
-    const blocks = [];
-    const summary = [];
-    for (const cfg of LEGACY_DATASETS) {
-        const catalog = loadSource({ ddragon: cfg.source });
-        const version = cfg.version || catalog.version;
-        const runes = legacyParseCatalog(catalog);
-        blocks.push(legacyDataSetBlock(cfg, version, runes));
-        const byCat = {};
-        for (const r of runes) byCat[r.category] = (byCat[r.category] || 0) + 1;
-        summary.push({ id: cfg.id, version: version, count: runes.length, byCat });
-    }
-    const wrap = (text, prefix) => {
-        const lines = [];
-        let line = prefix;
-        for (const word of text.split(" ")) {
-            if (line.length + word.length + 1 > 79 && line.trim() !== "//") { lines.push(line); line = "//"; }
-            line += " " + word;
-        }
-        lines.push(line);
-        return lines.join("\n");
-    };
-    const andList = (items) => items.length < 2 ? items.join("") : items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
-    const snapshots = LEGACY_DATASETS.map((cfg) => cfg.patchLabel);
-    const catalogs = LEGACY_DATASETS.map((cfg) => cfg.catalog);
-    const fixedIds = Object.keys(LEGACY_DESC_FIXES).join(", ");
-    const text = `// Pre-Runes-Reforged rune catalogs (the system retired with patch V7.22 on
-// 2017-11-08). Ships one dataset per pre-Reforged snapshot we support, the
-${wrap(`first being the default: ${andList(snapshots)}.`, "//")}
-//
-// GENERATED FILE — do not edit by hand. Regenerate with:
-//     node generate-runes-data.js
-// Sources of truth: the Riot Data Dragon rune.json catalogs under data/
-${wrap(`(${catalogs.join(", ")}). Stats, names, tiers, and icon filenames come straight from Riot's data; Lethality values are parsed from description text on catalogs that carry them (V6.22+). Older catalogs express physical penetration as flat armor penetration and are mapped to the "arpen" stat instead. Description text Data Dragon gets wrong is replaced by a cited fix in the generator's DESC_FIXES before parsing (rune ${fixedIds}).`, "//")}
-//
-// Each rune entry has:
-//   id          Riot's numeric rune id (stable; used in shareable URLs)
-//   name        full in-game name
-//   category    "mark" | "seal" | "glyph" | "quintessence"
-//   tier        1 (Lesser) | 2 (standard) | 3 (Greater)
-//   icon        icon filename under images/runes/
-//   desc        official tooltip text
-//   event       true for limited-event runes (Snowdown / Harrowing / Razer)
-//   base        flat stats applied at all levels
-//   perLevel    stats added per champion level
-//
-// Stat keys: ad, ap, as, crit, critDmg, armor, mr, hp, mp, hpRegen, mpRegen,
-//   ms, cdr, lethality, arpen, mpen, ls, sv, gold, xp, energy, energyRegen,
-//   hpPercent, timeDead.
-// as / crit / critDmg / ms / cdr / ls / sv / xp / hpPercent / timeDead are
-// percentages (as: 1.7 → +1.7%); hpRegen / mpRegen / energyRegen are per 5s;
-// gold is per 10s; arpen / mpen are flat penetration.
-
-var runeDataSets = [
-${blocks.join("\n")}
-];
-
-var DEFAULT_RUNE_DATA_SET_ID = "preReforged-V7.21";
-
-function getRuneDataSet(id) {
-    for (var i = 0; i < runeDataSets.length; i++)
-        if (runeDataSets[i].id === id) return runeDataSets[i];
-    return null;
-}
-
-function getRuneById(dataSet, runeId) {
-    if (!dataSet || !runeId) return null;
-    for (var i = 0; i < dataSet.runes.length; i++)
-        if (dataSet.runes[i].id === runeId) return dataSet.runes[i];
-    return null;
-}
-`;
-    return { text: text, summary: summary };
-}
-
-function runLegacy() {
-    const out = renderLegacy();
-    fs.writeFileSync(LEGACY_OUTPUT, out.text);
-    for (const s of out.summary)
-        console.log(`${s.id} (DDragon ${s.version}): ${s.count} runes`, s.byCat);
-    console.log(`Wrote ${out.summary.length} datasets to ${LEGACY_OUTPUT}`);
-}
-
-// ---------------------------------------------------------------------------
 
 function main(argv) {
-    if (argv.includes("--legacy")) return runLegacy();
-    if (argv.includes("--check")) return runCheck();
     const ai = argv.indexOf("--audit");
+    const known = argv.filter((a, i) => a === "--check" || a === "--audit" || (ai >= 0 && i === ai + 1));
+    if (known.length !== argv.length) fail("unknown arguments: " + argv.join(" ") + " (use --check and/or --audit <raw>)");
+    if (ai >= 0 && (!argv[ai + 1] || /^--/.test(argv[ai + 1]))) fail("--audit needs the raw cache directory (…/scratchpad/patches/raw)");
+    // --check and --audit combine (the check first; both set the exit code).
+    if (argv.includes("--check")) runCheck();
     if (ai >= 0) return runAudit(argv[ai + 1]);
-    if (argv.length) fail("unknown arguments: " + argv.join(" ") + " (use --check, --audit <raw>, or --legacy)");
+    if (argv.includes("--check")) return;
     return runBuild();
 }
 
@@ -1037,7 +787,7 @@ module.exports = {
     STAT_MAP: STAT_MAP, APP_STAT_KEYS: APP_STAT_KEYS, CATEGORY_BY_TYPE: CATEGORY_BY_TYPE,
     trimCatalog: trimCatalog, convertRune: convertRune, convertCatalog: convertCatalog,
     buildCatalog: buildCatalog, diffPayloads: diffPayloads, buildAll: buildAll,
-    renderLegacy: renderLegacy, loadOverrides: loadOverrides,
+    loadOverrides: loadOverrides,
 };
 
 if (require.main === module) {

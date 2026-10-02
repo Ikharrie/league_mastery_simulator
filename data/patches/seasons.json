@@ -106,7 +106,7 @@
       "key": "s13", "label": "Season 13 (2023)", "startTag": "Preseason 13",
       "first": "V12.22", "firstDate": "2022-11-16", "last": "V13.24", "lastDate": "2023-12-06",
       "pages": {
-        "reforged": { "first": "V12.22", "last": "V13.24", "count": 11, "default": "rr-v13-24" }
+        "reforged": { "first": "V12.22", "last": "V13.24", "count": 12, "default": "rr-v13-24" }
       }
     },
     {

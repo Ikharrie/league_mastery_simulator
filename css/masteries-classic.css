@@ -88,6 +88,12 @@
     cursor: pointer;
 }
 #calculator .button.unavailable { cursor: default; }
+/* A Patch / Season switch whose data file takes over 150 ms to arrive
+   (calculator.js masteryLoading): the current view stays, the pointer says
+   it is busy. */
+body.ms-loading,
+body.ms-loading #calculator .button,
+body.ms-loading #keystone-calculator .ks-mastery { cursor: progress; }
 #calculator .button .ms-art {
     position: absolute;
     left: 3px;

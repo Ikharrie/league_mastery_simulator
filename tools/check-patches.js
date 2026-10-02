@@ -30,12 +30,13 @@
 //        [--audit [<raw cache dir>]] [--json <file>] [--verbose] [--allow-skip]
 //   --only      run these checks (ids or prefixes: --only G,M6)
 //   --root      the site to check (default: the repo)
-//   --research  fallbacks while data/sources/** is not committed yet: the
+//   --research  fallbacks for a site without the committed sources: the
 //               DDragon builds <dir>/raw/mastery/mastery-<build>.json (M2,
 //               M5) and the versions list <dir>/raw/versions.json (G3). Read
-//               only; nothing is ever downloaded
-//   --ddragon   the DDragon versions list for G3 (default
-//               data/sources/ddragon-versions.json, then --research)
+//               only; nothing is ever downloaded. Not needed in the repo
+//   --ddragon   the DDragon versions list for G3 (default the committed
+//               data/sources/ddragon-versions.json, written by
+//               tools/import-ddragon-versions.js; then --research)
 //   --audit     also run the optional audits C3 and F3 against the shared
 //               download cache: <raw>/mastery/mastery-<build>.json,
 //               <raw>/rune/rune-<build>.json,
@@ -68,7 +69,7 @@ const LISTED = {
     masteries: {
         s1: "V1.0.0.32° V1.0.0.52 V1.0.0.61 V1.0.0.63 V1.0.0.72 V1.0.0.101 V1.0.0.109 V1.0.0.110 V1.0.0.118b V1.0.0.128°",
         s2: "V1.0.0.129* V1.0.0.131 V1.0.0.133 V1.0.0.151°",
-        s3: "V1.0.0.152* V3.13°",
+        s3: "V1.0.0.152* V3.13*",
         s4: "V3.14* V3.15 V4.2 V4.5 V4.19°",
         s5: "V4.20° V5.10 V5.12 V5.21°",
         s6: "V5.22* V5.23 V5.24 V6.1 V6.2 V6.4 V6.7 V6.8 V6.12 V6.21°",
@@ -89,7 +90,8 @@ const LISTED = {
         s10: "V9.23* V9.24 V10.1 V10.4 V10.5 V10.6 V10.7 V10.12 V10.13 V10.14 V10.15 V10.16 V10.18 V10.20 V10.21 V10.22°",
         s11: "V10.23* V11.1 V11.2 V11.6 V11.10 V11.11 V11.13 V11.17 V11.19 V11.21 V11.22°",
         s12: "V11.23* V11.24 V12.1 V12.2 V12.6 V12.7 V12.10 V12.11 V12.12 V12.14 V12.15 V12.20 V12.21°",
-        s13: "V12.22° V13.1 V13.3 V13.4 V13.5 V13.6 V13.12 V13.15 V13.20 V13.21 V13.24°",
+        // V13.17: the client's Future's Market debt limit (export fix rro-004; §3.2 had 11 before it)
+        s13: "V12.22° V13.1 V13.3 V13.4 V13.5 V13.6 V13.12 V13.15 V13.17 V13.20 V13.21 V13.24°",
         s14: "V14.1* V14.2 V14.4 V14.10 V14.11 V14.12 V14.13 V14.14 V14.15 V14.17 V14.18 V14.19 V14.20 V14.21 V14.24°",
         s2025: "V25.S1.1* V25.S1.2 V25.S1.3 V25.05 V25.09 V25.10 V25.12 V25.14 V25.19 V25.21 V25.22 V25.24*",
         s2026: "V26.01* V26.03 V26.09 V26.10 V26.11 V26.13 V26.15 V26.16 V26.17 V26.19°"
@@ -97,9 +99,9 @@ const LISTED = {
 };
 // §0
 const EXPECT_TOTALS = {
-    masteries: { total: 42, noChange: 9, change: 33, perSeason: { s1: 10, s2: 4, s3: 2, s4: 5, s5: 4, s6: 10, s7: 7 } },
+    masteries: { total: 42, noChange: 8, change: 34, perSeason: { s1: 10, s2: 4, s3: 2, s4: 5, s5: 4, s6: 10, s7: 7 } },
     runes: { total: 25, noChange: 11, change: 14, perSeason: { s1: 8, s2: 5, s3: 3, s4: 3, s5: 2, s6: 2, s7: 2 } },
-    reforged: { total: 123, noChange: 9, change: 114, perSeason: { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 11, s14: 15, s2025: 12, s2026: 10 } }
+    reforged: { total: 124, noChange: 9, change: 115, perSeason: { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 12, s14: 15, s2025: 12, s2026: 10 } }
 };
 // §3.1
 const SEASONS = [
@@ -1669,7 +1671,7 @@ function checkG3(world, c) {
     });
     // DDragon era: the patch before each season start is the previous season's last
     const dd = world.ddragonPatches();
-    if (!dd) { c.skip("DDragon boundaries: no versions list (data/sources/ddragon-versions.json has no owner yet; pass --ddragon <versions.json> or --research <dir>)"); return; }
+    if (!dd) { c.skip("DDragon boundaries: no versions list (data/sources/ddragon-versions.json missing: run tools/import-ddragon-versions.js, or pass --ddragon <versions.json> or --research <dir>)"); return; }
     if (dd.error) { c.fail(dd.error); return; }
     let bad = 0;
     const live = dd.patches.filter(function (p) { return cmp(p, "V3.7") >= 0; });
@@ -2501,7 +2503,12 @@ function checkM5(world, c) {
     const s3 = sets.filter(function (x) { return x.entry.season === "s3" || (entryPatch(x.entry) && inRange(x.entry.patch, "V1.0.0.152", "V3.13")); });
     if (!s3.length) { c.skip("no S3 mastery dataset yet"); return; }
     s3.forEach(function (x) {
+        // Each S3 patch against the DDragon builds its listing record names
+        // (source.crossCheck: V1.0.0.152 3.6.14, V3.13 3.13.24), else both.
+        const rec = world.listingRecord("masteries", x.entry.patch);
+        const cc = rec && rec.source && Array.isArray(rec.source.crossCheck) ? rec.source.crossCheck : builds;
         srcs.forEach(function (src, si) {
+            if (cc.indexOf(builds[si]) < 0) return;
             const byName = {};
             Object.keys(src.data).forEach(function (id) { byName[String(src.data[id].name).trim().toLowerCase()] = src.data[id]; });
             let ranksChecked = 0, bad = 0;

@@ -20,23 +20,11 @@
 //
 // Seasons, patches, eras and labels come from the registry (patch-registry.js
 // via lol-data.js LolPatches); nothing here parses dataset ids any more.
-// TRANSITION: while LolPatches.shellMode() is "legacy" (lol-data.js header)
-// the season table and the boot helpers keep their pre-registry behaviour for
-// the calculators that still run on the old data files. Those branches are
-// marked TRANSITION; phase 2 deletes them.
-
-function lolShellLegacy() {
-    return !window.LolPatches || LolPatches.shellMode() === "legacy";
-}
 
 // ---------------------------------------------------------------------------
 // 1. Client era (DECISIONS.md §1). The registry entry carries it (DESIGN
 // §3.5: lcu for V7.1+ and every Runes Reforged patch, air otherwise).
 // ---------------------------------------------------------------------------
-
-// TRANSITION: the pre-registry rule, kept as the fallback for ids the
-// registry cannot resolve (it agrees with the registry on every legacy id).
-var LCU_ERA_DATASETS = { "s7-final": true, "preReforged-V7.21": true };
 
 function clientEraFor(x) {
     if (x && typeof x === "object") return x.era === "lcu" ? "lcu" : "air";
@@ -46,8 +34,8 @@ function clientEraFor(x) {
         var page = LolPatches.pageOfId(id), r = page ? LolPatches.resolve(page, id) : null;
         if (r && r.entry.era) return r.entry.era;
     }
-    if (/^rr-/.test(id)) return "lcu";
-    return LCU_ERA_DATASETS[id] ? "lcu" : "air";
+    // an id the registry cannot resolve: Runes Reforged is LCU, the rest AIR
+    return /^rr-/.test(id) ? "lcu" : "air";
 }
 
 function setClientEra(era) {
@@ -66,12 +54,6 @@ function setClientEra(era) {
 // already has the right backdrop for deep links: the era of the entry the
 // hash opens (the page default for an empty or unknown hash).
 function lolBootClientEra() {
-    if (lolShellLegacy()) {                                   // TRANSITION
-        var first = String(location.hash || "").replace(/^#/, "").split("|")[0];
-        if (/^(s\d+-|preReforged-|rr-)/.test(first)) setClientEra(clientEraFor(first));
-        else if (document.body) setClientEra(document.body.getAttribute("data-client") || "air");
-        return;
-    }
     var r = LolPatches.fromHash(LolPatches.page());
     setClientEra(r.entry ? r.entry.era : (document.body && document.body.getAttribute("data-client")) || "air");
 }
@@ -87,43 +69,11 @@ function lolBootClientEra() {
 // did not exist then.
 // ---------------------------------------------------------------------------
 
-// TRANSITION: the pre-registry season table (legacy dataset ids), used while
-// the old calculators run (lolShellLegacy()).
-var LOL_LEGACY_SEASON_NAV = [
-    { key: "s1",    label: "Season 1",           masteries: "s1-final",    runes: null },
-    { key: "s2",    label: "Season 2",           masteries: "s2-ahri",     runes: null },
-    { key: "s3",    label: "Season 3",           masteries: "s3-pbe",      runes: "preReforged-V3.14" },
-    { key: "s4",    label: "Season 4",           masteries: "s4-final",    runes: "preReforged-V4.20" },
-    { key: "s5",    label: "Season 5",           masteries: "s5-final",    runes: "preReforged-V5.21" },
-    { key: "s6",    label: "Season 6",           masteries: "s6-launch",   runes: "preReforged-V6.24" },
-    { key: "s7",    label: "Season 7",           masteries: "s7-final",    runes: "preReforged-V7.21" },
-    { key: "s8",    label: "Season 8 (2018)",    reforged: "rr-v8-23" },
-    { key: "s9",    label: "Season 9 (2019)",    reforged: "rr-v9-23" },
-    { key: "s10",   label: "Season 10 (2020)",   reforged: "rr-v10-23" },
-    { key: "s11",   label: "Season 11 (2021)",   reforged: "rr-v11-23" },
-    { key: "s12",   label: "Season 12 (2022)",   reforged: "rr-v12-23" },
-    { key: "s13",   label: "Season 13 (2023)",   reforged: "rr-v13-24" },
-    { key: "s14",   label: "Season 14 (2024)",   reforged: "rr-v14-19" },
-    { key: "s2025", label: "Season 2025",        reforged: "rr-v25-24" },
-    { key: "s2026", label: "Season 2026 (Current)", reforged: "rr-v26-13" },
-];
-
 var SEASON_NAV_PAGE_NAMES = { masteries: "Masteries", runes: "Runes", reforged: "Runes Reforged" };
 
-// TRANSITION: why a tab is disabled, shown in the LCU tooltip on hover/focus.
-// Only the legacy table has a season without a page (S1/S2 runes); with the
-// registry every season S1-S7 has both pages.
-var SEASON_NAV_DISABLED_TIPS = {
-    runes: {
-        title: "No rune catalog",
-        body: "Runes existed from Season 1, but this calculator's rune catalog starts at V3.14 (Season 3)."
-    }
-};
-
-// The season table in use: the registry's SEASON_NAV, or the legacy one.
+// The season table: the registry's SEASON_NAV (patch-registry.js).
 function seasonNavTable() {
-    if (lolShellLegacy() || typeof SEASON_NAV === "undefined") return LOL_LEGACY_SEASON_NAV;   // TRANSITION
-    return SEASON_NAV;
+    return typeof SEASON_NAV !== "undefined" ? SEASON_NAV : [];
 }
 
 function seasonNavFind(key) {
@@ -162,9 +112,9 @@ function renderSeasonNavTabs(opts, def) {
             node.className = "header-tab" + (opts.page === page ? " active" : "");
             node.setAttribute("href", url);
         } else {
-            var tip = SEASON_NAV_DISABLED_TIPS[page] || {
-                title: label, body: "No " + label.toLowerCase() + " catalog for this season yet."
-            };
+            // A season without this page (none today: every season S1-S7
+            // has both pages); the tab stays, greyed, with a hint.
+            var tip = { title: label, body: "No " + label.toLowerCase() + " catalog for this season yet." };
             node = document.createElement("span");
             node.className = "header-tab disabled";
             node.setAttribute("aria-disabled", "true");
@@ -193,25 +143,12 @@ function seasonNavTitle(def, page) {
 // season, so "s4-final" -> s5), or null.
 function seasonKeyForDataset(id) {
     id = String(id || "");
-    if (!lolShellLegacy()) {
-        var page = LolPatches.pageOfId(id), r = page ? LolPatches.resolve(page, id) : null;
-        return r ? r.entry.season : null;
-    }
-    // TRANSITION: the legacy ids' own season ("s5-final" -> s5,
-    // "preReforged-V5.21" -> s5, "rr-v14-19" -> s14, "rr-v26-13" -> s2026).
-    var m = /^s(\d+)-/.exec(id) || /^preReforged-V(\d+)\./.exec(id);
-    if (m) return "s" + m[1];
-    m = /^rr-v(\d+)-/.exec(id);
-    if (m) { var n = parseInt(m[1], 10); return "s" + (n >= 25 ? 2000 + n : n); }
-    return null;
+    var page = LolPatches.pageOfId(id), r = page ? LolPatches.resolve(page, id) : null;
+    return r ? r.entry.season : null;
 }
 
 function lolPageType() {
-    if (window.LolPatches) return LolPatches.page();
-    var p = location.pathname || "";
-    if (/runes-reforged\.html$/i.test(p)) return "reforged";
-    if (/runes\.html$/i.test(p)) return "runes";
-    return "masteries";
+    return LolPatches.page();
 }
 
 // Inline right after </header>: make the static header match the deep link
@@ -223,26 +160,6 @@ function lolBootHeader() {
     var page = lolPageType();
     var season = document.querySelector(".legacy-header select.header-season");
     var patch = document.querySelector(".legacy-header select.header-patch");
-    var only = function(sel, value, text) {
-        if (!sel) return;
-        while (sel.firstChild) sel.removeChild(sel.firstChild);
-        var o = document.createElement("option");
-        o.value = value; o.textContent = text; o.selected = true;
-        sel.appendChild(o);
-    };
-    if (lolShellLegacy()) {                                   // TRANSITION
-        var id = String(location.hash || "").replace(/^#/, "").split("|")[0];
-        var key = seasonKeyForDataset(id), legacyDef = key ? seasonNavFind(key) : null;
-        if (!legacyDef || !legacyDef[page]) return;
-        if (season && season.value !== key) only(season, key, legacyDef.label);
-        if (patch && patch.value !== id) {
-            var v = /V(\d+\.\d+)$/.exec(id), rr = /^rr-v(\d+)-(\d+)$/.exec(id);
-            only(patch, id, v ? "V" + v[1] : rr ? "V" + rr[1] + "." + rr[2] : "…");
-        }
-        renderSeasonNavTabs({ page: page }, legacyDef);
-        seasonNavTitle(legacyDef, page);
-        return;
-    }
     var entry = LolPatches.fromHash(page).entry;
     var def = entry ? seasonNavFind(entry.season) : null;
     if (!def || !def[page]) return;
@@ -264,16 +181,13 @@ function lolBootHeader() {
 // (Re)build the season dropdown + tabs. `opts`:
 //   page          "masteries" | "runes" | "reforged"
 //   seasonSelect  selector of this page's season <select>
-//   entry         the active registry entry (its season is the current one;
-//                 passing it puts the page on the registry: useRegistry())
-//   currentKey    TRANSITION: SEASON_NAV key, for callers without an entry
+//   entry         the active registry entry (its season is the current one)
 //   onSeason(def) called when the chosen season exists on THIS page type;
 //                 switch datasets in-page (LolPatches.seasonDefault(page,
 //                 def.key)) and return true. Returning a falsy value falls
 //                 back to a cross-page navigation.
 function buildSeasonNav(opts) {
-    if (opts.entry && window.LolPatches) LolPatches.useRegistry();
-    var currentKey = opts.entry ? opts.entry.season : opts.currentKey;
+    var currentKey = opts.entry ? opts.entry.season : null;
     var $season = $(opts.seasonSelect);
     if (!$season.length) return;
     $season.empty();
@@ -661,7 +575,18 @@ var LolDropdown = window.LolDropdown = (function(){
         list.style.left = Math.max(4, Math.round(left)) + "px";
         list.style.top = Math.round(top) + "px";
         var selRow = list.querySelector(".is-selected");
-        if (selRow) list.scrollTop = Math.max(0, selRow.offsetTop - (list.clientHeight - selRow.offsetHeight) / 2);
+        if (selRow && list.scrollHeight > list.clientHeight) {
+            // Centre the selected row, snapped to a row edge so a long list
+            // (Season, S8) shows whole rows: scroll to the top of a row's
+            // text, past its separator line (base.css fits 10 rows).
+            var want = selRow.offsetTop - (list.clientHeight - selRow.offsetHeight) / 2, top = 0;
+            for (var k = 1; k < list.children.length; k++) {
+                var rk = list.children[k], at = rk.offsetTop + rk.clientTop;
+                if (at - want > rk.offsetHeight / 2) break;
+                top = at;
+            }
+            list.scrollTop = Math.min(top, list.scrollHeight - list.clientHeight);
+        }
         list.addEventListener("mousedown", function(e){ e.preventDefault(); });
         list.addEventListener("click", function(e){
             var row = lolClosest(e.target, ".lcu-dropdown-option");

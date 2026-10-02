@@ -609,9 +609,10 @@ body[data-client="lcu"]::before {
 /* --- 5b. Circle button, 28px gold ring (lol-uikit-close-button) ---------
    <button class="lcu-circle-btn" type="button" aria-label="Clear"></button>
    The glyph is an alpha mask painted in the state colour. Default glyph is
-   the uikit x-icon (10px). Swap it per use:
-     .my-clear.lcu-circle-btn::after { -webkit-mask-image: url(…/icon-clearall.png);
-                                       mask-image: url(…); --lcu-icon-size: 14px; }
+   the uikit x-icon (10px). Swap it per use (a data: URI, so it also works
+   from file://; a file url() mask is blocked there):
+     .my-clear.lcu-circle-btn::after { -webkit-mask-image: url("data:…");
+                                       mask-image: url("data:…"); --lcu-icon-size: 14px; }
    States: :hover (ring #c89b3c→#f0e6d2, face #3c3c41→#1e2328, glyph
    #f0e6d2), :active (ring #785a28→#463714, glyph #785a28), :disabled. */
 .lcu-circle-btn {
@@ -647,8 +648,10 @@ body[data-client="lcu"]::before {
     position: relative;
     width: 24px;
     height: 24px;
-    -webkit-mask: url(../images/lcu/x-icon.png) no-repeat center / var(--lcu-icon-size);
-    mask: url(../images/lcu/x-icon.png) no-repeat center / var(--lcu-icon-size);
+    /* images/lcu/x-icon.png, inlined: mask images are CORS-mode fetches,
+       which Chrome blocks for file:// URLs (a data: URI works everywhere). */
+    -webkit-mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAABK0lEQVRYhc3YMQ7CMAyF4R8kBmYOAyNwHAQS3BFWuEoXJgYYIKgqaSGOn4UlL5Ujf0MVu4V8jHqe/0XMgCOwDOw5Bza/FM6AM3AHrsQg50Dz6rkfKmzjUqqRbVzKLDKHUyNzuCxyCKdCDuE+kMcvhd7IX3AptwDrV/MIZAmuARbpYATSjItAVuOUSDecAumO80TKcB5IOa4GGYazIkNxFmQ4zhspwXkhpbhaZAjOijTjxkbgFbgV1E+AqbFXcZTcc90raPWvuBBkLU6K9MJJkKWztWQsViMtg790dpuRNVuJHOmxMsmQnvucO1KxbLohlZtwNTJiTTcjI78hTMhdEM6CPKVDhyBcCfLC89fgO/qQqk14CHnu4vqQDc93VBU5ZC+ui1TjUrSRH7gHgGC5zzLjYisAAAAASUVORK5CYII=") no-repeat center / var(--lcu-icon-size);
+    mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAABK0lEQVRYhc3YMQ7CMAyF4R8kBmYOAyNwHAQS3BFWuEoXJgYYIKgqaSGOn4UlL5Ujf0MVu4V8jHqe/0XMgCOwDOw5Bza/FM6AM3AHrsQg50Dz6rkfKmzjUqqRbVzKLDKHUyNzuCxyCKdCDuE+kMcvhd7IX3AptwDrV/MIZAmuARbpYATSjItAVuOUSDecAumO80TKcB5IOa4GGYazIkNxFmQ4zhspwXkhpbhaZAjOijTjxkbgFbgV1E+AqbFXcZTcc90raPWvuBBkLU6K9MJJkKWztWQsViMtg790dpuRNVuJHOmxMsmQnvucO1KxbLohlZtwNTJiTTcjI78hTMhdEM6CPKVDhyBcCfLC89fgO/qQqk14CHnu4vqQDc93VBU5ZC+ui1TjUrSRH7gHgGC5zzLjYisAAAAASUVORK5CYII=") no-repeat center / var(--lcu-icon-size);
     background-color: var(--hx-gold-text);
 }
 .lcu-circle-btn:hover,
@@ -727,7 +730,10 @@ body[data-client="lcu"]::before {
     position: fixed;
     z-index: 3000;
     box-sizing: border-box;
-    max-height: 300px;
+    /* 10 whole rows: 30 + 9 x 31 (1px separators) + the 2px frame. Lists of
+       up to 10 patches open in full; longer ones (Season, the 21-patch S8
+       list) scroll and show 10 rows. */
+    max-height: 311px;
     overflow-y: auto;
     border: 1px solid transparent;
     border-image: linear-gradient(to top, #695625, #463714) 1;
@@ -802,8 +808,9 @@ body[data-client="lcu"]::before {
     width: 9px;
     height: 9px;
     margin: -5px 0 0 5px;
-    -webkit-mask: url(../images/lcu/external-link-mask.png) no-repeat center / contain;
-    mask: url(../images/lcu/external-link-mask.png) no-repeat center / contain;
+    /* images/lcu/external-link-mask.png, inlined (file://, see 5b) */
+    -webkit-mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAW0lEQVR42u3TsQkAIAwF0Uyp++8haHkIinJ2kp/6XZfILdbv7sPAeTWaDsA5yclYXgk4HgQUJyA5AckJSE5AcgKSE7jlZfcrkhOQnIDkBCQnoDhLPk1yJjl75QNjlw7DNK9AmwAAAABJRU5ErkJggg==") no-repeat center / contain;
+    mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAW0lEQVR42u3TsQkAIAwF0Uyp++8haHkIinJ2kp/6XZfILdbv7sPAeTWaDsA5yclYXgk4HgQUJyA5AckJSE5AcgKSE7jlZfcrkhOQnIDkBCQnoDhLPk1yJjl75QNjlw7DNK9AmwAAAABJRU5ErkJggg==") no-repeat center / contain;
     background-color: var(--lcu-link-color);
     transition: background-color 0.3s ease-in-out;
 }

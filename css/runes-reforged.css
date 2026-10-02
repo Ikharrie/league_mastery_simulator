@@ -186,9 +186,13 @@
     -webkit-mask-size: var(--rr-icon-w) var(--rr-icon-h);
     mask-size: var(--rr-icon-w) var(--rr-icon-h);
 }
-.rr-btn-edit::after   { --rr-icon-w: 14.5px; --rr-icon-h: 13.25px; -webkit-mask-image: url(../images/runes-reforged/icons/edit.png);   mask-image: url(../images/runes-reforged/icons/edit.png); }
-.rr-btn-add::after    { --rr-icon-w: 10px;   --rr-icon-h: 10px;    -webkit-mask-image: url(../images/runes-reforged/icons/plus.png);   mask-image: url(../images/runes-reforged/icons/plus.png); }
-.rr-btn-delete::after { --rr-icon-w: 12.5px; --rr-icon-h: 14.5px;  -webkit-mask-image: url(../images/runes-reforged/icons/delete.png); mask-image: url(../images/runes-reforged/icons/delete.png); }
+/* The three glyphs are images/runes-reforged/icons/{edit,plus,delete}.png,
+   inlined so the masks also work from file:// (mask images are CORS-mode
+   fetches, which Chrome blocks for file:// URLs). */
+.rr-btn-edit::after   { --rr-icon-w: 14.5px; --rr-icon-h: 13.25px; --rr-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADoAAAA1CAYAAAAQ7fj9AAABuUlEQVR42uXaW0rDQBQG4D9jl+MCFMQX9xBdgc91NYKIUEQpgVKUUAgxjz6JCKLrOT40AyHUdK5nLv0hhAxkwsckZG4FESHilACuARwBuAVQmVY0SwB50V+L/lzlBB0jAeDcBjtLBClz1r/G2thZQkiZU6OWJaJYjpKI3kg9H/09SvWnipT5VMWmjJT5UsGmjpT53ofNASnzM4XNBTnEXu16ZhGgC6jyC7HJL4DjcaHIDAkA77sKRWbIOwBdSCgH8r5HVqGgXMh2qksoDgHpG8qBfFBB+oRyIRvVEYxIFLnQQfqAciE3ugNvkRjy0QTpEsqFrE0nx8QhIF1AOZBPtkhbKBfy1RZpA00KaQpNDmkC5UAuXSN1oVzItWukDpQDWflCqkK5kCtfSBVoFsh9UA7kigM5BeVCVhzI/6AcyDUncheUC7nkRI6h2SKHUA7kSyikhHIhn0Mhhy2aNZJjAruOAekbWvdTIMGRgL/tNzrIearQjSbyEsCJZ+eN8IBcRIZ0/o02sSJdQhtsF32iRLqCtrEjXUBbbBdio0baQrtUkDbQDtsdIKqdgaBIACiIqIT5XI9q5gicPyOmAFTh0iyzAAAAAElFTkSuQmCC"); }
+.rr-btn-add::after    { --rr-icon-w: 10px;   --rr-icon-h: 10px;    --rr-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAUElEQVR42u3XgQnAMAgEQA3Zf2UzQgJS2pL7AZ4DQTSrKprZFWSnfMTHAwgICAgICAj4b+A8uOeevheNGBAQ8O09mOEvBgQEBAQEBAS8FbgAzKsHUBDDXmMAAAAASUVORK5CYII="); }
+.rr-btn-delete::after { --rr-icon-w: 12.5px; --rr-icon-h: 14.5px;  --rr-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA6CAYAAADybArcAAAAyElEQVR42u3awQ2AIAxA0WI6lGPpJLKGm7gVXj0YJLZKNb/3JrykRZCmUooYYxKfyJZkdVrEYsyfrQsY5CfxG4g61njXXlOnGu/eY/QIECBAgHT7ILqcdXpHcjj9UlpAgAB5f/u9cy/IxnuFa77evB/MxvuFez49AgQIECBAgAABAgQIECBAgAABAgQIEHnk36+8NKc1RYBYZ0cWSgvIxyFb4DVvrc1+fAkaAyLWs9cubXjWGqMjrrbfSJgqQqRthCPK8GZ1wHkHk9AhSG/Bb1cAAAAASUVORK5CYII="); }
+.rr-btn-edit::after, .rr-btn-add::after, .rr-btn-delete::after { -webkit-mask-image: var(--rr-icon); mask-image: var(--rr-icon); }
 .rr-btn-edit { margin-right: 7px; }                    /* .perks-edit-btn */
 .rr-btn-add, .rr-btn-delete { margin-left: 10px; }     /* .add-page / .perks-delete-page-button */
 

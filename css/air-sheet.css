@@ -6,7 +6,8 @@
    body[data-client="air"]; with "lcu" the sheet chrome is hidden.
 
    Measured on the client captures (native 1280x800 client px):
-     2010 masteries   capture wb-riot-2010-masteries.jpg
+     2010 masteries   capture wb-riot-2010-masteries.jpg (trees, sidebar)
+     Sep 2010 S1 head compare/runes-s1s2/refs Yq2BRjZSoX8 (strip, §6)
      Dec 2012 S3      capture yt-uOygL_Bof5Q.jpg
      Apr 2015 runes   Fandom File:PVP.net_Summoner_profile_05.jpg
      Apr 2015 mast.   Fandom File:PVP.net_Summoner_profile_06.jpg
@@ -37,9 +38,10 @@
      .air-sheet.air-sheet--painted   (runes) no 9-slice: the page's own
                              full-art #parchment paints the sheet; head and
                              .air-sheet-toolbar are overlaid on its bands.
-   data-air-period (air-sheet.js, from the season): 2010 = S1 look (crimson
-   active pill, slate folder, no page bar); 2012 / 2013 / 2014 = cream pills,
-   tan frame, page chips (labels differ per period).
+   data-air-period (air-sheet.js, from the registry entry): 2010 = S1 look
+   (cream pills, no "Ranked Teams", search box in the tab row; masteries:
+   no content frame, no page bar); 2012 / 2013 / 2014 = cream pills, tan
+   frame, page chips (labels differ per period).
    ========================================================================== */
 
 .air-sheet {
@@ -632,67 +634,38 @@ body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-actions > .ai
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-ms-save { margin-top: calc(19 * var(--u)); }
 
 /* ==========================================================================
-   6. Season 1 (2010) look: slate folder outline, the name tab flows into
-      the strip panel, rounded 126x28 pills 4px apart with teal text, the
-      crimson active pill with a 1px gold ring, search box top-right, no
-      "Ranked Teams" / CTA, no content frame, no page bar.
+   6. Season 1 (2010) look, both pages. The head follows the dated live
+      captures of the S1 client (compare/runes-s1s2/refs: Sep 2010
+      Yq2BRjZSoX8 masteries + runes frames, Apr 2011 XGwtSJZL8hc, Jun 2011
+      5p4bMaeO4XA), so S1 masteries and runes share one strip: the 2012
+      sheet head of §2 minus "Ranked Teams" / "Create a Ranked Team" (cream
+      name tab 236x40), a white "Find Summoner" box ~203x26 at the right end
+      of the tab row, 7 down, and only the 8 cream pills in the strip, edge
+      to edge, the active pill drawn lighter, Achievements greyed and last
+      (air-sheet.js SUBTABS["2010"]). Riot's 2010 press shots (capture
+      wb-riot-2010-masteries.jpg: slate folder, crimson active pill,
+      Achievements third) are not followed. The masteries sheet has no
+      content frame and no page bar; the painted rune sheet places its head
+      itself and keeps its toolbar (§7, §7b).
    ========================================================================== */
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-tabrow { height: calc(29 * var(--u)); }
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-name-tab {
-    position: relative;
-    z-index: 1;
-    height: calc(29 * var(--u) + 1px);
-    margin: 0 0 -1px 0;
-    border-color: #5f6a6e;
-    border-radius: calc(6 * var(--u)) calc(6 * var(--u)) 0 0;
-    background: linear-gradient(to bottom, #e1d4aa 0, #d9c68f 12%, #dac693 22%, #dcca98 45%, #dfcea2 75%, #e0d1a6 100%);
-}
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-name {
-    font-size: calc(20 * var(--u));
-    color: #43120f;                 /* [sampled #3f1104] */
-}
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-folder-tab,
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-cta,
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtabs .air-search { display: none; }
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-search.air-search-top {
     display: block;
     align-self: flex-start;
-    width: calc(200 * var(--u));
-    height: calc(22 * var(--u));
-    margin: calc(3 * var(--u)) 0 0 auto;
-    border-color: #5a5f60;
+    width: calc(203 * var(--u));
+    height: calc(26 * var(--u));
+    margin: calc(7 * var(--u)) 0 0 auto;
+    line-height: calc(24 * var(--u));
 }
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtabs {
-    gap: calc(4 * var(--u));
-    padding: calc(11 * var(--u)) 0 calc(10 * var(--u)) calc(15 * var(--u));
-    border-color: #5f6a6e;
-    background: linear-gradient(to bottom, #eaddbd 0, #e1d2a8 4%, #e1d2aa 76%, #e6dbb9 79%, #ebe2c6 96%, #efe6d2 100%);
+body[data-client="air"] .air-sheet[data-air-period="2010"] .air-search.air-search-top::before { content: "Find Summoner"; }
+/* Edge to edge: the masteries strip is 1079u wide (the rune sheet's 1071u
+   gives §7b's 131.5u), so its 8 pills share the width (~132.5u each). */
+body[data-client="air"] .air-sheet[data-air-period="2010"]:not(.air-sheet--painted) .air-subtab {
+    flex: 1 1 0;
+    width: auto;
 }
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab {
-    width: calc(126 * var(--u));
-    height: calc(28 * var(--u));
-    border-color: #a17e6a;
-    border-top-color: #896454;
-    border-bottom-color: #9d7d70;
-    border-radius: calc(5 * var(--u));
-    background: linear-gradient(to bottom, #eee7d5 0, #f2eed5 10%, #efe8ce 30%, #ebdfbe 48%, #e5d7b0 64%, #e1d1a0 80%, #dacb94 93%, #ceb28b 100%);
-    font-size: calc(13 * var(--u));
-    color: #23506d;                 /* [sampled #25405e-#23506d] */
-}
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-link:hover,
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-link:focus-visible {
-    background: linear-gradient(to bottom, #f6f1e3 0, #f7f3e0 10%, #f3eddb 30%, #efe5cb 48%, #eadec0 64%, #e6d8b0 80%, #e0d3a3 93%, #d4bc98 100%);
-    color: #173b53;
-}
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-active {
-    border-color: #4a1510;
-    border-top-color: #602b23;
-    border-bottom-color: #2c0a09;
-    background: linear-gradient(to bottom, #800d0a 0, #7c0c0b 22%, #700b0b 40%, #600a09 56%, #500809 72%, #420607 86%, #3c0908 100%);
-    box-shadow: 0 0 0 1px #e9a93a;  /* gold ring [sampled #eba62f / #e7b14d] */
-    color: #fdfcf9;
-}
-body[data-client="air"] .air-sheet[data-air-period="2010"] .air-subtab.is-disabled { color: #b3b7b5; }
 body[data-client="air"] .air-sheet[data-air-period="2010"] .air-sheet-body {
     border: 0;
     padding-top: calc(4 * var(--u));
@@ -730,6 +703,79 @@ body[data-client="air"] .air-sheet--painted .air-sheet-toolbar {
     height: auto;
     padding: 0;
 }
+
+/* --- 7b. Rune pages of the 2010 period (S1, V1.0.0.63-V1.0.0.128) ---------
+   The S1 client's Runes tab as shipped (compare/runes-s1s2/refs: Sep 2010
+   Yq2BRjZSoX8 runes + masteries frames, Apr 2011 XGwtSJZL8hc, Jun 2011
+   5p4bMaeO4XA): the 2012 sheet minus "Ranked Teams" / "Create a Ranked
+   Team". Name tab 236x40 (cream, as 2012); a white "Find Summoner" box
+   ~203x26 at the RIGHT END OF THE TAB ROW, 7 down; the strip holds only
+   the 8 cream pills, edge to edge (pitch ~133: 8 x 131.5 + 7 x 2 = 1066 =
+   the strip's inner width), the active pill drawn lighter, Achievements
+   last and greyed (Runes = 5th pill, Spells = 7th in both 2010 frames). The
+   rune toolbar (Runes Type + page chips) is there in every capture (Sep
+   2010: 2 chips = the starting pages). §6 gives the masteries sheet the
+   same strip; these rules place it on the painted rune sheet. No rune-page
+   capture predates Sep 2010, so V1.0.0.63-V1.0.0.94(b) (Dec 2009 - Jun
+   2010) use this strip too: an evidence gap (data/patches/runes.json). */
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-sheet-tabrow { height: calc(40 * var(--u)); }
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-name-tab {
+    position: static;
+    height: calc(40 * var(--u));
+    margin: 0 0 0 calc(2 * var(--u));
+    border-color: #ab974f;
+    border-top-color: #ad9555;
+    border-right-color: #c2ae79;
+    border-radius: calc(2 * var(--u)) calc(2 * var(--u)) 0 0;
+    background: linear-gradient(to bottom, #f1e5cb 0, #f3efe6 3%, #eeeae1 18%, #ebe5d4 34%, #e7dfc6 50%, #e4d8b8 66%, #e2d4ae 86%, #e7d2a3 95%, #ebd397 100%);
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-name {
+    font-size: calc(21 * var(--u));
+    color: #551006;
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-search.air-search-top {
+    width: calc(203 * var(--u));
+    height: calc(26 * var(--u));
+    margin: calc(7 * var(--u)) 0 0 auto;
+    border-color: #463f35;
+    border-top-color: #1e1a14;
+    line-height: calc(24 * var(--u));
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-search.air-search-top::before { content: "Find Summoner"; }
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtabs {
+    gap: calc(2 * var(--u));
+    padding: calc(2 * var(--u)) 0 calc(3 * var(--u)) calc(3 * var(--u));
+    border-color: var(--air-line);
+    background: linear-gradient(to bottom, #ecddb5 0, #e6d7ad 6%, #e3cf9c 45%, #e1cc97 88%, #efd798 100%);
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtab {
+    width: calc(131.5 * var(--u));
+    height: calc(38 * var(--u));
+    border-color: #baa264;
+    border-top-color: #b6a26f;
+    border-bottom-color: #baa264;
+    border-radius: calc(2 * var(--u));
+    background: linear-gradient(to bottom, #fff4c6 0, #f8f0d9 3%, #f2efe0 6%, #efe7d2 20%, #e9ddc0 36%, #e3d5b0 52%, #dfd0a5 66%, #decc9d 80%, #d9cb9c 91%, #e0cf9b 94%, #efd696 100%);
+    font-size: calc(15.5 * var(--u));
+    color: #3a2e12;
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtab.is-link:hover,
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtab.is-link:focus-visible {
+    background: linear-gradient(to bottom, #fff7d4 0, #fbf5e4 4%, #f6f1e5 10%, #f1eadb 30%, #ebe1c8 52%, #e6d9b8 72%, #e2d4ab 90%, #ead59f 95%, #f3dc9c 100%);
+    color: #22190a;
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtab.is-active {
+    border-color: #bea15f;
+    border-bottom-color: #b8a266;
+    background: linear-gradient(to bottom, #e8cb87 0, #eedeab 3%, #fef2ca 6%, #fbeecb 20%, #f9ebc6 36%, #f7e8c1 50%, #f5e3b6 70%, #f2e0b3 88%, #fde6ba 94%, #ffedb4 100%);
+    box-shadow: none;
+    color: #3c1f05;
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-subtab.is-disabled {
+    order: 1;                       /* Achievements: the 8th pill */
+    color: #c9bd9c;
+}
+body[data-client="air"] .air-sheet--painted[data-air-period="2010"] .air-sheet-toolbar { display: block; }
 
 /* ==========================================================================
    8. LCU era (V7.21 masteries / runes): no sheet. The 2017 LCU masteries

@@ -6,18 +6,17 @@
 //   node tools/fixtures/stub-shell-test.js unit
 //       Node VM, no browser: lol-data.js patch order against
 //       tools/lib/patches.js, LolPatches.resolve / fromHash on the legacy ids,
-//       unlisted ids and odd hashes, nav.js clientEraFor / seasonKeyForDataset
-//       in both shell modes, LolData register / get / load / loadCodec /
-//       prefetch with a fake <script> loader, fillPatchSelect.
+//       unlisted ids and odd hashes, nav.js clientEraFor / seasonKeyForDataset,
+//       LolData register / get / load / loadCodec / prefetch with a fake
+//       <script> loader, fillPatchSelect.
 //   node tools/fixtures/stub-shell-test.js browser --out <dir> [--browser <exe>] [--keep]
 //       Copies the working tree to <dir>/site, replaces its data with stub
 //       data files (data/<page>/manifest.json + one tiny LolData.register
 //       file per data key, shared keys and data: null included, and a stub
 //       data/masteries/legacy-codecs.js), builds <dir>/site/patch-registry.js
 //       with tools/build-registry.js --stub, and opens the pages over file://
-//       in headless Edge / Chrome (DevTools protocol, Node 22+):
-//         registry mode: the HTML without data-lol-shell and without the
-//           calculator / old data scripts, a probe where the calculators
+//       in headless Edge / Chrome (DevTools protocol, Node 22+): the HTML
+//           without the calculator scripts, a probe where the calculators
 //           would start. Checks that the hash's dataset was preloaded
 //           synchronously (document.write), that the header (season, patch
 //           list, tabs, title), body[data-client] and the AIR sheet (season,
@@ -26,9 +25,8 @@
 //           null / missing-file rejection / loadCodec / prefetch,
 //           fillPatchSelect and an in-page buildSeasonNav({entry}) +
 //           AirSheet.sync(entry) switch.
-//         legacy mode: the pages as committed (legacy calculators and old data
-//           files) with the stub registry: they boot and the preload loads
-//           nothing (TRANSITION: data-lol-shell="legacy").
+//       The real pages (calculators included) are covered by
+//       tools/test-links.js / test-carry.js --browser.
 //       No console error, exception or failed file:// request is allowed
 //       (except the one deliberately missing file).
 //       --real: the same cases on the data tasks' real listings, manifests and
@@ -154,7 +152,6 @@ function vmPage(opts) {
     ctx.matchMedia = function(){ return { matches: false }; };
     ctx.addEventListener = function(){};
     if (opts.page) dom.document.documentElement.setAttribute("data-lol-page", opts.page);
-    if (opts.legacy) dom.document.documentElement.setAttribute("data-lol-shell", "legacy");
     vm.createContext(ctx);
     vm.runInContext(registryText, ctx, { filename: "patch-registry.js" });
     vm.runInContext(fs.readFileSync(path.join(REPO, "lol-data.js"), "utf8"), ctx, { filename: "lol-data.js" });
@@ -316,21 +313,13 @@ async function cmdUnit() {
         assert.strictEqual(ctx.clientEraFor("m-V7.2"), "lcu");
         assert.strictEqual(ctx.clientEraFor("m-V6.24"), "air");
         assert.strictEqual(ctx.clientEraFor({ era: "lcu" }), "lcu");
-        // registry mode: legacy ids land in their season NOW
+        // legacy ids land in their season of the registry
         assert.strictEqual(ctx.seasonKeyForDataset("s4-final"), "s5");
         assert.strictEqual(ctx.seasonKeyForDataset("rr-v8-23"), "s9");
+        assert.strictEqual(ctx.seasonKeyForDataset("rr-v26-13"), "s2026");
         assert.strictEqual(ctx.seasonNavTable(), ctx.SEASON_NAV);
-    });
-    check("legacy shell mode", function(){
-        const { ctx: c2 } = vmPage({ registryText, nav: true, files, legacy: true, page: "masteries" });
-        assert.strictEqual(c2.LolPatches.shellMode(), "legacy");
-        assert.strictEqual(c2.seasonNavTable(), c2.LOL_LEGACY_SEASON_NAV);
-        assert.strictEqual(c2.seasonKeyForDataset("s4-final"), "s4");
-        assert.strictEqual(c2.seasonKeyForDataset("rr-v26-13"), "s2026");
-        assert.strictEqual(c2.seasonNavFind("s1").runes, null);
-        c2.LolPatches.useRegistry();
-        assert.strictEqual(c2.LolPatches.shellMode(), "registry");
-        assert.strictEqual(c2.seasonNavFind("s1").runes, "preReforged-V1.0.0.128");
+        assert.strictEqual(ctx.seasonNavFind("s1").runes, "preReforged-V1.0.0.128");
+        assert.strictEqual(ctx.LolPatches.shellMode, undefined, "no legacy shell mode any more");
     });
 
     // 4. LolData
@@ -396,10 +385,6 @@ async function cmdUnit() {
         const b = vmPage({ registryText, files, hash: "#rr-v26-19", readyState: "loading", page: "reforged" });
         b.ctx.lolPreloadDataset("reforged");
         assert.deepStrictEqual(b.dom.document.written, [], "data: null loads nothing");
-        const l = vmPage({ registryText, files, hash: "#s4-final|abc", readyState: "loading", page: "masteries", legacy: true });
-        assert.strictEqual(l.ctx.lolPreloadDataset("masteries").entry.id, "m-V4.20");
-        assert.deepStrictEqual(l.dom.document.written, [], "legacy shell: nothing written");
-        assert.deepStrictEqual(l.injected, [], "legacy shell: nothing injected");
         const c = vmPage({ registryText, files, hash: "#preReforged-V5.22|", readyState: "complete", page: "runes" });
         c.ctx.lolPreloadDataset("runes");
         assert.deepStrictEqual(c.dom.document.written, []);
@@ -623,7 +608,7 @@ const PROBE = String(function(){
             if (w.AirSheet) AirSheet.sync(e2);
             LolPatches.fillPatchSelect(d.querySelector(".legacy-header select.header-patch"), page, e2.season, e2.id);
             var sh = d.querySelector(".air-sheet[data-air-page]");
-            R.switched = { entry: e2.id, season: ssel.value, seasonCount: ssel.options.length, mode: LolPatches.shellMode(),
+            R.switched = { entry: e2.id, season: ssel.value, seasonCount: ssel.options.length,
                 client: d.body.getAttribute("data-client"),
                 tabs: [].map.call(d.querySelectorAll(".header-tabs .header-tab"), function(a){ return a.getAttribute("href"); }),
                 patch: d.querySelector(".legacy-header select.header-patch").value,
@@ -633,48 +618,21 @@ const PROBE = String(function(){
     })();
 });
 
-// Legacy pages: wait until the calculator drew (P0-A's readiness DOM checks).
-const LEGACY_READY = {
-    masteries: "!!(window.jQuery && (document.querySelector('#calculator .button') || document.querySelector('#keystone-calculator .ks-mastery')))",
-    runes: "!!(window.jQuery && document.querySelector('#rune-slots .rune-slot') && document.querySelector('#runes-categories .rl-cat'))",
-    reforged: "(function(){var l=document.querySelector('#reforged-calculator .rr-loading');return !!(window.jQuery && l && l.style.display === 'none' && document.querySelector('#reforged-calculator .rr-picker, #reforged-calculator .rr-body:not([hidden])'));})()"
-};
-const LEGACY_PROBE = function(page){
-    return "(function(){var n=0,iv=setInterval(function(){var ok=false;try{ok=" + LEGACY_READY[page] + ";}catch(e){}" +
-        "if(ok||++n>200){clearInterval(iv);setTimeout(function(){var R={stage:'legacy',ready:ok};try{var p=LolPatches.page(),r=LolPatches.fromHash(p);" +
-        "R.hash=location.hash;R.page=p;R.entry=r.entry&&r.entry.id;R.hasFile=!!(r.entry&&r.entry.file);R.written=!!(r.entry&&r.entry.file&&LolData._wasWritten(r.entry.file));" +
-        "R.loaded=!!(r.entry&&r.entry.data!==null&&LolData.get(r.entry));R.codec=r.alias&&r.alias.codec?!!LolData.getCodec(r.alias.codec):null;" +
-        "R.mode=LolPatches.shellMode();var s=document.querySelector('.legacy-header select.header-season');R.season=s&&s.value;R.seasonCount=s&&s.options.length;" +
-        "var sh=document.querySelector('.air-sheet[data-air-page]');R.sheet=sh?[sh.getAttribute('data-air-season'),sh.getAttribute('data-air-period')]:null;" +
-        "R.client=document.body.getAttribute('data-client');R.tabs=[].map.call(document.querySelectorAll('.header-tabs .header-tab'),function(a){return a.getAttribute('href');});" +
-        "}catch(e){R.err=String(e&&e.stack||e);}window.__t1Result=R;window.__t1Done=true;},400);}},100);})();";
-};
-
 const PAGE_FILE = { masteries: "index.html", runes: "runes.html", reforged: "runes-reforged.html" };
 const PAGE_NAME = { masteries: "Masteries", runes: "Runes", reforged: "Runes Reforged" };
 
 function registryHtml(src, page) {
     let s = src.replace(/\r\n/g, "\n");
-    s = s.replace(' data-lol-shell="legacy"', "");
-    // drop everything after jQuery that the calculators bring (old data + calculator scripts)
-    const lines = s.split("\n");
-    const out = [];
-    let afterJq = false;
-    lines.forEach(function(l){
-        if (/src="vendor\/jquery/.test(l)) { afterJq = true; out.push(l); return; }
-        if (afterJq && (/<script[^>]+src=/.test(l) || /<!-- (TRANSITION|runes-reforged-data)/.test(l) || /^\s+(Phase 2|deletes)/.test(l))) return;
-        out.push(l);
-    });
-    s = out.join("\n");
+    // drop everything after jQuery that the calculators bring (comments and
+    // the calculator / runes-reforged-data.js scripts)
+    const jq = s.search(/<script[^>]+src="vendor\/jquery[^"]*"><\/script>\n/);
+    if (jq < 0) die(PAGE_FILE[page] + ": no jQuery <script>");
+    const cut = s.indexOf("\n", jq) + 1, end = s.lastIndexOf("</body>");
+    const tail = s.slice(cut, end).replace(/[ \t]*<!--[\s\S]*?-->\n?/g, "").replace(/[ \t]*<script[^>]+src=[^>]*><\/script>\n?/g, "");
+    s = s.slice(0, cut) + tail + s.slice(end);
     const probe = "<script type=\"text/javascript\">(" + PROBE + ")();</script>\n";
     const at = s.lastIndexOf("</body>");
     return s.slice(0, at) + probe + s.slice(at);
-}
-
-function legacyHtml(src, page) {
-    const s = src.replace(/\r\n/g, "\n");
-    const at = s.lastIndexOf("</body>");
-    return s.slice(0, at) + "<script type=\"text/javascript\">" + LEGACY_PROBE(page) + "</script>\n" + s.slice(at);
 }
 
 function copySite(dest) {
@@ -712,9 +670,12 @@ function expectFor(page, hash, registry) {
     const tabs = def.reforged ? [["Runes Reforged", "runes-reforged.html#" + def.reforged, true]]
         : [["Masteries", "index.html#" + def.masteries + "|", page === "masteries"], ["Runes", "runes.html#" + def.runes + "|", page === "runes"]];
     const options = registry[page].filter(x => x.season === season).map(x => [x.id, x.label]);
-    const CHIPS = { masteries: { s2: 10, s3: 10, s4: 20, s5: 6, s6: 8, s7: 20 }, runes: { s1: 2, s2: 2, s3: 3, s4: 6, s5: 6, s6: 20, s7: 20 } };
+    // page chips by the patch they start at (the captures: air-sheet.js CHIPS)
+    const CHIPS = { masteries: [["V1.0.0.129", 10], ["V3.14", 20], ["V4.21", 6], ["V5.22", 8], ["V6.22", 20]],
+        runes: [["V1.0.0.32", 2], ["V1.0.0.152", 3], ["V3.15", 6], ["V5.22", 20]] };
+    const chips = (CHIPS[page] || []).filter(c => P.compare(c[0], patch) <= 0).map(c => c[1]).pop() || 0;
     return { id, season, label: s.label, era: chrome.era, period: chrome.airPeriod || null, tabs, options,
-        chips: String((CHIPS[page] || {})[season] || 0),
+        chips: String(chips),
         title: s.label.replace(/\s*\(.*\)$/, "") + " " + PAGE_NAME[page] + " \u00b7 Legacy LoL Calculator" };
 }
 
@@ -743,18 +704,14 @@ async function cmdBrowser(args) {
         ["runes", ""], ["runes", "#preReforged-V1.0.0.94b|"], ["runes", "#preReforged-V6.24|"], ["runes", "#preReforged-V3.14|"],
         ["runes", "#preReforged-V1.0.0.131|"], ["runes", "#5245,5245"],
         ["reforged", ""], ["reforged", "#rr-v8-23"], ["reforged", "#rr-v12-23|8000|8100|5008"], ["reforged", "#rr-v8-4%7C8000%7C8100"],
-        ["reforged", "#rr-v8-17|"], ["reforged", "#rr-v26-13"]
-    ];
-    const LEGACY_CASES = [
-        ["masteries", "#s4-final|"], ["masteries", ""], ["masteries", "#s7-final|"],
-        ["runes", "#preReforged-V3.14|"], ["runes", ""],
-        ["reforged", "#rr-v7-22"], ["reforged", ""]
+        ["reforged", "#rr-v8-17|"], ["reforged", "#rr-v26-13"],
+        // page chips by patch: V4.20 keeps its capture's 1-20, V5.10 has 1-6 +
+        ["masteries", "#m-V4.20|"], ["masteries", "#m-V5.10|"], ["runes", "#preReforged-V4.5|"]
     ];
     // write the case pages next to the real ones (relative URLs resolve the same)
     P.PAGES.forEach(function(page){
         const src = fs.readFileSync(path.join(site, PAGE_FILE[page]), "utf8");
         fs.writeFileSync(path.join(site, "__t1-reg-" + PAGE_FILE[page]), registryHtml(src, page));
-        fs.writeFileSync(path.join(site, "__t1-leg-" + PAGE_FILE[page]), legacyHtml(src, page));
     });
 
     const exe = findBrowser(args);
@@ -799,7 +756,6 @@ async function cmdBrowser(args) {
             eq("prefetch loads the page's files", R.notLoaded, []);
             eq("fillPatchSelect", R.fill && [R.fill.n, R.fill.value, R.fill.labels], [exp.options.length, exp.id, exp.options.map(o => o[1])]);
             if (R.switched) {
-                eq("switch: registry mode", R.switched.mode, "registry");
                 const e2 = registry[page].filter(x => x.id === R.switched.entry)[0];
                 const x2 = expectFor(page, "#" + e2.id + "|", registry);
                 eq("switch: season", [R.switched.season, R.switched.seasonCount, R.switched.patch], [x2.season, 16, e2.id]);
@@ -818,33 +774,10 @@ async function cmdBrowser(args) {
             if (probs.length) bad++;
             console.log((probs.length ? "FAIL " : "ok   ") + "registry " + page + " " + (hash || "(empty)") + " -> " + R.entry + (probs.length ? "\n       " + probs.join("\n       ") : ""));
         }
-        for (const [page, hash] of LEGACY_CASES) {
-            const url = fileUrl(path.join(site, "__t1-leg-" + PAGE_FILE[page])) + hash;
-            const res = await openCase(b, url, 40000);
-            const R = res.result || {};
-            const probs = [];
-            // the legacy calculators may have rewritten the hash by now
-            const exp = expectFor(page, R.hash != null ? R.hash : hash, registry);
-            if (R.err) probs.push(R.err);
-            if (!R.ready) probs.push("legacy calculator did not draw");
-            if (R.mode !== "legacy") probs.push("mode " + R.mode);
-            if (R.written || R.loaded) probs.push("a legacy shell must not preload (written " + R.written + ", loaded " + R.loaded + ")");
-            if (R.codec === true) probs.push("a legacy shell must not preload the codecs");
-            if (R.seasonCount !== 16) probs.push("season count " + R.seasonCount);
-            if (R.entry !== exp.id) probs.push("entry " + R.entry + " want " + exp.id);
-            const failedFiles = res.failed.filter(f => /^file:/.test(f));
-            if (res.errors.length) probs.push("console: " + res.errors.join(" | "));
-            if (failedFiles.length) probs.push("failed requests: " + failedFiles.join(" | "));
-            report.push({ mode: "legacy", page, hash, entry: R.entry, season: R.season, sheet: R.sheet, client: R.client, tabs: R.tabs, ok: !probs.length, problems: probs,
-                externalFailures: res.failed.filter(f => !/^file:/.test(f)) });
-            if (probs.length) bad++;
-            console.log((probs.length ? "FAIL " : "ok   ") + "legacy   " + page + " " + (hash || "(empty)") + " -> season " + R.season +
-                (R.sheet ? " sheet " + R.sheet.join("/") : "") + " era " + R.client + (probs.length ? "\n       " + probs.join("\n       ") : ""));
-        }
     } finally {
         await b.close();
         if (!args.keep) P.PAGES.forEach(function(page){
-            ["__t1-reg-", "__t1-leg-"].forEach(pre => { try { fs.unlinkSync(path.join(site, pre + PAGE_FILE[page])); } catch (e) {} });
+            try { fs.unlinkSync(path.join(site, "__t1-reg-" + PAGE_FILE[page])); } catch (e) {}
         });
     }
     fs.writeFileSync(path.join(out, "report.json"), JSON.stringify(report, null, 1) + "\n");

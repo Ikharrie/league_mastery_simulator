@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" data-lol-page="reforged" data-lol-shell="legacy">
+<html xmlns="http://www.w3.org/1999/xhtml" data-lol-page="reforged">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,12 +22,12 @@
             <div class="header-bar">
                 <a class="header-brand" href="index.html"><img class="header-brand-mark" src="images/lcu/runes-icon-32.png" width="24" height="24" alt="" /><span class="header-title">Legacy LoL Calculator</span></a>
                 <nav class="header-tabs">
-                    <a class="header-tab active" href="runes-reforged.html#rr-v26-13">Runes Reforged</a>
+                    <a class="header-tab active" href="runes-reforged.html#rr-v26-19">Runes Reforged</a>
                 </nav>
                 <div class="header-right">
                     <div class="header-controls">
                         <label class="header-select-label"><span class="header-select-text">Season</span><select id="reforged-season-select" class="lol-select lcu-select header-season"><option value="s2026" selected="selected">Season 2026 (Current)</option></select></label>
-                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="reforged-patch-select" class="lol-select lcu-select header-patch"><option value="rr-v26-13" selected="selected">V26.13 (Current)</option></select></label>
+                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="reforged-patch-select" class="lol-select lcu-select header-patch"><option value="rr-v26-19" selected="selected">V26.19 (Current)</option></select></label>
                         <a id="reforged-export-link" class="header-link lcu-link" href="#" aria-label="Direct link to this rune page" data-lol-tip="Direct link to this rune page"><span class="lcu-link-text">Link</span></a>
                     </div>
                     <button id="reforged-share" class="lcu-btn header-share" type="button" aria-label="Copy shareable URL to clipboard" data-lol-tip="Copy a shareable link to the clipboard">Share</button>
@@ -54,8 +54,9 @@
         <div id="toast" class="lol-toast" role="status" aria-live="polite"></div>
 
         <script type="text/javascript" src="vendor/jquery-1.7.0.min.js"></script>
-        <!-- runes-reforged-data.js stays (shard eras, helpers). TRANSITION: phase 2
-             deletes data-lol-shell="legacy" on <html>. -->
+        <!-- runes-reforged-data.js: the shard eras and their helpers. The per-patch
+             text extras come from data/reforged/ (lol-data.js), the rune catalog
+             from Data Dragon at runtime. -->
         <script type="text/javascript" src="runes-reforged-data.js"></script>
         <script type="text/javascript" src="runes-reforged.js"></script>
     </body>

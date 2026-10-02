@@ -1,3 +1,29 @@
+// calculator.js — the Masteries page (index.html): the classic 30-point
+// Offense / Defense / Utility trees (Season 1 - Season 5) and the page
+// controller for both mastery systems (keystone-calculator.js draws the
+// Ferocity / Cunning / Resolve trees, V5.22 - V7.21).
+//
+// Datasets: one generated file per listed patch (data/masteries/m-*.js),
+// found through the patch registry (patch-registry.js) and loaded by LolData
+// (lol-data.js). The dataset a link opens is preloaded synchronously in
+// <head> (lolPreloadDataset), so the first draw needs no wait; every other
+// dataset loads on demand when the Patch / Season dropdown or the hash
+// changes (DESIGN §2.4-§2.5). activeDataSet = registry entry + payload.
+//
+// Share links (DESIGN §4): "#<id>|<code>[|<page name>]"
+//   canonical  id m-V<patch>. Classic code: the bit-packing below over the
+//              dataset's arrays, which are in GRID order (tree, then index).
+//              Keystone code: keystone-calculator.js exportKeystones.
+//   legacy     s1-final … s7-final and the plain "#<code>" (= s3-pbe). The
+//              registry alias names a legacy codec (data/masteries/legacy-
+//              codecs.js) that turns the old code into mastery keys; the
+//              build is then imported into the canonical dataset by key (the
+//              carry rules of §4.5) and the hash rewritten to the canonical
+//              link. Unlisted patches (m-V4.7 …) open the listed patch in
+//              effect, whose data is the same.
+// Patch / season switch: the build carries over by key (§4.5); a different
+// tree family (a rework) starts empty. A toast says what did not carry.
+
 var treeNames = [
     "offense",
     "defense",
@@ -7,10 +33,13 @@ var treeOffsets = [0, 0, 0];
 var MAX_POINTS = 30;
 var state = [{}, {}, {}];
 var totalPoints = 0;
+var data = [[], [], []];       // the active classic dataset's trees
+var activeDataSet = null;      // registry entry + payload (LolData.get)
 var activeDataSetId = null;
 var activeIconBase = "";
 var activeLook = null;
 var buttonClasses = ["unavailable", "available", "full"];
+var MASTERY_PAGE = "masteries";
 
 // ---------- In-client (AIR) tree geometry ---------------------------------
 // Native client px (measured on the captures)
@@ -25,12 +54,14 @@ var buttonClasses = ["unavailable", "available", "full"];
 //           line-to-line -> 55x55 outer; counter 26x13 -> 29x14, right edge
 //           1px inside the line, 4px below the frame; connector 11 -> 12
 //           wide, from the parent's counter to the child's frame.
-//   s1      Season 1, the 2010 client (Riot's wb-riot-2010-masteries.jpg).
+//   s1      Season 1, the 2010 client (Riot's wb-riot-2010-masteries.jpg),
+//           for every S1 patch from the V1.0.0.32 launch on (the launch-era
+//           Offense tree with Demolisher uses the same grid).
 //           Art images/classic/trees-2010.jpg: 270x516 panels at a 275
 //           pitch. Frame 50 native -> 57x57 outer; counter 28x16 -> 31x18,
 //           2px inside the line, 7px below; silver connector 10 -> 11.
 // css/masteries-classic.css draws the matching sizes per
-// #calculator[data-look].
+// #calculator[data-look] (the dataset's `look`).
 var CLASSIC_LOOKS = {
     client: {
         k: 1.1, width: 908, height: 526,
@@ -52,11 +83,14 @@ var CLASSIC_LOOKS = {
 // ~68), Dec 2012 "Artificer" #566756 (~98), Nov 2012 "Tenacious" #6c7f9d].
 var TREE_TITLE_COLORS = ["#a2281c", "#3b83c7", "#3f7e33"];
 
-// Recompute globals that depend on the active data set. Call this whenever
-// `data` is reassigned (i.e. when the season/patch dropdown changes).
+function isKeystoneDataSet(ds) {
+    return !!ds && ds.system === "keystone";
+}
+
+// Recompute the classic globals for a dataset (every classic switch).
 function syncDataSetGlobals(dataSet) {
     data = dataSet.data;
-    MAX_POINTS = dataSet.maxPoints;
+    MAX_POINTS = dataSet.maxPoints || 30;
     treeOffsets = [
         0,
         data[0].length,
@@ -64,14 +98,17 @@ function syncDataSetGlobals(dataSet) {
     ];
     state = [{}, {}, {}];
     totalPoints = 0;
-    activeDataSetId = dataSet.id;
     activeIconBase = dataSet.iconBase || "";
     activeLook = CLASSIC_LOOKS[dataSet.look] || CLASSIC_LOOKS.client;
 }
 
+// Icon art: <iconBase><icon>.png, locked art <iconBase>gray_<icon>.png. A
+// mastery whose art lives in another build's folder carries its own
+// `iconBase` (DDragon icons are per cell id: the V3.14 launch art, the V5.10
+// utility swap); the rest use the dataset's.
 function masteryIconUrl(mastery, gray) {
     if (!mastery.icon) return "";
-    var rel = activeIconBase + (gray ? "gray_" : "") + mastery.icon + ".png";
+    var rel = (mastery.iconBase || activeIconBase) + (gray ? "gray_" : "") + mastery.icon + ".png";
     // Absolute: the URL travels in a custom property (--ms-art), and a
     // relative url() there would resolve against css/, not the page.
     try { return new URL(rel, document.baseURI).href; } catch (e) { return rel; }
@@ -79,9 +116,9 @@ function masteryIconUrl(mastery, gray) {
 
 function drawCalculator() {
     var look = activeLook || CLASSIC_LOOKS.client;
-    var ds = getDataSet(activeDataSetId);
     $("#calculator")
-        .attr("data-look", (ds && ds.look) || "client")
+        .attr("data-look", (activeDataSet && activeDataSet.look) || "client")
+        .attr("data-dataset", activeDataSetId || "")
         .css({ width: look.width + "px", height: look.height + "px" });
 
     for (var tree = 0; tree < 3; tree++)
@@ -146,6 +183,7 @@ function drawButton(tree, index) {
         .data("parentLink", parentLink)
         .attr("data-tree", tree)
         .attr("data-index", index)
+        .attr("data-key", mastery.key || "")
         .css({
             left: buttonPos.x + "px",
             top: buttonPos.y + "px",
@@ -244,14 +282,17 @@ function drawButton(tree, index) {
     $("#calculator").append($btn);
 }
 
+function masteryEsc(s) {
+    return typeof lolEscapeHtml === "function" ? lolEscapeHtml(s) : String(s);
+}
+
 function masteryTooltipHtml(tree, index, rank) {
     var mastery = data[tree][index];
     var showNext = !(rank < 1 || rank >= mastery.ranks);
-    var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
     var req = masteryTooltipReq(tree, index);
-    var html = '<div class="tt-title" style="--tt-title-color:' + TREE_TITLE_COLORS[tree] + '">' + esc(mastery.name) + '</div>' +
+    var html = '<div class="tt-title" style="--tt-title-color:' + TREE_TITLE_COLORS[tree] + '">' + masteryEsc(mastery.name) + '</div>' +
         '<div class="tt-rank">Rank: ' + rank + '/' + mastery.ranks + '</div>';
-    if (req) html += '<div class="tt-req">' + esc(req).replace(/\n/g, "<br>") + '</div>';
+    if (req) html += '<div class="tt-req">' + masteryEsc(req).replace(/\n/g, "<br>") + '</div>';
     html += '<div class="tt-body">' + masteryTooltipBody(mastery, rank) + '</div>';
     if (showNext)
         html += '<div class="tt-next"><div class="tt-rank">Next rank:</div>' + masteryTooltipBody(mastery, rank + 1) + '</div>';
@@ -261,15 +302,17 @@ function masteryTooltipHtml(tree, index, rank) {
 function masteryTooltipBody(mastery, rank)  {
     // Rank 1 is index 0, but Rank 0 is also index 0
     rank = Math.max(0, rank - 1);
-    // S4 / S5: the client's own per-rank strings (Data Dragon mastery.json).
+    // Data Dragon era (V3.14 - V5.21): the client's own per-rank strings.
     if (mastery.rankDesc && mastery.rankDesc[rank] != null)
-        return String(mastery.rankDesc[rank]).replace(/\n/g, "<br>");
-    var desc = mastery.desc;
-    desc = desc.replace(/#/, mastery.rankInfo[rank]);
+        return masteryEsc(mastery.rankDesc[rank]).replace(/\n/g, "<br>");
+    // Wiki era (S1 - S3): a template with "#" per value list and |names|.
+    var desc = String(mastery.desc || "");
+    var info = mastery.rankInfo || [];
+    desc = desc.replace(/#/, info[rank]);
     desc = desc.replace(/\n/g, "<br>");
     desc = desc.replace(/\|(.+?)\|/g, "<span class='tt-value'>$1</span>");
     if (mastery.perlevel) {
-        desc = desc.replace(/#/, Math.round(mastery.rankInfo[rank]*180)/10);
+        desc = desc.replace(/#/, Math.round(info[rank]*180)/10);
     }
     if (mastery.rankInfo2) {
         desc = desc.replace(/#/, mastery.rankInfo2[rank]);
@@ -354,7 +397,7 @@ function isValidState(tree, index, rank, mod) {
         for (var i in state[tree])
             if (i != index)
                 // Figure out tier, multiply by 4 to get req points
-                if (state[tree][i] > 0 && 
+                if (state[tree][i] > 0 &&
                     // Calculate points in this tree up to this tier, and
                     // subtract one if we're removing from this portion
                     masteryPointReq(tree, i) > treePoints(tree, masteryTier(tree, i)) - (masteryTier(tree, index) < masteryTier(tree, i)))
@@ -382,8 +425,7 @@ function setState(tree, index, rank, mod) {
 // If quiet flag is true, does not call updates
 function resetStates(quiet) {
     // The keystone system keeps its own state — delegate.
-    var ds = getDataSet(activeDataSetId);
-    if (ds && ds.system === "keystone") {
+    if (isKeystoneDataSet(activeDataSet)) {
         if (typeof resetKeystones === "function") resetKeystones();
         return;
     }
@@ -418,12 +460,12 @@ function updateLabels() {
 }
 
 // ---------- AIR mastery sidebar (air-sheet.js AirMasterySidebar) -----------
-// One sidebar for classic S1-S5 and keystone AIR (V5.22 / V6.22); hidden in
+// One sidebar for classic S1-S5 and keystone AIR (V5.22 - V6.24); hidden in
 // the LCU era by CSS. syncMasterySidebar() after every dataset switch (it
 // resets the saved baseline), updateMasterySidebar() after every change.
 
 function masterySidebarConfig(dataSet) {
-    if (dataSet && dataSet.system === "keystone") {
+    if (isKeystoneDataSet(dataSet)) {
         // Ferocity / Cunning / Resolve reuse the 2010-2015 emblems (red
         // swords, blue star-shield) plus the book in violet (Oct 2015 PBE).
         var emblem = { ferocity: "ferocity", cunning: "cunning", resolve: "resolve" };
@@ -470,8 +512,9 @@ function watchPageNameForLink() {
         var n = sb.pageName();
         if (n === last) return;
         last = n;
-        var ds = getDataSet(activeDataSetId);
-        if (ds && ds.system === "keystone") {
+        var ds = activeDataSet;
+        if (!ds) return;
+        if (isKeystoneDataSet(ds)) {
             if (typeof updateKeystoneLink === "function" && typeof keystoneActiveDataSetId !== "undefined"
                     && keystoneActiveDataSetId === ds.id) updateKeystoneLink();
         } else {
@@ -489,8 +532,7 @@ function syncMasterySidebar(dataSet) {
 
 function updateMasterySidebar() {
     if (!window.AirMasterySidebar) return;
-    var ds = getDataSet(activeDataSetId);
-    if (ds && ds.system === "keystone") {
+    if (isKeystoneDataSet(activeDataSet)) {
         if (typeof keystoneActiveDataSet === "undefined" || !keystoneActiveDataSet) return;
         AirMasterySidebar.update({
             points: keystoneActiveDataSet.data.trees.map(function(t){ return keystoneTreePoints(t.id); }),
@@ -516,8 +558,11 @@ function pageNameHashSegment() {
 // Write our own hash without re-importing it (one pending re-bind at a time,
 // so quick changes never stack several hashchange handlers).
 var hashRebindTimer = null;
+var masteryShownHash = null;   // the hash of what the page shows (last written)
+function normMasteryHash(h) { return "#" + String(h || "").replace(/^#/, ""); }
 function replaceHashQuietly(hash) {
     $("#exportLink").attr("href", document.location.pathname + hash);
+    masteryShownHash = normMasteryHash(hash);
     if (document.location.hash == hash) return;
     // Using replace() causes no change in browser history
     $(window).unbind('hashchange');
@@ -528,81 +573,79 @@ function replaceHashQuietly(hash) {
     }, 500);
 }
 
+function masteryPageDefaultId() {
+    var e = window.LolPatches ? LolPatches.pageDefault(MASTERY_PAGE) : null;
+    return e ? e.id : null;
+}
+
 function updateLink() {
     var code = exportMasteries();
     var name = pageNameHashSegment();
-    // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]". Old format
-    // (no pipe) is still accepted on import and treated as the default data
-    // set.
+    // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]".
     var hash;
     if (code.length <= 3 && !name) {
         // For empty/near-empty trees, still surface the data set so a fresh
         // page load lands on the same season/patch the user picked.
-        hash = (activeDataSetId === DEFAULT_DATA_SET_ID) ? '' : activeDataSetId + '|';
+        hash = (activeDataSetId === masteryPageDefaultId()) ? '' : activeDataSetId + '|';
     } else {
         hash = activeDataSetId + '|' + (code.length <= 3 ? '' : code) + name;
     }
     replaceHashQuietly('#' + hash);
 }
 
+// ---------- Classic share code -----------------------------------------------
 // There are max 4 points per mastery, or 3 bits each. There is a 1 bit padding
 // that is a flag to determine whether the following 5 bits are a sequence of
 // mastery codes or an index increase. We greedily take masteries until the next
 // one would put us over capacity, at which point we flush the buffer. You will
 // always flush at the end of a tree.
+//
+// The codec runs on a SPEC: per tree, the code fields in order, each
+// {key, ranks, hashRanks?, hashNote?}. Canonical links use the dataset's own
+// arrays (grid order). Legacy links use their legacy codec's field order.
+// Field widths are fixed per field (floor(ranks/2)+1 bits). A legacy field
+// may keep `hashRanks` = the count its old links were written with (S1
+// Preservation 3, S4/S5 Inspiration 1): plain codes use that width, values
+// are clamped to the real ranks (hashNote tells why), and a "~" prefix means
+// "current widths" (old links whose build the legacy widths could not hold).
+// Canonical datasets have no hashRanks, so new links never need "~".
 var maxbits = 5;
 var exportChars = "WvlgUCsA7pGZ3zSjakbP2x0mTB6htH8JuKMq1yrnwEQDLY5IVNXdcioe9fF4OR_-";
-//
-// Field widths are fixed per mastery (floor(ranks/2)+1 bits, array order),
-// so a data fix that changes a rank count would shift every later field of
-// old links. Such entries keep `hashRanks` = the count the old links were
-// written with (S1 Preservation 3, S4/S5 Inspiration 1): plain codes always
-// use it, so links made before the fix decode to the same build (values are
-// clamped to the real ranks). A build the old widths cannot hold
-// (Inspiration 2/2) is written as "~" + a code in the current widths.
 var CODE_CURRENT_PREFIX = "~";
-var codecCurrent = false;
-var bitlen = function(tree, index) {
-    var m = data[tree][index];
+
+// Because we used a random string, we need to reverse it
+var importChars = {}
+for (var i=0; i<exportChars.length; i++) {
+    importChars[exportChars[i]] = i;
+}
+
+function codeBitlen(spec, tree, index, current) {
+    var m = spec[tree] && spec[tree][index];
     if (m == undefined)
         return 0;
-    var ranks = (!codecCurrent && m.hashRanks != null) ? m.hashRanks : m.ranks;
+    var ranks = (!current && m.hashRanks != null) ? m.hashRanks : m.ranks;
     return Math.floor(ranks/2)+1;
 }
-// True when every rank fits the legacy (hashRanks) field widths.
-function legacyCodeFits() {
-    for (var t = 0; t < 3; t++)
-        for (var i = 0; i < data[t].length; i++) {
-            var m = data[t][i];
-            if (m.hashRanks == null) continue;
-            var bits = Math.floor(m.hashRanks/2)+1;
-            if ((state[t][i] || 0) > (1 << bits) - 1) return false;
-        }
-    return true;
-}
-// returns how many of the next masteries can fit in size bits
-var bitfit = function(tree, index, bits) {
+
+// returns how many of the next fields can fit in size bits
+function codeBitfit(spec, tree, index, bits, current) {
     var start = index;
     while (true) {
-        var len = bitlen(tree, index);
+        var len = codeBitlen(spec, tree, index, current);
         if (len > bits || len == 0)
             return index - start;
         bits -= len;
         index++;
     }
 }
-function exportMasteries() {
-    codecCurrent = false;
-    if (legacyCodeFits()) return encodeMasteries();
-    codecCurrent = true;
-    try { return CODE_CURRENT_PREFIX + encodeMasteries(); }
-    finally { codecCurrent = false; }
-}
-function encodeMasteries() {
+
+// ranks[tree][field] -> code (no "~" handling)
+function encodeClassicCode(spec, ranks, current) {
     var str = "";
     var bits = 0;
     var collected = 0; // number of bits collected in this substr
     var tree, jumpStart = -1; // jumpStart is the start of the index, which we can turn to a bool by comparing >-1
+    var st = function(t, i) { return (ranks[t] && ranks[t][i]) || 0; };
     var flush = function() {
         str += exportChars[(jumpStart>-1) << maxbits | bits];
         bits = 0;
@@ -610,38 +653,39 @@ function encodeMasteries() {
         jumpStart = -1;
     }
     for (tree = 0; tree < 3; tree++) {
-        for (var index = 0; index < data[tree].length; index++) {
-            var space = bitfit(tree, index, maxbits - collected);
+        var len = (spec[tree] || []).length;
+        for (var index = 0; index < len; index++) {
+            var space = codeBitfit(spec, tree, index, maxbits - collected, current);
 
             // check if we should flush
             if (space < 1) {
                 flush();
-                space = bitfit(tree, index, maxbits);
+                space = codeBitfit(spec, tree, index, maxbits, current);
             }
 
             // if we are collecting or the condition is right for collecting:
-            // - if we are jumping and this is 0, SKIP. 
-            if (jumpStart > -1 && !(state[tree][index] > 0))
+            // - if we are jumping and this is 0, SKIP.
+            if (jumpStart > -1 && !(st(tree, index) > 0))
                 continue;
             // otherwise:
             // - either we were collecting already (and haven't flushed)
             // - or we can collect any within the next subset that would fit in
-            //   this bit. we do this with some cool filter/map/reduce
-            if (collected > 0 || 
+            //   this bit.
+            if (collected > 0 ||
                 [0,1,2,3,4]
                     .filter(function(a){ return a < space; })
-                    .map(function(a){ return state[tree][index+a] || 0; })
+                    .map(function(a){ return st(tree, index+a); })
                     .some(function(a){ return a > 0; })){
                 // check if we are at the end of a jump
                 if (jumpStart > -1) {
                     bits = index - jumpStart;
                     flush();
                 }
-                    
+
                 // collect more
-                var len = bitlen(tree, index);
-                bits = (bits << len) | (state[tree][index] || 0);
-                collected += len;
+                var l = codeBitlen(spec, tree, index, current);
+                bits = (bits << l) | st(tree, index);
+                collected += l;
             } else if(jumpStart < 0) {
                 // this is the start of a jump
                 // check for flush
@@ -662,85 +706,181 @@ function encodeMasteries() {
     return str;
 }
 
-// Because we used a random string, we need to reverse it
-var importChars = {}
-for (var i=0; i<exportChars.length; i++) {
-    importChars[exportChars[i]] = i;
+// Legacy widths when every rank fits them, else "~" + a code in the current
+// widths (only legacy specs have hashRanks).
+function classicCodeFor(spec, ranks) {
+    for (var t = 0; t < spec.length; t++)
+        for (var i = 0; i < spec[t].length; i++) {
+            var m = spec[t][i];
+            if (m.hashRanks == null) continue;
+            var bits = Math.floor(m.hashRanks/2)+1;
+            if (((ranks[t] && ranks[t][i]) || 0) > (1 << bits) - 1)
+                return CODE_CURRENT_PREFIX + encodeClassicCode(spec, ranks, true);
+        }
+    return encodeClassicCode(spec, ranks, false);
 }
-// Notes (mastery.hashNote) of legacy fields that held more points than the
-// corrected mastery has; filled by decodeMasteries, shown once per import.
-var decodeNotes = [];
-function importMasteries(str) {
-    resetStates(true);
+
+// code -> { ranks: [[rank per field]] x3, notes: [hashNote…] }. Values are
+// clamped to the field's ranks; bad input stops the decode.
+function decodeClassicCode(spec, str) {
     str = String(str || "");
-    codecCurrent = str.charAt(0) === CODE_CURRENT_PREFIX;
-    if (codecCurrent) str = str.slice(1);
-    decodeNotes = [];
-    try { decodeMasteries(str); }
-    finally { codecCurrent = false; }
-
-    updateButtons();
-    updateLabels();
-    updateLink();
-
-    // e.g. an old S1 link with Perseverance 2-3 in the Defense slot that is
-    // Preservation (1 rank) now: the tree total drops, so say why.
-    if (decodeNotes.length && window.LolToast)
-        LolToast.show(decodeNotes.join(" "), { duration: 5000 });
-}
-function decodeMasteries(str) {
+    var current = str.charAt(0) === CODE_CURRENT_PREFIX;
+    if (current) str = str.slice(1);
+    var ranks = spec.map(function(t){ return t.map(function(){ return 0; }); });
+    var notes = [];
     var tree = 0;
     var index = 0;
-    for (var i=0; i<str.length; i++) {
+    for (var i=0; i<str.length && tree < spec.length; i++) {
         var cur = importChars[str[i]];
         // check for bad input
-        if (cur == undefined) 
-            return;
+        if (cur == undefined)
+            break;
         // if the first bit is a 0, we know it's not a jump
         if ((cur & 0x20) == 0) {
             // extract data
-            var num = bitfit(tree, index, maxbits); // how many we can fit
-            var sizes = [0, 1, 2, 3, 4] // an array of each mastery held in this char
+            var num = codeBitfit(spec, tree, index, maxbits, current); // how many we can fit
+            var sizes = [0, 1, 2, 3, 4] // an array of each field held in this char
                             .filter(function(a){ return a < num; })
-                            .map(function(a){ return bitlen(tree, index+a); });
+                            .map(function(a){ return codeBitlen(spec, tree, index+a, current); });
             for (var j=0; j<sizes.length; j++, index++) {
                 // shift amount is the sum of all elements to the right of this one
                 var shift = sizes.slice(j + 1).reduce(function(a, b){ return a + b; }, 0);
                 // shift off the bits we don't want and AND it with a bit mask
                 var value = (cur >> shift) & ((1 << sizes[j]) - 1);
                 // clamp: a legacy field can be wider than the fixed ranks
-                var m = data[tree][index];
-                if (value > m.ranks && m.hashNote && decodeNotes.indexOf(m.hashNote) < 0)
-                    decodeNotes.push(m.hashNote);
-                value = Math.min(value, m.ranks);
-
-                state[tree][index] = value;
-                totalPoints += value;
+                var m = spec[tree][index];
+                if (value > m.ranks && m.hashNote && notes.indexOf(m.hashNote) < 0)
+                    notes.push(m.hashNote);
+                ranks[tree][index] = Math.min(value, m.ranks);
             }
         } else {
             // jump
-            var dist = cur & 0x1f;
-            index += dist;
+            index += cur & 0x1f;
         }
 
         // increment when we're done with a tree
-        if (index >= data[tree].length) {
+        if (index >= spec[tree].length) {
             tree++;
             index = 0;
-            // break when we're done with all trees
-            if (tree >= data.length)
-                break;
         }
     }
+    return { ranks: ranks, notes: notes };
 }
+
+// [{key: rank}] x3 <-> ranks per field of a spec
+function classicMapsFromRanks(spec, ranks) {
+    return spec.map(function(tree, t){
+        var o = {};
+        tree.forEach(function(m, i){ if (ranks[t] && ranks[t][i] > 0) o[m.key] = (o[m.key] || 0) + ranks[t][i]; });
+        return o;
+    });
+}
+
+function classicRanksFromState() {
+    return data.map(function(tree, t){
+        return tree.map(function(m, i){ return state[t][i] || 0; });
+    });
+}
+
+function exportMasteries() {
+    return classicCodeFor(data, classicRanksFromState());
+}
+
+// The current classic build by key ([{key: rank}] x3).
+function captureClassicMaps() {
+    return classicMapsFromRanks(data, classicRanksFromState());
+}
+
+function classicMapsTotal(maps) {
+    var n = 0;
+    (maps || []).forEach(function(o){ for (var k in o) n += o[k] || 0; });
+    return n;
+}
+
+// Carry-over into the active classic dataset (DESIGN §4.5): map by key
+// within the same tree, clamp to the new ranks, then accept bottom-up, tier
+// by tier (tree, then grid order inside a tier): a mastery keeps its points
+// only if its tier requirement (4 x tier points in that tree from accepted
+// lower tiers) and its parent are met, while budget remains (partial ranks
+// allowed). Sets state / totalPoints; -> { total, kept, missing: [keys] }.
+function carryClassicInto(maps) {
+    var total = classicMapsTotal(maps);
+    var cells = [];
+    data.forEach(function(tree, t){
+        tree.forEach(function(m, i){ cells.push({ t: t, i: i, m: m, tier: Math.floor((m.index - 1) / 4) }); });
+    });
+    cells.sort(function(a, b){ return a.tier - b.tier || a.t - b.t || a.i - b.i; });
+    var accepted = [{}, {}, {}];
+    var budget = MAX_POINTS;
+    cells.forEach(function(c){
+        var want = Math.min(((maps[c.t] || {})[c.m.key]) || 0, c.m.ranks);
+        if (!want) return;
+        var lower = 0;
+        data[c.t].forEach(function(m, i){
+            if (Math.floor((m.index - 1) / 4) < c.tier) lower += accepted[c.t][i] || 0;
+        });
+        if (lower < 4 * c.tier) return;
+        if (c.m.parent != null) {
+            var p = data[c.t][c.m.parent];
+            if (!p || (accepted[c.t][c.m.parent] || 0) < p.ranks) return;
+        }
+        var take = Math.min(want, budget);
+        if (take > 0) { accepted[c.t][c.i] = take; budget -= take; }
+    });
+    state = accepted;
+    totalPoints = MAX_POINTS - budget;
+    var missing = [];
+    (maps || []).forEach(function(o, t){
+        var have = {};
+        (data[t] || []).forEach(function(m){ have[m.key] = true; });
+        for (var k in o) if (o[k] > 0 && !have[k]) missing.push({ tree: t, key: k, points: o[k] });
+    });
+    return { total: total, kept: totalPoints, missing: missing };
+}
+
+// Sidebar Revert: a canonical code of the active dataset.
+function importMasteries(str) {
+    var dec = decodeClassicCode(data, str);
+    carryClassicInto(classicMapsFromRanks(data, dec.ranks));
+    updateButtons();
+    updateLabels();
+    updateLink();
+}
+
+// A link's build: canonical (codec null) or legacy. -> carry info + notes.
+function importClassicLink(code, codec) {
+    var spec = codec ? codec.trees : data;
+    var dec = decodeClassicCode(spec, code);
+    var maps = classicMapsFromRanks(spec, dec.ranks);
+    var info = carryClassicInto(maps);
+    info.notes = dec.notes;
+    // A legacy field the canonical tree no longer has, with its reason
+    // (s1-final Demolisher: "Demolisher was removed in V1.0.0.63").
+    info.dropNotes = [];
+    info.explained = 0;
+    if (codec) info.missing.forEach(function(x){
+        var f = null;
+        (codec.trees[x.tree] || []).forEach(function(m){ if (m.key === x.key && m.dropNote) f = m; });
+        if (f) {
+            if (info.dropNotes.indexOf(f.dropNote) < 0) info.dropNotes.push(f.dropNote);
+            info.explained += x.points;
+        }
+    });
+    updateButtons();
+    updateLabels();
+    return info;
+}
+
+// ---------- Hash ---------------------------------------------------------------
 
 function parseHash(raw) {
     // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]" (current) or
-    // just "<mastery-code>" (legacy — assume default data set). Neither code
-    // alphabet contains "|"; the name is URI-encoded.
-    if (!raw) return { id: DEFAULT_DATA_SET_ID, code: "", name: null };
+    // just "<mastery-code>" (legacy plain code). Neither code alphabet
+    // contains "|"; the name is URI-encoded.
+    raw = String(raw || "");
+    if (!raw) return { id: null, code: "", name: null, empty: true };
     var pipe = raw.indexOf('|');
-    if (pipe < 0) return { id: DEFAULT_DATA_SET_ID, code: raw, name: null };
+    if (pipe < 0) return { id: null, code: raw, name: null, plain: true };
     var rest = raw.slice(pipe + 1), name = null;
     var pipe2 = rest.indexOf('|');
     if (pipe2 >= 0) {
@@ -751,146 +891,260 @@ function parseHash(raw) {
     return { id: raw.slice(0, pipe), code: rest, name: name };
 }
 
-function updateMasteries() {
-    var parsed = parseHash(document.location.hash.slice(1));
-    if (parsed.id !== activeDataSetId) {
-        // Switch silently — switchDataSet() will redraw and then we import
-        // the mastery code into the fresh state.
-        switchDataSet(parsed.id, { skipUpdates: true });
-    }
-    // The link names the page (default name when it carries none); set it
-    // before the import so the rewritten hash keeps it.
-    if (window.AirMasterySidebar)
-        AirMasterySidebar.pageName(parsed.name || AirMasterySidebar.DEFAULT_NAME);
-    var ds = getDataSet(activeDataSetId);
-    if (ds && ds.system === "keystone") {
-        // Keystone builds use their own code format (keystone-calculator.js).
-        if (typeof importKeystones === "function") importKeystones(parsed.code);
-    } else {
-        importMasteries(parsed.code);
-    }
-    // A loaded build is a saved page: no "*", Save / Revert greyed.
-    if (window.AirMasterySidebar) AirMasterySidebar.markSaved();
+// ---------- Datasets, switching, carry-over ------------------------------------
+
+var masteryLoadToken = 0;
+var masteryLoadingTimer = null;
+
+// Run fn(dataset, codec) once the entry's dataset (and the alias's legacy
+// codec, if any) are registered: synchronously when they already are (the
+// preloaded first view), else after LolData loads them.
+function withMasteryData(entry, alias, fn, fail) {
+    var codecKey = alias && alias.codec ? alias.codec : null;
+    var ds = LolData.get(entry);
+    var codec = codecKey ? LolData.getCodec(codecKey) : null;
+    if (ds && (!codecKey || codec)) { fn(ds, codec); return; }
+    Promise.all([LolData.load(entry), codecKey ? LolData.loadCodec(alias) : null])
+        .then(function(r){ fn(r[0], r[1]); }, function(err){ if (fail) fail(err); });
 }
 
-// Tear down and redraw the calculator. Called when switching seasons/patches.
-// Icons are vendored per dataset (dataSet.iconBase + mastery.icon); there
-// is no runtime Data Dragon fetch.
+function masteryLoading(on) {
+    clearTimeout(masteryLoadingTimer);
+    if (on) masteryLoadingTimer = setTimeout(function(){ $("body").addClass("ms-loading"); }, 150);
+    else $("body").removeClass("ms-loading");
+}
+
+// Show a dataset with an empty build: client era, AIR sheet period, the
+// matching calculator, sidebar, season nav and Patch dropdown.
+function showDataSet(ds) {
+    if (window.LolTooltip) LolTooltip.hide();
+    activeDataSet = ds;
+    activeDataSetId = ds.id;
+    if (typeof setClientEra === "function") setClientEra(ds.era || "air");
+    if (window.AirSheet) AirSheet.sync(ds);
+    if (isKeystoneDataSet(ds)) {
+        // The keystone system (V5.22 onwards) has its own render path in
+        // keystone-calculator.js; CSS keys off body.keystone-system.
+        $("body").addClass("keystone-system");
+        if (typeof drawKeystoneCalculator === "function") drawKeystoneCalculator(ds);
+    } else {
+        $("body").removeClass("keystone-system");
+        syncDataSetGlobals(ds);
+        redrawCalculator();
+        updateButtons();
+    }
+    syncMasterySidebar(ds);
+    refreshMasteriesSeasonNav(ds);
+    rebuildPatchSelect(ds);
+}
+
+// Tear down and redraw the classic calculator.
 function redrawCalculator() {
     if (window.LolTooltip) LolTooltip.hide();
     $("#calculator").empty();
     drawCalculator();
 }
 
-// Switch to a different season/patch snapshot. Resets state, redraws the
-// calculator, and re-syncs the panel UI.
-function switchDataSet(id, opts) {
-    opts = opts || {};
-    var dataSet = getDataSet(id);
-    if (!dataSet) return false;
-
-    var system = dataSet.system || "classic";
-    activeDataSetId = id;
-
-    // Toggle which calculator container is visible. The keystone system
-    // (V5.22 onwards) is structurally different and uses its own render
-    // path in keystone-calculator.js. CSS keys off `body.keystone-system`.
-    // The AIR sidebar serves both systems (re-synced after the draw).
-    if (system === "keystone") {
-        $("body").addClass("keystone-system");
-        if (typeof drawKeystoneCalculator === "function") {
-            drawKeystoneCalculator(dataSet);
-        }
-    } else {
-        $("body").removeClass("keystone-system");
-        syncDataSetGlobals(dataSet);
-        redrawCalculator();
+// The current build by key, for a carry-over.
+function captureMasteryBuild() {
+    var ds = activeDataSet;
+    if (!ds) return null;
+    if (isKeystoneDataSet(ds)) {
+        var k = typeof captureKeystoneMaps === "function" ? captureKeystoneMaps() : null;
+        return k ? { ds: ds, keystone: true, trees: k.trees, ks: k.keystone, total: k.total } : null;
     }
-    syncMasterySidebar(dataSet);
+    var maps = captureClassicMaps();
+    return { ds: ds, keystone: false, maps: maps, total: classicMapsTotal(maps) };
+}
 
-    // Reflect the active set in the season nav + patch dropdown (without
-    // re-firing change handlers).
-    refreshMasteriesSeasonNav(dataSet);
-    if ($("#patch-select").length) {
-        rebuildPatchSelect(dataSet.season, dataSet.id);
-    }
+function masteryPoints(n) { return n + " point" + (n === 1 ? "" : "s"); }
 
-    if (!opts.skipUpdates) {
-        if (system === "keystone") {
-            if (typeof updateKeystoneLink === "function") updateKeystoneLink();
-        } else {
-            updateLabels();
-            updateLink();
-        }
-    }
+// Write the link of the active build (canonical id and code).
+function writeMasteryLink() {
+    if (isKeystoneDataSet(activeDataSet)) { if (typeof updateKeystoneLink === "function") updateKeystoneLink(); }
+    else updateLink();
+}
+
+function markMasteryPageSaved() {
+    if (window.AirMasterySidebar) AirMasterySidebar.markSaved();
+}
+
+// A carry-over keeps points only inside one tree family (DESIGN §1.7, §4.5).
+function masterySameFamily(from, ds) {
+    return from.ds.family === ds.family && !!from.keystone === isKeystoneDataSet(ds);
+}
+
+// The patch that introduced the later of two tree families: the earliest
+// listed patch of an unbroken run of that family ending at `later`.
+// cb(patch) — loads the in-between datasets it needs (small local files;
+// synchronous when they are in already).
+function masteryReworkPatch(a, b, cb) {
+    var later = LolPatches.compare(a.patch, b.patch) >= 0 ? a : b;
+    var earlier = later === a ? b : a;
+    var list = LolPatches.entries(MASTERY_PAGE);
+    var idx = -1;
+    for (var i = 0; i < list.length; i++) if (list[i].id === later.id) idx = i;
+    var start = later.patch;
+    var step = function(j){
+        var e = list[j];
+        if (!e || LolPatches.compare(e.patch, earlier.patch) <= 0) { cb(start); return; }
+        var next = function(ds){
+            if (ds.family !== later.family || ds.system !== later.system) { cb(start); return; }
+            start = e.patch;
+            step(j - 1);
+        };
+        var have = LolData.get(e);
+        if (have) next(have);
+        else LolData.load(e).then(next, function(){ cb(start); });
+    };
+    if (idx < 0) cb(start); else step(idx - 1);
+}
+
+// Apply a captured build of the same family to the (freshly shown) active
+// dataset; toast what did not carry over.
+function applyMasteryCarry(from) {
+    var to = activeDataSet;
+    if (!from || !to || !from.total) return;
+    var info = from.keystone ? keystoneCarryInto(from.trees, from.ks) : carryClassicInto(from.maps);
+    if (from.keystone) drawKeystoneCalculator();
+    else { updateButtons(); updateLabels(); }
+    var lost = info.total - info.kept;
+    if (lost > 0 && window.LolToast)
+        LolToast.show(masteryPoints(lost) + " could not carry over to " + to.patch, { duration: 5000 });
+}
+
+// Patch / Season dropdown: switch in-page, carrying the build over. A switch
+// into another tree family starts empty and says which patch reworked the
+// trees (found before the switch is shown, so view, link and toast change
+// together).
+function switchMasteryPatch(entry) {
+    if (!entry) return false;
+    if (activeDataSet && entry.id === activeDataSet.id) { rebuildPatchSelect(activeDataSet); return true; }
+    var from = captureMasteryBuild();
+    var token = ++masteryLoadToken;
+    masteryLoading(true);
+    withMasteryData(entry, null, function(ds){
+        if (token !== masteryLoadToken) return;
+        var reset = !!(from && from.total) && !masterySameFamily(from, ds);
+        var finish = function(reworkPatch){
+            if (token !== masteryLoadToken) return;
+            masteryLoading(false);
+            showDataSet(ds);
+            if (reset) {
+                if (window.LolToast) LolToast.show("Masteries were reworked in " + reworkPatch + ": page reset", { duration: 5000 });
+            } else applyMasteryCarry(from);
+            writeMasteryLink();
+            markMasteryPageSaved();
+            prefetchMasterySeason(ds);
+        };
+        if (reset) masteryReworkPatch(from.ds, ds, finish); else finish(null);
+    }, function(){
+        if (token !== masteryLoadToken) return;
+        masteryLoading(false);
+        if (activeDataSet) { refreshMasteriesSeasonNav(activeDataSet); rebuildPatchSelect(activeDataSet); }
+        if (window.LolToast) LolToast.show("Could not load " + entry.patch + " data");
+    });
     return true;
 }
 
-// Repopulate the Patch dropdown with the patches available for a given
-// season, then select the requested set id.
-function rebuildPatchSelect(season, selectedId) {
-    var $patch = $("#patch-select");
-    if (!$patch.length) return;
-    $patch.empty();
-    for (var i = 0; i < masteryDataSets.length; i++) {
-        var ds = masteryDataSets[i];
-        if (ds.season !== season) continue;
-        $patch.append($("<option>").attr("value", ds.id).text(ds.patchLabel));
-    }
-    if (selectedId) $patch.val(selectedId);
+function prefetchMasterySeason(ds) {
+    if (window.LolData && LolData.prefetch) LolData.prefetch(LolPatches.list(MASTERY_PAGE, ds.season));
 }
 
-// Season dropdown + tabs come from the shared season-led nav (nav.js); the
-// patch dropdown stays page-local and lists this season's snapshots.
-function refreshMasteriesSeasonNav(dataSet) {
-    if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
-    if (typeof buildSeasonNav !== "function") return;
-    buildSeasonNav({
-        page: "masteries",
-        seasonSelect: "#season-select",
-        currentKey: "s" + dataSet.season,
-        onSeason: function(def){
-            // Stay in-page: first dataset of the chosen season.
-            for (var i = 0; i < masteryDataSets.length; i++) {
-                if ("s" + masteryDataSets[i].season === def.key) {
-                    switchDataSet(masteryDataSets[i].id);
-                    return true;
-                }
-            }
-            return false;
-        }
+// Open what a hash names (first load, hashchange, Back / Forward): its
+// dataset, its build (legacy codes through their codec) and its page name;
+// then rewrite the hash to the canonical link and mark the page saved.
+function openMasteryLink(raw, isBoot) {
+    var r = LolPatches.fromHash(MASTERY_PAGE, "#" + String(raw || ""));
+    var parsed = parseHash(raw);
+    if (!r.entry) return;
+    var token = ++masteryLoadToken;
+    if (!isBoot) masteryLoading(true);
+    withMasteryData(r.entry, r.alias, function(ds, codec){
+        if (token !== masteryLoadToken) return;
+        masteryLoading(false);
+        if (!activeDataSet || activeDataSet.id !== ds.id) showDataSet(ds);
+        else { refreshMasteriesSeasonNav(ds); rebuildPatchSelect(ds); }   // the dropdowns may show a cancelled switch
+        // The link names the page (default name when it carries none); set
+        // it before the import so the rewritten hash keeps it.
+        if (window.AirMasterySidebar)
+            AirMasterySidebar.pageName(parsed.name || AirMasterySidebar.DEFAULT_NAME);
+        // An unknown id opens the page default without its build.
+        var code = r.unknown ? "" : parsed.code;
+        var info;
+        if (isKeystoneDataSet(ds)) info = typeof importKeystones === "function" ? importKeystones(code, codec) : null;
+        else info = importClassicLink(code, codec);
+        writeMasteryLink();
+        // A loaded build is a saved page: no "*", Save / Revert greyed.
+        markMasteryPageSaved();
+        masteryImportToast(info, ds);
+        prefetchMasterySeason(ds);
+    }, function(){
+        if (token !== masteryLoadToken) return;
+        masteryLoading(false);
+        if (window.LolToast) LolToast.show("Could not load " + r.entry.patch + " data");
+        // First load: fall back to the page default.
+        var def = LolPatches.pageDefault(MASTERY_PAGE);
+        if (!activeDataSet && def && def.id !== r.entry.id)
+            withMasteryData(def, null, function(ds){ showDataSet(ds); writeMasteryLink(); markMasteryPageSaved(); });
     });
 }
 
-function buildSeasonPatchSelectors() {
-    var active = getDataSet(activeDataSetId) || getDataSet(DEFAULT_DATA_SET_ID);
-    refreshMasteriesSeasonNav(active);
-    rebuildPatchSelect(active.season, active.id);
-    $("#patch-select").on("change", function(){
-        switchDataSet($(this).val());
+// e.g. an old S1 link with Perseverance 2-3 in the Defense slot that is
+// Preservation (1 rank) now: the tree total drops, so say why; a legacy
+// Demolisher point (removed in V1.0.0.63) says so too.
+function masteryImportToast(info, ds) {
+    if (!info || !window.LolToast) return;
+    var parts = [];
+    (info.notes || []).forEach(function(n){ parts.push(n); });
+    (info.dropNotes || []).forEach(function(n){ parts.push(/[.!?]$/.test(n) ? n : n + "."); });
+    var lost = info.total - info.kept - (info.explained || 0);
+    if (lost > 0)
+        parts.push(((info.dropNotes || []).length ? lost + " more point" + (lost === 1 ? "" : "s") : masteryPoints(lost))
+            + " could not carry over to " + ds.patch + ".");
+    if (parts.length) LolToast.show(parts.join(" "), { duration: 5000 });
+}
+
+// hashchange (an edited URL, Back / Forward). A hash that names what the
+// page already shows needs nothing: that is the page's own location.replace
+// arriving late (file:// commits it a task later; a loaded machine can push
+// it past the re-bind), and it must not cancel a Patch switch in flight.
+function updateMasteries() {
+    if (activeDataSet && normMasteryHash(document.location.hash) === masteryShownHash) return;
+    openMasteryLink(document.location.hash.slice(1), false);
+}
+
+// Patch dropdown: this season's listed patches, oldest first (registry
+// labels), the active one selected.
+function rebuildPatchSelect(ds) {
+    if (!ds || !$("#patch-select").length) return;
+    LolPatches.fillPatchSelect($("#patch-select")[0], MASTERY_PAGE, ds.season, ds.id);
+}
+
+// Season dropdown + tabs come from the shared season-led nav (nav.js); the
+// Season dropdown stays in-page on the season's default patch.
+function refreshMasteriesSeasonNav(ds) {
+    if (typeof buildSeasonNav !== "function") return;
+    buildSeasonNav({
+        page: MASTERY_PAGE,
+        seasonSelect: "#season-select",
+        entry: ds,
+        onSeason: function(def){
+            var e = LolPatches.seasonDefault(MASTERY_PAGE, def.key);
+            return e ? switchMasteryPatch(e) : false;
+        }
     });
 }
 
 $(function(){
-    // Bootstrap the active data set so treeOffsets/MAX_POINTS/state are sane
-    // before the first draw. Keystone datasets have a different data shape
-    // (an object with `trees`, not three arrays), so when the hash points at
-    // one we bootstrap the classic globals from the default classic set and
-    // let updateMasteries() below perform the actual switch.
-    var initial = parseHash(document.location.hash.slice(1));
-    var initialDs = getDataSet(initial.id) || getDataSet(DEFAULT_DATA_SET_ID);
-    var bootstrapDs = (initialDs.system === "keystone") ? getDataSet(DEFAULT_DATA_SET_ID) : initialDs;
-    syncDataSetGlobals(bootstrapDs);
-
-    // Calculator
-    drawCalculator();
-
     // Panel: the AIR sidebar (emblems + counts, Points Available, Save /
     // Return / Delete / Revert, double-click an emblem to reset its tree).
-    syncMasterySidebar(bootstrapDs);
     watchPageNameForLink();
 
-    buildSeasonPatchSelectors();
+    $("#patch-select").on("change", function(){
+        var e = LolPatches.entry(MASTERY_PAGE, $(this).val());
+        if (e) switchMasteryPatch(e);
+    });
 
     $("#share").click(function(){
         var href = $("#exportLink").attr("href") || (document.location.pathname + document.location.hash);
@@ -902,9 +1156,8 @@ $(function(){
         });
     });
 
-    // Once set up, load if hash present
-    if (document.location.hash != "")
-        updateMasteries();
+    // The dataset the hash names (preloaded: drawn synchronously).
+    openMasteryLink(document.location.hash.slice(1), true);
 
     // Listen for hash changes
     $(window).bind('hashchange', updateMasteries);

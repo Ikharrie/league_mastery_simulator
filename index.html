@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" data-lol-page="masteries" data-lol-shell="legacy">
+<html xmlns="http://www.w3.org/1999/xhtml" data-lol-page="masteries">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,13 +37,13 @@
             <div class="header-bar">
                 <a class="header-brand" href="index.html"><img class="header-brand-mark" src="images/lcu/runes-icon-32.png" width="24" height="24" alt="" /><span class="header-title">Legacy LoL Calculator</span></a>
                 <nav class="header-tabs">
-                    <a class="header-tab active" href="index.html#s3-pbe|">Masteries</a>
-                    <a class="header-tab" href="runes.html#preReforged-V3.14|">Runes</a>
+                    <a class="header-tab active" href="index.html#m-V1.0.0.152|">Masteries</a>
+                    <a class="header-tab" href="runes.html#preReforged-V3.13|">Runes</a>
                 </nav>
                 <div class="header-right">
                     <div class="header-controls">
                         <label class="header-select-label"><span class="header-select-text">Season</span><select id="season-select" class="lol-select lcu-select header-season"><option value="s3" selected="selected">Season 3</option></select></label>
-                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="patch-select" class="lol-select lcu-select header-patch"><option value="s3-pbe" selected="selected">V1.0.0.152 (Preseason 3)</option></select></label>
+                        <label class="header-select-label"><span class="header-select-text">Patch</span><select id="patch-select" class="lol-select lcu-select header-patch"><option value="m-V1.0.0.152" selected="selected">V1.0.0.152 (Preseason 3)</option></select></label>
                         <a id="exportLink" class="header-link lcu-link" href="#" aria-label="Direct link to this mastery page" data-lol-tip="Direct link to this mastery page"><span class="lcu-link-text">Link</span></a>
                     </div>
                     <button id="share" class="lcu-btn header-share" type="button" aria-label="Copy shareable URL to clipboard" data-lol-tip="Copy a shareable link to the clipboard">Share</button>
@@ -70,7 +70,7 @@
                     <span class="air-subtab" aria-hidden="true">Ranked Stats</span>
                     <span class="air-subtab" aria-hidden="true">Match History</span>
                     <span class="air-subtab" aria-hidden="true">Champions</span>
-                    <a class="air-subtab is-link" data-air-link="runes" href="runes.html#preReforged-V3.14|">Runes</a>
+                    <a class="air-subtab is-link" data-air-link="runes" href="runes.html#preReforged-V3.13|">Runes</a>
                     <span class="air-subtab is-active" data-air-link="masteries" aria-current="page">Masteries</span>
                     <span class="air-subtab" aria-hidden="true">Spells</span>
                     <span class="air-subtab is-disabled" aria-hidden="true">Achievements</span>
@@ -135,16 +135,8 @@
         <div id="toast" class="lol-toast" role="status" aria-live="polite"></div>
 
         <script type="text/javascript" src="vendor/jquery-1.7.0.min.js"></script>
-        <!-- TRANSITION: the old data files of calculator.js / keystone-calculator.js.
-             Phase 2 deletes these eight tags and data-lol-shell="legacy" on <html>. -->
-        <script type="text/javascript" src="season1-data.js"></script>
-        <script type="text/javascript" src="season2-data.js"></script>
-        <script type="text/javascript" src="season4-data.js"></script>
-        <script type="text/javascript" src="season5-data.js"></script>
-        <script type="text/javascript" src="season6-keystone-data.js"></script>
-        <script type="text/javascript" src="preseason7-keystone-data.js"></script>
-        <script type="text/javascript" src="season7-keystone-data.js"></script>
-        <script type="text/javascript" src="data.js"></script>
+        <!-- The mastery dataset itself comes from data/masteries/ (lol-data.js;
+             the <head> preload writes the one the link opens). -->
         <script type="text/javascript" src="calculator.js"></script>
         <script type="text/javascript" src="keystone-calculator.js"></script>
     </body>

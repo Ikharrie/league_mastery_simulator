@@ -1,9 +1,19 @@
-// Pre-Reforged rune page (runes.html, V3.14-V7.21).
+// Pre-Reforged rune page (runes.html, V1.0.0.63-V7.21: 25 listed patches).
 //
-// Two client looks, keyed off body[data-client] (nav.js clientEraFor):
-//   air  V3.14-V6.24  the AIR client's Runes tab: every widget sits on the
-//                     painted panels of the full burnt-parchment art
-//                     (css/runes-legacy.css §A).
+// Data (DESIGN §1.6, §2): the registry entry of the patch (patch-registry.js
+// via lol-data.js LolPatches) merged with its rune catalog
+// (data/runes/catalog-*.js, LolData): { ...entry, runes }. The entry carries
+// the per-patch chrome: era, season, airPeriod, slots, iconBasePath,
+// parchmentImage, combiner, quintHalo. Nothing is derived from the id.
+//
+// Two client looks, keyed off entry.era (body[data-client], nav.js):
+//   air  V1.0.0.63-V6.22  the AIR client's Runes tab: every widget sits on
+//                     the painted panels of the full burnt-parchment art
+//                     (css/runes-legacy.css §A). The sheet head follows
+//                     entry.airPeriod (air-sheet.js AirSheet.sync):
+//                     2010 = S1 client, 2012 = S2 (and V1.0.0.152),
+//                     2013 = V3.04, 2014 = V3.13+ (css/air-sheet.css §7,
+//                     css/runes-legacy.css §A8).
 //   lcu  V7.21        the League Client's legacy rune page: inventory left
 //                     of the gold rune circle (30 hex sockets), stats in
 //                     the circle's centre (§B).
@@ -12,8 +22,13 @@
 //
 // Slot order = the in-game level-unlock progression:
 //   0-8 Marks, 9-17 Seals, 18-26 Glyphs, 27-29 Quintessences.
-// Share hash: #<datasetId>|<30 comma-separated rune ids or _>[|<level>]
-// (unchanged; old links decode to the same page).
+// Share hash: #<id>|<30 comma-separated rune ids or _>[|<level>]; the
+// legacy plain #<30 ids> opens V7.21 (LOL_ALIASES.plain). Old ids
+// (preReforged-V6.24) and ids of unlisted patches resolve through
+// LolPatches.resolve, and the URL is rewritten to the canonical id.
+// Patch / season switch: every placed rune whose id is in the new catalog
+// (same colour) stays; the rest is reported once (LolToast). The champion
+// level stays (DESIGN §2.5, §4.5).
 
 var CATEGORY_ORDER = ["mark", "seal", "glyph", "quintessence"];
 var CATEGORY_LABEL = {
@@ -118,12 +133,12 @@ var LCU_FRAME = {
     large: { empty: 0, avail: 1, base: 2 }
 };
 // Rune stat → the client's per-stat icon name (rcp-fe-lol-runes stat map,
-// keyed by our runes-data.js stat keys; scaling stats get "PerLevel", two
+// keyed by the stat keys of the rune catalogs (data/runes/); scaling stats get "PerLevel", two
 // stats are joined with "+" in sorted order). File =
 // images/runes-lcu/icons/icon_runes_<name>_<mark|seal|glyph|large>.png.
 // Lethality is the client's rPhysicalLethality (→ armor_pen);
 // Precision = lethality + magic pen (→ hybrid_pen), Mark of Precision (5401)
-// included now that runes-data.js carries its lethality.
+// included now that its catalog carries the lethality.
 var LCU_STAT_ICON = {
     ad: "attack_damage", adPerLevel: "scaling_attack_damage",
     ap: "ability_power", apPerLevel: "scaling_ability_power",
@@ -155,6 +170,9 @@ var LCU_ICON_DEFAULT = { mark: "attack_damage", seal: "armor", glyph: "magic_res
 // lcu / lcuLevel: the 7.21 client's own stat names (rcp-fe-lol-l10n
 // trans.json basic_data_stats_<Stat>; scaling stats "<name> at level 18",
 // where the regen names drop " / 5 sec."), used by the LCU stats table.
+// dodge: the S1-S2 Evasion seals / quints (catalogs before V1.0.0.132,
+// Data Dragon rFlatDodgeMod); the Apr 2011 client lists "+0.75% Dodge"
+// (refs compare/runes-s1s2, XGwtSJZL8hc). AIR only: the LCU never had it.
 var CLIENT_STAT = [
     { key: "ad",          label: "Physical Dmg",      lcu: "Attack Damage" },
     { key: "ap",          label: "Ability Power",     lcu: "Ability Power" },
@@ -166,6 +184,7 @@ var CLIENT_STAT = [
     { key: "mpen",        label: "Magic Pen.",        lcu: "Magic Penetration" },
     { key: "mr",          label: "Magic Resist",      lcu: "Magic Resist" },
     { key: "armor",       label: "Armor",             lcu: "Armor" },
+    { key: "dodge",       label: "Dodge",             pct: true, lcu: "Dodge" },
     { key: "hp",          label: "Health",            lcu: "Health" },
     { key: "hpPercent",   label: "Health",            pct: true, lcu: "Health" },
     { key: "hpRegen",     label: "Health Regen / 5",  lcu: "Health Regen / 5 sec.", lcuLevel: "Health Regen" },
@@ -186,9 +205,11 @@ var CLIENT_STAT = [
 // primary stat family at full value, everything else is secondary; quints
 // are all primary. Derived here from the stat keys (the catalog carries no
 // flag). Seen: Mark of Warding (MR) = Secondary, Glyph of CDR = Primary.
+// Dodge (S1-S2) only ever came on seals and quints (no mark or glyph of
+// Evasion existed), so the seal is its primary colour.
 var PRIMARY_STATS = {
     mark:  { ad: 1, as: 1, crit: 1, critDmg: 1, arpen: 1, lethality: 1, mpen: 1 },
-    seal:  { armor: 1, hp: 1, hpPercent: 1, hpRegen: 1, mpRegen: 1, energyRegen: 1, gold: 1 },
+    seal:  { armor: 1, dodge: 1, hp: 1, hpPercent: 1, hpRegen: 1, mpRegen: 1, energyRegen: 1, gold: 1 },
     glyph: { ap: 1, mr: 1, cdr: 1, mp: 1, energy: 1 }
 };
 
@@ -243,10 +264,26 @@ function runeIsPrimary(rune) {
     return false;
 }
 
+// The tag the AIR tooltip shows top-right, or "" for none. Before V1.0.0.152
+// (S1, S2) a quintessence tooltip has no tag: both quint captures show an
+// empty corner (Apr 2011 XGwtSJZL8hc, Greater Quintessence of Fortitude;
+// Feb 2012 qdEm4Ztp8jM, Greater Quintessence of Potency), while a mark has
+// one in the same period (client 1.58.12_04_19, Apr 2012, TqZ4khPXkBI:
+// Greater Mark of Warding "Secondary"), so marks, seals and glyphs keep it.
+// From V1.0.0.152 on quints keep "Primary" (no S3+ quint capture yet).
+function runeTipKind(rune) {
+    var ds = activeRuneDataSet;
+    if (rune.category === "quintessence" && ds && ds.patch && LolPatches.compare(ds.patch, "V1.0.0.152") < 0) return "";
+    return runeIsPrimary(rune) ? "Primary" : "Secondary";
+}
+
 // ---------- State ------------------------------------------------------------
 
-var activeRuneDataSetId = null;
-var activeRuneDataSet = null;
+var RUNE_PAGE = "runes";
+var activeRuneEntry = null;      // the registry entry (LolPatches) on screen
+var activeRuneDataSetId = null;  // its id (canonical)
+var activeRuneDataSet = null;    // entry + catalog (LolData.load)
+var runeById = {};               // rune id -> rune of the active catalog
 var runeSlots = [];           // length 30, each null or rune object
 var slotMeta = [];            // length 30, { category, indexInCategory }
 var championLevel = 18;
@@ -255,10 +292,17 @@ var openCategory = null;      // the one expanded library category (accordion)
 var runeFilters = { category: "all", tiers: { 1: true, 2: true, 3: true } };
 var PAGE_NAME = "Rune Page 1";
 var _runeToastTimer = null;
+var runeLoadToken = 0;        // bumped per switch; stale loads are dropped
+var runeLoadingTimer = null;
 
 function runeEra() {
-    if (typeof clientEraFor === "function" && activeRuneDataSetId) return clientEraFor(activeRuneDataSetId);
+    if (activeRuneDataSet) return activeRuneDataSet.era === "lcu" ? "lcu" : "air";
     return (document.body && document.body.getAttribute("data-client")) || "air";
+}
+
+function runePageDefaultId() {
+    var d = window.LolPatches ? LolPatches.pageDefault(RUNE_PAGE) : null;
+    return d ? d.id : "preReforged-V7.21";
 }
 
 // AIR: the Data Dragon hex art (hi-res client art where we have it).
@@ -297,12 +341,16 @@ function lcuGlyph(rune, cls) {
 
 function categoryOfSlot(slotIndex) { return slotMeta[slotIndex].category; }
 
+function runeOfId(id) {
+    return id != null && Object.prototype.hasOwnProperty.call(runeById, String(id)) ? runeById[String(id)] : null;
+}
+
 function initSlotsForDataSet(dataSet) {
     runeSlots = [];
     slotMeta = [];
     for (var i = 0; i < CATEGORY_ORDER.length; i++) {
         var cat = CATEGORY_ORDER[i];
-        var count = dataSet.slots[cat] || 0;
+        var count = (dataSet.slots && dataSet.slots[cat]) || 0;
         for (var j = 0; j < count; j++) {
             runeSlots.push(null);
             slotMeta.push({ category: cat, indexInCategory: j });
@@ -310,13 +358,19 @@ function initSlotsForDataSet(dataSet) {
     }
 }
 
+// Place `ids` (slot order, "_" / null = empty) on the active catalog: a
+// rune lands only where its id exists in this catalog with the slot's
+// colour (DESIGN §4.5). Returns how many named runes did not land.
 function fillSlotsFromIds(ids) {
+    var dropped = 0;
     for (var i = 0; i < ids.length && i < runeSlots.length; i++) {
         var id = ids[i];
         if (!id || id === "_") continue;
-        var rune = getRuneById(activeRuneDataSet, id);
+        var rune = runeOfId(id);
         if (rune && rune.category === categoryOfSlot(i)) runeSlots[i] = rune;
+        else dropped++;
     }
+    return dropped;
 }
 
 function placedCount(runeId) {
@@ -331,31 +385,86 @@ function pageSignature(slots) {
 function isDirty() { return pageSignature(runeSlots) !== pageSignature(savedSlots); }
 function markSaved() { savedSlots = runeSlots.slice(); }
 
-function switchRuneDataSet(id, opts) {
-    opts = opts || {};
-    var dataSet = getRuneDataSet(id);
-    if (!dataSet) return false;
-    activeRuneDataSetId = id;
-    activeRuneDataSet = dataSet;
-    initSlotsForDataSet(dataSet);
-    markSaved();
+// ---------- Dataset switch (DESIGN §2.5) ------------------------------------
 
-    refreshRunesSeasonNav(dataSet);
-    rebuildRunePatchSelect(dataSet.season, dataSet.id);
+// Make `ds` (LolData dataset = entry + catalog) the page's dataset: slots
+// emptied; chrome, header and sheet follow its entry. The caller places the
+// runes, then renders.
+function activateRuneDataSet(ds) {
+    activeRuneEntry = (window.LolPatches && LolPatches.entry(RUNE_PAGE, ds.id)) || ds;
+    activeRuneDataSetId = ds.id;
+    activeRuneDataSet = ds;
+    runeById = {};
+    for (var i = 0; i < (ds.runes || []).length; i++) runeById[String(ds.runes[i].id)] = ds.runes[i];
+    initSlotsForDataSet(ds);
     applyEraChrome();
-
-    if (!opts.skipUpdates) {
-        renderAll();
-        updateLink();
-    }
-    return true;
+    refreshRunesNav();
 }
 
-// Per-era bits the stylesheet cannot do alone: the board art, the LCU
-// framed-dropdown class, the combiner (S3-S4 AIR only) and quint glow.
+function setRuneLoading(on) {
+    if (runeLoadingTimer) { clearTimeout(runeLoadingTimer); runeLoadingTimer = null; }
+    var $app = $(".legacy-app");
+    if (!on) { $app.removeAttr("data-rl-loading"); return; }
+    // The current page stays on screen; only a slow load shows that it is
+    // working (after 150 ms, DESIGN §2.5 step 2).
+    runeLoadingTimer = setTimeout(function(){ $app.attr("data-rl-loading", ""); }, 150);
+}
+
+function runeWord(n) { return n === 1 ? "1 rune" : n + " runes"; }
+
+// Open `entry`. opts.slotIds / opts.level: the page of a share link (hash
+// load); without them the page on screen carries over (patch / season
+// switch). Synchronous when the catalog is already registered (first
+// paint, revisits), otherwise after LolData.load(); a newer switch wins.
+function openRuneEntry(entry, opts) {
+    opts = opts || {};
+    if (!entry) return;
+    var token = ++runeLoadToken;
+    var fromLink = !!opts.slotIds;
+    var carry = fromLink ? null : {
+        ids: runeSlots.map(function(r){ return r ? r.id : null; }),
+        level: championLevel
+    };
+    var prev = activeRuneEntry;
+    function done(ds) {
+        if (token !== runeLoadToken) return;
+        setRuneLoading(false);
+        activateRuneDataSet(ds);
+        var dropped = fillSlotsFromIds(fromLink ? opts.slotIds : carry.ids);
+        markSaved();                         // the result is the new baseline
+        setChampionLevel(fromLink ? opts.level : carry.level);
+        renderAll();
+        updateLink();                        // canonical id in the URL
+        if (dropped) {
+            showToast(fromLink
+                ? runeWord(dropped) + " of this link " + (dropped === 1 ? "is" : "are") + " not in " + entry.patch
+                : runeWord(dropped) + " could not carry over to " + entry.patch);
+        }
+        LolData.prefetch(LolPatches.list(RUNE_PAGE, activeRuneEntry.season));
+    }
+    var have = LolData.get(entry);
+    if (have) { done(have); return; }
+    setRuneLoading(true);
+    LolData.load(entry).then(done, function(){
+        if (token !== runeLoadToken) return;
+        setRuneLoading(false);
+        if (prev) {                          // the dropdowns go back
+            $("#patch-select").val(prev.id);
+            $("#season-select").val(prev.season);
+        }
+        showToast("Could not load " + (entry.patch || entry.id) + " data");
+    });
+}
+
+// Per-era bits the stylesheet cannot do alone, all from the registry entry
+// (DESIGN §3.5): client era, the AIR sheet's season / period / chips, the
+// board art, the LCU framed-dropdown class, the Rune Combiner and the quint
+// halo.
 function applyEraChrome() {
-    var era = runeEra();
     var ds = activeRuneDataSet;
+    if (ds && typeof setClientEra === "function") setClientEra(ds.era === "lcu" ? "lcu" : "air");
+    if (activeRuneEntry && window.AirSheet) AirSheet.sync(activeRuneEntry);
+    var era = runeEra();
     var $board = $("#parchment");
     if (era === "air") {
         var bg = (ds && ds.parchmentImage) || "images/runes/summoners_runes_bg.jpg";
@@ -364,20 +473,20 @@ function applyEraChrome() {
         $board.css("background-image", "");
     }
     $("#rune-category-filter").toggleClass("lcu-select", era === "lcu");
-    // Rune Combiner: a 4th blue button in the S3/S4 button box (removed
-    // from the client in V5.1).
-    var combiner = era === "air" && ds && ds.season <= 4;
+    // Rune Combiner: a 4th blue button in the AIR button box, from beta to
+    // V5.1 (entry.combiner).
+    var combiner = era === "air" && !!(ds && ds.combiner);
     $(".legacy-app").attr("data-rl-buttons", combiner ? "4" : "3");
-    // Quint halo, from the capture nearest each dataset (the halo changed
-    // between client builds):
-    //   V3.14  cream   May 2013, 3.6.13 (refs sb_2013_runepage_frame.png:
-    //                  pale cream fringe round the ram quints)
-    //   V4.20  ember   Apr 2015, ~5.7 (fandom Summoner_profile_05: orange-
-    //                  red); no 2014 capture found, this is the nearest
-    //   V5.21+ silver  Nov 2015, 5.22 (crop_phreak_2015: silver-grey on
-    //                  ram AND dragon quints)
-    var quint = !ds ? "silver" : ds.season <= 3 ? "cream" : ds.season === 4 ? "ember" : "silver";
-    $(".legacy-app").attr("data-rl-quint", quint);
+    // Quint halo per client build (entry.quintHalo, css §A1):
+    //   cream   up to V3.14  (May 2013 refs sb_2013_runepage_frame.png; the
+    //                        2011 / 2012 captures show the same pale fringe)
+    //   ember   V3.15-V5.20  (Apr 2015, fandom Summoner_profile_05)
+    //   silver  V5.21+       (Nov 2015, crop_phreak_2015)
+    $(".legacy-app").attr("data-rl-quint", (ds && ds.quintHalo) || "silver");
+    // Tier filter: "☑ Tier: 1 ☑ Tier: 2 …" up to V1.0.0.138 (Apr 2011 - Apr
+    // 2012 captures), "Tier: ☑1 ☑2 ☑3" by Nov 2012 (css §A8).
+    var eachTier = !!(ds && ds.patch && LolPatches.compare(ds.patch, "V1.0.0.151") < 0);
+    $(".legacy-app").attr("data-rl-tiers", eachTier ? "each" : "shared");
     applyLcuLayout();
 }
 
@@ -489,6 +598,7 @@ function nextEmptySlotIndex(category) {
 // ---------- Library (category accordion + rune rows) ------------------------
 
 function buildCategoriesSidebar() {
+    if (!activeRuneDataSet) return;          // catalog still loading
     var era = runeEra();
     var $cats = $("#runes-categories");
     var keep = $cats.scrollTop();
@@ -529,8 +639,16 @@ function buildCategoriesSidebar() {
                             .append($("<span>").addClass("rl-rune-name").text(rune.name))
                             .append($("<span>").addClass("rl-rune-desc").text(rune.desc || runeShortText(rune))));
                 } else {
+                    // One span per stat line, "\n" between them: plain
+                    // pre-line text, except that the 2012 rows indent each
+                    // line on its own (css §A4).
+                    var $text = $("<span>").addClass("rl-rune-text");
+                    runeShortText(rune).split("\n").forEach(function(line, k){
+                        if (k) $text.append(document.createTextNode("\n"));
+                        $text.append($("<span>").addClass("rl-rune-line").text(line));
+                    });
                     $row.append($("<img>").addClass("rl-rune-icon").attr({ src: runeIconSrc(rune, false), alt: "", draggable: "false" }))
-                        .append($("<span>").addClass("rl-rune-text").text(runeShortText(rune)))
+                        .append($text)
                         .append($("<span>").addClass("rl-rune-count").text("x" + left));
                 }
                 $items.append($row);
@@ -661,7 +779,7 @@ function initDrawnScrollbars() {
 
 function runeTooltipHtml(rune, era) {
     var esc = typeof lolEscapeHtml === "function" ? lolEscapeHtml : function(s){ return String(s); };
-    var kind = runeIsPrimary(rune) ? "Primary" : "Secondary";
+    var kind = runeTipKind(rune);
     if (era === "lcu") {
         // The client's rune-slot tooltip: <h6> name + <p> description
         // (tooltip-small, 180-300px; css §B6).
@@ -671,7 +789,8 @@ function runeTooltipHtml(rune, era) {
             + '</div>';
     }
     return '<div class="rl-tt" style="--tt-title-color:' + CATEGORY_TT_COLOR[rune.category] + '">'
-        + '<div class="tt-row"><span class="tt-tier">Tier: ' + rune.tier + '</span><span class="tt-kind">' + kind + '</span></div>'
+        + '<div class="tt-row"><span class="tt-tier">Tier: ' + rune.tier + '</span>'
+        + (kind ? '<span class="tt-kind">' + kind + '</span>' : '') + '</div>'
         + '<div class="tt-name">' + esc(rune.name) + '</div>'
         + '<div class="tt-desc">' + esc(rune.desc || runeShortText(rune)) + '</div>'
         + '</div>';
@@ -688,7 +807,7 @@ function showRuneTip(e, rune, el) {
 
 function hideRuneTip() { if (window.LolTooltip) LolTooltip.hide(); }
 
-function runeForRow(el) { return getRuneById(activeRuneDataSet, $(el).attr("data-rune")); }
+function runeForRow(el) { return runeOfId($(el).attr("data-rune")); }
 function runeForSlot(el) { return runeSlots[+$(el).attr("data-slot")] || null; }
 
 // ---------- Stats -------------------------------------------------------------
@@ -797,42 +916,55 @@ function encodeHash() {
     return hash;
 }
 
+// The page part of a share link: { slotIds, level }. Which dataset it opens
+// is LolPatches.fromHash's job (aliases, unlisted patches, the plain form).
 function parseRuneHash(raw) {
-    if (!raw) return { id: DEFAULT_RUNE_DATA_SET_ID, slotIds: [], level: 18 };
+    raw = String(raw == null ? "" : raw).replace(/^#/, "");
+    if (!raw) return { slotIds: [], level: 18 };
     var parts = raw.split("|");
-    if (parts.length === 1) return { id: DEFAULT_RUNE_DATA_SET_ID, slotIds: parts[0].split(","), level: 18 };
+    if (parts.length === 1) return { slotIds: parts[0].split(","), level: 18 };
     var level = parseInt(parts[2], 10);
     if (!(level >= 1 && level <= 18)) level = 18;
-    return { id: parts[0], slotIds: (parts[1] || "").split(","), level: level };
+    return { slotIds: (parts[1] || "").split(","), level: level };
 }
 
+// Canonical link: the entry's own id (never an alias); an empty page of the
+// page default at level 18 is the bare page. The page writes it with
+// location.replace (no history entry) and remembers it as runeShownHash, so
+// onRuneHashChange can tell that write from a hash someone else set.
+var runeShownHash = null;      // the hash of what the page shows (last written)
+function normRuneHash(h) { return String(h == null ? "" : h).replace(/^#/, ""); }
 function updateLink() {
+    if (!activeRuneDataSetId) return;
     var hash = "";
     var hasAny = runeSlots.some(function(s){ return s !== null; });
-    if (hasAny || activeRuneDataSetId !== DEFAULT_RUNE_DATA_SET_ID || championLevel !== 18) {
+    if (hasAny || activeRuneDataSetId !== runePageDefaultId() || championLevel !== 18) {
         hash = "#" + encodeHash();
     }
     $("#exportLink").attr("href", document.location.pathname + hash);
-    if (document.location.hash !== hash) {
-        document.location.replace(hash || "#");
-        $(window).unbind("hashchange");
-        setTimeout(function(){ $(window).bind("hashchange", updateFromHash); }, 500);
-    }
+    runeShownHash = normRuneHash(hash);
+    if (document.location.hash !== hash) document.location.replace(hash || "#");
 }
 
+// Open what the URL says (first load, Back / Forward, an edited hash). An
+// unknown id opens the page default with the link's runes, as before.
 function updateFromHash() {
-    var parsed = parseRuneHash(document.location.hash.slice(1));
-    if (parsed.id !== activeRuneDataSetId) {
-        if (!switchRuneDataSet(parsed.id, { skipUpdates: true })) {
-            switchRuneDataSet(DEFAULT_RUNE_DATA_SET_ID, { skipUpdates: true });
-        }
-    } else {
-        initSlotsForDataSet(activeRuneDataSet);
-    }
-    fillSlotsFromIds(parsed.slotIds);
-    markSaved();
-    setChampionLevel(parsed.level);
-    renderAll();
+    var r = LolPatches.fromHash(RUNE_PAGE);
+    var parsed = parseRuneHash(document.location.hash);
+    if (!r.entry) return;
+    openRuneEntry(r.entry, { slotIds: parsed.slotIds, level: parsed.level });
+}
+
+// The one hashchange handler, bound once for the page's life (no unbind /
+// re-bind per write, so quick placements never stack handlers and one
+// Back press opens once). A hash that names what the page already shows
+// needs nothing: that is the page's own location.replace arriving (Chrome
+// fires it a task later, a loaded machine later still), and it must not
+// cancel a Patch switch in flight. Anything else is an edited URL or
+// Back / Forward and opens.
+function onRuneHashChange() {
+    if (activeRuneDataSetId && normRuneHash(document.location.hash) === runeShownHash) return;
+    updateFromHash();
 }
 
 function setChampionLevel(level) {
@@ -845,43 +977,31 @@ function setChampionLevel(level) {
 
 // ---------- Season / Patch dropdowns --------------------------------------
 
-function rebuildRunePatchSelect(season, selectedId) {
-    var $patch = $("#patch-select").empty();
-    for (var i = 0; i < runeDataSets.length; i++) {
-        var ds = runeDataSets[i];
-        if (ds.season !== season) continue;
-        $patch.append($("<option>").attr("value", ds.id).text(ds.patchLabel));
-    }
-    if (selectedId) $patch.val(selectedId);
-}
-
 // Season dropdown + tabs come from the shared season-led nav (nav.js); the
-// patch dropdown stays page-local and lists this season's snapshots.
-function refreshRunesSeasonNav(dataSet) {
-    if (typeof setClientEra === "function") setClientEra(clientEraFor(dataSet.id));
-    if (typeof buildSeasonNav !== "function") return;
-    buildSeasonNav({
-        page: "runes",
-        seasonSelect: "#season-select",
-        currentKey: "s" + dataSet.season,
-        onSeason: function(def){
-            for (var i = 0; i < runeDataSets.length; i++) {
-                if ("s" + runeDataSets[i].season === def.key) {
-                    switchRuneDataSet(runeDataSets[i].id);
-                    return true;
-                }
+// patch dropdown lists the season's patches from the registry, oldest
+// first. A season switch lands on the season's default patch.
+function refreshRunesNav() {
+    if (!activeRuneEntry) return;
+    if (typeof buildSeasonNav === "function") {
+        buildSeasonNav({
+            page: RUNE_PAGE,
+            seasonSelect: "#season-select",
+            entry: activeRuneEntry,
+            onSeason: function(def){
+                var e = LolPatches.seasonDefault(RUNE_PAGE, def.key);
+                if (!e) return false;
+                openRuneEntry(e);
+                return true;
             }
-            return false;
-        }
-    });
+        });
+    }
+    LolPatches.fillPatchSelect("#patch-select", RUNE_PAGE, activeRuneEntry.season, activeRuneEntry.id);
 }
 
-function buildRuneSelectors() {
-    var active = getRuneDataSet(activeRuneDataSetId) || getRuneDataSet(DEFAULT_RUNE_DATA_SET_ID);
-    refreshRunesSeasonNav(active);
-    rebuildRunePatchSelect(active.season, active.id);
+function bindRuneSelectors() {
     $("#patch-select").on("change", function(){
-        switchRuneDataSet($(this).val());
+        var e = LolPatches.entry(RUNE_PAGE, $(this).val());
+        if (e && (!activeRuneEntry || e.id !== activeRuneEntry.id)) openRuneEntry(e);
     });
 }
 
@@ -923,20 +1043,10 @@ function shareCurrentPage(okMsg) {
 // ---------- Init -----------------------------------------------------------
 
 $(function(){
-    var parsed = parseRuneHash(document.location.hash.slice(1));
-    var initial = getRuneDataSet(parsed.id) || getRuneDataSet(DEFAULT_RUNE_DATA_SET_ID);
-    activeRuneDataSetId = initial.id;
-    activeRuneDataSet = initial;
-    initSlotsForDataSet(initial);
-    fillSlotsFromIds(parsed.slotIds);
-    markSaved();
-    setChampionLevel(parsed.level);
-
-    buildRuneSelectors();
-    applyEraChrome();
     initDrawnScrollbars();
-    renderAll();
-    updateLink();
+    bindRuneSelectors();
+    $(window).bind("hashchange", onRuneHashChange);
+    updateFromHash();          // synchronous when the catalog is registered
     // LCU stats / empty-page swap animates from now on (css §B4).
     setTimeout(function(){ $(".legacy-app").attr("data-rl-anim", ""); }, 60);
 
@@ -1011,6 +1121,7 @@ $(function(){
     // Buttons. Clear empties the page; Revert restores the last saved /
     // loaded page; Save = Share (copy link) and clears the "*" marker.
     function clearPage() {
+        if (!activeRuneDataSet) return;
         initSlotsForDataSet(activeRuneDataSet);
         renderAll();
         updateLink();
@@ -1033,6 +1144,4 @@ $(function(){
     });
 
     $("#share").click(function(){ shareCurrentPage(); });
-
-    $(window).bind("hashchange", updateFromHash);
 });

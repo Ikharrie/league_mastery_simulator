@@ -2,10 +2,12 @@
   "preReforged-V1.0.0.63": {
     "data": "catalog-V1.0.0.63",
     "file": "data/runes/catalog-V1.0.0.63.js",
-    "hash": "072fb5780c56a5aee83a7f11b42399cce589af8bd4e992f2a63ee1b8c7508c67",
+    "hash": "db3bfc3f63aa987b74306dd59cafb6fd84e2274e4a763b6eea3209efd37fb17e",
     "ddragonVersion": null,
     "runes": 261,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -18,10 +20,12 @@
   "preReforged-V1.0.0.72": {
     "data": "catalog-V1.0.0.72",
     "file": "data/runes/catalog-V1.0.0.72.js",
-    "hash": "b4f0c3652ce4d9fc38592caa2d7db4c157f5d9e4328f8ab796f2dfc887e9edb4",
+    "hash": "6d91117a4403af9b4adca96ab4f774cbe864e920ab355a16345280cef7929112",
     "ddragonVersion": null,
     "runes": 267,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -34,10 +38,12 @@
   "preReforged-V1.0.0.94b": {
     "data": "catalog-V1.0.0.94b",
     "file": "data/runes/catalog-V1.0.0.94b.js",
-    "hash": "fd064c23320f0dc0ab963629f3c1b35578b673eaaf585e9f181f2713ac55f23e",
+    "hash": "d8e99e9f046add7eb712bbde6a9d06b505d3ce32a6403c8d4d5928ef68f04cf8",
     "ddragonVersion": null,
     "runes": 273,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -50,10 +56,12 @@
   "preReforged-V1.0.0.103": {
     "data": "catalog-V1.0.0.103",
     "file": "data/runes/catalog-V1.0.0.103.js",
-    "hash": "ddb635e8b7e74e950f91410191d8848380b57a6ec4e46e14ff81e6f3eab3a84c",
+    "hash": "4d1930f364522ab14677a386c58eab6c2a058c3b77ee9773d8e24128678fda3c",
     "ddragonVersion": null,
     "runes": 279,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -66,10 +74,12 @@
   "preReforged-V1.0.0.105": {
     "data": "catalog-V1.0.0.105",
     "file": "data/runes/catalog-V1.0.0.105.js",
-    "hash": "ae0b5ae5b8519a9be7b7beefe80713b2951ae0b4c629f8a9bd53c39a5cd2ffa7",
+    "hash": "705481c4684d2ace53910f860c4990ef01d133e43898e39c74dffe91930b051c",
     "ddragonVersion": null,
     "runes": 279,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -82,10 +92,12 @@
   "preReforged-V1.0.0.107": {
     "data": "catalog-V1.0.0.107",
     "file": "data/runes/catalog-V1.0.0.107.js",
-    "hash": "bf46eda5850708f9de0cf307f2738446c6f5df4e61cc96c76aae6eddd9f34c4d",
+    "hash": "089a4734e4f1aa133ce3a6464e73cce655c25a17217138b5c5c4974eb3f1bf9a",
     "ddragonVersion": null,
     "runes": 283,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -98,10 +110,12 @@
   "preReforged-V1.0.0.110": {
     "data": "catalog-V1.0.0.110",
     "file": "data/runes/catalog-V1.0.0.110.js",
-    "hash": "34fcdc70de2ed7857a5857726546862c684409e5178ab660431c25498854fed9",
+    "hash": "3ec4d9d63d8306aedfa579424122a8a342b64e985ba46bac5926535590a21c4a",
     "ddragonVersion": null,
     "runes": 283,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -114,10 +128,12 @@
   "preReforged-V1.0.0.128": {
     "data": "catalog-V1.0.0.128",
     "file": "data/runes/catalog-V1.0.0.128.js",
-    "hash": "fee677bf8f46d53f050bec81c0af90c71da8a7ee77305287a9357a0dca919682",
+    "hash": "aab6280ac5477e419cfec7d540fefb5cf782dbdc542410ff6c7c23aee5d6ecbb",
     "ddragonVersion": null,
     "runes": 285,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -130,10 +146,12 @@
   "preReforged-V1.0.0.129": {
     "data": "catalog-V1.0.0.128",
     "file": "data/runes/catalog-V1.0.0.128.js",
-    "hash": "fee677bf8f46d53f050bec81c0af90c71da8a7ee77305287a9357a0dca919682",
+    "hash": "aab6280ac5477e419cfec7d540fefb5cf782dbdc542410ff6c7c23aee5d6ecbb",
     "ddragonVersion": null,
     "runes": 285,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -146,10 +164,12 @@
   "preReforged-V1.0.0.131": {
     "data": "catalog-V1.0.0.131",
     "file": "data/runes/catalog-V1.0.0.131.js",
-    "hash": "464d303ab9bbdc37daff695919b37856979252f1cef3b9ad2998a796ad299e3c",
+    "hash": "bfe5cc833345bf5b52ce73446f93d0fefde487eb11c27312b91575c223a1431d",
     "ddragonVersion": null,
     "runes": 305,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -162,10 +182,12 @@
   "preReforged-V1.0.0.132": {
     "data": "catalog-V1.0.0.132",
     "file": "data/runes/catalog-V1.0.0.132.js",
-    "hash": "926ae3b189393865e4947d36fe6735b0e9a1f8ad545a80316722fb663677b283",
+    "hash": "2afb1e0d48c3839895fdca96623d57e40f15bf15a5e2a9e58e0c1e2b8dfe595f",
     "ddragonVersion": null,
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -178,10 +200,12 @@
   "preReforged-V1.0.0.138": {
     "data": "catalog-V1.0.0.138",
     "file": "data/runes/catalog-V1.0.0.138.js",
-    "hash": "63da62292453c8bb67e4611ac4216157dd15ada1e475b1d1c42638e26708c00f",
+    "hash": "83437d9a48f30fca88c727f988965ffc6632cb42e98c2c118bdee3196250c15a",
     "ddragonVersion": null,
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -194,10 +218,12 @@
   "preReforged-V1.0.0.151": {
     "data": "catalog-V1.0.0.138",
     "file": "data/runes/catalog-V1.0.0.138.js",
-    "hash": "63da62292453c8bb67e4611ac4216157dd15ada1e475b1d1c42638e26708c00f",
+    "hash": "83437d9a48f30fca88c727f988965ffc6632cb42e98c2c118bdee3196250c15a",
     "ddragonVersion": null,
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -210,10 +236,12 @@
   "preReforged-V1.0.0.152": {
     "data": "catalog-V1.0.0.152",
     "file": "data/runes/catalog-V1.0.0.152.js",
-    "hash": "ecc0fea9ebfaf6af1b8c5ff0952b1de31fd7b3f6f27a365804c9b2cd86f91345",
+    "hash": "44f700acb8dac222b4cb28e55e32c23c8b9f53f75c595545ae41e7680d0d4aa3",
     "ddragonVersion": null,
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -226,10 +254,12 @@
   "preReforged-V3.04": {
     "data": "catalog-V3.04",
     "file": "data/runes/catalog-V3.04.js",
-    "hash": "88ae54a64eafd33b20a30763aff407f68f375b46cb48272efa268d1582166c63",
+    "hash": "c1192efd42a74c34d621cb80795f892b3bc503c45e66d836f2038c7b72b144c9",
     "ddragonVersion": "3.6.15",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -242,10 +272,12 @@
   "preReforged-V3.13": {
     "data": "catalog-V3.04",
     "file": "data/runes/catalog-V3.04.js",
-    "hash": "88ae54a64eafd33b20a30763aff407f68f375b46cb48272efa268d1582166c63",
+    "hash": "c1192efd42a74c34d621cb80795f892b3bc503c45e66d836f2038c7b72b144c9",
     "ddragonVersion": "3.13.24",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -258,10 +290,12 @@
   "preReforged-V3.14": {
     "data": "catalog-V3.04",
     "file": "data/runes/catalog-V3.04.js",
-    "hash": "88ae54a64eafd33b20a30763aff407f68f375b46cb48272efa268d1582166c63",
+    "hash": "c1192efd42a74c34d621cb80795f892b3bc503c45e66d836f2038c7b72b144c9",
     "ddragonVersion": "3.14.41",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -274,10 +308,12 @@
   "preReforged-V4.5": {
     "data": "catalog-V4.5",
     "file": "data/runes/catalog-V4.5.js",
-    "hash": "a686bc0906546235ab756143322e0786682103aec2b2f20dc8096f93753bc568",
+    "hash": "c6e27083b906a04d333efbe02ff5780a5f5e81a190286da60f6534b37f440808",
     "ddragonVersion": "4.5.4",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -290,10 +326,12 @@
   "preReforged-V4.19": {
     "data": "catalog-V4.5",
     "file": "data/runes/catalog-V4.5.js",
-    "hash": "a686bc0906546235ab756143322e0786682103aec2b2f20dc8096f93753bc568",
+    "hash": "c6e27083b906a04d333efbe02ff5780a5f5e81a190286da60f6534b37f440808",
     "ddragonVersion": "4.19.3",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -306,10 +344,12 @@
   "preReforged-V4.20": {
     "data": "catalog-V4.5",
     "file": "data/runes/catalog-V4.5.js",
-    "hash": "a686bc0906546235ab756143322e0786682103aec2b2f20dc8096f93753bc568",
+    "hash": "c6e27083b906a04d333efbe02ff5780a5f5e81a190286da60f6534b37f440808",
     "ddragonVersion": "4.20.2",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -322,10 +362,12 @@
   "preReforged-V5.21": {
     "data": "catalog-V4.5",
     "file": "data/runes/catalog-V4.5.js",
-    "hash": "a686bc0906546235ab756143322e0786682103aec2b2f20dc8096f93753bc568",
+    "hash": "c6e27083b906a04d333efbe02ff5780a5f5e81a190286da60f6534b37f440808",
     "ddragonVersion": "5.21.1",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -338,10 +380,12 @@
   "preReforged-V5.22": {
     "data": "catalog-V4.5",
     "file": "data/runes/catalog-V4.5.js",
-    "hash": "a686bc0906546235ab756143322e0786682103aec2b2f20dc8096f93753bc568",
+    "hash": "c6e27083b906a04d333efbe02ff5780a5f5e81a190286da60f6534b37f440808",
     "ddragonVersion": "5.22.3",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -354,10 +398,12 @@
   "preReforged-V6.21": {
     "data": "catalog-V6.21",
     "file": "data/runes/catalog-V6.21.js",
-    "hash": "2514919459fae164be8441ec015e608fde2d2cba07686a41d0f9e1357d088b00",
+    "hash": "20ecdc3d483551bcfae62caa845745d90d89845ae211214aeaded3b5006e566f",
     "ddragonVersion": "6.21.1",
     "runes": 296,
-    "overrides": [],
+    "overrides": [
+      "ro-004"
+    ],
     "slots": {
       "mark": 9,
       "seal": 9,
@@ -370,11 +416,12 @@
   "preReforged-V6.22": {
     "data": "catalog-V6.22",
     "file": "data/runes/catalog-V6.22.js",
-    "hash": "4fa30be249cfc20ec2bd8d76aaa93ce28d0e32f59bfceeb9a0b42551e9cf12f1",
+    "hash": "755f84ee8deb333bfac135c9b9584f584f739f0442fbc074fced97e11f13eb7b",
     "ddragonVersion": "6.22.1",
     "runes": 296,
     "overrides": [
       "ro-001",
+      "ro-004",
       "ro-003"
     ],
     "slots": {
@@ -389,12 +436,13 @@
   "preReforged-V7.21": {
     "data": "catalog-V6.22",
     "file": "data/runes/catalog-V6.22.js",
-    "hash": "4fa30be249cfc20ec2bd8d76aaa93ce28d0e32f59bfceeb9a0b42551e9cf12f1",
+    "hash": "755f84ee8deb333bfac135c9b9584f584f739f0442fbc074fced97e11f13eb7b",
     "ddragonVersion": "7.21.1",
     "runes": 296,
     "overrides": [
       "ro-001",
       "ro-002",
+      "ro-004",
       "ro-003"
     ],
     "slots": {

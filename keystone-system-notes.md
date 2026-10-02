@@ -1,5 +1,7 @@
 # Keystone Mastery System (V5.22 - V7.21)
 
+> **Superseded data (per-patch rework, 2026-10).** The two snapshot files named below (`season6-keystone-data.js`, `season7-keystone-data.js`) are gone. The keystone era is now 17 per-patch datasets (V5.22 … V7.21), generated from Data Dragon by `tools/build-masteries.js` into `data/masteries/`. The listed patches, their changes and sources are in `data/patches/masteries.json`, corrections in `data/patches/masteries-overrides.json`, and what the old files got wrong in `data/sources/masteries/corrections-vs-legacy.json`. Tooltips now use the client's own Data Dragon text. The system rules below still hold.
+
 Notes on the Ferocity / Cunning / Resolve keystone mastery system that
 shipped in patch V5.22 (2015-11-11, Preseason 6) and was retired with
 Runes Reforged in V7.22 (2017-11-08). Two data snapshots are captured in

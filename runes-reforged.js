@@ -1,12 +1,17 @@
 // Runes Reforged — the League Client rune page editor, V7.22 through today.
 //
-// Loads runesReforged.json from Riot Data Dragon for the active patch and
+// The listed patches come from the registry (patch-registry.js through
+// lol-data.js: LolPatches.entry / resolve / list, 124 entries). Per patch
+// the page loads the entry's extras file (LolData.load: the client texts
+// that fill Data Dragon's @Variable@ gaps, and the V7.22-V8.22 path-pair
+// bonus) together with runesReforged.json from Riot Data Dragon, and
 // renders Riot's perks editor (rcp-fe-lol-perks / rcp-fe-lol-collections)
 // as one fixed 1055x635 stage: per-path scene art, the primary column
 // (style row, keystone row, three minor rows, progress spine), the
-// secondary column (four path options, three rows, stat shards from V8.23),
-// the page-name row and the list/grid settings. css/runes-reforged.css has
-// the geometry; this file only builds markup and toggles state classes.
+// secondary column (four path options, three rows, stat shards from V8.23,
+// runes-reforged-data.js), the page-name row and the list/grid settings.
+// css/runes-reforged.css has the geometry; this file only builds markup
+// and toggles state classes.
 //
 // Rules (as in the client):
 //   - One primary path: 1 keystone (row 0) + 1 rune per row 1/2/3.
@@ -18,9 +23,17 @@
 // Share hash (unchanged, old links decode to the same build):
 //   <dataset>|<primaryId>,k,m1,m2,m3|<secondaryId>,,s1,s2,s3|sh1,sh2,sh3[|<name>]
 // The optional 5th field is the URI-encoded page name (only when renamed).
+// <dataset> is a registry id (rr-v<major>-<minor>); aliases (rr-v12-23 ->
+// rr-v12-22) and ids of unlisted patches resolve through LolPatches.resolve
+// and are rewritten to the canonical id once the page has loaded.
+//
+// Patch / season switch (DESIGN §2.5, §4.5): the picks carry over, each one
+// kept only where the target patch still offers it (runeInSlot /
+// shardInRow); whatever is dropped is reported once with LolToast.
 
 var reforgedState = {
     dataSetId: null,
+    dataSet: null,           // the patch on screen: registry entry + extras (LolData)
     catalog: null,           // [{id, key, name, icon, slots:[{runes:[]}]}] in client order
     primaryPath: null,
     primaryPicks: [null, null, null, null],   // [keystone, row1, row2, row3]
@@ -38,6 +51,8 @@ var reforgedUi = {
     shift: false,            // SHIFT held → long descriptions
     savedHash: null,         // hash at the last load / SAVE (SAVE disabled when equal)
     loadToken: 0,
+    pending: null,           // registry entry being loaded (null when idle)
+    opening: null,           // the link the first load applies (until a view exists)
     built: { primary: null, secondary: null, shards: null }
 };
 
@@ -95,8 +110,8 @@ var RR_TEXT = {
 function reforgedIconUrl(icon) {
     if (!icon) return "";
     if (icon.indexOf("perk-images/") === 0) return REFORGED_IMG_BASE + icon;
-    var ds = getReforgedDataSet(reforgedState.dataSetId);
-    var branch = ds ? ds.ddragonVersion.split(".").slice(0, 2).join(".") : "latest";
+    var ds = rrDs();
+    var branch = ds && ds.ddragonVersion ? ds.ddragonVersion.split(".").slice(0, 2).join(".") : "latest";
     return "https://raw.communitydragon.org/" + branch +
         "/plugins/rcp-be-lol-game-data/global/default/v1/" +
         icon.toLowerCase()
@@ -106,24 +121,38 @@ function reforgedIconUrl(icon) {
 
 function rrStyleOf(path) { return path ? (RR_STYLE[path.id] || String(path.key || "").toLowerCase()) : ""; }
 
+// The patch on screen (registry entry + extras), or null before the first load.
+function rrDs() { return reforgedState.dataSet; }
+
+// The client-era switches below go by the Data Dragon version of the entry
+// (live 25.x / 26.x = DDragon 15.x / 16.x, so "major >= 13" holds for them).
 function rrVersionOf(ds) {
     var p = String(ds && ds.ddragonVersion || "0.0").split(".");
     return { major: parseInt(p[0], 10) || 0, minor: parseInt(p[1], 10) || 0 };
 }
 // Tooltip frame: #010a13 up to V13.8, #1a1c21 from V13.10 (uikit colour change).
 function rrTooltipVariant() {
-    var v = rrVersionOf(getReforgedDataSet(reforgedState.dataSetId));
+    var v = rrVersionOf(rrDs());
     return (v.major > 13 || (v.major === 13 && v.minor >= 10)) ? "v13" : null;
 }
 // Page-name row: the 2017 dropdown (name + chevron) until V12, the inset
-// text field with SAVE attached from V13.
+// text field with SAVE attached from V13 (perks-body-header, collections
+// CSS 12.23 -> 13.1).
+// Noted, not built: V13.4 is the candidate for the page-editor footer
+// (page-editor-footer / -footer-keystone-container / -recommendations-
+// container added, perks-edit-btn removed; collections CSS 13.1 -> 13.4,
+// no 13.3 build to compare). V13.1-V13.3 may still have the pre-footer
+// V13 layout. This page keeps one V13 layout for V13.1+.
 function rrPageVariant() {
-    return rrVersionOf(getReforgedDataSet(reforgedState.dataSetId)).major >= 13 ? "v13" : "v7";
+    return rrVersionOf(rrDs()).major >= 13 ? "v13" : "v7";
 }
 
-// Grid-mode rune buttons: 47px at launch, 38px from V8.5.
+// Grid-mode rune buttons: 47px at launch, 38px from V8.5. V8.4 is the one
+// patch with a four-rune minor row at 47px (Resolve row 2: Iron Skin,
+// Mirror Shell, Conditioning, Second Wind): 4 x 47 = 188px fits the 198px
+// track, as in the client.
 function rrRuneSize() {
-    var v = rrVersionOf(getReforgedDataSet(reforgedState.dataSetId));
+    var v = rrVersionOf(rrDs());
     return (v.major > 8 || (v.major === 8 && v.minor >= 5)) ? "38" : "47";
 }
 
@@ -230,11 +259,13 @@ function fetchRunesReforged(version) {
     return $.ajax({ url: url, dataType: "json" });
 }
 
-// DDragon leaves some @Variable@ placeholders unfilled (V7.22: nearly every
-// rune). Swap in the client's own resolved texts for that branch
-// (REFORGED_PERK_TEXT in runes-reforged-data.js) before anything renders.
-function rrApplyPerkText(catalog, dsId) {
-    var t = typeof REFORGED_PERK_TEXT !== "undefined" ? REFORGED_PERK_TEXT[dsId] : null;
+// DDragon leaves some @Variable@ placeholders unfilled (V7.22-V8.7: nearly
+// every rune; later patches one to three) and drops a few client lines
+// (Future's Market's debt limit, V8.8-V14.4). Swap in the client's own
+// texts for that patch (the extras' perkText: {runeId: [short|null,
+// long|null]}, null = keep the DDragon text) before anything renders.
+function rrApplyPerkText(catalog, ds) {
+    var t = ds && ds.perkText;
     if (!t) return catalog;
     catalog.forEach(function(path){
         (path.slots || []).forEach(function(slot){
@@ -249,9 +280,10 @@ function rrApplyPerkText(catalog, dsId) {
     return catalog;
 }
 
-// V7.22 path-pair set bonus for primary + secondary (null when none).
+// V7.22-V8.22 path-pair set bonus for primary + secondary (null when none):
+// the extras' subStyleBonus {primaryId: {secondaryId: longDesc}}.
 function rrSubStyleBonus(primary, secondaryId) {
-    var t = typeof REFORGED_SUBSTYLE_BONUS !== "undefined" ? REFORGED_SUBSTYLE_BONUS[reforgedState.dataSetId] : null;
+    var ds = rrDs(), t = ds && ds.subStyleBonus;
     var row = t && primary ? t[primary.id] : null;
     return row && row[secondaryId] ? row[secondaryId] : null;
 }
@@ -263,25 +295,96 @@ function sortReforgedCatalog(catalog) {
     });
 }
 
-// parsed: a parseReforgedHash() result to apply once the catalog is in, or
-// null to carry the current picks over (patch switch).
-function activateReforgedDataSet(id, parsed) {
-    var ds = getReforgedDataSet(id);
-    if (!ds) return;
-    var carry = parsed === undefined ? parseReforgedHash(buildReforgedHash()) : parsed;
+// The registry entry a dataset id opens: canonical, alias (rr-v12-23 ->
+// rr-v12-22) or an unlisted patch (the listed patch in effect), or null.
+function rrEntryOf(id) {
+    var r = id && window.LolPatches ? LolPatches.resolve("reforged", String(id)) : null;
+    return r ? r.entry : null;
+}
+
+// The picks on screen as a parseReforgedHash() result (the carry state).
+function rrCarryState() { return rrDs() ? parseReforgedHash(buildReforgedHash()) : null; }
+
+function rrNotNull(x) { return x != null; }
+function rrPickCounts() {
+    return {
+        runes: (reforgedState.primaryPath ? reforgedState.primaryPicks.filter(rrNotNull).length : 0) +
+               (reforgedState.secondaryPath ? reforgedState.secondaryPicks.filter(rrNotNull).length : 0),
+        shards: reforgedState.shards.filter(rrNotNull).length
+    };
+}
+// "2 runes and 1 shard could not carry over to V14.2" (null: nothing lost).
+// A carry only ever drops picks, so the counts before and after tell.
+function rrDropMessage(before, after, entry) {
+    var runes = before.runes - after.runes, shards = before.shards - after.shards, parts = [];
+    if (runes > 0) parts.push(runes + (runes === 1 ? " rune" : " runes"));
+    if (shards > 0) parts.push(shards + (shards === 1 ? " shard" : " shards"));
+    return parts.length ? parts.join(" and ") + " could not carry over to " + entry.patch : null;
+}
+
+// Header: era, Season dropdown + tabs (nav.js, from the registry) and this
+// season's patches in the Patch dropdown, oldest first.
+function rrSyncHeader(entry) {
+    if (typeof setClientEra === "function") setClientEra(entry.era || "lcu");
+    if (typeof buildSeasonNav === "function") {
+        buildSeasonNav({
+            page: "reforged",
+            seasonSelect: "#reforged-season-select",
+            entry: entry,
+            onSeason: function(def){
+                var e = LolPatches.seasonDefault("reforged", def.key);
+                if (!e) return false;
+                activateReforgedDataSet(e);
+                return true;
+            }
+        });
+    }
+    LolPatches.fillPatchSelect("#reforged-patch-select", "reforged", entry.season, entry.id);
+}
+
+function rrFetchCatalog(version) {
+    return new Promise(function(resolve, reject){
+        fetchRunesReforged(version).done(function(catalog){ resolve(catalog); })
+            .fail(function(){ var e = new Error("catalog " + version); e.catalog = true; reject(e); });
+    });
+}
+
+// Show a registry entry. parsed: a parseReforgedHash() result to apply once
+// the catalog is in (a link, Back / Forward; null = an empty page), or
+// undefined to carry the picks on screen over (patch / season switch).
+// The current view stays up while the extras file and the DDragon catalog
+// load (the loading text only after 150 ms; at once on the first load).
+// A failed switch restores the dropdowns and keeps the view.
+function activateReforgedDataSet(entry, parsed) {
+    if (!entry) return;
+    // No view yet (the first load is still running): a switch carries the
+    // link that load was opening instead of an empty page.
+    if (parsed === undefined && !reforgedState.catalog) parsed = reforgedUi.opening || null;
+    reforgedUi.opening = reforgedState.catalog ? null : parsed;
     var token = ++reforgedUi.loadToken;
-    reforgedState.dataSetId = id;
-    if (typeof setClientEra === "function") setClientEra(clientEraFor(id));
-    refreshReforgedSeasonNav(ds);
-    rebuildReforgedPatchSelect(ds.season, ds.id);
-    rrHideTip();
+    var prev = reforgedState.catalog ? rrDs() : null;
     var root = document.getElementById("reforged-calculator");
-    root.setAttribute("data-page-variant", rrPageVariant());
-    root.setAttribute("data-rune-size", rrRuneSize());
-    rrSetLoading("Loading runes for " + ds.patchLabel + "…");
-    fetchRunesReforged(ds.ddragonVersion).done(function(catalog){
+    reforgedUi.pending = entry;
+    rrSyncHeader(entry);
+    rrHideTip();
+    var loading = function(){ rrSetLoading("Loading runes for " + entry.label + "…"); };
+    var timer = null;
+    if (prev) timer = setTimeout(function(){ if (token === reforgedUi.loadToken) loading(); }, 150);
+    else loading();
+    Promise.all([LolData.load(entry), rrFetchCatalog(entry.ddragonVersion)]).then(function(res){
         if (token !== reforgedUi.loadToken) return;
-        reforgedState.catalog = sortReforgedCatalog(rrApplyPerkText(catalog, id));
+        clearTimeout(timer);
+        reforgedUi.pending = null;
+        var ds = res[0];
+        // The view stayed live during the load: carry what is on screen now.
+        var carrying = parsed === undefined;
+        var carry = carrying ? rrCarryState() : parsed;
+        var before = carrying && prev ? rrPickCounts() : null;
+        reforgedState.dataSetId = entry.id;
+        reforgedState.dataSet = ds;
+        root.setAttribute("data-page-variant", rrPageVariant());
+        root.setAttribute("data-rune-size", rrRuneSize());
+        reforgedState.catalog = sortReforgedCatalog(rrApplyPerkText(res[1], ds));
         resetReforgedSelections();
         if (carry) applyReforgedHashAfterLoad(carry, true);
         reforgedUi.built = { primary: null, secondary: null, shards: null };
@@ -290,11 +393,26 @@ function activateReforgedDataSet(id, parsed) {
         reforgedUi.savedHash = buildReforgedHash();
         rrSetLoading(null);
         renderReforgedStage();
-        updateReforgedShareLink();
-    }).fail(function(){
+        updateReforgedShareLink();          // canonical id in the URL
+        var lost = before ? rrDropMessage(before, rrPickCounts(), entry) : null;
+        if (lost) reforgedToast(lost);
+        LolData.prefetch(LolPatches.list("reforged", entry.season));
+    }, function(err){
         if (token !== reforgedUi.loadToken) return;
-        rrSetLoading("Failed to load runes catalog for " + ds.patchLabel +
-            ". Riot's CDN may have retired this DDragon version — try a different patch.", true);
+        clearTimeout(timer);
+        reforgedUi.pending = null;
+        if (prev) {
+            rrSyncHeader(prev);
+            rrSetLoading(null);
+            renderReforgedStage();
+            updateReforgedShareLink();
+            reforgedToast("Could not load " + entry.patch + " data");
+        } else if (err && err.catalog) {
+            rrSetLoading("Failed to load runes catalog for " + entry.label +
+                ". Riot's CDN may have retired this DDragon version — try a different patch.", true);
+        } else {
+            rrSetLoading("Could not load " + entry.patch + " data.", true);
+        }
     });
 }
 
@@ -480,7 +598,7 @@ function renderReforgedStage() {
     picker.setAttribute("hidden", "hidden");
     body.removeAttribute("hidden");
     settings.removeAttribute("hidden");
-    var ds = getReforgedDataSet(reforgedState.dataSetId);
+    var ds = rrDs();
     var key = [reforgedUi.mode, primary.id].join(":");
     if (reforgedUi.built.primary !== key) {
         rrBuildPrimary(root.querySelector(".rr-col--primary"), primary);
@@ -863,7 +981,7 @@ function rrUpdatePicks() {
     rrSetProgress(scol.querySelector(".rr-spine:not(.rr-spine--shards)"), secondary ? 1 + order.length : 0, 3, "main");
 
     // Shards.
-    var ds = getReforgedDataSet(reforgedState.dataSetId);
+    var ds = rrDs();
     var srows = getReforgedShardRows(ds);
     if (srows) {
         var count = 0;
@@ -1049,7 +1167,7 @@ function rrNewPage(no) {
 // --- URL hash sharing ----------------------------------------------------
 // Format: <dataset-id>|primaryPathId,k,m1,m2,m3|secondaryPathId,,sm1,sm2,sm3|s1,s2,s3[|name]
 function buildReforgedHash() {
-    var ds = getReforgedDataSet(reforgedState.dataSetId);
+    var ds = rrDs();
     if (!ds) return "";
     var parts = [ds.id];
     if (reforgedState.primaryPath) {
@@ -1075,12 +1193,15 @@ function parseReforgedHash(hash) {
     }
     var parts = hash.split("|");
     for (var k = 1; k <= 3 && k < parts.length; k++) parts[k] = parts[k].replace(/%2C/gi, ",");
-    var dsId = parts[0];
-    if (!getReforgedDataSet(dsId)) return null;
+    // The id resolves through the registry: listed, alias or unlisted patch
+    // (dsId is then the canonical id the page rewrites the URL to).
+    var entry = rrEntryOf(parts[0]);
+    if (!entry) return null;
     var name = null;
     if (parts[4]) { try { name = decodeURIComponent(parts[4]).slice(0, 25); } catch (e) { name = null; } }
     return {
-        dsId: dsId,
+        dsId: entry.id,
+        entry: entry,
         primary: parts[1] || "",
         secondary: parts[2] || "",
         shards: parts[3] || "",
@@ -1137,7 +1258,7 @@ function applyReforgedHashAfterLoad(parsed, silent) {
     }
     if (parsed.shards) {
         var shParts = parsed.shards.split(",");
-        var ds = getReforgedDataSet(reforgedState.dataSetId);
+        var ds = rrDs();
         reforgedState.shards = [0, 1, 2].map(function(k){
             var v = shParts[k] ? shParts[k] : null;
             // Keep unknown ids only when the table has no such row (old
@@ -1157,44 +1278,6 @@ function updateReforgedShareLink() {
     rrUpdateTopRow();
 }
 
-// Season dropdown + tabs come from the shared season-led nav (nav.js); the
-// patch dropdown stays page-local and lists this season's snapshots.
-function refreshReforgedSeasonNav(dataSet) {
-    if (typeof buildSeasonNav !== "function") return;
-    buildSeasonNav({
-        page: "reforged",
-        seasonSelect: "#reforged-season-select",
-        currentKey: "s" + dataSet.season,
-        onSeason: function(def){
-            for (var i = 0; i < reforgedDataSets.length; i++) {
-                if ("s" + reforgedDataSets[i].season === def.key) {
-                    activateReforgedDataSet(reforgedDataSets[i].id);
-                    return true;
-                }
-            }
-            return false;
-        }
-    });
-}
-
-function buildReforgedSelectors() {
-    var active = getReforgedDataSet(reforgedState.dataSetId) || getReforgedDataSet(REFORGED_DEFAULT_DATA_SET_ID);
-    refreshReforgedSeasonNav(active);
-    rebuildReforgedPatchSelect(active.season, active.id);
-    $("#reforged-patch-select").on("change", function(){
-        activateReforgedDataSet($(this).val());
-    });
-}
-
-function rebuildReforgedPatchSelect(season, selectedId) {
-    var $patch = $("#reforged-patch-select").empty();
-    reforgedDataSets.forEach(function(ds){
-        if (String(ds.season) !== String(season)) return;
-        $patch.append($("<option>").attr("value", ds.id).text(ds.patchLabel));
-    });
-    if (selectedId) $patch.val(selectedId);
-}
-
 function copyToClipboardReforged(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
     var $ta = $("<textarea>").val(text).css({position:"fixed",top:0,left:0,opacity:0}).appendTo("body");
@@ -1210,16 +1293,26 @@ $(function(){
     var root = document.getElementById("reforged-calculator");
     rrBuildSkeleton(root);
 
+    // The hash's dataset (canonical, alias or unlisted patch); an empty or
+    // unknown hash opens the page default (rr-v26-19, the live patch) empty.
     var parsed = parseReforgedHash(location.hash.slice(1));
-    reforgedState.dataSetId = (parsed && parsed.dsId) || REFORGED_DEFAULT_DATA_SET_ID;
-    buildReforgedSelectors();
-    activateReforgedDataSet(reforgedState.dataSetId, parsed);
+    var entry = (parsed && parsed.entry) || LolPatches.pageDefault("reforged");
+    $("#reforged-patch-select").on("change", function(){
+        activateReforgedDataSet(LolPatches.entry("reforged", $(this).val()));
+    });
+    activateReforgedDataSet(entry, parsed);
 
     // Back / Forward (+ and trash push the previous page).
     window.addEventListener("popstate", function(){
         var p = parseReforgedHash(location.hash.slice(1));
         if (!p) return;
-        if (p.dsId !== reforgedState.dataSetId) { activateReforgedDataSet(p.dsId, p); return; }
+        if (p.dsId !== reforgedState.dataSetId || !reforgedState.catalog) { activateReforgedDataSet(p.entry, p); return; }
+        if (reforgedUi.pending) {                   // back on the patch on screen: drop the load
+            ++reforgedUi.loadToken;
+            reforgedUi.pending = null;
+            rrSyncHeader(rrDs());
+            rrSetLoading(null);
+        }
         resetReforgedSelections();
         reforgedState.pageName = null;
         applyReforgedHashAfterLoad(p, true);

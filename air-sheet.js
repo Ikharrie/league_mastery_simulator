@@ -3,14 +3,15 @@
 // runes). Loaded in <head> right after nav.js; no jQuery, no DOM work at
 // load time.
 //
-// Keeps the period-dependent sheet chrome in step with the active dataset:
+// Keeps the period-dependent sheet chrome in step with the active dataset
+// (its patch-registry.js entry):
 //   .air-sheet[data-air-season]  "s1" … "s7"           (entry.season)
 //   .air-sheet[data-air-period]  2010 | 2012 | 2013 | 2014  (entry.airPeriod)
 //   nav.air-subtabs              the pill labels of that client; Masteries /
 //                                Runes are real links (nav.js seasonNavUrl)
 //                                to the current season, the rest are inert
 //   .air-page-chips              page chips 1..N (+ "+"), page 1 selected,
-//                                per page and season (CHIPS)
+//                                per page and patch (CHIPS)
 // The air/lcu flip itself is pure CSS (body[data-client]).
 //
 // Public: AirSheet.sync(entry)  the calculators call it on every dataset
@@ -19,57 +20,46 @@
 //                               .fromHash; inline after the sheet markup)
 //         AirSheet.refresh()    re-sync now (e.g. after replacing markup)
 //         AirSheet.current()    the entry of the last sync(entry), or null
+//         AirSheet.chipsFor(page, patch)  [count, has "+"] or null
 //         AirMasterySidebar     the Masteries sidebar (second module below)
-// TRANSITION: while LolPatches.shellMode() is "legacy" (lol-data.js header)
-// and no sync(entry) has happened, the season comes from the header's
-// #season-select (nav.js buildSeasonNav rebuilds it on every switch; a
-// MutationObserver follows it) and the period from the season-keyed PERIOD
-// table, as before the registry. sync(entry) ends that for the page.
 
 var AirSheet = window.AirSheet = (function(){
-    // TRANSITION: which client look each season's calculator belongs to
-    // (legacy mode only; registry entries carry airPeriod).
-    var PERIOD = {
-        masteries: { s1: "2010", s2: "2012", s3: "2012", s4: "2014", s5: "2014", s6: "2014", s7: "2014" },
-        runes:     { s3: "2013", s4: "2014", s5: "2014", s6: "2014", s7: "2014" }
-    };
     // Sub-tab strips as captured. "@page" = live link, "!" = greyed out.
+    // 2010: the dated S1 client captures (Sep 2010 masteries + runes, Apr /
+    // Jun 2011), Achievements greyed and last; Riot's 2010 press shots had
+    // it third (css/air-sheet.css §6).
     var SUBTABS = {
-        "2010": ["Profile", "Ranked Stats", "!Achievements", "Match History", "Champions", "@runes", "@masteries", "Spells"],
+        "2010": ["Profile", "Ranked Stats", "Match History", "Champions", "@runes", "@masteries", "Spells", "!Achievements"],
         "2012": ["Profile", "Ranked Stats", "Match History", "Champions", "@runes", "@masteries", "Spells", "!Achievements"],
         "2013": ["Profile", "Leagues", "Match History", "Champions", "@runes", "@masteries", "Spells", "!Achievements"],
         "2014": ["Profile", "Leagues", "Match History", "Champions", "@runes", "@masteries", "Spells", "Item Sets"]
     };
-    // Page chips [count, has "+"] per season, as seen in that season's
-    // captures (Dec 2012: 1-10 +; 4.20: 1-20; Apr 2015: 1-6 +; Oct 2015
-    // PBE: 1-8 +; 2016: 1-20; rune pages: 3 in 2013, 6 in 2015, 20 late).
-    // Runes S1/S2: the starting page count, 2 (DESIGN §3.5; to confirm
-    // against a capture, task T6).
+    // Page chips [first patch, count, has "+"] per page, as seen in the
+    // captures: masteries 1-10 + (Dec 2012), 1-20 (V4.20), 1-6 + (Apr 2015),
+    // 1-8 + (Oct 2015 PBE), 1-20 (2016); rune pages 2 (Sep 2010), 3 (2013),
+    // 6 (2015), 20 (late). A range runs until the next one starts; before the
+    // first there are no chips (S1 masteries). Keyed by patch, not by season:
+    // the season re-cut (a preseason patch belongs to the next season) moved
+    // V3.14 and V4.20 into the next season, and both keep the chips of their
+    // captures.
     var CHIPS = {
-        masteries: { s2: [10, true], s3: [10, true], s4: [20, false], s5: [6, true], s6: [8, true], s7: [20, false] },
-        runes:     { s1: [2, false], s2: [2, false], s3: [3, false], s4: [6, false], s5: [6, false], s6: [20, false], s7: [20, false] }
+        masteries: [["V1.0.0.129", 10, true], ["V3.14", 20, false], ["V4.21", 6, true], ["V5.22", 8, true], ["V6.22", 20, false]],
+        runes:     [["V1.0.0.32", 2, false], ["V1.0.0.152", 3, false], ["V3.15", 6, false], ["V5.22", 20, false]]
     };
     var LABELS = { masteries: "Masteries", runes: "Runes" };
     var explicit = null;      // the entry of the last sync(entry)
 
     function sheets() { return document.querySelectorAll(".air-sheet[data-air-page]"); }
 
-    function legacyShell() { return !window.LolPatches || LolPatches.shellMode() === "legacy"; }
-
-    // TRANSITION: the legacy ids' season ("s5-final" / "preReforged-V5.21" -> s5).
-    function seasonFromDatasetId(id) {
-        var m = /^s(\d+)-/.exec(id || "") || /^preReforged-V(\d+)\./.exec(id || "");
-        return m ? "s" + m[1] : null;
-    }
-
-    // TRANSITION: legacy mode's season (from the hash, else the header).
-    function currentSeason(fromHash) {
-        if (fromHash) {
-            var key = seasonFromDatasetId(String(location.hash || "").replace(/^#/, "").split("|")[0]);
-            if (key && typeof seasonNavFind === "function" && seasonNavFind(key)) return key;
+    // [count, has "+"] of the chips range a patch falls in, or null.
+    function chipsFor(page, patch) {
+        var list = CHIPS[page] || [], spec = null;
+        if (!patch) return null;
+        for (var i = 0; i < list.length; i++) {
+            if (LolPatches.compare(list[i][0], patch) > 0) break;
+            spec = [list[i][1], list[i][2]];
         }
-        var sel = document.getElementById("season-select");
-        return sel && sel.value ? sel.value : null;
+        return spec;
     }
 
     function el(tag, cls, text) {
@@ -97,13 +87,12 @@ var AirSheet = window.AirSheet = (function(){
                     node = el("a", "air-subtab is-link", LABELS[target]);
                     node.setAttribute("href", url);
                 } else {
-                    var tip = (typeof SEASON_NAV_DISABLED_TIPS !== "undefined" && SEASON_NAV_DISABLED_TIPS[target])
-                        || { title: LABELS[target], body: "No " + LABELS[target].toLowerCase() + " calculator for this season." };
+                    // a season without the other page (none today)
                     node = el("span", "air-subtab is-unavailable", LABELS[target]);
                     node.setAttribute("tabindex", "0");
                     node.setAttribute("aria-disabled", "true");
-                    node.setAttribute("data-lol-tip-title", tip.title);
-                    node.setAttribute("data-lol-tip", tip.body);
+                    node.setAttribute("data-lol-tip-title", LABELS[target]);
+                    node.setAttribute("data-lol-tip", "No " + LABELS[target].toLowerCase() + " calculator for this season.");
                     node.setAttribute("data-lol-tip-skin", "air-mastery");
                     node.setAttribute("data-lol-tip-pos", "bottom");
                 }
@@ -117,8 +106,7 @@ var AirSheet = window.AirSheet = (function(){
         });
     }
 
-    function renderChips(sheet, page, season) {
-        var spec = (CHIPS[page] || {})[season];
+    function renderChips(sheet, spec) {
         var bars = sheet.querySelectorAll(".air-page-chips");
         sheet.setAttribute("data-air-chips", spec ? String(spec[0]) : "0");
         for (var b = 0; b < bars.length; b++) {
@@ -132,76 +120,48 @@ var AirSheet = window.AirSheet = (function(){
         }
     }
 
-    // season + period -> every sheet of the page. period null = the legacy
-    // season-keyed PERIOD table.
-    function apply(season, period) {
-        if (!season) return;
-        var def = typeof seasonNavFind === "function" ? seasonNavFind(season) : null;
+    // entry -> every sheet of the page (season, period, sub-tabs, chips).
+    function apply(entry, force) {
+        if (!entry || !entry.season) return;
+        var def = typeof seasonNavFind === "function" ? seasonNavFind(entry.season) : null;
         var list = sheets();
         for (var i = 0; i < list.length; i++) {
             var sheet = list[i];
             var page = sheet.getAttribute("data-air-page");
-            var p = period || (PERIOD[page] || {})[season] || "2014";
-            var stamp = season + "|" + p;
-            if (sheet._airStamp === stamp && sheet._airSynced) continue;
-            sheet.setAttribute("data-air-season", season);
+            var p = entry.airPeriod || "2014";
+            var chips = chipsFor(page, entry.patch);
+            var stamp = entry.season + "|" + p + "|" + (chips ? chips.join(",") : "-");
+            if (!force && sheet._airStamp === stamp) continue;
+            sheet.setAttribute("data-air-season", entry.season);
             sheet.setAttribute("data-air-period", p);
             renderSubtabs(sheet, page, p, def);
-            renderChips(sheet, page, season);
+            renderChips(sheet, chips);
             sheet._airStamp = stamp;
-            sheet._airSynced = true;
             // The sidebar's Save state depends on the period (2010: always
             // live); repaint it in case it rendered before this sync.
             if (sheet.querySelector(".air-ms") && window.AirMasterySidebar) AirMasterySidebar.update({});
         }
     }
 
-    function unsync() {
-        var list = sheets();
-        for (var i = 0; i < list.length; i++) list[i]._airSynced = false;
-    }
-
-    // sync(entry): the registry entry of the active dataset (season, period).
-    // sync("s4"): TRANSITION, a legacy season key (ignored after a sync(entry)).
-    function sync(x) {
-        if (!x) return;
-        if (typeof x === "object") {
-            if (!explicit) {
-                if (window.LolPatches) LolPatches.useRegistry();
-                unsync();                       // the links now use the registry table
-            }
-            explicit = x;
-            apply(x.season, x.airPeriod || null);
-            return;
-        }
-        if (explicit) return;
-        apply(String(x), null);
+    // sync(entry): the registry entry of the active dataset.
+    function sync(entry) {
+        if (!entry || typeof entry !== "object") return;
+        explicit = entry;
+        apply(entry, false);
     }
 
     function refresh() {
-        unsync();
-        if (explicit) apply(explicit.season, explicit.airPeriod || null);
-        else if (legacyShell()) apply(currentSeason(false), null);
+        if (explicit) apply(explicit, true);
     }
 
     var booted = false;
     function init() {
         if (booted || !sheets().length) return;
         booted = true;
-        if (!legacyShell()) {
-            // Deep link: right look before first paint (the calculators
-            // call sync(entry) again on every switch).
-            var r = LolPatches.fromHash(LolPatches.page());
-            if (r.entry) sync(r.entry);
-            return;
-        }
-        // TRANSITION: the legacy calculators only rebuild #season-select.
-        apply(currentSeason(true), null);
-        var sel = document.getElementById("season-select");
-        if (sel && window.MutationObserver) {
-            new MutationObserver(function(){ if (!explicit) apply(currentSeason(false), null); })
-                .observe(sel, { childList: true });
-        }
+        // Deep link: right look before first paint (the calculators call
+        // sync(entry) again on every switch).
+        var r = LolPatches.fromHash(LolPatches.page());
+        if (r.entry) sync(r.entry);
     }
 
     // index.html / runes.html call AirSheet.boot() inline right after the
@@ -211,9 +171,9 @@ var AirSheet = window.AirSheet = (function(){
     else init();
 
     return {
-        boot: init, refresh: refresh, sync: sync,
+        boot: init, refresh: refresh, sync: sync, chipsFor: chipsFor,
         current: function(){ return explicit; },
-        PERIOD: PERIOD, SUBTABS: SUBTABS, CHIPS: CHIPS
+        SUBTABS: SUBTABS, CHIPS: CHIPS
     };
 })();
 

@@ -17,6 +17,7 @@
       "changes": [],
       "notes": [
         { "text": "First rune state that can be reconstructed (D2): the runes page starts here, not at the V1.0.0.32 launch. Before V1.0.0.63 the notes give only percentages and no table survives.", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63"], "confidence": "high" },
+        { "text": "Client look (not data): the earliest rune-page capture is September 2010 (YouTube Yq2BRjZSoX8, 2010-09-11). V1.0.0.63-V1.0.0.94(b) (December 2009 - June 2010) reuse that 2010 sheet head, tier filter and tooltip (css/air-sheet.css 7b, css/runes-legacy.css A8); an evidence gap.", "sources": ["https://www.youtube.com/watch?v=Yq2BRjZSoX8"], "confidence": "low" },
         { "text": "Catalog as of V1.0.0.63: AD-per-level runes +11.1%, attack speed runes +150%, magic penetration runes +13.6%, flat health runes -17.6%, armor and MR (also per level) -10%; Clarity seals obtainable. 2009 Snowdown event runes (2009-12-16 to 2010-01-06).", "sources": ["https://leagueoflegends.fandom.com/wiki/V1.0.0.63", "https://leagueoflegends.fandom.com/wiki/Snowdown_Showdown"], "confidence": "low" }
       ]
     },

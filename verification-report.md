@@ -1,5 +1,7 @@
 # Mastery Data Verification Report — Season 2 & Season 3
 
+> **Superseded data (per-patch rework, 2026-10).** `data.js` is gone. Seasons 1-3 are now per-patch datasets (V1.0.0.32 … V3.13), built from the committed wiki snapshots in `data/sources/masteries/wiki/` by `tools/build-masteries.js`; the S3 values are cross-checked against Data Dragon 3.6.14 and 3.13.24 (check M5). Listed patches, changes and sources: `data/patches/masteries.json`; resolved discrepancies: `data/sources/masteries/corrections-vs-legacy.json`. Kept as research history.
+
 Verifies the repo's mastery data against the LoL wiki
 (https://wiki.leagueoflegends.com/en-us/) for the relevant seasons.
 
