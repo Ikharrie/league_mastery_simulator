@@ -16,8 +16,9 @@ first and last patch of every season: 191 patches over three pages.
 Demo
 ----
 
-Open `index.html` (or serve the folder, see Local development). A hosted
-demo will live at the gh-pages URL once published.
+**https://ikharrie.github.io/league_mastery_simulator/** (GitHub Pages,
+served from `master`). Locally, open `index.html` or serve the folder (see
+Local development).
 
 Pages and eras
 --------------
