@@ -1,0 +1,12 @@
+{
+ "_comment": [
+  "STUB change notes (task C) for tools/build-registry.js until data/patches/notes/runes.json exists.",
+  "Shape = data/patches/notes/<page>.json (see stub-notes-masteries.json). Only a few patches, from data/patches/runes.json."
+ ],
+ "stub": true,
+ "page": "runes",
+ "patches": {
+  "V6.22": { "summary": "Preseason 7: Armor Penetration runes become Lethality.", "items": ["Marks and Quintessences of Armor Penetration become Lethality (tier 3 mark 1.28 → 1.6, quint 2.56 → 3.2)", "Hybrid Penetration becomes Precision"], "kind": "season-start" },
+  "V7.21": { "summary": "Last patch of the old rune system.", "items": ["No rune changes since V6.22 — last patch before Runes Reforged"], "kind": "no-change" }
+ }
+}

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // tools/check-patches.js: the automated invariants of the per-patch datasets
 // (DESIGN §7.1): G registry, C change rule, M masteries, R runes, F Runes
-// Reforged. tools/build-all.js runs it last. tools/test-links.js (L) and
+// Reforged, N patch notes (the header's "What changed" control).
+// tools/build-all.js runs it last. tools/test-links.js (L) and
 // tools/test-carry.js (X) reuse the reference code exported at the bottom
 // (World loader, codecs, carry rules, validators, reporter).
 //
@@ -17,6 +18,8 @@
 //   runes-calculator.js CLIENT_STAT, runes-reforged-data.js
 //   reforgedShardEras                                       (T6 / T7b)
 //   tools/fixtures/spotchecks.json                          (M6)
+//   data/patches/notes/<page>.json, notes-links.json,
+//   data/notes/<page>-<season>.js                           (N1-N4)
 //
 // Every check prints PASS, FAIL or SKIP. A check whose input does not exist
 // yet, or still comes from a stub listing or the pre-rework code, is
@@ -69,7 +72,9 @@ const LISTED = {
     masteries: {
         s1: "V1.0.0.32° V1.0.0.52 V1.0.0.61 V1.0.0.63 V1.0.0.72 V1.0.0.101 V1.0.0.109 V1.0.0.110 V1.0.0.118b V1.0.0.128°",
         s2: "V1.0.0.129* V1.0.0.131 V1.0.0.133 V1.0.0.151°",
-        s3: "V1.0.0.152* V3.13*",
+        // V3.13: tooltip text only (Summoner's Insight Revive line, mo-008), a boundary
+        // without change like V1.0.0.128 and V4.19 (DESIGN §3.2 "V3.13°")
+        s3: "V1.0.0.152* V3.13°",
         s4: "V3.14* V3.15 V4.2 V4.5 V4.19°",
         s5: "V4.20° V5.10 V5.12 V5.21°",
         s6: "V5.22* V5.23 V5.24 V6.1 V6.2 V6.4 V6.7 V6.8 V6.12 V6.21°",
@@ -99,7 +104,7 @@ const LISTED = {
 };
 // §0
 const EXPECT_TOTALS = {
-    masteries: { total: 42, noChange: 8, change: 34, perSeason: { s1: 10, s2: 4, s3: 2, s4: 5, s5: 4, s6: 10, s7: 7 } },
+    masteries: { total: 42, noChange: 9, change: 33, perSeason: { s1: 10, s2: 4, s3: 2, s4: 5, s5: 4, s6: 10, s7: 7 } },
     runes: { total: 25, noChange: 11, change: 14, perSeason: { s1: 8, s2: 5, s3: 3, s4: 3, s5: 2, s6: 2, s7: 2 } },
     reforged: { total: 124, noChange: 9, change: 115, perSeason: { s8: 21, s9: 14, s10: 16, s11: 11, s12: 13, s13: 12, s14: 15, s2025: 12, s2026: 10 } }
 };
@@ -1938,7 +1943,12 @@ function checkG7(world, c) {
 // Boundary patches marked ° in §3.2 whose data may still differ, because
 // DESIGN.md itself says what differs ("unless its reason says otherwise").
 const C2_DOCUMENTED = {
-    masteries: { "V1.0.0.128": "Reinforce text only, low confidence" }
+    masteries: {
+        "V1.0.0.128": "Reinforce text only, low confidence",
+        // the V3.12 Revive line prints its bonus Health "(200 + 20 per level)", numbers
+        // the V1.0.0.152 text never showed; build-masteries C2 checks the rest is equal
+        "V3.13": "Summoner's Insight Revive text only (mo-008)"
+    }
 };
 // The listing's text-only marker for a no-change boundary: {why} | {bad} | {}.
 function textOnlyMarker(world, page, rec) {
@@ -2898,6 +2908,265 @@ function checkF5(world, c) {
     if (!bad && checked.length) c.pass("the Reforged default is rr-v26-19 (Current) in " + checked.join(", "));
 }
 
+// ---- N patch notes (the header's "What changed" control) -------------------
+// Inputs: data/patches/notes/<page>.json (hand-curated change notes),
+// data/patches/notes-links.json (the verified links), the generated
+// data/notes/<page>-<season>.js and the registry's entry.notes. The expected
+// kinds come from the § 3.2 marks of LISTED, not from the listings.
+const NOTE_KINDS = ["launch", "rework", "change", "season-start", "season-end", "no-change"];
+const NOTE_SUMMARY_MAX = 90, NOTE_ITEMS_MAX = 10;
+const NOTES_GENERATOR = "tools/build-notes.js";
+const NOTE_FIELDS = ["official", "officialArchived", "wiki", "file", "key", "count"];
+const LINK_FIELDS = ["official", "officialArchived", "wiki", "checked", "reason"];
+const WIKI_PATCH_BASE = "https://wiki.leagueoflegends.com/en-us/";
+const RIOT_OFFICIAL = /^https:\/\/www\.leagueoflegends\.com\/[a-z]{2}-[a-z]{2}\/news\/[^\s"<>]+$/;
+const RIOT_ARCHIVED = /^https:\/\/web\.archive\.org\/web\/\d{14}\/https?:\/\/([a-z0-9-]+\.)*leagueoflegends\.com\/[^\s"<>]*$/;
+// Player-facing text: nothing the research or the tools left behind.
+const NOTE_FORBIDDEN = [
+    [/\[(?:DD|WP|WM|RN|LC|CD|PBE|src|source|ref|cite|todo|tbd|high|medium|low)\b/i, "research marker"],
+    [/\b(?:TODO|FIXME|TBD|XXX)\b|\?\?/, "unfinished text"],
+    [/<\/?[a-z!][^>]*>/i, "markup"],
+    [/->|=>/, "ASCII arrow (written →)"],
+    [/\b(?:noise|overrides?|ddragon|cdragon|communitydragon|stateHash|perkText)\b/i, "internal term"],
+    [/[\r\n\t]|\s{2,}|^\s|\s$/, "stray whitespace or a line break"]
+];
+
+// The kinds a listed patch may have, from its § 3.2 mark.
+function noteKindsFor(s, pageFirst) {
+    if (pageFirst) return ["launch", "season-start"];
+    if (s.mark === "°") return ["no-change"];
+    if (s.mark === "*") return s.position === "last" ? ["season-end", "rework"] : ["season-start", "rework"];
+    return ["change", "rework"];
+}
+function notesJson(world, page) { return world.json("data/patches/notes/" + page + ".json"); }
+function notesMap(world, page, c) {
+    const j = notesJson(world, page);
+    if (j.missing) { c.skip(page + ": " + j.file + " missing"); return null; }
+    if (j.error) { c.fail(page + ": " + j.file + ": " + j.error); return null; }
+    if (!isObj(j.value) || !isObj(j.value.patches)) { c.fail(page + ": " + j.file + ": expected {patches: {\"<patch>\": {summary, items, kind}}}"); return null; }
+    return j.value.patches;
+}
+function noteCountOf(rec) { return isObj(rec) && rec.kind !== "no-change" && Array.isArray(rec.items) ? rec.items.length : 0; }
+
+// N1: every listed patch has notes, with a kind that fits its mark; the
+// registry entry carries a complete notes block.
+function checkN1(world, c) {
+    PAGES.forEach(function (page) {
+        const list = needEntries(world, page, c);
+        const notes = notesMap(world, page, c);
+        if (!list || !notes) return;
+        const spec = listedSpec(page);
+        let bad = 0, noChange = 0;
+        spec.forEach(function (s, i) {
+            const w = page + " " + s.patch;
+            const rec = notes[s.patch];
+            if (!rec) {
+                const near = Object.keys(notes).filter(function (k) { return P.tryParse(k) && eq(k, s.patch); })[0];
+                c.fail(w + ": no entry in " + notesJson(world, page).file + (near ? " (" + near + " is spelled differently from the listing)" : ""));
+                bad++;
+                return;
+            }
+            const allowed = noteKindsFor(s, i === 0);
+            if (allowed.indexOf(rec.kind) < 0) { c.fail(w + ": kind " + JSON.stringify(rec.kind) + ", expected " + allowed.join(" or ") + " (§3.2 mark " + (s.mark || "none") + (i === 0 ? ", first listed patch" : "") + ")"); bad++; }
+            if (rec.kind === "no-change") noChange++;
+            const e = list.filter(function (x) { return entryPatch(x) && eq(x.patch, s.patch); })[0];
+            if (!e) return;                                           // G2 reports it
+            const n = e.notes;
+            if (!isObj(n)) { c.fail(w + " " + e.id + ": the registry entry has no notes block (re-run tools/build-registry.js)"); bad++; return; }
+            const keys = Object.keys(n);
+            const missing = NOTE_FIELDS.filter(function (k) { return keys.indexOf(k) < 0; });
+            const extra = keys.filter(function (k) { return NOTE_FIELDS.indexOf(k) < 0; });
+            if (missing.length || extra.length) { c.fail(w + " " + e.id + ": notes block fields " + keys.join(", ") + " (expected " + NOTE_FIELDS.join(", ") + ")"); bad++; }
+            if (n.key !== page + "-" + s.season) { c.fail(w + " " + e.id + ": notes.key " + JSON.stringify(n.key) + ", expected " + JSON.stringify(page + "-" + s.season)); bad++; }
+        });
+        Object.keys(notes).forEach(function (k) {
+            if (!spec.some(function (s) { return s.patch === k; })) { c.fail(page + ": " + notesJson(world, page).file + " has an entry for " + k + ", which is not a listed patch"); bad++; }
+        });
+        const wantNoChange = spec.filter(function (s, i) { return i > 0 && s.mark === "°"; }).length;
+        if (noChange !== wantNoChange) { c.fail(page + ": " + noChange + " no-change entries, expected " + wantNoChange + " (the ° patches of §3.2 after the first)"); bad++; }
+        if (!bad) c.pass(page + ": " + spec.length + " listed patches have notes (" + noChange + " no-change) and a complete registry notes block");
+    });
+}
+
+// N2: the shipped text (the generated files, as the page loads them).
+function checkN2(world, c) {
+    PAGES.forEach(function (page) {
+        const list = needEntries(world, page, c);
+        if (!list) return;
+        let bad = 0, n = 0, items = 0;
+        list.forEach(function (e) {
+            const w = page + " " + e.patch;
+            const nb = e.notes;
+            if (!isObj(nb) || !nb.file) { c.skip(w + ": no notes file in the registry (N1 / N4)"); return; }
+            const f = world.dataFile(nb.file);
+            if (f.missing || f.error) return;                         // N4 reports it
+            const call = f.calls.filter(function (x) { return x.kind === "notes" && x.key === nb.key; })[0];
+            const rec = call && isObj(call.payload) ? call.payload[e.patch] : null;
+            if (!rec) return;                                         // N4 reports it
+            n++;
+            const fails = [];
+            if (typeof rec.summary !== "string" || !rec.summary) fails.push("no summary");
+            else {
+                const len = Array.from(rec.summary).length;
+                if (len > NOTE_SUMMARY_MAX) fails.push("summary is " + len + " characters (at most " + NOTE_SUMMARY_MAX + ")");
+                const low = e.confidence === "low", approx = / \(approx\.\)$/.test(rec.summary);
+                if (low && !approx) fails.push("low-confidence patch: the summary must end in \" (approx.)\"");
+                if (!low && rec.summary.indexOf("(approx.)") >= 0) fails.push("\"(approx.)\" on a " + e.confidence + "-confidence patch");
+            }
+            if (!Array.isArray(rec.items) || !rec.items.length || rec.items.length > NOTE_ITEMS_MAX) fails.push("items: 1-" + NOTE_ITEMS_MAX + " bullets expected, got " + (Array.isArray(rec.items) ? rec.items.length : typeof rec.items));
+            else rec.items.forEach(function (t, j) { if (typeof t !== "string" || !t) fails.push("item " + (j + 1) + " is empty"); });
+            if (NOTE_KINDS.indexOf(rec.kind) < 0) fails.push("kind " + JSON.stringify(rec.kind) + " is not one of " + NOTE_KINDS.join(", "));
+            if (rec.kind === "no-change" && Array.isArray(rec.items) && !/^No [A-Za-z ]*changes (since V|in Season )/.test(String(rec.items[0])))
+                fails.push("a no-change entry's first item says \"No … changes since V…\" (or \"in Season …\"), got " + JSON.stringify(rec.items[0]));
+            const extra = Object.keys(rec).filter(function (k) { return ["summary", "items", "kind"].indexOf(k) < 0; });
+            if (extra.length) fails.push("unknown fields " + extra.join(", "));
+            [rec.summary].concat(Array.isArray(rec.items) ? rec.items : []).forEach(function (t, j) {
+                if (typeof t !== "string") return;
+                NOTE_FORBIDDEN.forEach(function (x) {
+                    if (x[0].test(t)) fails.push(x[1] + " in " + (j ? "item " + j : "the summary") + ": " + JSON.stringify(t.length > 80 ? t.slice(0, 77) + "…" : t));
+                });
+            });
+            if (Array.isArray(rec.items)) items += rec.items.length;
+            fails.forEach(function (m) { c.fail(w + " (" + nb.file + "): " + m); });
+            if (fails.length) bad++;
+        });
+        if (!bad && n) c.pass(page + ": " + n + " shipped notes (" + items + " bullets): summaries at most " + NOTE_SUMMARY_MAX + " characters, no research markers, (approx.) exactly on the low-confidence patches");
+    });
+}
+
+// N3: the links, one verified entry per distinct listed patch.
+function checkN3(world, c) {
+    const j = world.json("data/patches/notes-links.json");
+    if (j.missing) { c.skip(j.file + " missing"); return; }
+    if (j.error) { c.fail(j.file + ": " + j.error); return; }
+    const links = isObj(j.value) && isObj(j.value.patches) ? j.value.patches : null;
+    if (!links) { c.fail(j.file + ": expected {patches: {\"<patch>\": {official, officialArchived, wiki, checked}}}"); return; }
+    // a day of slack: the tool writes its local date, this compares in UTC
+    const today = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+    const distinct = [];
+    PAGES.forEach(function (page) {
+        listedSpec(page).forEach(function (s) { if (distinct.indexOf(s.patch) < 0) distinct.push(s.patch); });
+    });
+    let bad = 0, official = 0, archived = 0, wiki = 0;
+    const fail = function (m) { c.fail(m); bad++; };
+    distinct.forEach(function (patch) {
+        const L = links[patch], w = j.file + " " + patch;
+        if (!L) {
+            const near = Object.keys(links).filter(function (k) { return P.tryParse(k) && eq(k, patch); })[0];
+            fail(w + ": no entry" + (near ? " (" + near + " is spelled differently from the listing)" : ""));
+            return;
+        }
+        if (!isObj(L)) { fail(w + ": expected an object"); return; }
+        Object.keys(L).forEach(function (k) { if (LINK_FIELDS.indexOf(k) < 0) fail(w + ": unknown field " + k); });
+        const reason = typeof L.reason === "string" && L.reason.trim() ? L.reason : null;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(L.checked)) || L.checked > today) fail(w + ": checked " + JSON.stringify(L.checked) + " is not the date of a run (YYYY-MM-DD, not after " + today + ")");
+        // wiki: the patch's own page (the title is the listing's spelling), or null with a reason
+        if (L.wiki === null) { if (!reason) fail(w + ": wiki is null without a reason"); }
+        else if (L.wiki !== WIKI_PATCH_BASE + patch && L.wiki !== WIKI_PATCH_BASE + encodeURI(patch)) fail(w + ": wiki " + JSON.stringify(L.wiki) + " is not " + WIKI_PATCH_BASE + patch);
+        else wiki++;
+        if (L.official !== null && !RIOT_OFFICIAL.test(String(L.official))) fail(w + ": official " + JSON.stringify(L.official) + " is not a www.leagueoflegends.com news page or null");
+        if (L.officialArchived !== null && !RIOT_ARCHIVED.test(String(L.officialArchived))) fail(w + ": officialArchived " + JSON.stringify(L.officialArchived) + " is not a web.archive.org capture of a leagueoflegends.com page or null");
+        if (L.official && L.officialArchived) fail(w + ": officialArchived is only for a patch whose official page is gone (official is set)");
+        if (!L.official && !L.officialArchived && !reason) fail(w + ": no Riot link (official and officialArchived null) and no reason");
+        if (L.official) official++;
+        else if (L.officialArchived) archived++;
+    });
+    Object.keys(links).forEach(function (k) { if (distinct.indexOf(k) < 0) fail(j.file + ": " + k + " is not a listed patch (spelling as in the listings)"); });
+    // the registry carries exactly these links
+    let entries = 0;
+    PAGES.forEach(function (page) {
+        const list = needEntries(world, page, c);
+        if (!list) return;
+        list.forEach(function (e) {
+            const L = links[e.patch];
+            if (!L || !isObj(e.notes)) return;                        // reported above / N1
+            entries++;
+            ["official", "officialArchived", "wiki"].forEach(function (k) {
+                if ((e.notes[k] || null) !== (L[k] || null)) fail(page + " " + e.id + ": registry notes." + k + " " + JSON.stringify(e.notes[k]) + " differs from " + j.file + " (re-run tools/build-registry.js)");
+            });
+        });
+    });
+    if (!bad) c.pass(distinct.length + " distinct listed patches: " + official + " official Riot pages, " + archived + " archived copies, " + wiki + " wiki pages; the " + entries + " registry entries carry them");
+}
+
+// N4: every notes file exists, registers its key once and holds exactly its
+// season's notes; the counts; LolData.getNotes answers each entry.
+function checkN4(world, c) {
+    const reg = world.registry();
+    if (reg.missing || reg.error) { c.skip("patch-registry.js " + (reg.missing ? "missing" : reg.error)); return; }
+    const lolData = readText(world.abs("lol-data.js"));
+    const used = {};
+    const loaded = [];
+    PAGES.forEach(function (page) {
+        const list = needEntries(world, page, c);
+        const notes = notesMap(world, page, c);
+        if (!list || !notes) return;
+        let bad = 0;
+        const fail = function (m) { c.fail(m); bad++; };
+        const byFile = {};
+        list.forEach(function (e) {
+            if (!isObj(e.notes)) return;                              // N1
+            const nb = e.notes, w = page + " " + e.id;
+            if (typeof nb.file !== "string" || !nb.file) { fail(w + ": notes.file " + JSON.stringify(nb.file) + " (run node " + NOTES_GENERATOR + ", then tools/build-registry.js)"); return; }
+            if (nb.file !== "data/notes/" + nb.key + ".js") fail(w + ": notes.file " + nb.file + " is not data/notes/" + nb.key + ".js");
+            (byFile[nb.file] = byFile[nb.file] || []).push(e);
+            const rec = notes[e.patch];
+            const want = noteCountOf(rec);
+            if (nb.count !== want) fail(w + ": notes.count " + nb.count + ", expected " + want + (rec && rec.kind === "no-change" ? " (kind no-change)" : " (the number of items)"));
+        });
+        Object.keys(byFile).forEach(function (rel) {
+            const users = byFile[rel];
+            used[rel] = true;
+            const f = world.dataFile(rel);
+            if (f.missing) { fail(page + ": " + rel + " missing (used by " + users.map(function (e) { return e.id; }).join(", ") + "; run node " + NOTES_GENERATOR + ")"); return; }
+            if (f.error) { fail(page + ": " + rel + ": " + f.error); return; }
+            f.forbidden.forEach(function (x) { fail(page + ": " + rel + " contains a " + x); });
+            if (!f.header || f.header.generator !== NOTES_GENERATOR) fail(page + ": " + rel + " has no \"GENERATED by " + NOTES_GENERATOR + "\" header");
+            else if (!f.header.patches || f.header.patches.join(",") !== users.map(function (e) { return e.patch; }).join(","))
+                fail(page + ": " + rel + " header says patches " + (f.header.patches || []).join(", ") + "; the entries using it are " + users.map(function (e) { return e.patch; }).join(", "));
+            if (f.calls.length !== 1) fail(page + ": " + rel + " makes " + f.calls.length + " LolData.register calls (exactly 1 expected)");
+            const call = f.calls[0];
+            if (!call) return;
+            if (call.kind !== "notes" || call.key !== users[0].notes.key) { fail(page + ": " + rel + " registers " + JSON.stringify(call.kind) + " / " + JSON.stringify(call.key) + ", expected \"notes\" / " + JSON.stringify(users[0].notes.key)); return; }
+            const payload = isObj(call.payload) ? call.payload : {};
+            const want = users.map(function (e) { return e.patch; });
+            const got = Object.keys(payload);
+            if (got.join(",") !== want.join(",")) fail(page + ": " + rel + " holds notes for " + got.join(", ") + "; its season lists " + want.join(", "));
+            users.forEach(function (e) {
+                const src = notes[e.patch];
+                if (src && !deepEqual(payload[e.patch], { summary: src.summary, items: src.items, kind: src.kind }))
+                    fail(page + " " + e.id + ": " + rel + " differs from " + notesJson(world, page).file + " (run node " + NOTES_GENERATOR + ")");
+            });
+            loaded.push({ name: rel, text: f.text });
+        });
+        if (!bad) c.pass(page + ": " + Object.keys(byFile).length + " notes files register their key once and match " + notesJson(world, page).file
+            + "; counts sum to " + list.reduce(function (a, e) { return a + (isObj(e.notes) ? e.notes.count : 0); }, 0));
+    });
+    const dir = world.abs("data/notes");
+    if (fs.existsSync(dir)) fs.readdirSync(dir).forEach(function (n) {
+        if (!used["data/notes/" + n]) c.fail("data/notes/" + n + " is not used by any registry entry");
+    });
+    // the runtime path: lol-data.js on the registry, the files registered, getNotes per entry
+    if (lolData === null) { c.skip("lol-data.js missing"); return; }
+    let ctx;
+    try { ctx = evalScript([{ name: "patch-registry.js", text: reg.text }, { name: "lol-data.js", text: lolData }].concat(loaded), browserStubs()); }
+    catch (e) { c.fail("patch-registry.js + lol-data.js + the notes files do not run together: " + e.message); return; }
+    if (!ctx.LolData || typeof ctx.LolData.getNotes !== "function") { c.fail("lol-data.js has no LolData.getNotes"); return; }
+    let n = 0, bad = 0;
+    PAGES.forEach(function (page) {
+        const notes = (notesJson(world, page).value || {}).patches;
+        if (!isObj(notes)) return;
+        (ctx.LolPatches.entries(page) || []).forEach(function (e) {
+            const rec = notes[e.patch];
+            if (!rec || !e.notes || !e.notes.file) return;
+            n++;
+            const got = clone(ctx.LolData.getNotes(e));
+            if (!deepEqual(got, { summary: rec.summary, items: rec.items, kind: rec.kind })) { c.fail(page + " " + e.id + ": LolData.getNotes returns " + JSON.stringify(got).slice(0, 120)); bad++; }
+        });
+    });
+    if (!bad && n) c.pass("LolData.getNotes returns the notes of all " + n + " entries once their files are loaded");
+}
+
 // ===========================================================================
 // 9. CLI
 // ===========================================================================
@@ -2990,6 +3259,10 @@ function main(argv) {
     rep.run("F4", "2025 / 2026 labels are the official names", function (c) { checkF4(world, c); });
     rep.run("F5", "the Reforged default is rr-v26-19", function (c) { checkF5(world, c); });
     rep.run("F6", "Reforged overrides applied, none dead", function (c) { checkOverrides(world, c, "reforged"); });
+    rep.run("N1", "patch notes: every listed patch has notes, kind fits its §3.2 mark", function (c) { checkN1(world, c); });
+    rep.run("N2", "patch notes: shipped text (summary <= 90, no research markers, approx.)", function (c) { checkN2(world, c); });
+    rep.run("N3", "patch notes: one verified link entry per distinct listed patch", function (c) { checkN3(world, c); });
+    rep.run("N4", "patch notes: files exist, register their key, counts match", function (c) { checkN4(world, c); });
     return rep.finish("check-patches");
 }
 

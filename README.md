@@ -69,9 +69,10 @@ season's patches, oldest first):
   buttons, framed dropdowns, anchored tooltips with a caret, the 7.21
   masteries panel, the 7.21 rune book (gold rune circle, socket frames and
   per-stat glyphs) and the perks editor of Runes Reforged.
-* The site header (LCU-styled nav with Season / Patch dropdowns, Link and
-  Share) is the same on every page. Switching patches happens in place and
-  the build carries over (below); the look follows the patch.
+* The site header (LCU-styled nav with Season / Patch dropdowns, the What
+  changed button, Link and Share) is the same on every page. Switching
+  patches happens in place and the build carries over (below); the look
+  follows the patch.
 
 Masteries: classic 30-point Offense / Defense / Utility trees for S1-S5,
 with the tree art, frames, counters and connectors of each client. From
@@ -110,6 +111,61 @@ example "3 points could not carry over to V4.20"); a switch across a
 mastery tree rework (V1.0.0.129, V1.0.0.152, V3.14, V5.12, V5.22, V6.22)
 starts an empty page ("Masteries were reworked in V5.22: page reset").
 
+What changed (patch notes)
+--------------------------
+
+The round scroll button right after the Patch dropdown (labelled
+**Changes**, with a thin gold line between it and Link, where the header is
+at least 1400 px wide) opens a flyout with what the patch on screen changed
+**for this page**: a one-line summary and short bullets with the old and
+new values ("Martial Mastery: +5 → +4 Attack Damage"); when a patch has a
+single change that the summary already says, it shows once. A season
+boundary without a change says so ("No mastery changes since V4.5 — last
+patch of Season 4"). A gold dot on the button marks a patch that changed
+this page, and the button pulses after a switch to one.
+The notes describe what the calculator shows changing on that page, checked
+against Riot's patch notes and the wiki: where only the tooltip text moved,
+the bullet says so ("Tooltip fix: …" when the tooltip caught up with the
+game, "Tooltip only: …" when the game did not change, "Tooltip wording: …"
+for rewording), and a change the tooltip shows a patch late names the patch
+it really came in. A game change the tooltip never shows is listed only
+where the tooltip goes on showing the old value, and the bullet says so
+("Biscuit Delivery: biscuit heal 20 + 2% → 20 + 1.5% max health (the
+tooltip still says 2%, up to V26.19)"); changes to something the tooltip
+does not state, such as Conqueror's lockout for repeat stacks in V14.24,
+are left out. Mid-patch hotfixes are listed; the page keeps the patch-day
+values.
+
+The flyout stays open while you use the Season and Patch dropdowns, so you
+can step through patches and read each one's notes in place (with the mouse,
+or with the keyboard: Shift+Tab from the flyout goes to the button and on to
+the Patch dropdown, whose arrow keys switch patches).
+
+The flyout's footer links, in a new tab (the page never navigates away), to:
+
+* **Patch notes**: Riot's own patch notes. Riot still hosts them for V9.1 –
+  V9.3 and from V9.18 on (92 Runes Reforged patches). For the older patches
+  the link opens the archived copy of Riot's original page on the Wayback
+  Machine, marked "archived": the 2009–2012 forum threads and the 2013–2019
+  news articles (81 patches).
+* **Wiki**: the patch's page on the League of Legends Wiki (every patch).
+
+Keyboard: Enter / Space on the button opens it and moves focus into the
+flyout; Esc closes it (focus back on the button). Tab goes through the two
+links and the close button (×), and Tab past × moves on to Link; Tab from
+the open button goes back in. Notes too long for the flyout scroll: the
+list is then a Tab stop of its own and has focus when the flyout opens, so
+the arrow, Page Up / Down, Home and End keys scroll the notes, not the page.
+A click or focus anywhere but the flyout, the button and the two dropdowns
+closes it; a click on the page only closes it (it does not also add a point
+or pick a rune), while a click on a header control also does its job. When
+the notes fit, the scroll keys do nothing while the flyout has focus. On phones (below 560 px, or a phone held sideways) it is a bottom
+sheet over a dimmed page; the header stays above the dimming, so the Season
+and Patch dropdowns still switch patches with the sheet open, and a tap on
+the dimmed page closes it. A long list fades out at the bottom edge while
+there is more to scroll. The notes of a season are one small file per page,
+loaded on idle after the page load or when the flyout first opens.
+
 Share links
 -----------
 
@@ -121,21 +177,26 @@ Share links
   `runes-reforged.html#rr-v<major>-<minor>|<primary>|<secondary>|<shards>[|<page name>]`,
   in live numbering: `rr-v8-4`, `rr-v25-1` (V25.S1.1), `rr-v26-19`.
 
-The mastery code packs the ranks over the trees in grid order (tree, then
-row and column). An empty build on the default patch writes no hash. The
-Save buttons inside the pages copy the link, like Share.
+An id alone, without `|` (`index.html#m-V4.5`,
+`runes.html#preReforged-V3.04`, `runes-reforged.html#rr-v8-4`), opens that
+patch with an empty page, and the page writes the full link (`m-V4.5|`).
+This also works for every id below. The mastery code packs the ranks over
+the trees in grid order (tree, then row and column). An empty build on the
+default patch writes no hash. The Save buttons inside the pages copy the
+link, like Share.
 
 **Old links keep working** (`data/patches/aliases.json`, checked by
-`tools/test-links.js` against 586 recorded links):
+`tools/test-links.js` against 586 recorded links; it also opens every id in
+this section on its own):
 
 * The old mastery ids `s1-final`, `s2-ahri`, `s3-pbe`, `s4-final`,
   `s5-final`, `s6-launch`, `s7-preseason`, `s7-final` and the plain
-  `index.html#<code>` (= `s3-pbe`) open their patch (V1.0.0.128, V1.0.0.131,
-  V1.0.0.152, V4.20, V5.21, V5.22, V6.22, V7.21). Their codes used the old
-  data order, so each old id carries its own codec
-  (`data/masteries/legacy-codecs.js`) and the build is imported mastery by
-  mastery. The only point an old link can lose is the S1 Demolisher point
-  (Demolisher was removed in V1.0.0.63).
+  `index.html#<code>` (= `s3-pbe`; any hash without `|` that is not an id)
+  open their patch (V1.0.0.128, V1.0.0.131, V1.0.0.152, V4.20, V5.21, V5.22,
+  V6.22, V7.21). Their codes used the old data order, so each old id carries
+  its own codec (`data/masteries/legacy-codecs.js`) and the build is
+  imported mastery by mastery. The only point an old link can lose is the
+  S1 Demolisher point (Demolisher was removed in V1.0.0.63).
 * `preReforged-V6.24` opens V6.22 (identical catalog), `rr-v12-23` opens
   V12.22 (no change in between); the plain `runes.html#<30 ids>` opens
   V7.21. Every other old rune and Reforged id is still a listed patch.
@@ -170,11 +231,14 @@ style-picker and stat-shard art and its per-patch text extras but fetches
 the V7.22 icons come from CommunityDragon), so it needs network access.
 
 How the data is loaded: every page loads `patch-registry.js` (generated:
-the seasons, the 191 listed patches with their era and chrome, the aliases)
-and `lol-data.js` (`LolPatches` lookups, `LolData` loader). An inline call
-in `<head>` writes the `<script>` of the patch the link opens, so the first
-paint is synchronous; other patches load on demand when the dropdowns
-change, one small file each (identical patches share a file).
+the seasons, the 191 listed patches with their era and chrome, their
+patch-notes links and change counts, the aliases) and `lol-data.js`
+(`LolPatches` lookups, `LolData` loader). An inline call in `<head>` writes
+the `<script>` of the patch the link opens, so the first paint is
+synchronous; other patches load on demand when the dropdowns change, one
+small file each (identical patches share a file). The change notes of the
+What changed flyout are one file per page and season
+(`LolData.loadNotes`).
 
 Data and tools
 --------------
@@ -189,10 +253,12 @@ node tools/build-all.js --raw <cache> --browser # + the audits and the browser t
 ```
 
 `tools/build-all.js` runs, in order: `node --check` on every script; the
-three data builders; the registry (`--strict`, then `--strict --check`);
-the unit tests; `tools/check-patches.js`, `tools/test-links.js` and
-`tools/test-carry.js`. It is idempotent: a second run changes no generated
-file. `--raw <cache>` points at the research download cache
+three data builders and the notes builder; the registry (`--strict`, then
+`--strict --check`); the unit tests; `tools/check-patches.js`,
+`tools/test-links.js`, `tools/test-carry.js` and `tools/test-notes.js`.
+It is idempotent: a
+second run changes no generated file. `--raw <cache>` points at the
+research download cache
 (`<research>\patches\raw`) and adds the audits that compare every unlisted
 Data Dragon patch with the listed patch in effect, plus the cached Runes
 Reforged catalogs for the link and carry tests. `--browser` adds the
@@ -201,25 +267,40 @@ reported as optional skips. `--log <dir>` keeps the full output of every
 step. Exit code 0 = passed, 1 = a failure, 2 = an unexpected skip.
 
 The builders (the three data builders take `--check` and `--audit <cache>`,
-the registry builder `--check`):
+the notes and registry builders `--check`):
 
 | Script | Reads | Writes |
 | --- | --- | --- |
 | `tools/build-masteries.js` | `data/patches/masteries*.json`, `data/sources/masteries/**`, `tools/fixtures/legacy-codecs.json` | `data/masteries/m-<patch>.js`, `legacy-codecs.js`, `manifest.json` |
 | `generate-runes-data.js` | `data/patches/runes*.json`, `data/sources/runes/**` | `data/runes/catalog-<patch>.js`, `manifest.json` |
 | `tools/build-reforged.js` | `data/patches/reforged*.json`, `data/sources/reforged/**` | `data/reforged/rr-<patch>.js`, `manifest.json` |
-| `tools/build-registry.js` | `data/patches/seasons.json`, `aliases.json`, the listings and the three manifests | `patch-registry.js` |
+| `tools/build-notes.js` | `data/patches/notes/<page>.json`, the listings | `data/notes/<page>-<season>.js` |
+| `tools/build-registry.js` | `data/patches/seasons.json`, `aliases.json`, the listings, the three manifests, `notes-links.json`, `notes/<page>.json` and the `data/notes/` files | `patch-registry.js` |
+
+`tools/build-notes.js` checks its input first: an entry for every listed
+patch and no other, the shape (summary on one line, at most 90 characters,
+1–10 bullets), a kind that fits the listing's reason, " (approx.)" exactly on
+the low-confidence patches, and no research markers or internal terms in the
+text.
 
 The checks: `tools/check-patches.js` (registry, change rule, masteries,
-runes and Reforged invariants, spot checks in `tools/fixtures/spotchecks.json`),
+runes and Reforged invariants, spot checks in `tools/fixtures/spotchecks.json`,
+and the patch notes: N1 every listed patch has notes whose kind fits its
+season mark and a complete registry `notes` block, N2 the shipped text, N3
+one link entry per distinct listed patch with a wiki URL of the patch's own
+page or a null with a `reason`, N4 every notes file exists, registers its key
+once and matches its input, the counts and `LolData.getNotes`),
 `tools/test-links.js` (every recorded legacy link decodes to the same build
 and rewrites to a canonical link that round-trips), `tools/test-carry.js`
 (patch and season switches carry the build as specified),
+`tools/test-notes.js --browser` (the What changed flyout through real mouse,
+keyboard and touch input: it stays open on the Season / Patch dropdowns and
+follows a switch, keyboard order, closing rules, the phone sheet),
 `tools/lib/patches.test.js` (patch order, seasons, ids, labels) and
 `tools/fixtures/stub-shell-test.js unit` (the runtime registry and loader).
-`check-patches`, `test-links` and `test-carry` also take `--research
-<research folder>` (inputs outside the repo, read only) and `--json <file>`;
-the last two take `--browser`.
+`check-patches`, `test-links`, `test-carry` and `test-notes` also take
+`--research <research folder>` (inputs outside the repo, read only) and
+`--json <file>`; the last three take `--browser`.
 
 One-shot tools (not part of the build; committed for provenance):
 
@@ -230,8 +311,24 @@ One-shot tools (not part of the build; committed for provenance):
   `--versions <versions.json>` writes `data/sources/ddragon-versions.json`,
   Riot's list of live patches and builds (the season-boundary check reads it).
 * `tools/fetch-mastery-icons.js --research <research>` downloads the
-  mastery icons of every listed Data Dragon build (the only tool that uses
-  the network) and vendors only new art under `images/masteries/<build>/`.
+  mastery icons of every listed Data Dragon build (one of the two tools
+  that use the network) and vendors only new art under
+  `images/masteries/<build>/`.
+* `tools/check-patch-links.js`, the other network tool, keeps
+  `data/patches/notes-links.json` honest. `node tools/check-patch-links.js
+  [--only V4.5,V8.6]` re-checks every URL in the file (writes nothing; exit
+  0 = every entry verified, 1 = a URL failed or an entry is missing). The
+  wiki often answers scripts with a Cloudflare challenge instead of the
+  page; the tool then relies on the wiki API (the page exists under exactly
+  that title, no redirect) and reports those links as "API-verified only"
+  rather than as fetched. It never tries to get past the challenge.
+  `--discover [--write] [--only …]` looks the links up again (the wiki API
+  and the Riot links on each wiki page, Riot's en-us sitemap, the Wayback
+  index) and, with `--write`, writes the ones that verified. It only talks
+  to www.leagueoflegends.com, web.archive.org and wiki.leagueoflegends.com,
+  one request at a time, at least 1.1 s apart (2.5 s for the Wayback
+  Machine); a second 429 stops the run (exit 3) without writing. Run it
+  after adding a patch, and now and then to catch links that died.
 * `tools/capture-legacy.js` froze the legacy links and screenshots before
   the per-patch rework (`tools/fixtures/README.md`); `shots` / `compare`
   take and diff the 69 screenshots of the 23 legacy views.
@@ -246,15 +343,22 @@ Data layout:
   (`masteries.json`, `runes.json`, `reforged.json`: each listed patch with
   its reason, date, sources and change notes), `<page>-overrides.json`
   (cited corrections on top of the source data), `masteries-families.json`
-  (stable mastery keys per tree family) and `noise/<page>.json` (source
-  differences ignored as noise, and why).
+  (stable mastery keys per tree family), `noise/<page>.json` (source
+  differences ignored as noise, and why), `notes/<page>.json` (the What
+  changed notes of every listed patch: `summary`, `items`, `kind` = launch,
+  rework, change, season-start, season-end or no-change) and
+  `notes-links.json` (one entry per distinct listed patch: `official`
+  Riot's live page or null, `officialArchived` the Wayback copy when
+  `official` is null, `wiki`, `checked`, and an optional `reason` for a
+  link that stays null; written by `tools/check-patch-links.js`).
 * `data/sources/` — committed inputs: trimmed Data Dragon `mastery.json` /
   `rune.json` builds, the wiki-era snapshots of S1-S3, the Runes Reforged
   client texts per patch and the stat-shard eras, the mastery icon map, and
   `ddragon-versions.json`.
-* `data/masteries/`, `data/runes/`, `data/reforged/`, `patch-registry.js` —
-  generated, do not edit. One file per distinct payload, each a single
-  `LolData.register(...)` call, plus a `manifest.json` per page.
+* `data/masteries/`, `data/runes/`, `data/reforged/`, `data/notes/`,
+  `patch-registry.js` — generated, do not edit. One file per distinct
+  payload (`data/notes/`: per page and season), each a single
+  `LolData.register(...)` call, plus a `manifest.json` per data page.
 
 Maintenance: a new live patch
 -----------------------------
@@ -282,6 +386,16 @@ grows. For each new live patch (today's live patch is V26.19, Data Dragon
    * `data/patches/seasons.json`: `live`, `pageDefaults.reforged`, and the
      season's `last`, `lastDate` and `pages.reforged` (`last`, `count`,
      `default`).
+   * `data/patches/notes/reforged.json`: an entry for the new patch, kind
+     `no-change` ("No rune changes since V26.17 — current live patch") or,
+     with a change, `season-end` and its bullets. Drop the entry of a
+     patch you dropped from the listing; reword one you kept (it is no
+     longer the current patch).
+   * The patch-notes links: `node tools/check-patch-links.js --discover
+     --write --only <new patch>`, then `node tools/check-patch-links.js
+     --only <new patch>`. When Riot's notes or the wiki page are not up
+     yet, run it again later (check-patches N3 fails while the patch has
+     no entry).
    * The static header of `runes-reforged.html` (`rr-v26-19`,
      "V26.19 (Current)"): what shows before the scripts run.
    * The checks' own expectations, which are hard-coded on purpose (they
@@ -305,7 +419,7 @@ Project layout
   and the data loader every page loads first.
 * `nav.js` — client era switch (`body[data-client="air"|"lcu"]`), header
   and Season / Patch navigation, tooltip, toast, LCU dropdown list, stage
-  scaling.
+  scaling, the What changed flyout (`LolPatchNotes`).
 * `air-sheet.js` — AIR sheet chrome per patch (client period, sub-tabs,
   page chips) and the Mastery Pages sidebar.
 * `calculator.js` (classic masteries and the masteries page controller),
@@ -314,7 +428,8 @@ Project layout
 * `css/`
   * `base.css` — tokens (LCU hextech and AIR colours, fonts), page shell
     and backdrops, stage scale-to-fit, site header, LCU and AIR
-    primitives, the shared tooltip and toast. Loaded first on every page.
+    primitives, the shared tooltip and toast, the What changed flyout.
+    Loaded first on every page.
   * `air-sheet.css` — the AIR parchment profile sheet (2010, 2012, 2013
     and 2014 clients) and the Mastery Pages sidebar, shared by classic
     masteries, keystone AIR and legacy runes.
@@ -351,8 +466,6 @@ Roadmap
 
 * Pages saved in the browser (Save currently copies the share link).
 * Compare one build across patches.
-* Patch-notes side panel (the per-patch change notes are in
-  `data/patches/<page>.json`).
 
 Contributors
 ------------
@@ -383,6 +496,8 @@ This project stands on a chain of prior work.
   text for every season, the Season 1 and Season 2 mastery icons (the
   wiki's 2011 / 2012 client icons), and client screenshots used as visual
   references.
+* Riot's patch notes (live, or archived on the [Wayback Machine][wayback])
+  and the wiki's patch pages, linked from the What changed flyout.
 * Riot's own web pages, via the [Wayback Machine][wayback] — the tree
   emblem sprite of Riot's 2011 "Masteries in Season Two" page, which the
   Mastery Pages sidebar emblems are cut from, and Riot's 2010 capture of

@@ -1,0 +1,1101 @@
+{
+  "_comment": [
+    "Player-facing change notes for every listed patch of the Runes Reforged page (runes-reforged.html), shown by the patch-notes control next to the Patch dropdown. Hand-curated from data/patches/reforged.json (changes, notes, sources) and the research behind it: every bullet is backed by that data, nothing is added.",
+    "patches: { <patch as in the listing>: { summary, items, kind } }. summary: one line, at most 90 characters, ending in \" (approx.)\" when the listing's confidence is low. items: short bullets, old → new values, at most about 8. kind: launch | rework | change | season-start | season-end | no-change; a season boundary without a rune change is no-change, and its count in the registry is 0.",
+    "tools/build-notes.js checks this file against the listing and writes data/notes/reforged-<season>.js (one LolData.register(\"notes\", ...) per season)."
+  ],
+  "patches": {
+    "V7.22": {
+      "summary": "Runes Reforged launch: 5 paths, 15 keystones, 60 runes",
+      "items": [
+        "Runes Reforged replaces masteries and the old rune pages",
+        "5 paths: Precision, Domination, Sorcery, Resolve and Inspiration, each with 3 keystones and 3 rows of 3 runes",
+        "Primary path: 1 keystone and 3 runes; secondary path: 2 runes from different rows",
+        "Every primary and secondary path pairing grants a path bonus (Sorcery: +15 AD or +25 AP)"
+      ],
+      "kind": "launch"
+    },
+    "V7.23": {
+      "summary": "Predator and Summon Aery retuned; Ghost Poro channel rule; tooltip edits",
+      "items": [
+        "Predator: damage 60–140 → 60–180; cooldown 180–120s → 150–100s",
+        "Summon Aery: damage 20–60 → 15–40",
+        "Ghost Poro: the channel is now interrupted by taking damage (was: entering combat with a champion)",
+        "Tooltip wording: Relentless Hunter, Arcane Comet, Celerity, Biscuit Delivery, Kleptomancy",
+        "Tooltip fix: Summon Aery and Cheap Shot say they hit enemy champions, and Revitalize that it strengthens the heals and shields you cast; all three always worked that way"
+      ],
+      "kind": "change"
+    },
+    "V7.24": {
+      "summary": "Fleet Footwork, Lethal Tempo, Phase Rush and 10 more runes; path bonuses down",
+      "items": [
+        "Fleet Footwork: heal 5–50 (+0.1 bonus AD, +0.2 AP) → 3–60 (+0.3 bonus AD, +0.4 AP), now boosted by critical hits",
+        "Lethal Tempo: cooldown 10s → 6s",
+        "Phase Rush: 75% Slow Resistance now for every champion (was melee only)",
+        "Presence of Mind: 5s → 7s",
+        "Coup de Grace: 10% → 9% damage; Triumph: 15% → 12% missing health; Celerity: 4% → 3% Movement Speed",
+        "Mirror Shell: +5 → +6 Magic Resist; Overheal: 30% → 40% of excess self-healing",
+        "Eyeball Collection: 2 eyeballs per champion kill and 1 per assist (was 2 per takedown); Revitalize now also counts heals and shields you receive",
+        "In the V7.24b follow-up patch: Scorch damage 30–60 → 20–60; Manaflow Band every 60s → 75s; path bonus Sorcery +15 → +12 AD or +25 → +20 AP, Inspiration with Domination or Sorcery +16 → +13 AD or +27 → +22 AP"
+      ],
+      "kind": "change"
+    },
+    "V8.1": {
+      "summary": "Celerity tooltip gives its AD rate; Predator changes; Resolve path pairings split",
+      "items": [
+        "Tooltip fix: Celerity converts bonus Movement Speed at 4.8% AD or 8% AP, as it has since launch (the old tooltip said 8% to AD or AP)",
+        "Predator: an interrupted channel now puts it on 50% cooldown; the first 1.5s of the boost give 67.5% Movement Speed (the tooltip still says 45% throughout, up to the V10.12 rework)",
+        "Path bonus for Resolve paired with Precision, Domination or Sorcery: half of each path's bonus, e.g. +18% Attack Speed or +130 Health → +9% Attack Speed and +65 Health"
+      ],
+      "kind": "change"
+    },
+    "V8.2": {
+      "summary": "Aftershock and Guardian retuned; Glacial Augment, Grasp and Coup de Grace changes",
+      "items": [
+        "Aftershock: resists 20 + 30% → 70–120; damage 40–140 (+3.5% max health) → 10–120 (+3% max health, +15% bonus AD, +10% AP)",
+        "Guardian: cooldown 45s → 70–40s; shield 60–150 → 70–150; AP ratio 20% → 25% (the tooltip prints 0.25%), bonus health 10% → 12%",
+        "Glacial Augment: ranged slow 20–40% → 30–40%, melee 40–50% → 45–55%; frozen ground slow 50% → 60%",
+        "Grasp of the Undying (ranged): damage, healing and permanent health now 40% lower (was: halved, +2 health)",
+        "Coup de Grace: 9% → 7%; Last Stand: 5–12% → 5–11%; Triumph: gold 25 → 20",
+        "Zombie Ward: duration 180s → 60–180s"
+      ],
+      "kind": "change"
+    },
+    "V8.3": {
+      "summary": "Inspiration rows reshuffled; Unsealed Spellbook cooldowns 25% → 15%",
+      "items": [
+        "Magical Footwear moves to the first Inspiration row, Biscuit Delivery to the second",
+        "Magical Footwear: the boots no longer upgrade for 50 gold less",
+        "Unsealed Spellbook: Summoner Spell cooldown reduction 25% → 15%"
+      ],
+      "kind": "change"
+    },
+    "V8.4": {
+      "summary": "New runes Time Warp Tonic and Bone Plating; Resolve rows reshuffled",
+      "items": [
+        "New rune: Time Warp Tonic (Inspiration, third row), replacing Celestial Body",
+        "New rune: Bone Plating (Resolve, first row)",
+        "Resolve: Unflinching moves to the third row, Second Wind to the second row (now 4 runes)",
+        "Press the Attack: damage 30–120 → 40–180; damage taken increase 12% → 4–12%",
+        "Perfect Timing: Stopwatch after 6 → 10 min",
+        "Path bonus for Precision paired with Domination or Sorcery: part Attack Speed, part AD/AP (e.g. +18% Attack Speed → +9% Attack Speed and +5 AD or +9 AP)",
+        "Inspiration path bonus: +20% potion and elixir duration removed"
+      ],
+      "kind": "change"
+    },
+    "V8.5": {
+      "summary": "Press the Attack and Aftershock nerfs; Fleet Footwork minion heal (ranged)",
+      "items": [
+        "Press the Attack: damage taken increase 4–12% → 8–12%",
+        "Aftershock: cooldown 20s → 35s",
+        "Fleet Footwork: healing from minions 30% effective for ranged champions",
+        "Path bonus Precision with Domination: +5 → +6 AD or +9 → +10 AP",
+        "Tooltip wording: Bone Plating"
+      ],
+      "kind": "change"
+    },
+    "V8.6": {
+      "summary": "New keystone: Conqueror; Chrysalis replaces Iron Skin and Mirror Shell",
+      "items": [
+        "New keystone: Conqueror (Precision, 4th keystone)",
+        "New rune: Chrysalis (Resolve, second row); Iron Skin and Mirror Shell removed",
+        "Bone Plating: duration 5s → 3s",
+        "Tooltip fix: Aftershock's summary says magic damage (was adaptive); the shockwave has dealt magic damage since launch"
+      ],
+      "kind": "change"
+    },
+    "V8.7": {
+      "summary": "Presence of Mind and Manaflow Band reworked; Resolve path Health scales",
+      "items": [
+        "Presence of Mind reworked: takedowns restore 20% max mana and refund 10% of your ultimate's cooldown (was: free mana for 7s after a level-up or takedown)",
+        "Manaflow Band reworked: ability hits on champions grant +25 max mana (up to 250), then 1% missing mana every 5s; cooldown 15s",
+        "Cut Down: up to 10% → 12% more damage",
+        "Zombie Ward: duration 60–180s → 30–120s",
+        "Tooltip wording: Absolute Focus now states its level-1 bonus, 3 AD or 5 AP (unchanged)",
+        "Approach Velocity: 10% → 15% Movement Speed; Legend: Tenacity: 1.5% → 2.5% per stack",
+        "Path bonus Health with Resolve now scales with level: +65 → +15–135, +130 → +30–270, +145 → +35–300"
+      ],
+      "kind": "change"
+    },
+    "V8.8": {
+      "summary": "Lethal Tempo: Attack Speed 30–80% → 40–110%",
+      "items": [
+        "Lethal Tempo: Attack Speed 30–80% → 40–110%"
+      ],
+      "kind": "change"
+    },
+    "V8.9": {
+      "summary": "Unsealed Spellbook reworked into Summoner Spell swaps",
+      "items": [
+        "Unsealed Spellbook reworked: swap a Summoner Spell for a single-use one (first swap at 6 min, 4 min cooldown); was: Summoner Shards and 15% shorter cooldowns",
+        "Inspiration keystones reordered: Glacial Augment, Kleptomancy, Unsealed Spellbook"
+      ],
+      "kind": "change"
+    },
+    "V8.10": {
+      "summary": "Cheap Shot, Ingenious Hunter, Phase Rush, Demolish up; Bone Plating down",
+      "items": [
+        "Cheap Shot: 12–30 → 15–40 true damage",
+        "Ingenious Hunter: 10% + 6% per stack → 15% + 5% per stack Active Item CDR",
+        "Phase Rush: Movement Speed 15–40% → 25–40%",
+        "Perfect Timing: Stopwatch after 10 → 8 min",
+        "Demolish: 125 → 175 (+30% max health) damage",
+        "Chrysalis: 60 → 50 starting health",
+        "Bone Plating: 20–50 → 15–40 less damage"
+      ],
+      "kind": "change"
+    },
+    "V8.11": {
+      "summary": "New keystone Hail of Blades; new runes Ultimate Hunter and Nimbus Cloak",
+      "items": [
+        "New keystone: Hail of Blades (Domination, 4th keystone)",
+        "New rune: Ultimate Hunter (Domination, third row, 4th rune)",
+        "New rune: Nimbus Cloak (Sorcery, first row), replacing The Ultimate Hat",
+        "Fleet Footwork: AP ratio 0.4 → 0.5, Movement Speed 30% → 20%; healing from minions 60% → 100% effective (melee) and 30% → 20% (ranged); critical-hit healing bonus removed",
+        "Minion Dematerializer: on cooldown for the first 155s → 240s"
+      ],
+      "kind": "change"
+    },
+    "V8.12": {
+      "summary": "Celerity conversion doubled; Hail of Blades Attack Speed up",
+      "items": [
+        "Celerity: Movement Speed 3% → 1.5%; conversion 4.8% → 9.6% AD or 8% → 16% AP",
+        "Hail of Blades: Attack Speed 50–100% → 75–125%"
+      ],
+      "kind": "change"
+    },
+    "V8.13": {
+      "summary": "Hail of Blades and Unsealed Spellbook buffs; Domination path bonus up",
+      "items": [
+        "Hail of Blades: up to 1.5s → 2s between attacks; cooldown 5s → 4s",
+        "Unsealed Spellbook: each unique spell cuts the swap cooldown by 15s → 20s",
+        "Path bonus Domination: +11 → +12 AD or +18 → +20 AP (with Sorcery or Inspiration); with Precision +13 → +14 AP; with Resolve +5 → +6 AD or +9 → +10 AP"
+      ],
+      "kind": "change"
+    },
+    "V8.14": {
+      "summary": "Ghost Poro and Zombie Ward reworked; Conqueror minimum AD 10 → 6",
+      "items": [
+        "Ghost Poro reworked: entering brush swaps your trinket for a Ghost Poro (vision 300s); 5–20 adaptive force while you or the poro is in enemy territory",
+        "Zombie Ward reworked: ward takedowns raise Zombie Wards (120s), and your next hit on a champion deals 30–90 bonus magic damage",
+        "Conqueror: 10–35 → 6–35 AD"
+      ],
+      "kind": "change"
+    },
+    "V8.15": {
+      "summary": "Perfect Timing: Stopwatch after 8 → 10 min",
+      "items": [
+        "Perfect Timing: Stopwatch after 8 → 10 min"
+      ],
+      "kind": "change"
+    },
+    "V8.16": {
+      "summary": "Electrocute, Cheap Shot, Sudden Impact, Celerity, Scorch nerfs",
+      "items": [
+        "Electrocute: damage 50–220 → 30–180, ratios 0.5 → 0.4 bonus AD and 0.3 → 0.25 AP; cooldown 50–25s → 25–20s",
+        "Cheap Shot: 15–40 → 8–40 true damage",
+        "Sudden Impact: 10 → 7 Lethality, 8 → 6 Magic Penetration",
+        "Summon Aery: damage 15–40 → 10–40; shield 30–80 → 35–80",
+        "Celerity: conversion 9.6% → 6% AD or 16% → 10% AP",
+        "Scorch: damage 20–60 → 10–30; cooldown 20s → 10s"
+      ],
+      "kind": "change"
+    },
+    "V8.20": {
+      "summary": "Dark Harvest base damage 40–80 → 20–60; Biscuit Delivery tooltip fix",
+      "items": [
+        "Dark Harvest: base damage 40–80 → 20–60",
+        "Tooltip fix: Biscuit Delivery says selling a biscuit also raises the mana cap, as it always did",
+        "Tooltip wording: Scorch says damaging abilities"
+      ],
+      "kind": "change"
+    },
+    "V8.22": {
+      "summary": "Time Warp Tonic reworked; last patch of Season 8",
+      "items": [
+        "Time Warp Tonic reworked: potions and biscuits restore 50% at once, then go on a short cooldown (was: 20% longer duration)"
+      ],
+      "kind": "season-end"
+    },
+    "V8.23": {
+      "summary": "Preseason 9: stat shards replace path bonuses; Dark Harvest, Celerity reworked",
+      "items": [
+        "Stat shards added: Offense +10 Adaptive Force / +9% Attack Speed / +1–10% CDR; Flex +10 Adaptive Force / +5 Armor / +6 Magic Resist; Defense +15–90 Health / +5 Armor / +6 Magic Resist",
+        "Path-pair bonuses removed",
+        "Dark Harvest reworked: damaging a champion below 50% health deals 50–80 damage (+8 per soul harvested), cooldown 45s",
+        "Celerity reworked: all movement bonuses are 8% more effective",
+        "Kleptomancy: the next 2 attacks on champions after an ability can grant gold or items",
+        "New rune: Shield Bash (Resolve, first row); Chrysalis removed, Bone Plating moves to the second row (25–50 less damage, lasts 1.5s)",
+        "Overgrowth: +0.2% max health per 8 deaths → +3 health per 8, and +2.5% max health at 120",
+        "Demolish: 175 → 100 damage, charge 4s → 3s; Fleet Footwork AP ratio 0.5 → 0.3; Ravenous Hunter 2.5% → 1.5% base healing",
+        "Hotfix during the patch (November 20): Dark Harvest 50–80 → 40–80 damage, +8 → +5 per soul; this page keeps the patch-day values"
+      ],
+      "kind": "rework"
+    },
+    "V8.24": {
+      "summary": "Dark Harvest base damage 40–80 → 20–60; Shield Bash tooltip fix",
+      "items": [
+        "Dark Harvest: base damage 40–80 → 20–60 (the tooltip also takes the V8.23 hotfix: 50–80 → 40–80, +8 → +5 per soul)",
+        "Tooltip fix: Shield Bash damage 4–22 → 4–21, its value since launch in V8.23"
+      ],
+      "kind": "change"
+    },
+    "V9.1": {
+      "summary": "Hail of Blades reworked; Attack Speed shard 9% → 10%",
+      "items": [
+        "Hail of Blades: 75–125% → 110% Attack Speed; attack resets add one attack",
+        "Celerity: movement bonuses 8% → 10% more effective",
+        "Shield Bash: damage 4–21 → 5–30",
+        "Stat shard: Attack Speed +9% → +10%"
+      ],
+      "kind": "change"
+    },
+    "V9.2": {
+      "summary": "Cut Down reworked; Absolute Focus, Overheal, Legend: Bloodline; shard values",
+      "items": [
+        "Cut Down: now 4–10% more damage, scaling with how much more max health (10–100%) the enemy has",
+        "Absolute Focus: up to 24 → 18 AD or 40 → 30 AP (level 1: 3 → 1.8 AD, 5 → 3 AP)",
+        "Overheal: shield now built from 40–100% of excess healing from you or allies (was 40% of self-healing, 300% of ally healing)",
+        "Legend: Bloodline: 0.8% → 0.6% life steal per stack, max stacks 10 → 20",
+        "Stat shards: Adaptive Force +10 → +9; Armor +5 → +6; Magic Resist +6 → +8"
+      ],
+      "kind": "change"
+    },
+    "V9.4": {
+      "summary": "Conqueror reworked into stacking Adaptive Force",
+      "items": [
+        "Conqueror reworked: damaging a champion grants 3–15 Adaptive Force for 3s (8s melee), up to 5 stacks; at 5 stacks 10% of damage becomes true damage and heals you (was: after 4s in combat, 6–35 AD and 20% true damage)",
+        "Hotfix during the patch (February 22): 2–10 Adaptive Force per stack, ranged stacks 3s → 2s (melee keeps 8s); this page keeps the patch-day values"
+      ],
+      "kind": "change"
+    },
+    "V9.5": {
+      "summary": "Conqueror nerfed to 2–6 Adaptive Force per stack; Cut Down 4–10% → 5–12%",
+      "items": [
+        "Conqueror: 3–15 → 2–6 Adaptive Force per stack, ranged stacks 3s → 2s (Riot's notes: 2–10 → 2–6; the rest is the V9.4 hotfix)",
+        "Cut Down: 4–10% → 5–12%"
+      ],
+      "kind": "change"
+    },
+    "V9.6": {
+      "summary": "Minion Dematerializer and Overheal changes; Conqueror tooltip wording",
+      "items": [
+        "Minion Dematerializer: 6 → 3 dematerializers, available after 240s → 180s; damage bonus +4% → +6% (+1% → +3% per extra minion)",
+        "Overheal: shield built from 40–100% → 20–100% of excess healing",
+        "Tooltip wording: Conqueror's summary line rewritten"
+      ],
+      "kind": "change"
+    },
+    "V9.7": {
+      "summary": "Ghost Poro, Zombie Ward and Eyeball Collection grant stacking AD/AP",
+      "items": [
+        "Ghost Poro reworked: expiring wards leave a Ghost Poro (vision 60s); +1.2 AD or +2 AP per poro, up to 10, then +10 adaptive force",
+        "Zombie Ward: now +1.2 AD or +2 AP per Zombie Ward, up to 10, then +10 adaptive force (the bonus magic damage is gone)",
+        "Eyeball Collection: 1 eyeball per champion takedown, wards no longer count; +0.6 → +1.2 AD or +1 → +2 AP each, complete at 20 → 10",
+        "Cut Down: 5–12% → 5–15%",
+        "Ultimate Hunter: +2% → +3% per Bounty Hunter stack",
+        "Demolish: 30% → 35% of max health",
+        "Overgrowth: bonus at 120 absorbed 2.5% → 3.5% max health"
+      ],
+      "kind": "change"
+    },
+    "V9.8": {
+      "summary": "Coup de Grace: 7% → 8% damage, takedown bonus removed",
+      "items": [
+        "Coup de Grace: 7% → 8% more damage; the adaptive bonus after champion takedowns (9 AD or 15 AP for 10s) is removed"
+      ],
+      "kind": "change"
+    },
+    "V9.9": {
+      "summary": "Aftershock resists rework; Celerity, Magical Footwear and 7 more",
+      "items": [
+        "Aftershock: resists 70–120 → 70 + 50% of bonus resists (capped at 80–150); damage +3% → +4% max health, AD and AP ratios removed",
+        "Celerity: movement bonuses 10% → 7% more effective, plus 1% Movement Speed",
+        "Magical Footwear: boots at 10 → 12 min, 30s → 45s sooner per takedown",
+        "Relentless Hunter: 8 + 8 per stack → 10 + 9 per stack; Ultimate Hunter: +3% → +4% per stack",
+        "Cheap Shot: 8–40 → 10–45 true damage; Scorch: 10–30 → 15–35 damage",
+        "Conditioning: +8 → +9 Armor and Magic Resist; Bone Plating: 25–50 → 30–60 less damage",
+        "Ghost Poro: spotting an enemy champion now also grants a stack"
+      ],
+      "kind": "change"
+    },
+    "V9.10": {
+      "summary": "Conqueror: true damage conversion 10% → 8%",
+      "items": [
+        "Conqueror: at full stacks 10% → 8% of damage converted to true damage"
+      ],
+      "kind": "change"
+    },
+    "V9.11": {
+      "summary": "Tooltip fix: Guardian's shield AP ratio prints 25% (was 0.25%)",
+      "items": [
+        "Tooltip fix: Guardian's shield AP ratio prints 25% (was 0.25%; the ratio has been 25% since V8.2)"
+      ],
+      "kind": "change"
+    },
+    "V9.16": {
+      "summary": "Biscuit Delivery: biscuits every 2 min until 6 min",
+      "items": [
+        "Biscuit Delivery: a biscuit every 3 → 2 min, until 12 → 6 min",
+        "Biscuit Delivery: restore 15% → 10% missing health and mana (manaless 20% → 12%); mana cap +40 → +50"
+      ],
+      "kind": "change"
+    },
+    "V9.22": {
+      "summary": "No rune changes since V9.16; last patch of Season 9",
+      "items": [
+        "No rune changes since V9.16 — last patch of Season 9"
+      ],
+      "kind": "no-change"
+    },
+    "V9.23": {
+      "summary": "Preseason 10: Prototype: Omnistone replaces Kleptomancy; Conqueror reworked",
+      "items": [
+        "New keystone: Prototype: Omnistone (Inspiration), replacing Kleptomancy",
+        "Conqueror reworked: 2 stacks per hit (ranged basic attacks 1), 2–5 Adaptive Force per stack, up to 10; stacks last 8s for everyone (ranged was 2s); full stacks heal for 15% of damage to champions (true damage removed)",
+        "Aftershock: resists 70 + 50% → 35 + 80% of bonus resists; damage 10–120 (+4% max health) → 25–120 (+8% bonus health); cooldown 35s → 20s",
+        "Presence of Mind: takedowns now raise max mana by 100 (up to 500) or max energy by 10 (up to 50) instead of refunding ultimate cooldown",
+        "Nimbus Cloak reworked: triggers after a Summoner Spell (was: the ultimate), 15–35% Movement Speed based on the spell's cooldown",
+        "Eyeball Collection: 1 eyeball per takedown → 2 per kill and 1 per assist (the tooltip says 2 per takedown); +1.2 → +0.6 AD or +2 → +1 AP each, complete at 10 → 20",
+        "Hotfix during the patch (November 21): Prototype: Omnistone 8–4s → 7–3s between keystones (ranged 12–8s → 11–7s); this page keeps the patch-day values"
+      ],
+      "kind": "season-start"
+    },
+    "V9.24": {
+      "summary": "Conqueror: stacks 8s → 6s, healing 8% for ranged",
+      "items": [
+        "Conqueror: stacks last 8s → 6s; ranged champions heal for 8% (melee 15%)"
+      ],
+      "kind": "change"
+    },
+    "V10.1": {
+      "summary": "Eyeball Collection back to 10 eyeballs; Prototype: Omnistone faster",
+      "items": [
+        "Eyeball Collection: back to 1 eyeball per takedown (was 2 per kill and 1 per assist); +0.6 → +1.2 AD or +1 → +2 AP each, complete at 20 → 10",
+        "Prototype: Omnistone: time between keystones 7–3s → 5–3s (ranged 11–7s → 9–7s); until now the tooltip showed the pre-hotfix 8–4s (12–8s)"
+      ],
+      "kind": "change"
+    },
+    "V10.4": {
+      "summary": "Perfect Timing reworked; Phase Rush and Hail of Blades changes",
+      "items": [
+        "Perfect Timing: Stopwatch after 10 → 14 min, 2 min sooner per takedown; the cooldown reduction on Zhonya's Hourglass, Guardian Angel and Gargoyle Stoneplate is removed",
+        "Phase Rush: 3 hits within 3s → 4s; melee champions now get 30–50% Movement Speed",
+        "Hail of Blades: up to 2s → 3s between attacks; cooldown 4s out of combat → a flat 8s (the tooltip says 8s out of combat with champions until V11.2)"
+      ],
+      "kind": "change"
+    },
+    "V10.5": {
+      "summary": "Tooltip wording: Perfect Timing renames its Stopwatch",
+      "items": [
+        "Tooltip wording: Perfect Timing calls its item a Perfectly Timed Stopwatch (Stopwatch again from V10.7) and drops the line about replacing the Stopwatch in the item shop; Riot's notes list only a bug fix"
+      ],
+      "kind": "change"
+    },
+    "V10.6": {
+      "summary": "Tooltip wording: Summon Aery rewritten, numbers unchanged",
+      "items": [
+        "Tooltip wording: Summon Aery (attacks or abilities on champions send Aery to damage; empowering or protecting allies sends her to shield); numbers unchanged"
+      ],
+      "kind": "change"
+    },
+    "V10.7": {
+      "summary": "Phase Rush melee 30–50% → 40–60%; Conditioning after 10 → 12 min",
+      "items": [
+        "Phase Rush: melee Movement Speed 30–50% → 40–60%",
+        "Conditioning: bonus starts after 10 → 12 min",
+        "Tooltip wording: Perfect Timing's item is a Stopwatch again (was Perfectly Timed Stopwatch)"
+      ],
+      "kind": "change"
+    },
+    "V10.12": {
+      "summary": "Predator, Unflinching, Approach Velocity and Guardian reworked",
+      "items": [
+        "Predator reworked: no channel, ramps up to 45% Movement Speed over 1.5s while chasing champions; damage 60–180 → 30–90 (+0.2 bonus AD, +0.1 AP); cooldown 150–100s → 100–70s",
+        "Unflinching reworked: 10% Tenacity and Slow Resist, up to 20% more based on missing health (was: after casting a Summoner Spell)",
+        "Approach Velocity: 15% → 7.5% Movement Speed toward impaired enemies, 15% toward enemies you impair; impaired allies no longer count",
+        "Guardian: range 175 → 350; triggers only after 90–250 damage taken within 2.5s, or on lethal damage (was any damage); shield 70–150 → 80–200; haste removed",
+        "Tooltip only: Glacial Augment says Energized attacks also fire the freeze ray (a tooltip error, gone in V10.13)"
+      ],
+      "kind": "change"
+    },
+    "V10.13": {
+      "summary": "Conqueror up to 12 stacks of 1.7–4.2; Guardian shield back to 70–150",
+      "items": [
+        "Conqueror: 2–5 → 1.7–4.2 Adaptive Force per stack, max stacks 10 → 12",
+        "Guardian: shield 80–200 → 70–150",
+        "Tooltip fix: Glacial Augment no longer mentions Energized attacks"
+      ],
+      "kind": "change"
+    },
+    "V10.14": {
+      "summary": "Predator: damage 30–90 → 40–120, cooldown 100–70s → 90–60s",
+      "items": [
+        "Predator: damage 30–90 → 40–120; cooldown 100–70s → 90–60s"
+      ],
+      "kind": "change"
+    },
+    "V10.15": {
+      "summary": "Unsealed Spellbook: 25s per unique spell, first cooldown 5 min",
+      "items": [
+        "Unsealed Spellbook: each unique spell cuts the swap cooldown by 20s → 25s; initial swap cooldown 4 → 5 min"
+      ],
+      "kind": "change"
+    },
+    "V10.16": {
+      "summary": "Nimbus Cloak: Movement Speed 15–35% → 10–30%",
+      "items": [
+        "Nimbus Cloak: Movement Speed 15–35% → 10–30%"
+      ],
+      "kind": "change"
+    },
+    "V10.18": {
+      "summary": "Guardian: shield ratios 25% → 15% AP, 12% → 9% bonus health",
+      "items": [
+        "Guardian: shield ratios 25% → 15% AP and 12% → 9% bonus health"
+      ],
+      "kind": "change"
+    },
+    "V10.20": {
+      "summary": "Relentless Hunter: 10 + 9 per stack → 5 + 8 per stack",
+      "items": [
+        "Relentless Hunter: out of combat Movement Speed 10 + 9 per stack → 5 + 8 per stack"
+      ],
+      "kind": "change"
+    },
+    "V10.21": {
+      "summary": "Nimbus Cloak: 2.5s → 2s, Movement Speed 10–30% → 5–35%",
+      "items": [
+        "Nimbus Cloak: duration 2.5s → 2s; Movement Speed 10–30% → 5–35%"
+      ],
+      "kind": "change"
+    },
+    "V10.22": {
+      "summary": "No rune changes since V10.21; last patch of Season 10",
+      "items": [
+        "No rune changes since V10.21 — last patch of Season 10"
+      ],
+      "kind": "no-change"
+    },
+    "V10.23": {
+      "summary": "Preseason 11: CDR becomes Ability Haste; Presence of Mind, Transcendence reworked",
+      "items": [
+        "Stat shard: scaling 1–10% CDR → +8 Ability Haste",
+        "Presence of Mind reworked: damaging a champion grants 1.5–11 mana per second for 4s (energy: 1.5); takedowns restore 15% mana or energy (was 20%, plus max mana)",
+        "Transcendence reworked: +5 Ability Haste at levels 5 and 8; from level 11, takedowns cut basic ability cooldowns by 20%",
+        "Cosmic Insight: CDR → +15 Summoner Spell Haste and +10 Item Haste",
+        "Ingenious Hunter: 15% + 5% per stack Active Item CDR → 10 + 5 per stack Item Haste",
+        "Ravenous Hunter: ability healing → Omnivamp 1% + 2% per stack",
+        "Conqueror: 1.7–4.2 → 2–5 Adaptive Force; full-stack healing 15% → 9% (ranged 8% → 6%)",
+        "Time Warp Tonic: no consumable cooldown; Legend: Bloodline max stacks 20 → 15",
+        "Tooltip wording: Revitalize calls its 5% bonus Heal and Shield Power (still +10% more on targets below 40% health)"
+      ],
+      "kind": "season-start"
+    },
+    "V11.1": {
+      "summary": "Ultimate Hunter switches to Ability Haste; Cosmic Insight up",
+      "items": [
+        "Ultimate Hunter: 5% + 4% per stack ultimate CDR → 6 + 5 per stack Ability Haste",
+        "Cosmic Insight: +15 → +18 Summoner Spell Haste"
+      ],
+      "kind": "change"
+    },
+    "V11.2": {
+      "summary": "Ravenous Hunter Omnivamp per stack 2% → 1.7%; Hail of Blades tooltip fix",
+      "items": [
+        "Ravenous Hunter: +2% → +1.7% Omnivamp per stack",
+        "Tooltip fix: Hail of Blades' cooldown reads a flat 8s; it stopped depending on combat in V10.4"
+      ],
+      "kind": "change"
+    },
+    "V11.6": {
+      "summary": "Fleet Footwork AP ratio 0.3 → 0.2; Ravenous Hunter base Omnivamp removed",
+      "items": [
+        "Fleet Footwork: AP ratio 0.3 → 0.2",
+        "Ravenous Hunter: Omnivamp 1% + 1.7% → 0% + 1.5% per stack"
+      ],
+      "kind": "change"
+    },
+    "V11.10": {
+      "summary": "Phase Rush: Movement Speed and cooldown retuned; Unsealed Spellbook Smite",
+      "items": [
+        "Phase Rush: Movement Speed 25–40% → 15–40% (melee 40–60% → 30–60%); cooldown 15s → 30–10s by level (the tooltip shows 10–30s)",
+        "Unsealed Spellbook: Smite damage increases after two Summoner Spell swaps"
+      ],
+      "kind": "change"
+    },
+    "V11.11": {
+      "summary": "Hail of Blades: cooldown 8s → 12s",
+      "items": [
+        "Hail of Blades: cooldown 8s → 12s"
+      ],
+      "kind": "change"
+    },
+    "V11.13": {
+      "summary": "Ghost Poro vision 60s → 90s; Nimbus Cloak 5–35% → 5–25%",
+      "items": [
+        "Ghost Poro: vision 60s → 90s",
+        "Nimbus Cloak: Movement Speed 5–35% → 5–25%"
+      ],
+      "kind": "change"
+    },
+    "V11.17": {
+      "summary": "Fleet Footwork: heal 3–60 → 10–100",
+      "items": [
+        "Fleet Footwork: heal 3–60 (+0.3 bonus AD, +0.2 AP) → 10–100 (+0.4 bonus AD, +0.3 AP)",
+        "Fleet Footwork: healing from minions 100% → 20% effective (melee) and 20% → 10% (ranged)"
+      ],
+      "kind": "change"
+    },
+    "V11.19": {
+      "summary": "Tooltip fix: Predator shows its V11.18 buff, 60% Movement Speed over 1s",
+      "items": [
+        "Tooltip fix: Predator ramps up to 60% Movement Speed over 1s (was shown as 45% over 1.5s); the change itself came in V11.18"
+      ],
+      "kind": "change"
+    },
+    "V11.21": {
+      "summary": "Conqueror stacks shorter; Ingenious Hunter up; Health shard 15–90 → 15–140",
+      "items": [
+        "Conqueror: stacks last 6s → 4s; 2–5 → 2–4 Adaptive Force per stack",
+        "Ingenious Hunter: 10 + 5 per stack → 20 + 6 per stack Item Haste",
+        "Ravenous Hunter: 1.5% → 1.2% Omnivamp per stack",
+        "Guardian: shield 70–150 → 50–130",
+        "Stat shard: scaling Health 15–90 → 15–140"
+      ],
+      "kind": "change"
+    },
+    "V11.22": {
+      "summary": "No rune changes since V11.21; last patch of Season 11",
+      "items": [
+        "No rune changes since V11.21 — last patch of Season 11"
+      ],
+      "kind": "no-change"
+    },
+    "V11.23": {
+      "summary": "Preseason 12: First Strike replaces Omnistone; Lethal Tempo, Glacial Augment reworked",
+      "items": [
+        "New keystone: First Strike (Inspiration), replacing Prototype: Omnistone",
+        "Lethal Tempo reworked: each attack on a champion grants 15% (melee) or 5% (ranged) Attack Speed for 6s, up to 90% / 30%; at full stacks Attack Speed can pass 2.5 and attack range grows by 50 / 100 (was: 40–110% for 3s, 1.5s after damaging a champion)",
+        "Glacial Augment reworked: immobilizing a champion fires 3 glacial rays that leave frozen zones (35% slow, enemies deal 15% less damage to your allies); cooldown 25s"
+      ],
+      "kind": "season-start"
+    },
+    "V11.24": {
+      "summary": "Lethal Tempo melee down, ranged up; Conqueror, Glacial Augment and Predator tuned",
+      "items": [
+        "Lethal Tempo: per stack 15% → 13% (melee) and 5% → 7% (ranged), max 90% → 78% and 30% → 42%; ranged bonus range 100 → 75",
+        "Conqueror: stacks last 4s → 5s; 2–4 → 2–4.5 Adaptive Force per stack",
+        "Glacial Augment: slow 35% → 30%; scaling +5% → +7% per 10% Heal and Shield Power, +2% → +3% per 100 AP, +2% → +4% per 100 bonus AD",
+        "Predator: up to 60% → 45% Movement Speed, ramp-up 1s → 1.5s (the tooltip shows the 45% from V12.2 but keeps saying 1s until Predator is removed in V14.10)",
+        "Hotfix during the patch (December 15): Glacial Augment +7% → +9% slow per 10% Heal and Shield Power; this page keeps the patch-day values"
+      ],
+      "kind": "change"
+    },
+    "V12.1": {
+      "summary": "Tooltip fix: Glacial Augment shows its V11.24 hotfix, +9% per 10% Heal and Shield Power",
+      "items": [
+        "Tooltip fix: Glacial Augment slow +7% → +9% per 10% Heal and Shield Power, the V11.24 hotfix of December 15"
+      ],
+      "kind": "change"
+    },
+    "V12.2": {
+      "summary": "Lethal Tempo Attack Speed scales with level; Predator tooltip shows 45%",
+      "items": [
+        "Lethal Tempo: Attack Speed per stack 13% → 10–15% (melee) and 7% → 5–9% (ranged) by level; at 6 stacks 78% → 60–90% and 42% → 30–54%",
+        "Tooltip fix: Predator shows its V11.24 nerf, up to 45% Movement Speed (was 60%); it still says over 1 second (1.5s since V11.24)"
+      ],
+      "kind": "change"
+    },
+    "V12.6": {
+      "summary": "Ravenous Hunter becomes Treasure Hunter; Fleet Footwork and Bloodline down",
+      "items": [
+        "Ravenous Hunter replaced by Treasure Hunter: +70 gold on your next Bounty Hunter stack, +20 per stack, up to 150 (was 1.2% Omnivamp per stack)",
+        "Fleet Footwork: ratios 0.4 → 0.3 bonus AD and 0.3 → 0.2 AP",
+        "Legend: Bloodline: 0.6% → 0.4% life steal per stack; +100 max health at full stacks"
+      ],
+      "kind": "change"
+    },
+    "V12.7": {
+      "summary": "Time Warp Tonic: instant restore 50% → 30%, Movement Speed 5% → 4%",
+      "items": [
+        "Time Warp Tonic: instant restore 50% → 30%; Movement Speed 5% → 4%"
+      ],
+      "kind": "change"
+    },
+    "V12.10": {
+      "summary": "10 runes trimmed: Conqueror, Grasp, Guardian, Aery, Taste of Blood and more",
+      "items": [
+        "Conqueror: full-stack healing 9% → 8% (ranged 6% → 5%)",
+        "Grasp of the Undying: damage 4% → 3.5% max health; heal 2% → 1.7%",
+        "Guardian: shield 50–130 → 45–120; ratios 15% → 12.5% AP and 9% → 8% bonus health",
+        "Summon Aery: shield 35–80 → 30–75 (+0.25 → +0.22 AP, +0.4 → +0.35 bonus AD)",
+        "Nullifying Orb: shield 40–120 → 35–110",
+        "Taste of Blood: heal 18–35 → 16–30 (+0.2 → +0.15 bonus AD, +0.1 → +0.08 AP)",
+        "Conditioning: 5% → 4% Armor and Magic Resist; Font of Life: 1% → 0.9% max health; Overheal: 10% → 9% max health",
+        "Triumph: 12% → 10% missing health"
+      ],
+      "kind": "change"
+    },
+    "V12.11": {
+      "summary": "Tooltip only: Lethal Tempo ranged Attack Speed shown as 18–42%",
+      "items": [
+        "Tooltip only: Lethal Tempo shows 18–42% ranged Attack Speed; not in Riot's patch notes, the game kept 30–54%"
+      ],
+      "kind": "change"
+    },
+    "V12.12": {
+      "summary": "Predator retuned; Lethal Tempo tooltip back to 30–54% ranged",
+      "items": [
+        "Predator: Movement Speed 45% → 25–50%; damage 40–120 (+0.2 bonus AD, +0.1 AP) → 20–180 (+0.25 bonus AD, +0.15 AP); cooldown 90–60s → 120–60s",
+        "Tooltip fix: Lethal Tempo ranged Attack Speed shown as 30–54% again"
+      ],
+      "kind": "change"
+    },
+    "V12.14": {
+      "summary": "Sudden Impact and Scorch up; Resolve and Inspiration runes trimmed",
+      "items": [
+        "Sudden Impact: 7 → 9 Lethality and 6 → 7 Magic Penetration",
+        "Scorch: damage 15–35 → 20–40",
+        "Unflinching: base Tenacity and Slow Resist 10% → 5%",
+        "Biscuit Delivery: restore 10% → 8%, mana cap +50 → +40; Time Warp Tonic: Movement Speed 4% → 2%",
+        "Conditioning: +9 → +8 Armor and Magic Resist, 4% → 3%; Second Wind: flat heal +6 → +3",
+        "Guardian: cooldown 70–40s → 90–40s; Bone Plating: cooldown 45s → 55s",
+        "Tooltip fix: Phase Rush cooldown reads 30–10s by level (was 10–30s)"
+      ],
+      "kind": "change"
+    },
+    "V12.15": {
+      "summary": "First Strike: 10% → 9% extra damage",
+      "items": [
+        "First Strike: 10% → 9% extra damage against champions"
+      ],
+      "kind": "change"
+    },
+    "V12.20": {
+      "summary": "Lethal Tempo: full-stack bonus range now 50 for ranged too",
+      "items": [
+        "Lethal Tempo: full-stack bonus range now 50 for everyone (ranged was 75)"
+      ],
+      "kind": "change"
+    },
+    "V12.21": {
+      "summary": "No rune changes since V12.20; last patch of Season 12",
+      "items": [
+        "No rune changes since V12.20 — last patch of Season 12"
+      ],
+      "kind": "no-change"
+    },
+    "V12.22": {
+      "summary": "No rune changes since V12.21; first patch of Season 13",
+      "items": [
+        "No rune changes since V12.21 — first patch of Season 13"
+      ],
+      "kind": "no-change"
+    },
+    "V13.1": {
+      "summary": "Legend: Tenacity 2.5% → 1.5% per stack; Conditioning tooltip says bonus resists",
+      "items": [
+        "Legend: Tenacity: 2.5% → 1.5% per stack",
+        "Tooltip only: Conditioning says its 3% increase applies to bonus Armor and Magic Resist; the game still applies it to total (the tooltip says so again from V14.20)"
+      ],
+      "kind": "change"
+    },
+    "V13.3": {
+      "summary": "Overheal: shield cap 10 (+9% max health) → 20–300 by level",
+      "items": [
+        "Overheal: shield cap 10 (+9% max health) → 20–300 based on level"
+      ],
+      "kind": "change"
+    },
+    "V13.4": {
+      "summary": "Treasure Hunter: 70 → 50 gold, cap 150 → 130",
+      "items": [
+        "Treasure Hunter: first bonus 70 → 50 gold; cap 150 → 130 gold"
+      ],
+      "kind": "change"
+    },
+    "V13.5": {
+      "summary": "Grasp of the Undying heal reworked; Triumph partly max health",
+      "items": [
+        "Grasp of the Undying: heal 1.7% → 3 + 1.2% max health; permanent health 5 → 7",
+        "Triumph: 10% missing health → 5% missing health + 2.5% max health"
+      ],
+      "kind": "change"
+    },
+    "V13.6": {
+      "summary": "Lethal Tempo ranged 30–54% → 24–54%; Legend: Bloodline down",
+      "items": [
+        "Lethal Tempo: ranged Attack Speed 30–54% → 24–54%",
+        "Legend: Bloodline: 0.4% → 0.35% life steal per stack; full-stack health 100 → 85"
+      ],
+      "kind": "change"
+    },
+    "V13.12": {
+      "summary": "Overheal: shield 20–300 → 11% max health",
+      "items": [
+        "Overheal: shield cap 20–300 → 11% max health"
+      ],
+      "kind": "change"
+    },
+    "V13.15": {
+      "summary": "Glacial Augment: base slow 30% → 20%, AP and AD scaling up",
+      "items": [
+        "Glacial Augment: base slow 30% → 20%; scaling +3% → +6% per 100 AP and +4% → +7% per 100 bonus AD"
+      ],
+      "kind": "change"
+    },
+    "V13.17": {
+      "summary": "Future's Market: debt limit 150 + 5/min → 100 + 8/min",
+      "items": [
+        "Future's Market: debt limit 150 + 5/min → 100 + 8/min"
+      ],
+      "kind": "change"
+    },
+    "V13.20": {
+      "summary": "Damage runes: base values up, AD/AP ratios cut; Lethal Tempo, Conqueror down",
+      "items": [
+        "Press the Attack: damage taken increase 8–12% → 8%",
+        "Lethal Tempo: 60–90% → 54–81% (melee) and 24–54% → 21–48% (ranged) Attack Speed",
+        "Conqueror: 2–4.5 → 1.8–4 Adaptive Force per stack",
+        "Electrocute: 30–180 → 30–220; ratios 0.4 → 0.1 bonus AD and 0.25 → 0.05 AP",
+        "Fleet Footwork: heal 10–100 → 10–130; ratios 0.3 → 0.1 bonus AD and 0.2 → 0.05 AP",
+        "Dark Harvest: 20–60 → 20–80 and Taste of Blood: 16–30 → 16–40, AD and AP ratios cut",
+        "Summon Aery: damage 10–40 → 10–50, shield 30–75 → 30–100; Arcane Comet: 30–100 → 30–130; ratios cut to 0.05 AP and 0.1 bonus AD",
+        "Waterwalking: 25 → 10 Movement Speed, Adaptive Force 5–30 → 13–30 (the tooltip shows the Adaptive Force from V14.20); First Strike: 9% → 8%"
+      ],
+      "kind": "change"
+    },
+    "V13.21": {
+      "summary": "First Strike 8% → 7%; Phase Rush melee 30–60% → 25–50%",
+      "items": [
+        "First Strike: 8% → 7% extra damage against champions",
+        "Phase Rush: melee Movement Speed 30–60% → 25–50%"
+      ],
+      "kind": "change"
+    },
+    "V13.24": {
+      "summary": "No rune changes since V13.21; last patch of Season 13",
+      "items": [
+        "No rune changes since V13.21 — last patch of Season 13"
+      ],
+      "kind": "no-change"
+    },
+    "V14.1": {
+      "summary": "Season 14: Perfect Timing becomes Triple Tonic",
+      "items": [
+        "Perfect Timing replaced by Triple Tonic: an Elixir of Avarice at level 3, an Elixir of Force at 6 and an Elixir of Skill at 9"
+      ],
+      "kind": "season-start"
+    },
+    "V14.2": {
+      "summary": "Stat shards reworked: new Flex and Defense rows; Unflinching reworked",
+      "items": [
+        "Stat shards, Flex row: Adaptive Force / Armor / Magic Resist → Adaptive Force / +2% Move Speed / +10–180 Health",
+        "Stat shards, Defense row: +15–140 Health / Armor / Magic Resist → +65 Health / +10% Tenacity and Slow Resist / +10–180 Health",
+        "Unflinching reworked: 2–10 Armor and Magic Resist while crowd controlled and for 2s after (was Tenacity and Slow Resist)"
+      ],
+      "kind": "change"
+    },
+    "V14.4": {
+      "summary": "Lethal Tempo: melee Attack Speed 54–81% → 30–96%",
+      "items": [
+        "Lethal Tempo: melee Attack Speed 54–81% → 30–96%"
+      ],
+      "kind": "change"
+    },
+    "V14.10": {
+      "summary": "Lethal Tempo, Predator and Ingenious Hunter removed; 13 more runes changed",
+      "items": [
+        "Removed: Lethal Tempo (Precision keystone), Predator (Domination keystone) and Ingenious Hunter (Domination)",
+        "Press the Attack: damage 40–180 → 40–160; now amplifies your own damage by 8% until you leave combat (was: target takes 8% more for 6s)",
+        "Cut Down reworked: 8% more damage to champions above 60% health",
+        "Sudden Impact reworked: after a dash, blink, teleport or leaving stealth, hits deal 20–80 bonus true damage for 4s; cooldown 10s",
+        "Inspiration: Minion Dematerializer → Jack Of All Trades (1 Ability Haste per item stat), Future's Market → Cash Back (6% gold back on Legendary items); rows reshuffled",
+        "Precision: Overheal → Absorb Life (2–17 health per kill), Legend: Tenacity → Legend: Haste (1.5 basic ability haste per stack)",
+        "Font of Life reworked: impairing a champion heals you and the lowest-health nearby ally; cooldown 20s",
+        "Fleet Footwork: heal 10–130 → 8–110; the Movement Speed lasts 1s → 1.25s (the tooltip still says 1s; back to 1s in V14.17)",
+        "Also: Relentless Hunter 5 + 8 → 8 per stack; Hail of Blades ranged 110% → 80%",
+        "First Strike: 7% → 8% more damage, 5 → 15 gold, gold from the bonus damage 100% → 50% (ranged 70% → 35%); Time Warp Tonic: 30% → 40% of a potion's heal at once, potions only (no biscuits or mana), the 2% Move Speed removed"
+      ],
+      "kind": "rework"
+    },
+    "V14.11": {
+      "summary": "Cut Down: champions above 60% → 50% health; Absorb Life heal 2–17 → 2–20",
+      "items": [
+        "Cut Down: bonus damage against champions above 60% → 50% health",
+        "Absorb Life: heal 2–17 → 2–20 (the tooltip shows it from V14.12)"
+      ],
+      "kind": "change"
+    },
+    "V14.12": {
+      "summary": "First Strike 15 → 10 gold, 8% → 7%; Absorb Life tooltip fix",
+      "items": [
+        "First Strike: 15 → 10 gold; 8% → 7% extra damage",
+        "Tooltip fix: Absorb Life heal 2–17 → 2–20, the V14.11 buff"
+      ],
+      "kind": "change"
+    },
+    "V14.13": {
+      "summary": "Electrocute 30–220 → 50–190; Dark Harvest +9 per soul",
+      "items": [
+        "Electrocute: damage 30–220 → 50–190; cooldown 25–20s → 20s",
+        "Dark Harvest: damage 20–80 (+5 per soul) → 20 (+9 per soul); cooldown 45s → 40s"
+      ],
+      "kind": "change"
+    },
+    "V14.14": {
+      "summary": "Absorb Life: heal 2–20 → 1–23 (tooltip shows 1–18)",
+      "items": [
+        "Absorb Life: heal 2–20 → 1–23 by level, less early and more late (the tooltip shows 1–18 until V14.15)"
+      ],
+      "kind": "change"
+    },
+    "V14.15": {
+      "summary": "Fleet Footwork 8–110 → 5–120; Dark Harvest cooldown 35s; Absorb Life tooltip fix",
+      "items": [
+        "Fleet Footwork: heal 8–110 → 5–120",
+        "Dark Harvest: cooldown 40s → 35s; takedown reset 1.5s → 1s",
+        "Tooltip fix: Absorb Life heal 1–18 → 1–23, the V14.14 values"
+      ],
+      "kind": "change"
+    },
+    "V14.17": {
+      "summary": "Cut Down back to 60% health; Fleet Footwork heal and speed down; Absorb Life heal down",
+      "items": [
+        "Cut Down: bonus damage against champions above 50% → 60% health",
+        "Fleet Footwork: heal 5–120 → 5–100; Movement Speed 20% for 1.25s → 15% for 1s (the tooltip said 1s all along)",
+        "Absorb Life: heal 1–5 → 1–2 at levels 1–5 and 6–11 → 3–7 at levels 6–10, 23 at level 18 as before (the tooltip still says 1–23, up to V26.19)"
+      ],
+      "kind": "change"
+    },
+    "V14.18": {
+      "summary": "Fleet Footwork: heal 10–130 and 20% speed; ranged and minion rules",
+      "items": [
+        "Fleet Footwork: heal 5–100 → 10–130; Movement Speed 15% → 20%",
+        "Fleet Footwork: ranged champions get 60% healing and 75% Movement Speed; all healing 15% effective on minions"
+      ],
+      "kind": "change"
+    },
+    "V14.19": {
+      "summary": "Lethal Tempo returns; Presence of Mind, Biscuit Delivery, Shield Bash changes",
+      "items": [
+        "Lethal Tempo returns (Precision keystone): up to 6 stacks of 5% (melee) or 4% (ranged) Attack Speed, then 9–30 / 6–24 bonus damage on attack",
+        "Presence of Mind: damaging a champion restores 6–50 mana or 6 energy (8s cooldown); was mana regeneration for 4s",
+        "Biscuit Delivery: restores 8% → 12% missing health and no mana; +30 max health instead of +40 mana cap",
+        "Shield Bash: the Armor and Magic Resist while shielded is removed; ratios 1.5% → 2.5% bonus health, 8.5% → 15% shield amount",
+        "Nimbus Cloak: 5–25% Movement Speed for 2s → 12–35% decaying over 2s, about the same distance (the tooltip does not mention the decay)"
+      ],
+      "kind": "change"
+    },
+    "V14.20": {
+      "summary": "Phase Rush, Grasp and Nimbus Cloak changes; Waterwalking and Conditioning tooltip fixes",
+      "items": [
+        "Phase Rush: ranged Movement Speed 15–40% → 18.75–37.5%, melee unchanged (the tooltip now says 25–50%, 75% effective for ranged)",
+        "Grasp of the Undying: heal 3 + 1.2% → 1.3% max health; permanent health 7 → 5 (ranged still 60% effective)",
+        "Nimbus Cloak: Movement Speed 12–35% → 14–40%",
+        "Tooltip fix: Waterwalking shows 13–30 Adaptive Force, its value since V13.20 (was shown as up to 18 AD or 30 AP)",
+        "Tooltip fix: Conditioning says again that its 3% increase applies to total Armor and Magic Resist, as it did all along",
+        "Tooltip wording: Glacial Augment, Bone Plating and Zombie Ward (values unchanged)"
+      ],
+      "kind": "change"
+    },
+    "V14.21": {
+      "summary": "Lethal Tempo: melee 5% → 6% Attack Speed per stack",
+      "items": [
+        "Lethal Tempo: melee Attack Speed per stack 5% → 6%"
+      ],
+      "kind": "change"
+    },
+    "V14.24": {
+      "summary": "No rune tooltip changes since V14.21; last patch of Season 14",
+      "items": [
+        "No rune tooltip changes since V14.21 — last patch of Season 14"
+      ],
+      "kind": "no-change"
+    },
+    "V25.S1.1": {
+      "summary": "Season 2025: new Domination ward row; Nullifying Orb becomes Axiom Arcanist",
+      "items": [
+        "Removed: Ghost Poro, Zombie Ward and Eyeball Collection (Domination, second row)",
+        "New rune: Sixth Sense: senses a nearby unseen ward and tracks it for your team (from level 11 also reveals it); cooldown 300s melee / 360s ranged",
+        "New rune: Grisly Mementos: 1 memento per champion takedown, up to 25; +4 Trinket Ability Haste each",
+        "New rune: Deep Ward: your wards in the enemy jungle (from level 9 also the river) gain +1 health and 30–45s longer duration (stealth trinket wards 30–120s)",
+        "Nullifying Orb replaced by Axiom Arcanist: your ultimate deals more damage, healing and shielding; takedowns cut its cooldown by 7%"
+      ],
+      "kind": "season-start"
+    },
+    "V25.S1.2": {
+      "summary": "Sixth Sense, Grisly Mementos and Deep Ward tuned",
+      "items": [
+        "Sixth Sense: cooldown 300s → 275s (melee) and 360s → 350s (ranged)",
+        "Grisly Mementos: up to 25 → 18 mementos; +4 → +6 Trinket Haste each (Summoner Spell Haste 2 → 3)",
+        "Deep Ward: stealth trinket ward bonus duration 30–120s → 45–150s"
+      ],
+      "kind": "change"
+    },
+    "V25.S1.3": {
+      "summary": "Electrocute, Dark Harvest and Hail of Blades buffed; Axiom Arcanist tooltip fix",
+      "items": [
+        "Electrocute: damage 50–190 → 70–240",
+        "Dark Harvest: damage 20 (+9 per soul) → 30 (+11 per soul)",
+        "Hail of Blades: melee Attack Speed 110% → 140% (ranged unchanged at 80%); cooldown 12s → 10s",
+        "Tooltip fix: Axiom Arcanist shows its 14% ultimate bonus (9% for area damage), its value since V25.S1.1"
+      ],
+      "kind": "change"
+    },
+    "V25.05": {
+      "summary": "Sixth Sense 250s cooldown; Axiom Arcanist 14% → 12%; Unflinching up",
+      "items": [
+        "Sixth Sense: cooldown 275s (melee) / 350s (ranged) → 250s",
+        "Axiom Arcanist: 14% → 12% (area damage 9% → 8%)",
+        "Unflinching: 2–10 → 6–12 Armor and Magic Resist"
+      ],
+      "kind": "change"
+    },
+    "V25.09": {
+      "summary": "Unflinching flat 10 resists; Biscuit Delivery heals by max health",
+      "items": [
+        "Unflinching: 6–12 → a flat 10 Armor and Magic Resist",
+        "Biscuit Delivery: restore 12% missing health → 20 + 2% max health, up to double based on missing health"
+      ],
+      "kind": "change"
+    },
+    "V25.10": {
+      "summary": "Unsealed Spellbook: first swap cooldown 5 → 4 min",
+      "items": [
+        "Unsealed Spellbook: initial swap cooldown 5 → 4 min",
+        "Tooltip wording: Unflinching says a flat 10 Armor and Magic Resist (was shown as 10–10 by level; the value changed in V25.09)"
+      ],
+      "kind": "change"
+    },
+    "V25.12": {
+      "summary": "Grasp of the Undying: ranged 60% → 40% effective",
+      "items": [
+        "Grasp of the Undying: damage, healing and permanent health for ranged champions 60% → 40% effective"
+      ],
+      "kind": "change"
+    },
+    "V25.14": {
+      "summary": "Guardian: shield 45–150, lower damage threshold",
+      "items": [
+        "Guardian: shield 45–120 → 45–150; ratios 12.5% → 15% AP and 8% → 5% bonus health; damage needed to trigger 90–250 → 50–165"
+      ],
+      "kind": "change"
+    },
+    "V25.19": {
+      "summary": "Unsealed Spellbook: first swap cooldown 4 → 4.5 min",
+      "items": [
+        "Unsealed Spellbook: initial swap cooldown 4 → 4.5 min"
+      ],
+      "kind": "change"
+    },
+    "V25.21": {
+      "summary": "Second Wind: flat +3 heal removed",
+      "items": [
+        "Second Wind: the flat +3 heal is removed (4% missing health over 10s)"
+      ],
+      "kind": "change"
+    },
+    "V25.22": {
+      "summary": "Move Speed and Tenacity shards up; Hail of Blades 160%; Guardian up; Biscuits down",
+      "items": [
+        "Stat shards: Move Speed +2% → +2.5%; Tenacity and Slow Resist +10% → +15%",
+        "Hail of Blades: melee Attack Speed 140% → 160% (ranged unchanged at 80%)",
+        "Guardian: shield 45–150 → 45–180; AP ratio 15% → 25%",
+        "Phase Rush: Slow Resistance 75% → 50%",
+        "Biscuit Delivery: biscuit heal 20 + 2% → 20 + 1.5% max health (the tooltip still says 2%, up to V26.19)",
+        "Nimbus Cloak: 14–40% → 15–45%; Cash Back: 6% → 8%; Legend: Bloodline: 0.35% → 0.40% per stack"
+      ],
+      "kind": "change"
+    },
+    "V25.24": {
+      "summary": "Legend: Bloodline 0.40% → 0.45%; last patch of Season 2025",
+      "items": [
+        "Legend: Bloodline: 0.40% → 0.45% Life Steal per stack"
+      ],
+      "kind": "season-end"
+    },
+    "V26.01": {
+      "summary": "Season 2026: Demolish reworked",
+      "items": [
+        "Demolish reworked: your third attack on a tower deals 85 (+28% max health) melee / 50 (+20%) ranged bonus damage; cooldown 45s → 30s (was a 3s charge for 100 + 35%)"
+      ],
+      "kind": "season-start"
+    },
+    "V26.03": {
+      "summary": "Phase Rush ranged 50% effective; Cash Back 8% → 7.5%",
+      "items": [
+        "Phase Rush: Movement Speed for ranged champions 75% → 50% effective",
+        "Cash Back: 8% → 7.5% gold back",
+        "Tooltip wording: Demolish"
+      ],
+      "kind": "change"
+    },
+    "V26.09": {
+      "summary": "New keystone Deathfire Touch; Phase Rush becomes Stormraider's Surge",
+      "items": [
+        "New keystone: Deathfire Touch (Sorcery, 4th keystone): abilities burn champions for 4–12 (+8% bonus AD, +3% AP) adaptive damage per second, +100% after 3s (the tooltip here prints 1–10)",
+        "Phase Rush replaced by Stormraider's Surge: dealing 25% of a champion's max health within 3s grants 40% Move Speed and 50% Slow Resistance for 3s; cooldown 20–10s",
+        "Arcane Comet: damage 30–130 → 15–100, up to 100% more at 750 range; the cooldown refund is removed",
+        "Hail of Blades: 160% → 120% Attack Speed (ranged 80% → 60%), plus 4–20 bonus true damage on hit",
+        "Mid-patch update (April 30): Deathfire Touch ratios 8% → 7% bonus AD and 3% → 2.5% AP, +100% → +75% after 3s; this page keeps the patch-day values"
+      ],
+      "kind": "rework"
+    },
+    "V26.10": {
+      "summary": "Stormraider's Surge 48% for 4s; Deathfire Touch 4–12 → 3–12",
+      "items": [
+        "Stormraider's Surge: 40% → 48% Move Speed; duration 3s → 4s",
+        "Deathfire Touch: 4–12 → 3–12 damage per second (the tooltip now also shows the V26.09 update's 7% bonus AD and +75% after 3s, but still prints the old 3% AP; the 2.5% AP shows from V26.13)"
+      ],
+      "kind": "change"
+    },
+    "V26.11": {
+      "summary": "Guardian and Aftershock up, Aery shield down; Deathfire Touch deals magic damage",
+      "items": [
+        "Guardian: cooldown 90–40s → 75–40s; shield 45–180 → 40–150, ratios 25% → 20% AP and 5% → 6% bonus health",
+        "Aftershock: resists 35 + 80% → 45 + 75% of bonus resists",
+        "Summon Aery: shield 30–100 → 20–100",
+        "Deathfire Touch: now magic damage (was adaptive); its tooltip also swaps the ratios to 7% AP / 2.5% bonus AD by mistake"
+      ],
+      "kind": "change"
+    },
+    "V26.13": {
+      "summary": "Tooltip fix: Deathfire Touch shows its 2.5% AP and 7% bonus AD ratios",
+      "items": [
+        "Tooltip fix: Deathfire Touch shows its V26.09 ratios, 2.5% AP and 7% bonus AD (it printed the pre-update 3% AP until V26.10 and swapped the two ratios in V26.11)"
+      ],
+      "kind": "change"
+    },
+    "V26.15": {
+      "summary": "Jack Of All Trades: 10 / 25 → 8 / 20 Adaptive Force",
+      "items": [
+        "Jack Of All Trades: bonus Adaptive Force at 5 / 10 stacks 10 / 25 → 8 / 20"
+      ],
+      "kind": "change"
+    },
+    "V26.16": {
+      "summary": "Hail of Blades: 120% → 90% Attack Speed, on-hit ratios up; Fleet Footwork heal up",
+      "items": [
+        "Hail of Blades: 120% → 90% Attack Speed (ranged 60%); on-hit 4–20 → 2–20, ratios 0.08 → 0.12 bonus AD and 0.06 → 0.1 AP",
+        "Fleet Footwork: heal 10–130 → 15–160 (the tooltip shows it from V26.17)"
+      ],
+      "kind": "change"
+    },
+    "V26.17": {
+      "summary": "Tooltip fix: Fleet Footwork shows its V26.16 heal buff",
+      "items": [
+        "Tooltip fix: Fleet Footwork heal 10–130 → 15–160, the V26.16 buff"
+      ],
+      "kind": "change"
+    },
+    "V26.19": {
+      "summary": "No rune changes since V26.17; current live patch",
+      "items": [
+        "No rune changes since V26.17 — current live patch"
+      ],
+      "kind": "no-change"
+    }
+  }
+}

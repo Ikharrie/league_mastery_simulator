@@ -25,7 +25,8 @@
 // Share hash: #<id>|<30 comma-separated rune ids or _>[|<level>]; the
 // legacy plain #<30 ids> opens V7.21 (LOL_ALIASES.plain). Old ids
 // (preReforged-V6.24) and ids of unlisted patches resolve through
-// LolPatches.resolve, and the URL is rewritten to the canonical id.
+// LolPatches.resolve, and the URL is rewritten to the canonical id. An id
+// alone (#preReforged-V4.5, no "|") opens that patch empty.
 // Patch / season switch: every placed rune whose id is in the new catalog
 // (same colour) stays; the rest is reported once (LolToast). The champion
 // level stays (DESIGN §2.5, §4.5).
@@ -952,7 +953,9 @@ function updateFromHash() {
     var r = LolPatches.fromHash(RUNE_PAGE);
     var parsed = parseRuneHash(document.location.hash);
     if (!r.entry) return;
-    openRuneEntry(r.entry, { slotIds: parsed.slotIds, level: parsed.level });
+    // An id alone (runes.html#preReforged-V4.5, r.bare) opens empty; any
+    // other hash without "|" is the plain rune list.
+    openRuneEntry(r.entry, { slotIds: r.bare ? [] : parsed.slotIds, level: parsed.level });
 }
 
 // The one hashchange handler, bound once for the page's life (no unbind /

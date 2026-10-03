@@ -1,0 +1,215 @@
+{
+  "_comment": [
+    "Player-facing change notes for every listed patch of the pre-Reforged runes page (runes.html), shown by the patch-notes control next to the Patch dropdown. Hand-curated from data/patches/runes.json (changes, notes, sources) and the research behind it: every bullet is backed by that data, nothing is added.",
+    "patches: { <patch as in the listing>: { summary, items, kind } }. summary: one line, at most 90 characters, ending in \" (approx.)\" when the listing's confidence is low. items: short bullets, old → new values, at most about 8. kind: launch | rework | change | season-start | season-end | no-change; a season boundary without a rune change is no-change, and its count in the registry is 0.",
+    "tools/build-notes.js checks this file against the listing and writes data/notes/runes-<season>.js (one LolData.register(\"notes\", ...) per season)."
+  ],
+  "patches": {
+    "V1.0.0.63": {
+      "summary": "Earliest rune values on this page; Snowdown 2009 runes (approx.)",
+      "items": [
+        "The rune page starts here: earlier rune values are not known (the patch notes before it give only percentage changes)",
+        "This patch: attack damage per level runes +11.1%, attack speed runes +150%, magic penetration runes +13.6%, flat health runes −17.6%, armor and magic resist runes (also per level) −10%",
+        "Clarity seals become obtainable",
+        "2009 Snowdown event runes (December 16, 2009 – January 6, 2010): Crippling Candy Cane, Yuletide Tannenbaum, Elusive Snowflake (dodge), Stout Snowman, Special Stocking, Gracious Gift"
+      ],
+      "kind": "season-start"
+    },
+    "V1.0.0.72": {
+      "summary": "Critical damage runes −10%, flat ability power +10%; Winter Games runes",
+      "items": [
+        "Critical damage runes −10%: Greater Mark of Furor +2.48% → +2.23%, Greater Quintessence of Furor +4.96% → +4.46%",
+        "Flat ability power runes +10%: Greater Glyph of Potency +0.9 → +0.99, Greater Quintessence of Potency +4.5 → +4.95",
+        "2010 Winter Games event runes (February 12 – March 2, 2010): Alpine Alacrity, Combatant, Medalist, Extreme (dodge), Challenger, Soaring Slalom"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.94(b)": {
+      "summary": "Energy runes added: Meditation, Lucidity, Acumen and Sapience",
+      "items": [
+        "Energy runes added: Meditation and Lucidity seals, Acumen and Sapience glyphs, Meditation and Acumen quintessences",
+        "Greater Quintessence of Acumen +4.9 Energy; Greater Quintessence of Meditation +1.5 Energy regen per 5s",
+        "Season One starts with V1.0.0.96 (July 13, 2010), with these same runes"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.103": {
+      "summary": "Strength runes tripled, Might +35%, Desolation −15%; Harrowing runes",
+      "items": [
+        "Flat attack damage (Strength) marks, glyphs and seals +200%: Greater Mark of Strength +0.32 → +0.95",
+        "Attack damage per level (Might) marks, glyphs and seals +35%: Greater Mark of Might +1.8 → +2.43 at level 18",
+        "Armor penetration (Desolation) marks and quintessences −15%: Greater Mark 1.96 → 1.66, Greater Quintessence 3.91 → 3.33",
+        "Limited 2010 Harrowing quintessences: Piercing Screech, Bountiful Treats, Speedy Specter, Elusive Werewolf (dodge), Witches Brew, Headless Horseman"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.105": {
+      "summary": "Event rune only: Headless Horseman 3.62 → 3.08 armor penetration",
+      "items": [
+        "Event rune only: Quintessence of the Headless Horseman 3.62 → 3.08 armor penetration"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.107": {
+      "summary": "Energy runes up; Snowdown Showdown 2010 quintessences",
+      "items": [
+        "Flat energy, energy per level and energy regen per level runes +10%, flat energy regen +5%: Greater Quintessence of Acumen +4.9 → +5.4 Energy",
+        "Festive tier 3 event quintessences (2010 Snowdown Showdown): Frosty Fortitude, Sugar Rush, Piercing Present, Deadly Wreath"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.110": {
+      "summary": "Clarity runes about −33%; Quintessence of Fortitude about −20%",
+      "items": [
+        "Clarity (scaling mana regen) seals and glyphs about −33%: Greater Seal of Clarity +1.8 → +1.17 at level 18",
+        "Quintessences of Fortitude (health) about −20%: Greater Quintessence +32.4 → +26 health"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.128": {
+      "summary": "Razer promotion runes; last patch of Season 1",
+      "items": [
+        "Event runes: Razer Mark of Precision (+2.23% critical damage) and Razer Quintessence of Speed (+1.5% Movement Speed), 2011 Razer PAX promotion codes (date approximate)"
+      ],
+      "kind": "season-end"
+    },
+    "V1.0.0.129": {
+      "summary": "No rune changes since V1.0.0.128; Preseason 2 opens Season 2",
+      "items": [
+        "No rune changes since V1.0.0.128 — first patch of Season 2 (Preseason 2 masteries)"
+      ],
+      "kind": "no-change"
+    },
+    "V1.0.0.131": {
+      "summary": "New rune types: Destruction, Avarice, Endurance, Vampirism, Transmutation",
+      "items": [
+        "New rune types: Destruction (armor and magic penetration marks and quintessences), Avarice seals (gold per 10s), Endurance (% health seals and quintessences), Vampirism (life steal quintessences), Transmutation (spell vamp quintessences)",
+        "Tier 3 values: Greater Quintessence of Destruction +2 armor / +1.3 magic penetration, Greater Quintessence of Vampirism +2% life steal, Greater Seal of Avarice +0.25 gold per 10s",
+        "Greater Quintessence of Studio Rumble (tournament-only event rune, December 2011)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.132": {
+      "summary": "Dodge removed: Evasion and dodge event runes gone",
+      "items": [
+        "Dodge is removed from the game: Seals and Quintessences of Evasion and the dodge event runes (Elusive Snowflake, Extreme, Elusive Werewolf) are gone, refunded from December 16, 2011"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.138": {
+      "summary": "Warding runes down; Insight and Potency glyphs up",
+      "items": [
+        "Magic resist (Warding): Greater Mark 0.97 → 0.77, Greater Glyph 1.49 → 1.34, Greater Quintessence 4.5 → 4",
+        "Magic penetration (Insight): Greater Glyph 0.57 → 0.68, Greater Quintessence 1.89 → 2.18; Greater Glyph of Potency 0.99 → 1.19 ability power",
+        "Hotfix: Greater Quintessence of the Piercing Present now matches Greater Quintessence of Insight (2.18)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.151": {
+      "summary": "No rune changes since V1.0.0.138; last patch of Season 2",
+      "items": [
+        "No rune changes since V1.0.0.138 — last patch of Season 2"
+      ],
+      "kind": "no-change"
+    },
+    "V1.0.0.152": {
+      "summary": "Season 3: runes renamed after their stat; penetration runes rebalanced",
+      "items": [
+        "Runes renamed after their stat, for example Mark of Desolation → Mark of Armor Penetration, Glyph of Potency → Glyph of Ability Power",
+        "Armor penetration: Greater Mark 1.66 → 1.28, Greater Quintessence 3.33 → 2.56",
+        "Magic penetration: Greater Mark 0.95 → 0.87, Greater Glyph 0.68 → 0.63, Greater Quintessence 2.18 → 2.01",
+        "Hybrid Penetration (was Destruction): Greater Mark 1 / 0.57 → 0.9 / 0.61, Greater Quintessence 2 / 1.3 → 1.79 / 1.4",
+        "Event quintessences follow: Headless Horseman 3.08 → 2.37, Deadly Wreath 3.33 → 2.56, Piercing Present 2.18 → 2.01",
+        "Tooltip only: Greater Mark of Hybrid Penetration says +0.62 magic penetration; the stat and the patch notes give 0.61 (the tooltip keeps it until V7.21)"
+      ],
+      "kind": "season-start"
+    },
+    "V3.04": {
+      "summary": "Cooldown reduction runes up at all tiers",
+      "items": [
+        "Cooldown reduction runes up at every tier (2–35%): Greater Glyph 0.655% → 0.83%, Greater Seal 0.29% → 0.36%",
+        "Scaling cooldown reduction: 9 Greater Glyphs 8.62% → 10% at level 18; Greater Quintessence 2.34% → 2.5% at level 18"
+      ],
+      "kind": "change"
+    },
+    "V3.13": {
+      "summary": "No rune changes since V3.04; last patch of Season 3",
+      "items": [
+        "No rune changes since V3.04 — last patch of Season 3"
+      ],
+      "kind": "no-change"
+    },
+    "V3.14": {
+      "summary": "No rune changes since V3.13; Preseason 4 opens Season 4",
+      "items": [
+        "No rune changes since V3.13 — first patch of Season 4 (Preseason 4)"
+      ],
+      "kind": "no-change"
+    },
+    "V4.5": {
+      "summary": "Rune rework: 39 runes rebalanced across all tiers",
+      "items": [
+        "39 runes rebalanced at every tier (Riot's notes list tier 3 only)",
+        "Seals: Greater Seal of Armor 1.41 → 1, Health 5.35 → 8; Scaling Armor, Scaling Health and Health Regeneration seals up",
+        "Glyphs: Scaling Cooldown Reduction 1.11% → 1.67% at level 18; Scaling Magic Resist, Mana Regeneration and Scaling Mana Regeneration up",
+        "Quintessences: Cooldown Reduction 1.67% → 2.5%, Scaling Cooldown Reduction 2.5% → 5% at level 18, Attack Speed 3.4% → 4.5%, Life Steal 2% → 1.5%"
+      ],
+      "kind": "change"
+    },
+    "V4.19": {
+      "summary": "No rune changes since V4.5; last patch of Season 4",
+      "items": [
+        "No rune changes since V4.5 — last patch of Season 4"
+      ],
+      "kind": "no-change"
+    },
+    "V4.20": {
+      "summary": "No rune changes since V4.19; Preseason 5 opens Season 5",
+      "items": [
+        "No rune changes since V4.19 — first patch of Season 5 (Preseason 5)"
+      ],
+      "kind": "no-change"
+    },
+    "V5.21": {
+      "summary": "No rune changes in Season 5; last patch of Season 5",
+      "items": [
+        "No rune changes in Season 5 — last patch of Season 5",
+        "V5.1 removed the Rune Combiner and changed store prices (client and store only)"
+      ],
+      "kind": "no-change"
+    },
+    "V5.22": {
+      "summary": "No rune changes since V5.21; Preseason 6 opens Season 6",
+      "items": [
+        "No rune changes since V5.21 — first patch of Season 6 (Preseason 6)"
+      ],
+      "kind": "no-change"
+    },
+    "V6.21": {
+      "summary": "No rune stat changes since V5.22; last patch of Season 6",
+      "items": [
+        "No rune stat changes since V5.22 — last patch of Season 6",
+        "Tooltip wording: since V6.5 the Mark of Hybrid Penetration abbreviates its stats as \"+0.7 AMP / +0.48 MP\" (armor / magic penetration, values unchanged)"
+      ],
+      "kind": "no-change"
+    },
+    "V6.22": {
+      "summary": "Preseason 7: armor penetration runes become Lethality (×1.25)",
+      "items": [
+        "Flat armor penetration is replaced by Lethality: 14 runes change",
+        "Marks and Quintessences of Armor Penetration become Lethality: Greater Mark 1.28 → 1.6, Greater Quintessence 2.56 → 3.2",
+        "Hybrid Penetration becomes Precision: Greater Mark 0.9 → 1.13 Lethality, Greater Quintessence 1.79 → 2.24 Lethality (magic penetration unchanged)",
+        "The Headless Horseman and Deadly Wreath quintessences move to Lethality",
+        "Mark of Precision (tier 2): +0.88 Lethality in game (Riot's published rune stats still said +0.7)"
+      ],
+      "kind": "season-start"
+    },
+    "V7.21": {
+      "summary": "No rune changes since V6.22; last patch before Runes Reforged",
+      "items": [
+        "No rune changes since V6.22 — last patch of the old rune system; V7.22 brings Runes Reforged"
+      ],
+      "kind": "no-change"
+    }
+  }
+}

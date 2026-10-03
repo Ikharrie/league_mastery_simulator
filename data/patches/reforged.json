@@ -2749,7 +2749,7 @@
    ],
    "changes": [
     {
-     "text": "Phase Rush longDesc [numbers+text]: within 4s grants [25 => 15] ; 75% Slow Resistance. [This is increased to 40 - 60% Move Speed for Melee champions. Duration: 3s Cooldown: 15s => ]",
+     "text": "Phase Rush longDesc [numbers]: within 4s grants [25 => 15] - 40% ; This is increased to [40 => 30] - 60% Move Speed for Melee champions ; Cooldown: [15s => 10s - 30s]",
      "kind": "text",
      "sources": ["https://ddragon.leagueoflegends.com/cdn/11.10.1/data/en_US/runesReforged.json"],
      "confidence": "high"
@@ -3228,9 +3228,12 @@
      "confidence": "high"
     },
     {
-     "text": "Hotfixed during the patch: by the end of V12.11 the client's Lethal Tempo was back to [30% - 54%] (Ranged) Attack Speed (CommunityDragon 12.11 perks.json); the page keeps the patch-day values of Data Dragon 12.11.1 ([18% - 42%]), so V12.12 lists the return.",
-     "kind": "hotfix",
+     "text": "Tooltip error, not a balance change (corrected 2026-10-02; this note said 'hotfixed during the patch' before): Riot's 12.11 and 12.12 patch notes and the wiki's V12.11 / V12.12 pages (with the June 9 hotfix) never mention Lethal Tempo. Data Dragon 12.11.1 printed [18% - 42%] (Ranged) while the client (CommunityDragon 12.11 perks.json) kept [30% - 54%]; V12.12 reverts the text. The page keeps the Data Dragon 12.11.1 text.",
+     "kind": "tooltip",
      "sources": [
+      "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-11-notes/",
+      "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-12-notes/",
+      "https://wiki.leagueoflegends.com/en-us/V12.11",
       "https://raw.communitydragon.org/12.11/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
       "https://ddragon.leagueoflegends.com/cdn/12.11.1/data/en_US/runesReforged.json"
      ],
@@ -3336,6 +3339,12 @@
      "text": "Bone Plating longDesc [numbers]: Duration: 1.5s Cooldown: [45s => 55s]",
      "kind": "text",
      "sources": ["https://ddragon.leagueoflegends.com/cdn/12.14.1/data/en_US/runesReforged.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Phase Rush longDesc [numbers]: Cooldown: [10s - 30s => 30s - 10s] (the V11.10 cooldown, 30s at level 1 to 10s at 18, now in level order; was logged as a lore quote)",
+     "kind": "text",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/12.14.1/data/en_US/runesReforged.json","https://wiki.leagueoflegends.com/en-us/Phase_Rush"],
      "confidence": "high"
     }
    ]
@@ -3737,6 +3746,12 @@
      "text": "First Strike longDesc [numbers]: you to deal [8% => 7%]",
      "kind": "text",
      "sources": ["https://ddragon.leagueoflegends.com/cdn/13.21.1/data/en_US/runesReforged.json"],
+     "confidence": "high"
+    },
+    {
+     "text": "Phase Rush longDesc [numbers]: This is increased to [30 - 60% => 25 - 50%] Move Speed for Melee champions (a balance change, was logged as a lore quote)",
+     "kind": "text",
+     "sources": ["https://ddragon.leagueoflegends.com/cdn/13.21.1/data/en_US/runesReforged.json","https://wiki.leagueoflegends.com/en-us/Phase_Rush"],
      "confidence": "high"
     }
    ]
@@ -4860,7 +4875,7 @@
    "patch": "V25.24",
    "season": "s2025",
    "reason": "season-end+change",
-   "date": "2025-12-10",
+   "date": "2025-12-03",
    "source": {"ddragon":"15.24.1","cdragon":"15.24"},
    "shardEra": "s25-22",
    "confidence": "high",
@@ -4992,9 +5007,11 @@
      "confidence": "high"
     },
     {
-     "text": "Hotfixed during the patch: by the end of V26.09 the client's Deathfire Touch burned for 4 - 12 based on level (+0.03 AP) (+0.07 bonus AD) adaptive damage per second, rising by 75% after 3 seconds (CommunityDragon 16.9 perks.json); the page keeps the patch-day values of Data Dragon 16.9.1 (1 - 10, +0.08 bonus AD, 100%).",
+     "text": "Launch and mid-patch values per Riot's 26.9 patch notes (corrected 2026-10-02): Deathfire Touch launched at 4 - 12 (+8% bonus AD) (+3% AP) adaptive damage per second, +100% after 3s; the April 30 mid-patch update changed only the ratios and the ramp, to +7% bonus AD, +2.5% AP, +75% (CommunityDragon 16.9 perks.json shows that end state, 4 - 12 (+0.03 AP) (+0.07 bonus AD), 75%). The 1 - 10 base of Data Dragon 16.9.1, which the page shows, is an export error, not the patch-day value; V26.10 then cut the base 4 - 12 -> 3 - 12.",
      "kind": "hotfix",
      "sources": [
+      "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-9-notes/",
+      "https://wiki.leagueoflegends.com/en-us/V26.09",
       "https://raw.communitydragon.org/16.9/plugins/rcp-be-lol-game-data/global/default/v1/perks.json",
       "https://ddragon.leagueoflegends.com/cdn/16.9.1/data/en_US/runesReforged.json"
      ],

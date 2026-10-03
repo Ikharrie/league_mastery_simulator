@@ -361,7 +361,7 @@
   {
    "patch": "V3.13",
    "season": "s3",
-   "reason": "season-end+change",
+   "reason": "season-end",
    "date": "2013-10-29",
    "source": {"wiki":"V1.0.0.152","crossCheck":["3.13.24"]},
    "sources": [
@@ -402,7 +402,8 @@
      "confidence": "high"
     }
    ],
-   "confidence": "high"
+   "confidence": "high",
+   "textOnly": "V3.12 Summoner's Insight Revive line names its bonus Health '(200 + 20 per level)' (mo-008, no patch note); mastery values unchanged since V1.0.0.152"
   },
   {
    "patch": "V3.14",

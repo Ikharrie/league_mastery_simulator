@@ -13,7 +13,13 @@
 // Sections (each reports PASS / FAIL / SKIP; a missing input is a SKIP):
 //   L0  the reference codecs reproduce the baseline: every record decodes
 //       with the P0 fixture codecs to `expected` and re-encodes to its
-//       rewrite (validates this tool against the baseline commit)
+//       rewrite (validates this tool against the baseline commit). Plus
+//       the ids alone (ID_ALONE and every id the README's "Share links"
+//       section names, no "|"): by the spec each opens its patch (listed,
+//       alias, unlisted; or the page default for an unknown id) with an
+//       empty build; none can be a plain code; and lol-data.js
+//       LolPatches.fromHash agrees, while every fixture hash without "|"
+//       keeps its old meaning (plain codes stay plain)
 //   L1  data/masteries/legacy-codecs.js (T2) equals the P0 fixture codecs
 //       position by position (ranks, hashRanks, hashNote, keystone tiers);
 //       keys may only be renamed by the curated aliases of §1.7
@@ -24,12 +30,13 @@
 //   L3  --browser: the same records opened in the real pages (headless
 //       Edge / Chrome over file://, one fresh tab per record): the page
 //       must rewrite the URL to the canonical hash of L2, set the share
-//       link to it, and log no console error. Skipped while the pages still
-//       run the pre-rework calculators (html[data-lol-shell="legacy"] or no
-//       patch-registry.js)
+//       link to it, and log no console error. The ids alone too: each must
+//       become its empty canonical link (m-V4.5 -> m-V4.5|) with no toast.
+//       Skipped while the pages still run the pre-rework calculators
+//       (html[data-lol-shell="legacy"] or no patch-registry.js)
 //
 // Usage (from the repo root)
-//   node tools/test-links.js [--root <site>] [--only masteries|runes|reforged|<legacy id>,…]
+//   node tools/test-links.js [--root <site>] [--only masteries|runes|reforged|<legacy id>|id-alone,…]
 //        [--research <scratchpad>\patches] [--reforged-cache <dir>]
 //        [--browser [--browser-exe <exe>] [--par N] [--limit N]]
 //        [--legacy-baseline <site>] [--json <file>] [--verbose] [--allow-skip]
@@ -50,6 +57,7 @@ const path = require("path");
 const os = require("os");
 const cp = require("child_process");
 const CP = require("./check-patches.js");
+const P = require("./lib/patches.js");
 
 const { World, Reporter } = CP;
 const U = CP.util, C = CP.codec, K = CP.carry;
@@ -64,6 +72,31 @@ const ALLOWED_DROPS = {
 // The only key renames a legacy codec may carry against the P0 fixture
 // (the fixture keys are slugs of the legacy names; DESIGN §1.7 curated aliases).
 const ALLOWED_RENAMES = { "stoneborn-pact": "bond-of-stone" };
+
+// Ids alone: share links that are a dataset id with no "|" ([hash, the
+// listed id it opens, null = an unknown id: the page default]). Each opens
+// with an empty build. Not P0 fixtures: the baseline read a mastery / rune
+// hash without "|" as a plain code (index.html#m-V4.5 opened V1.0.0.152
+// with bogus points). The ids of the README's "Share links" section are
+// added at run time (readmeIds), so every example there is checked as
+// written.
+const ID_ALONE = {
+    masteries: [
+        ["m-V4.5", "m-V4.5"], ["m-V1.0.0.118b", "m-V1.0.0.118b"], ["m-V5.23", "m-V5.23"],
+        ["m-V4.7", "m-V4.5"], ["s1-final", "m-V1.0.0.128"], ["s4-final", "m-V4.20"], ["s7-final", "m-V7.21"],
+        ["m-V1.0.0.152", "m-V1.0.0.152"], ["m-V1.0.0.10", null]
+    ],
+    runes: [
+        ["preReforged-V4.5", "preReforged-V4.5"], ["preReforged-V1.0.0.94b", "preReforged-V1.0.0.94b"],
+        ["preReforged-V3.04", "preReforged-V3.04"], ["preReforged-V3.6", "preReforged-V3.04"],
+        ["preReforged-V6.24", "preReforged-V6.22"], ["preReforged-V7.21", "preReforged-V7.21"]
+    ],
+    reforged: [
+        ["rr-v8-4", "rr-v8-4"], ["rr-v25-1", "rr-v25-1"], ["rr-v26-19", "rr-v26-19"],
+        ["rr-v12-23", "rr-v12-22"], ["rr-v8-17", "rr-v8-16"], ["rr-v7-21", null]
+    ]
+};
+const ID_ALONE_GROUP = "id-alone";
 
 // ---------------------------------------------------------------------------
 // Inputs
@@ -480,6 +513,206 @@ function checkL2(world, fx, keyMaps, c, args) {
 }
 
 // ---------------------------------------------------------------------------
+// Ids alone: hashes without "|" that name a dataset (ID_ALONE + README)
+// ---------------------------------------------------------------------------
+
+// The page an id-looking token belongs to, by its prefix only (so a typo in
+// the README is still checked, and fails, instead of being skipped).
+function idPageByPrefix(tok) {
+    if (/^m-V/.test(tok) || /^s\d+-/.test(tok)) return "masteries";
+    if (/^preReforged-/.test(tok)) return "runes";
+    if (/^rr-/.test(tok)) return "reforged";
+    return null;
+}
+
+// The ids the README's "Share links" section names (`m-V4.5`, `s4-final`,
+// `runes.html#preReforged-V3.04` …): {ids: [{page, hash}]} | {why}.
+// Templates (`index.html#m-V<patch>|<code>`) and file names are skipped.
+function readmeIds(world) {
+    const text = U.readText(path.join(world.root, "README.md"));
+    if (text === null) return { why: "README.md missing" };
+    const lines = text.split(/\r?\n/);
+    let start = -1, end = lines.length;
+    for (let i = 0; i + 1 < lines.length; i++) if (/^Share links\s*$/.test(lines[i]) && /^-{3,}\s*$/.test(lines[i + 1])) { start = i + 2; break; }
+    if (start < 0) return { why: "README.md has no \"Share links\" section" };
+    for (let i = start; i + 1 < lines.length; i++) if (lines[i].trim() && /^[-=]{3,}\s*$/.test(lines[i + 1])) { end = i; break; }
+    const body = lines.slice(start, end).join("\n"), out = [], seen = {};
+    const re = /`([^`]+)`/g;
+    let m;
+    while ((m = re.exec(body))) {
+        const tok = m[1].replace(/^(?:index|runes|runes-reforged)\.html#/, "");
+        if (/[<>|\s\/]/.test(tok)) continue;
+        const page = idPageByPrefix(tok);
+        if (!page || seen[page + " " + tok]) continue;
+        seen[page + " " + tok] = true;
+        out.push({ page: page, hash: tok });
+    }
+    return { ids: out };
+}
+
+// The spec resolution of an id alone (DESIGN §2.3 resolve: a listed id, an
+// alias, an unlisted patch of the page's id pattern inside the listed range;
+// an id of the pattern outside it is unknown = the page default):
+// {entry, alias, kind} | {plain: true} (no id: the plain form) | {why}
+function resolveIdAlone(world, page, id) {
+    const ents = world.entries(page);
+    if (!ents.list) return { why: ents.why };
+    const list = ents.list;
+    const r = resolveLegacy(world, page, id);
+    if (r.entry) return { entry: r.entry, alias: r.alias, kind: r.alias ? "alias" : "listed" };
+    const pid = P.parseId(id);
+    // the Reforged page has no plain form: anything else is an unknown id
+    if ((!pid || pid.page !== page) && page !== "reforged") return { plain: true };
+    if (!pid || pid.page !== page || P.compare(pid.patch, list[0].patch) < 0 || P.compare(pid.patch, list[list.length - 1].patch) > 0) {
+        const def = list.filter(function (e) { return e.id === SPEC.PAGE_DEFAULTS[page]; })[0];
+        return def ? { entry: def, alias: null, kind: "unknown", unknown: true } : { why: "no page default " + SPEC.PAGE_DEFAULTS[page] };
+    }
+    let best = null;
+    list.forEach(function (e) { if (P.compare(e.patch, pid.patch) <= 0) best = e; });
+    return { entry: best, alias: { id: id, to: best.id, unlisted: true }, kind: "unlisted" };
+}
+
+// The canonical link of `entry` with an empty build (the page writers:
+// classic / keystone updateLink, runes updateLink, buildReforgedHash).
+function emptyHashOf(world, page, entry) {
+    const def = SPEC.PAGE_DEFAULTS[page];
+    if (page === "runes") return { hash: C.runeHash(entry.id, new Array(30).fill(null), 18, def) };
+    if (page === "reforged") return { hash: C.reforgedHash(entry.id, { primary: null, secondary: null, shards: [null, null, null], name: null }) };
+    const ds = world.dataset(entry);
+    if (!ds) return { why: entry.id + ": " + (world.payload(entry).why || "no data") };
+    if ((ds.system || entry.system) === "keystone") {
+        const ks = C.keystoneSpec(ds);
+        return { hash: C.keystoneHash(entry.id, C.keystoneEncode(ks, C.keystoneEmpty(ks)), null) };
+    }
+    const spec = C.classicSpec(ds);
+    return { hash: C.classicHash(entry.id, C.classicEncode(spec, spec.map(function (t) { return t.map(function () { return 0; }); })), null, def) };
+}
+
+// The id-alone records: ID_ALONE plus the README's ids, with their spec
+// prediction {page, legacyId, index, record: {form, hash}, opens, hash,
+// entry, problems, skip}, in the shape of predictAll's (L3 opens both).
+function idAlonePreds(world, args) {
+    const recs = [], seen = {};
+    P.PAGES.forEach(function (page) {
+        (ID_ALONE[page] || []).forEach(function (x) {
+            seen[page + " " + x[0]] = recs.length;
+            recs.push({ page: page, hash: x[0], opens: x[1], fixed: true, readme: false });
+        });
+    });
+    const rd = readmeIds(world);
+    (rd.ids || []).forEach(function (x) {
+        const k = x.page + " " + x.hash;
+        if (k in seen) recs[seen[k]].readme = true;
+        else { seen[k] = recs.length; recs.push({ page: x.page, hash: x.hash, opens: undefined, fixed: false, readme: true }); }
+    });
+    const out = [];
+    recs.forEach(function (r) {
+        if (!selected(args, r.page, ID_ALONE_GROUP)) return;
+        const p = { page: r.page, legacyId: ID_ALONE_GROUP + " " + r.page, index: out.length, problems: [], info: [], readme: r.readme, opens: r.opens };
+        const res = resolveIdAlone(world, r.page, r.hash);
+        p.record = { form: (res.kind || (res.plain ? "no id" : "?")) + (r.readme ? ", README" : ""), hash: r.hash };
+        if (res.why) { p.skip = res.why; out.push(p); return; }
+        if (res.plain) p.problems.push("not an id of the " + r.page + " page: a hash without \"|\" that is no id is a plain code");
+        else {
+            if (r.fixed && (res.unknown ? null : res.entry.id) !== r.opens)
+                p.problems.push("opens " + (res.unknown ? "nothing (unknown id)" : res.entry.id) + ", expected " + (r.opens || "nothing (unknown id)"));
+            if (r.readme && res.unknown) p.problems.push("the README names it, but it is an unknown id (opens the page default)");
+            const eh = emptyHashOf(world, r.page, res.entry);
+            if (eh.why) { p.skip = eh.why; out.push(p); return; }
+            p.hash = eh.hash;
+            p.entry = res.entry;
+            p.kind = res.kind;
+            p.unknown = !!res.unknown;
+        }
+        out.push(p);
+    });
+    return { preds: out, readme: rd };
+}
+
+// L0 part: the id-alone records by the spec, "no id alone is a plain code",
+// and lol-data.js LolPatches.fromHash on them and on every fixture hash
+// without "|" (which must keep its old meaning).
+function checkIdAlone(world, fx, c, args) {
+    const ia = idAlonePreds(world, args);
+    const preds = ia.preds;
+    if (ia.readme.why) c.fail("README: " + ia.readme.why);
+    let bad = 0;
+    const kinds = {};
+    preds.forEach(function (p) {
+        if (p.skip) return;
+        kinds[p.kind || "?"] = (kinds[p.kind || "?"] || 0) + 1;
+        if (p.problems.length) { c.fail(p.page + " #" + p.record.hash + " (" + p.record.form + "): " + p.problems.join("; ")); bad++; }
+    });
+    const skipped = preds.filter(function (p) { return p.skip; });
+    if (skipped.length) c.skip("ids alone: " + skipped.length + " not checked: " + skipped[0].skip);
+    const nReadme = preds.filter(function (p) { return p.readme; }).length;
+    const done = preds.length - skipped.length;
+    if (done && !bad) c.pass("ids alone: " + done + " hashes without \"|\" (" + nReadme + " of them the README's Share links examples) open their patch by the spec (" +
+        Object.keys(kinds).map(function (k) { return kinds[k] + " " + k; }).join(", ") + ") with an empty build");
+
+    // No id alone can be a plain code. Masteries: the plain writer (the
+    // s3-pbe codec) never produces any of them; runes: no rune list.
+    const plainKey = (fx.codecs.about || {}).plainCode || "s3-pbe";
+    const plainCodec = fx.codecs.datasets[plainKey];
+    const A = aliasesOf(world);
+    const mIds = {};
+    Object.keys(A.masteries || {}).forEach(function (id) { mIds[id] = true; });
+    preds.forEach(function (p) { if (p.page === "masteries") mIds[p.record.hash] = true; });
+    let pbad = 0;
+    if (plainCodec && plainCodec.system === "classic") {
+        const spec = C.classicCodecFrom(plainCodec.trees);
+        Object.keys(mIds).forEach(function (id) {
+            if (C.classicEncode(spec, C.classicDecode(spec, id).ranks) === id) { c.fail("masteries: " + id + " is also a plain code the " + plainKey + " writer produces (ambiguous without \"|\")"); pbad++; }
+        });
+    } else { c.fail("legacy-codecs.json: no classic plain codec " + plainKey); pbad++; }
+    const rIds = Object.keys(A.runes || {}).concat(preds.filter(function (p) { return p.page === "runes"; }).map(function (p) { return p.record.hash; }));
+    rIds.forEach(function (id) { if (/^(?:\d+|_)?(?:,(?:\d+|_)?)*$/.test(id)) { c.fail("runes: " + id + " reads as a plain rune list"); pbad++; } });
+    if (!pbad) c.pass("no id alone is a plain code: " + Object.keys(mIds).length + " mastery ids (every old id included) are no code the " + plainKey +
+        " plain writer produces; " + rIds.length + " rune ids are no rune list");
+
+    // lol-data.js on the same hashes, and on the fixture hashes without "|".
+    const rt = world.runtime();
+    if (rt.missing || rt.error) { c.skip("lol-data.js fromHash: " + (rt.why || rt.error) + " (T1)"); return; }
+    let rbad = 0, rn = 0;
+    preds.forEach(function (p) {
+        if (p.skip || !p.entry) return;
+        rn++;
+        let r;
+        try { r = rt.LolPatches.fromHash(p.page, "#" + p.record.hash); } catch (e) { c.fail("fromHash(" + p.page + ", #" + p.record.hash + ") throws " + e.message); rbad++; return; }
+        const probs = [];
+        if (!r.entry || r.entry.id !== p.entry.id) probs.push("opens " + (r.entry && r.entry.id) + ", the spec " + p.entry.id);
+        if (!r.bare || r.plain) probs.push("bare " + r.bare + ", plain " + r.plain + " (an id alone is bare, never plain)");
+        if (!!r.unknown !== p.unknown) probs.push("unknown " + r.unknown);
+        if (probs.length) { c.fail("lol-data.js fromHash(" + p.page + ", #" + p.record.hash + "): " + probs.join("; ")); rbad++; }
+    });
+    let ln = 0;
+    P.PAGES.forEach(function (page) {
+        Object.keys(fx.links[page] || {}).forEach(function (id) {
+            if (!selected(args, page, id)) return;
+            fx.links[page][id].forEach(function (rec, i) {
+                if (rec.hash.indexOf("|") >= 0) return;
+                ln++;
+                const r = rt.LolPatches.fromHash(page, "#" + rec.hash);
+                const w = "lol-data.js fromHash(" + page + ", " + JSON.stringify(rec.hash.length > 40 ? rec.hash.slice(0, 40) + "…" : rec.hash) + ") [" + id + " #" + i + " " + rec.form + "]";
+                if (page !== "reforged") {
+                    const want = (SPEC.PLAIN[page] || {}).to;
+                    if (!r.plain || r.bare || !r.entry || r.entry.id !== want) { c.fail(w + ": plain " + r.plain + ", bare " + r.bare + ", opens " + (r.entry && r.entry.id) + "; a legacy plain code must stay plain (" + want + ")"); rbad++; }
+                } else {
+                    const parsed = C.parseReforgedHash(rec.hash);
+                    const res = resolveLegacy(world, page, parsed && parsed.id);
+                    let dec = rec.hash;
+                    try { dec = decodeURIComponent(rec.hash); } catch (e) { /* keep */ }
+                    const isBare = dec.indexOf("|") < 0;            // percent-encoded links decode to a full one
+                    if (!res.entry || !r.entry || r.entry.id !== res.entry.id || r.plain || !!r.bare !== !!isBare) { c.fail(w + ": opens " + (r.entry && r.entry.id) + ", bare " + r.bare + "; expected " + (res.entry && res.entry.id) + ", bare " + !!isBare); rbad++; }
+                }
+            });
+        });
+    });
+    if (!rbad) c.pass("lol-data.js fromHash: " + rn + " ids alone open their patch empty (bare); the " + ln + " fixture hashes without \"|\" keep their meaning (plain codes stay plain, bare Reforged ids stay ids)");
+    return preds;
+}
+
+// ---------------------------------------------------------------------------
 // Browser driver (DevTools protocol; shared with tools/test-carry.js)
 // ---------------------------------------------------------------------------
 
@@ -599,6 +832,7 @@ async function openTab(b, opts) {
         return r.result.value;
     };
     tab.navigate = function (url) { return s("Page.navigate", { url: url }); };
+    tab.send = s;                                         // raw DevTools calls (Input.*: tools/test-notes.js)
     tab.close = async function () {
         b.off(onMsg);
         try { await b.send("Target.closeTarget", { targetId: targetId }); } catch (e) { /* gone */ }
@@ -656,7 +890,9 @@ async function pool(items, n, fn) {
 function stripHash(h) { return String(h == null ? "" : h).replace(/^#/, ""); }
 function linkHash(link) { if (link == null) return null; const i = String(link).indexOf("#"); return i < 0 ? "" : String(link).slice(i + 1); }
 
-async function checkL3(world, preds, c, args) {
+// idPreds: the id-alone records (checkIdAlone); not in --legacy-baseline
+// runs (the baseline read a mastery / rune id without "|" as a plain code).
+async function checkL3(world, preds, c, args, idPreds) {
     if (!args.browser && !args["legacy-baseline"]) { c.skip("browser layer not requested (--browser)"); return; }
     const legacy = !!args["legacy-baseline"];
     const site = legacy ? path.resolve(String(args["legacy-baseline"])) : world.root;
@@ -672,7 +908,9 @@ async function checkL3(world, preds, c, args) {
         if (!legacy && (p.skip || !p.hash && p.hash !== "")) return false;
         counts[p.legacyId] = (counts[p.legacyId] || 0) + 1;
         return counts[p.legacyId] <= limit;
-    });
+    }).concat(legacy ? [] : (idPreds || []).filter(function (p) {
+        return pages[p.page].ok && !p.skip && typeof p.hash === "string" && !p.problems.length;
+    }));
     ["masteries", "runes", "reforged"].forEach(function (p) { if (!pages[p].ok) c.skip(p + ": " + pages[p].why); });
     if (!work.length) { if (!c.__any) c.skip("no record to open"); return; }
     const b = await launchBrowser(exe);
@@ -719,12 +957,19 @@ async function checkL3(world, preds, c, args) {
             const ksQuirk = legacy && /^s[67]-/.test(p.legacyId) && (link === "" || link === null);
             if (link !== null && link !== want && link !== alt && !ksQuirk && !(want === "" && (link === "" || link === null))) probs.push("share link #" + link + ", expected #" + want);
             if (!legacy && p.dropped > 0 && !v.toast) probs.push(p.dropped + " point(s) dropped but no toast");
+            // an id alone opens empty: nothing to drop, so nothing to report
+            if (p.legacyId.indexOf(ID_ALONE_GROUP) === 0 && v.toast) probs.push("toast " + JSON.stringify(v.toast) + " (an id alone holds no build)");
             x.errors.forEach(function (e) { probs.push(e); });
             if (probs.length) { bad++; if (bad <= 4) c.fail(id + " #" + p.index + " (" + p.record.form + ") #" + p.record.hash + ": " + probs.slice(0, 3).join("; ")); }
             else ok++;
         });
         if (bad > 4) c.fail(id + ": … " + (bad - 4) + " more");
-        if (!bad) c.pass(id + ": " + ok + " link(s) opened in the page " + (legacy ? "behave as the baseline recorded" : "rewrite to the canonical hash, set the share link and log no error"));
+        if (!bad) c.pass(id + ": " + ok + " link(s) opened in the page " + (legacy ? "behave as the baseline recorded"
+            : id.indexOf(ID_ALONE_GROUP) === 0 ? "open their patch empty: the URL and the share link become its empty canonical link (" +
+                by[id].slice().sort(function (a, b) { return a.p.index - b.p.index; }).map(function (x) {
+                    return "#" + x.p.record.hash + " -> " + x.p.entry.id + (stripHash(x.p.hash) ? "" : " (no hash: page default)");
+                }).join(", ") + "), no toast, no error"
+            : "rewrite to the canonical hash, set the share link and log no error"));
     });
 }
 
@@ -743,15 +988,18 @@ async function main(argv) {
         rep.run("L0", "fixtures", function (c) { c.fail("tools/fixtures/legacy-links.json / legacy-codecs.json missing (P0-A)"); });
         return rep.finish("test-links");
     }
-    let keyMaps = null, preds = [];
-    rep.run("L0", "reference codecs reproduce the baseline (" + fx.links.about.total + " records)", function (c) { checkL0(world, fx, c, args); });
+    let keyMaps = null, preds = [], idPreds = [];
+    rep.run("L0", "reference codecs reproduce the baseline (" + fx.links.about.total + " records); ids alone without \"|\"", function (c) {
+        checkL0(world, fx, c, args);
+        idPreds = checkIdAlone(world, fx, c, args) || [];
+    });
     rep.run("L1", "legacy-codecs.js equals the P0 fixture codecs", function (c) { keyMaps = checkL1(world, fx, c); });
     rep.run("L2", "legacy link -> alias -> codec -> canonical dataset -> canonical link", function (c) { preds = checkL2(world, fx, keyMaps, c, args); });
     let l3 = null;
     const r3 = { id: "L3", title: "the real pages rewrite each legacy link to its canonical hash (--browser)", items: [] };
     const ctx = { pass: function (m) { r3.items.push({ status: "pass", msg: m }); }, fail: function (m) { r3.items.push({ status: "fail", msg: m }); },
         skip: function (m) { r3.items.push({ status: "skip", msg: m }); }, info: function (m) { r3.items.push({ status: "info", msg: m }); } };
-    try { await checkL3(world, preds, ctx, args); } catch (e) { ctx.fail("browser run crashed: " + (e && e.stack || e)); }
+    try { await checkL3(world, preds, ctx, args, idPreds); } catch (e) { ctx.fail("browser run crashed: " + (e && e.stack || e)); }
     rep.run("L3", r3.title, function (c) { r3.items.forEach(function (i) { c[i.status](i.msg); }); });
     return rep.finish("test-links");
 }

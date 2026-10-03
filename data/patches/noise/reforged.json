@@ -1125,7 +1125,6 @@
    "rule": "shard icon file only",
    "what": "{\"type\": \"shard_icon\", \"shard\": 5003, \"from\": \"StatModsMagicResIcon.png\", \"to\": \"StatModsMagicResIcon.MagicResist_Fix.png\", \"noise_rule\": \"shard icon file only\"}"
   },
-  {"patch":"V12.14","rule":"lore/flavour quote only","what":"Phase Rush longDesc [lore]: champions.Duration: 3s Cooldown: [ => 30s -] ; 3s Cooldown: 10s [- 30s => ]"},
   {
    "patch": "V12.22",
    "rule": "internal shard name only",
@@ -1167,7 +1166,6 @@
    "rule": "shard icon file only",
    "what": "{\"type\": \"shard_icon\", \"shard\": 5003, \"from\": \"StatModsMagicResIcon.MagicResist_Fix.png\", \"to\": \"StatModsMagicResIcon.png\", \"noise_rule\": \"shard icon file only\"}"
   },
-  {"patch":"V13.21","rule":"lore/flavour quote only","what":"Phase Rush longDesc [lore]: is increased to [30 => 25] ; to 30 - [60% => 50%]"},
   {
    "patch": "V14.1",
    "rule": "icon path only (same rune id)",

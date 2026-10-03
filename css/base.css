@@ -10,6 +10,7 @@
      6. AIR primitives (navy button, page chips)
      7. tooltip component (one element, data-skin)
      8. toast
+     9. patch-notes flyout (the header's What changed control)
 
    Client era: nav.js sets body[data-client="air"|"lcu"] from the active
    dataset (DECISIONS.md §1). Key every era-specific look off it; never
@@ -240,6 +241,8 @@ body[data-client="lcu"]::before {
          div.header-right
            div.header-controls
              label.header-select-label > span.header-select-text + select.lcu-select
+             button.header-notes.lcu-circle-btn > span.header-notes-badge
+             label.header-notes-label ("Changes"; A+ and A only)
              a.header-link.lcu-link > span.lcu-link-text
            button.header-share.lcu-btn
    64px tall: 2px #785a28 top rule, 61px bar, 1px rgba(240,230,210,.25)
@@ -248,23 +251,38 @@ body[data-client="lcu"]::before {
    Breakpoints are CONTAINER queries on the header, so they track the width
    the header really has (viewport minus a classic scrollbar), not 100vw.
    Tiers (measured with the web fonts; index.html has the widest tabs):
-     A  ≥1400      wordmark + SEASON/PATCH labels
-     B  1240-1399  wordmark, labels visually hidden (the values say it)
-     C  960-1239   icon-only brand, labels hidden
-     D  <960   two rows: 61px (brand, tabs, SHARE) + 48px (selects, icon link)
+     A+ ≥1510      wordmark, SEASON/PATCH labels, What changed button with
+                   its CHANGES label, a gold divider, LINK
+     A  1400-1509  the same without the SEASON/PATCH labels: the CHANGES
+                   label (90px with the divider) is worth more than those
+                   two (110px; the values say it), so 1440 and a 1536 window
+                   with a classic scrollbar (1519) still name the button
+     B  1240-1399  wordmark, labels hidden, What changed icon-only (its hint
+                   says what it is)
+     C  960-1239   icon-only brand, labels hidden, icon-only button
+     D  <960   two rows: 61px (brand, tabs, SHARE) + 48px (selects, What
+               changed, icon link)
      E  <560   D with the labels hidden and tighter tabs
    The selects are fixed-basis flex items (season 190, patch 320) that only
    shrink when the bar is short of room. The season gives up room first
-   (shrink 3 vs 0.5) but never below 180px, which still holds the longest
+   (shrink 6 vs 1, the same 3 : 0.5 ratio as before but with factors of at
+   least 1: once the season sits at its minimum, a lone patch factor below 1
+   would absorb only that fraction of the overflow and the controls would run
+   under SHARE) but never below 180px, which still holds the longest
    season ("Season 2026 (Current)", 137px of text + 42px frame); the patch
-   select gets the rest. Room left for both selects (container width W):
-     A: W - 903 (1400 → 497)   B: W - 766 (1240 → 474, 1265 → 499)
-     C: W - 487 (960 → 473)
-   so the patch select is ≥ 293px from 960 up and holds every S1-S7 label
-   ("V7.21 (Final pre-Reforged — Keystone)" = 230px + 42 = 272) and most
-   Reforged ones (≤278px of text) at 1280-1399. The tabs reserve the width
-   of the widest tab set (MASTERIES RUNES), so a given width renders the
-   same strip on all three pages.
+   select gets the rest. The B / C / D lines are the ones the header had
+   before the What changed button (a given window width keeps its wordmark
+   and single row); the button's 36px (28 + 8px gap) come out of the patch
+   select, which only matters for the longest labels at the low end of a
+   tier: it holds every label from 1400 up (A+ and A are drawn so the patch
+   select is at least 302px there) and from about 1285 / 1005 up in B / C
+   (the longest, "V25.S1.1 (Season start · Domination rework)", needs 260px
+   of text with the web fonts + 42 = 302); at 1240 / 960 it is 259 / 258,
+   which cuts only that label (the next longest is 200px of text). Nothing
+   runs under SHARE at any width.
+   Two-row tiers: see D. The tabs reserve the width of the widest tab set
+   (MASTERIES RUNES), so a given width renders the same strip on all three
+   pages.
    ========================================================================== */
 .legacy-header {
     --hdr-tab-pad: 15px;
@@ -421,19 +439,111 @@ body[data-client="lcu"]::before {
 /* Basis fits the longest season ("Season 2026 (Current)", 137px of text)
    and most patch labels (≤278px). The season box is mostly empty space
    ("Season 7" is 55px of text), so it gives up room first, down to 180px;
-   only then does the patch select shrink. */
-.legacy-header .lcu-select.header-season { flex: 0 3 190px; width: 190px; min-width: 180px; }
-.legacy-header .lcu-select.header-patch  { flex: 0 0.5 320px; width: 320px; min-width: 190px; }
+   only then does the patch select shrink (factors 6 : 1, see the tier note:
+   both at least 1 so the patch takes the whole rest of an overflow). */
+.legacy-header .lcu-select.header-season { flex: 0 6 190px; width: 190px; min-width: 180px; }
+.legacy-header .lcu-select.header-patch  { flex: 0 1 320px; width: 320px; min-width: 190px; }
 .header-link,
 .header-share { flex: none; }
 
-/* B: 1240-1399 — keep the wordmark, drop the inline labels (109px). */
+/* "What changed" (nav.js LolPatchNotes): a 28px gold-ring circle button
+   with a scroll glyph, 8px after the Patch dropdown it belongs to, and a
+   gold dot on its upper right when the patch changed this page (hidden =
+   no change). Opens the patch-notes flyout (§9). .is-pulse: the patch
+   changed in-page to one with changes. label.header-notes-label
+   ("Changes", for= the button, aria-hidden: the button has its own name)
+   is shown in tiers A+ and A, 8px after the ring in the LINK type; it and
+   the ring light up together. Where it shows, a 1px gold divider (the LCU
+   title divider stood upright: #785a28, the header's top rule, fading out
+   at the ends) sits 11px after it and 11px before LINK: the patch group
+   (Season, Patch, What changed) reads apart from the share group (LINK,
+   SHARE), so "CHANGES" and "LINK" never read as one phrase. */
+.legacy-header .header-notes { --lcu-icon-size: 16px; margin-left: -4px; }
+.header-notes-label { display: none; }
+@container lolhdr (min-width: 1400px) {
+    .legacy-header .header-notes-label + .header-link { margin-left: 11px; }
+    .legacy-header .header-notes-label + .header-link::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        bottom: 4px;
+        left: -12px;
+        width: 1px;
+        background: linear-gradient(to bottom, rgba(120, 90, 40, 0) 0%, var(--hx-gold-4) 30%, var(--hx-gold-4) 70%, rgba(120, 90, 40, 0) 100%);
+        pointer-events: none;
+    }
+    .legacy-header .header-notes-label {
+        display: inline-flex;
+        align-items: center;
+        flex: none;
+        height: 32px;
+        margin-left: -4px;
+        font: 700 12px/16px var(--font-lcu-display);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: var(--hx-gold-text);
+        cursor: pointer;
+        transition: color 0.3s ease-in-out;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    .legacy-header .header-notes-label:hover,
+    .legacy-header .header-notes:hover + .header-notes-label,
+    .legacy-header .header-notes:focus-visible + .header-notes-label,
+    .legacy-header .header-notes[aria-expanded="true"] + .header-notes-label { color: var(--hx-gold-1); }
+    .legacy-header .header-notes:active + .header-notes-label { color: var(--hx-gold-3); }
+    .legacy-header .header-controls:has(> .header-notes-label:hover) > .header-notes { background: linear-gradient(to top, #c89b3c 0%, #f0e6d2 100%); }
+    .legacy-header .header-controls:has(> .header-notes-label:hover) > .header-notes::before { background: linear-gradient(to top, #3c3c41 0%, #1e2328 100%); }
+    .legacy-header .header-controls:has(> .header-notes-label:hover) > .header-notes::after { background-color: var(--hx-gold-1); }
+}
+.legacy-header .header-notes::after {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 17V5.5A2.5 2.5 0 0 0 14.5 3H5M5 3a2 2 0 0 0-2 2v2.5h3.5M6.5 5v14a2 2 0 0 0 4 0v-1.5H21V19a2 2 0 0 1-2 2H8.5M10 8h4M10 11.5h4'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 17V5.5A2.5 2.5 0 0 0 14.5 3H5M5 3a2 2 0 0 0-2 2v2.5h3.5M6.5 5v14a2 2 0 0 0 4 0v-1.5H21V19a2 2 0 0 1-2 2H8.5M10 8h4M10 11.5h4'/%3E%3C/svg%3E");
+}
+.legacy-header .header-notes[aria-expanded="true"] { background: linear-gradient(to top, #c89b3c 0%, #f0e6d2 100%); }
+.legacy-header .header-notes[aria-expanded="true"]::before { background: linear-gradient(to top, #3c3c41 0%, #1e2328 100%); }
+.legacy-header .header-notes[aria-expanded="true"]::after { background-color: var(--hx-gold-1); }
+.header-notes-badge {                /* the "changed this page" dot */
+    position: absolute;
+    z-index: 1;
+    top: -1px;
+    right: -1px;
+    box-sizing: border-box;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #f0e6d2 0%, #c8aa6e 50%, #c89b3c 100%);
+    box-shadow: 0 0 0 1.5px var(--hx-black), 0 0 4px 1px rgba(200, 155, 60, 0.55);
+    pointer-events: none;
+}
+.header-notes-badge[hidden] { display: none; }
+.legacy-header .header-notes.is-pulse { animation: lolNotesPulse 700ms cubic-bezier(0, 0, 0.33, 1) 2; }
+.legacy-header .header-notes.is-pulse .header-notes-badge { animation: lolNotesBadge 400ms cubic-bezier(0, 0, 0.33, 1) 1; }
+@keyframes lolNotesPulse {              /* the flat button's hover glow, twice */
+    0%   { box-shadow: 0 0 0 0 rgba(240, 230, 216, 0); filter: none; }
+    30%  { box-shadow: 0 0 8px 4px rgba(240, 230, 216, 0.6); filter: brightness(1.35); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 230, 216, 0); filter: none; }
+}
+@keyframes lolNotesBadge {
+    0%   { transform: scale(0.4); }
+    60%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .legacy-header .header-notes.is-pulse,
+    .legacy-header .header-notes.is-pulse .header-notes-badge { animation: none; }
+}
+
+/* A: 1400-1509 — the CHANGES label instead of the SEASON / PATCH labels.
+   B: 1240-1399 — keep the wordmark, drop the inline labels (110px) and the
+   CHANGES label. */
 @container lolhdr (max-width: 1399px) {
     .legacy-header .header-bar { gap: 24px; }
     .legacy-header .header-tabs { --hdr-tab-pad: 12px; }
     .legacy-header .lcu-select.header-patch  { min-width: 180px; }
 }
-@container lolhdr (min-width: 960px) and (max-width: 1399px) {
+@container lolhdr (min-width: 960px) and (max-width: 1509px) {
     .header-select-text {
         position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden;
         clip: rect(0 0 0 0); white-space: nowrap;
@@ -447,8 +557,14 @@ body[data-client="lcu"]::before {
     .header-title { display: none; }
 }
 /* D: <960 — two rows. Row 1 (61px): icon, tabs, SHARE. Row 2 (48px incl.
-   its 1px top rule): Season + Patch (flex) and an icon-only permalink.
-   2 + 61 + 48 + 1 = 112px. */
+   its 1px top rule): Season + Patch (flex), What changed and an icon-only
+   permalink. 2 + 61 + 48 + 1 = 112px. The row pays for the notes button
+   (28px + its 8px gaps) with 10px less text padding in each select (8px
+   left, 22px right, arrow 2px further right) and a 4px right padding (the
+   permalink's 32px tap box ends 4px from the edge; its 12px glyph sits
+   about where SHARE's right edge is), so at every width the selects show
+   exactly as much text as before the button existed (measured: 260px at
+   800, 140 at 560, 106 at 375) and the permalink keeps its 32px. */
 @container lolhdr (max-width: 959px) {
     .legacy-header .header-bar {
         display: grid;
@@ -482,6 +598,16 @@ body[data-client="lcu"]::before {
     }
     .header-link { width: 32px; justify-content: center; flex: none; }
     .header-link::after { width: 12px; height: 12px; margin: 0; }
+    .legacy-header .header-controls { padding-right: 4px; }
+    .legacy-header .header-notes ~ .header-link { margin-left: -4px; }
+    .legacy-header .lcu-select.header-season,
+    .legacy-header .lcu-select.header-patch { padding: 0 22px 0 8px; }
+    .legacy-header .lcu-select.header-season,
+    .legacy-header .lcu-select.header-season:hover,
+    .legacy-header .lcu-select.header-season:focus-visible,
+    .legacy-header .lcu-select.header-patch,
+    .legacy-header .lcu-select.header-patch:hover,
+    .legacy-header .lcu-select.header-patch:focus-visible { background-position: right 6px center, 0 0; }
 }
 /* E: <560 — phones. */
 @container lolhdr (max-width: 559px) {
@@ -490,6 +616,7 @@ body[data-client="lcu"]::before {
         clip: rect(0 0 0 0); white-space: nowrap;
     }
     .header-controls { gap: 8px; }
+    .legacy-header .header-notes ~ .header-link { margin-left: 0; }
     .legacy-header .header-tabs { --hdr-tab-pad: 9px; }
     .header-tab { font-size: 13px; }
     .header-share.lcu-btn { padding: 5px 1em; }
@@ -1101,3 +1228,212 @@ body[data-client="lcu"]::before {
     -webkit-font-smoothing: antialiased;
 }
 .lol-toast.visible { opacity: 1; }
+
+/* ==========================================================================
+   9. Patch-notes flyout — ONE element (#lol-notes.lol-notes, built by nav.js
+   LolPatchNotes) opened by the header's What changed button (§4). The LCU
+   flyout frame (lol-uikit-flyout-frame, 7.22): #010a13, 2px border-image
+   brightest toward the caret, the tooltip's caret and sub-border strip,
+   intro from the middle out. Spectral SC heading, Inter body. Hangs below
+   the button (absolute, page coordinates: it scrolls with the header);
+   --notes-caret / --notes-max-h are set by nav.js. Phones (≤559px, or a
+   phone held sideways: ≤480px tall below 960px): a bottom sheet (.is-sheet)
+   over .lol-notes-scrim, with the header lifted over the scrim
+   (html.lol-notes-sheet) and the sheet's height capped below it.
+     div.lol-notes[role=dialog]
+       div.lol-notes-frame
+         div.lol-notes-head > h2.lol-notes-title + p.lol-notes-meta
+         div.lol-notes-body > p.lol-notes-summary + ul.lol-notes-list
+                              | p.lol-notes-none (+ ul.lol-notes-list)
+                              | p.lol-notes-status
+           (each line: text, with span.lol-notes-nb around a range, a
+            "Season 14" and an arrow with its new value: "→ 6%")
+         div.lol-notes-foot > a.lcu-link.lol-notes-link (+ span.lol-notes-via)
+         button.lcu-circle-btn.lol-notes-close
+       span.lol-notes-sub, span.lol-notes-caret
+   ========================================================================== */
+.lol-notes {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2400;                    /* over the header, under tooltips (2500) */
+    box-sizing: border-box;
+    width: 360px;
+    font: 400 12px/18px var(--font-lcu-body);
+    letter-spacing: 0.025em;
+    color: var(--hx-grey-1);
+    text-align: left;
+    -webkit-font-smoothing: antialiased;
+    outline: none;
+}
+.lol-notes[hidden] { display: none; }
+.lol-notes-frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    max-height: var(--notes-max-h, 70vh);
+    border: 2px solid transparent;
+    border-image: linear-gradient(to bottom, var(--hx-gold-tt) 0, var(--hx-gold-5) 5px, var(--hx-gold-5) 100%) 1 stretch;
+    background: var(--hx-black);
+    box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.48), 0 0 10px 1px rgba(0, 0, 0, 0.5);
+}
+.lol-notes-caret {                    /* the tooltip caret, pointing up at the button */
+    position: absolute;
+    top: -13px;
+    left: var(--notes-caret, 50%);
+    width: 24px;
+    height: 15px;
+    background: url(../images/lcu/tooltip-caret.png) no-repeat center / 24px 15px;
+    transform: rotate(180deg);
+    pointer-events: none;
+}
+.lol-notes-sub {                      /* second gold line on the caret edge */
+    position: absolute;
+    top: -4px;
+    left: 5px;
+    right: 5px;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 4px 0 4px;
+    border-image: url(../images/lcu/tooltip-sub-border-horizontal.png) 4 4 0 4 stretch;
+    transform: rotate(180deg);
+    pointer-events: none;
+}
+.lol-notes-head {
+    flex: none;
+    padding: 16px 48px 10px 18px;     /* right: room for the close button */
+    border-bottom: 1px solid var(--hx-grey-3);
+}
+.lol-notes-title {
+    margin: 0;
+    font: 700 14px/18px var(--font-lcu-display);
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    color: var(--hx-gold-1);
+}
+.lol-notes-patch {                    /* the patch name keeps its case (V1.0.0.118b) */
+    font-family: var(--font-lcu-display-mixed);
+    text-transform: none;
+}
+.lol-notes-meta {
+    margin: 3px 0 0;
+    font: 400 11px/16px var(--font-lcu-body);
+    letter-spacing: 0.05em;
+    color: var(--hx-grey-1);
+}
+.lol-notes-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 12px 18px 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hx-gold-4) transparent;
+    overscroll-behavior: contain;     /* its end does not scroll the page on */
+    outline: none;
+}
+/* A body that scrolls is a Tab stop (nav.js: tabindex 0, role region). Its
+   keyboard focus mark: a 2px #c89b3c bar down the region, 5px in from the
+   frame (right on the frame it would only read as a thicker border). */
+.lol-notes-body:focus-visible { box-shadow: inset 5px 0 0 var(--hx-black), inset 7px 0 0 var(--hx-gold-3); }
+/* .has-more (nav.js): the body scrolls and is not at its end. The bottom
+   28px fade out, so a list cut at a line boundary still reads as "more
+   below" where scrollbars are overlays (macOS, phones) and show no thumb. */
+.lol-notes-body.has-more {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 28px), transparent 100%);
+}
+.lol-notes-body p { margin: 0; }
+.lol-notes-nb { white-space: nowrap; }  /* never wraps: "100–70s", "Season 14", "→ 6%" */
+.lol-notes-summary { color: var(--hx-gold-1); }
+.lol-notes-summary + .lol-notes-list,
+.lol-notes-summary + .lol-notes-none,
+.lol-notes-none + .lol-notes-list,
+.lol-notes-none + .lol-notes-none { margin-top: 8px; }
+.lol-notes-list { margin: 0; padding: 0; list-style: none; }
+.lol-notes-list li { position: relative; padding-left: 14px; }
+.lol-notes-list li + li { margin-top: 6px; }
+.lol-notes-list li::before {          /* gold diamond bullet */
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 7px;
+    width: 4px;
+    height: 4px;
+    background: var(--hx-gold-3);
+    transform: rotate(45deg);
+}
+.lol-notes-none,
+.lol-notes-status { color: var(--hx-grey-1); font-style: italic; }
+.lol-notes-foot {
+    display: flex;
+    flex: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 6px 18px;
+    border-top: 1px solid var(--hx-grey-3);
+}
+.lol-notes-foot:empty { display: none; }
+.lol-notes-via {
+    margin-left: -14px;               /* 6px after the link's glyph */
+    font: 400 11px/16px var(--font-lcu-body);
+    letter-spacing: 0.05em;
+    color: var(--hx-grey-1);
+}
+.lol-notes-close { position: absolute; top: 11px; right: 11px; }
+.lol-notes.is-open .lol-notes-frame { animation: lolNotesIn 300ms cubic-bezier(0.02, 0.85, 0.08, 0.99) 1; }
+.lol-notes.is-open .lol-notes-caret,
+.lol-notes.is-open .lol-notes-sub { animation: lolNotesFade 200ms linear 1; }
+@keyframes lolNotesIn {
+    from { opacity: 0; clip-path: inset(0 25% 0 25%); }
+    to   { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes lolNotesFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+/* Phones: a bottom sheet, full width, over a scrim; no caret. nav.js sets
+   --notes-max-h: 80% of the screen, at most 560px, ending 8px under the
+   header while that is on screen. */
+.lol-notes.is-sheet {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+}
+.lol-notes.is-sheet .lol-notes-frame {
+    max-height: var(--notes-max-h, min(80vh, 560px));
+    border-width: 2px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.lol-notes.is-sheet .lol-notes-caret { display: none; }
+.lol-notes.is-sheet .lol-notes-sub { left: 8px; right: 8px; }
+.lol-notes.is-sheet.is-open { animation: lolNotesUp 300ms cubic-bezier(0.02, 0.85, 0.08, 0.99) 1; }
+.lol-notes.is-sheet.is-open .lol-notes-frame,
+.lol-notes.is-sheet.is-open .lol-notes-sub { animation: none; }
+@keyframes lolNotesUp {
+    from { transform: translateY(100%); }
+    to   { transform: none; }
+}
+.lol-notes-scrim {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 2390;
+    background: rgba(1, 10, 19, 0.6);
+}
+.lol-notes-scrim[hidden] { display: none; }
+/* While the sheet is open the header sits over the scrim (under the sheet):
+   the Season and Patch dropdowns stay tappable and step the open sheet
+   through patches; a tap on any other header control closes it as usual. */
+html.lol-notes-sheet .legacy-header { z-index: 2395; }
+@media (prefers-reduced-motion: reduce) {
+    .lol-notes.is-open,
+    .lol-notes.is-open .lol-notes-frame,
+    .lol-notes.is-open .lol-notes-caret,
+    .lol-notes.is-open .lol-notes-sub { animation: none; }
+}

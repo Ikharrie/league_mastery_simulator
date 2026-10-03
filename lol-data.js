@@ -21,11 +21,16 @@
 //                                 true}); unlisted patches carry no change, so
 //                                 the data is the same. (4) null
 //   fromHash(page[, hash])        the dataset a share link opens:
-//                                 {hash, id, entry, alias, plain, empty, unknown}.
-//                                 Reads the first "|" segment. A mastery / rune
-//                                 hash without "|" is the legacy plain form
-//                                 (LOL_ALIASES.plain). Empty or unresolvable:
-//                                 the page default (empty / unknown = true)
+//                                 {hash, id, entry, alias, plain, bare, empty,
+//                                 unknown}. Reads the first "|" segment. A hash
+//                                 without "|" that resolve() accepts, or that
+//                                 has the page's id pattern, is that id alone
+//                                 (bare = true: the link holds no build, the
+//                                 page opens empty; index.html#m-V4.5). Any
+//                                 other mastery / rune hash without "|" is the
+//                                 legacy plain form (LOL_ALIASES.plain).
+//                                 Empty or unresolvable: the page default
+//                                 (empty / unknown = true)
 //   list(page, seasonKey)         that season's entries, chronological
 //   seasonDefault(page, key)      entry | null
 //   pageDefault(page)             entry | null
@@ -39,12 +44,19 @@
 //   fillPatchSelect(select, page, seasonKey, selectedId)
 //                                 one <option value=id>label</option> per entry
 //                                 of the season, oldest first; select = element,
-//                                 jQuery object or selector. Returns the count
+//                                 jQuery object or selector. Returns the count.
+//                                 Then fires "lol:patch-select" on document,
+//                                 detail {select, page, season, id, entry}: the
+//                                 pages fill the header's Patch dropdown with it
+//                                 whenever the patch on screen changes (and
+//                                 refill it when a switch fails), so the header's
+//                                 "What changed" control (nav.js) follows it
 //
 // LolData
 //   register(kind, key, payload)  called by the generated data files; kind is
-//                                 the page ("masteries", "runes", "reforged")
-//                                 or "masteries-legacy" (legacy codecs)
+//                                 the page ("masteries", "runes", "reforged"),
+//                                 "masteries-legacy" (legacy codecs) or "notes"
+//                                 (data/notes/<page>-<season>.js: {patch: notes})
 //   load(entry)                   Promise<dataset>: injects <script src=entry.file>
 //                                 once per file, then resolves with
 //                                 {...entry, ...payload} (one object per entry).
@@ -59,6 +71,17 @@
 //   prefetch(entries)             idle-time injection of the files not loaded
 //                                 yet, one at a time; best effort. Returns a
 //                                 Promise that resolves when the queue is done
+//   loadNotes(entry)              Promise<{summary, items, kind} | null>: the
+//                                 entry's change notes from its season's notes
+//                                 file (entry.notes.file, kind "notes", key
+//                                 entry.notes.key), injected once. null = the
+//                                 file has no notes for this patch. Rejects when
+//                                 there is no file (notes.file: null = not built
+//                                 yet) or it fails to load
+//   getNotes(entry)               the same synchronously; undefined while the
+//                                 file is not loaded, null when it has none
+//   prefetchNotes(entries)        idle-time injection of their notes files (the
+//                                 same queue as prefetch)
 //
 // lolPreloadDataset(page)         inline in <head>: document.writes the
 //                                 <script> of the dataset the hash opens (and
@@ -199,7 +222,7 @@ var LolPatches = window.LolPatches = (function(){
     function fromHash(pg, hash) {
         pg = pg || page();
         var raw = String(hash == null ? location.hash : hash).replace(/^#/, "");
-        var out = { hash: raw, id: null, entry: null, alias: null, plain: false, empty: false, unknown: false };
+        var out = { hash: raw, id: null, entry: null, alias: null, plain: false, bare: false, empty: false, unknown: false };
         // Reforged links pasted through chat apps arrive percent-encoded
         // (runes-reforged.js parseReforgedHash does the same).
         if (pg === "reforged" && raw.indexOf("|") < 0 && /%7C|%2C/i.test(raw)) {
@@ -211,6 +234,22 @@ var LolPatches = window.LolPatches = (function(){
             return out;
         }
         var pipe = raw.indexOf("|");
+        // An id alone: listed, alias or unlisted patch, with an empty build.
+        // It can never be a plain code: the mastery code alphabet has no "."
+        // (every m-V… id has one), a rune list is numbers, and the old ids
+        // (s1-final …) are no code the plain writer could produce
+        // (tools/test-links.js L0 checks both). An id of the page's pattern
+        // outside the listed range (m-V1.0.0.10) is an unknown id, as it is
+        // with a "|".
+        if (pipe < 0) {
+            var b = resolve(pg, raw);
+            if (b || patchOfId(pg, raw)) {
+                out.id = raw; out.bare = true;
+                if (b) { out.entry = b.entry; out.alias = b.alias; }
+                else { out.unknown = true; out.entry = pageDefault(pg); }
+                return out;
+            }
+        }
         if (pipe < 0 && pg !== "reforged") {
             var aliases = reg("LOL_ALIASES"), plain = aliases && aliases.plain && aliases.plain[pg];
             out.plain = true;
@@ -244,6 +283,12 @@ var LolPatches = window.LolPatches = (function(){
             el.appendChild(o);
         });
         if (want) el.value = want;
+        if (typeof CustomEvent === "function" && document.dispatchEvent) {
+            try {
+                document.dispatchEvent(new CustomEvent("lol:patch-select", { detail: {
+                    select: el, page: pg, season: key, id: want || null, entry: want ? entry(pg, want) : null } }));
+            } catch (err) { /* a listener's error must not break the fill */ }
+        }
         return items.length;
     }
 
@@ -262,7 +307,7 @@ var LolData = window.LolData = (function(){
     var merged = Object.create(null);    // entry id -> { payload, entry, dataset }
     var pending = Object.create(null);   // file -> Promise (injection in flight or done)
     var written = Object.create(null);   // file -> true (document.written by lolPreloadDataset)
-    var CODEC_KIND = "masteries-legacy";
+    var CODEC_KIND = "masteries-legacy", NOTES_KIND = "notes";
 
     function kindOf(entry) { return LolPatches.pageOfId(entry && entry.id); }
 
@@ -357,10 +402,47 @@ var LolData = window.LolData = (function(){
 
     var queue = [], queued = Object.create(null), running = null;
     function prefetch(list) {
-        (list || []).forEach(function(e){
-            if (!e || !e.file || e.data === null || queued[e.file] || pending[e.file] || get(e)) return;
-            queued[e.file] = true;
-            queue.push(e.file);
+        return enqueue((list || []).filter(function(e){
+            return e && e.file && e.data !== null && !get(e);
+        }).map(function(e){ return e.file; }));
+    }
+
+    // --- change notes (data/notes/<page>-<season>.js) ------------------------
+    function notesTable(entry) {
+        var n = entry && entry.notes, t = store[NOTES_KIND];
+        return n && n.key && t && n.key in t ? t[n.key] : undefined;
+    }
+    function getNotes(entry) {
+        var t = notesTable(entry);
+        if (t === undefined) return undefined;
+        var rec = t && Object.prototype.hasOwnProperty.call(t, entry.patch) ? t[entry.patch] : null;
+        return rec || null;
+    }
+    function loadNotes(entry) {
+        return new Promise(function(resolve, reject){
+            var n = entry && entry.notes;
+            if (!n || !n.key) { reject(new Error("No change notes for " + (entry && entry.id))); return; }
+            var have = getNotes(entry);
+            if (have !== undefined) { resolve(have); return; }
+            if (!n.file) { reject(new Error("No change notes file for " + entry.id + " (not built yet)")); return; }
+            inject(n.file).then(function(){
+                var rec = getNotes(entry);
+                if (rec !== undefined) resolve(rec);
+                else reject(new Error(n.file + " did not register notes " + JSON.stringify(n.key)));
+            }, reject);
+        });
+    }
+    function prefetchNotes(list) {
+        return enqueue((list || []).filter(function(e){
+            return e && e.notes && e.notes.file && notesTable(e) === undefined;
+        }).map(function(e){ return e.notes.file; }));
+    }
+
+    function enqueue(files) {
+        files.forEach(function(file){
+            if (queued[file] || pending[file]) return;
+            queued[file] = true;
+            queue.push(file);
         });
         if (running) return running;
         if (!queue.length) return Promise.resolve();
@@ -382,6 +464,7 @@ var LolData = window.LolData = (function(){
         register: register, load: load, get: get,
         loadCodec: loadCodec, getCodec: getCodec, codecsFile: codecsFile,
         prefetch: prefetch, kindOf: kindOf,
+        loadNotes: loadNotes, getNotes: getNotes, prefetchNotes: prefetchNotes,
         _markWritten: markWritten, _wasWritten: wasWritten
     };
 })();

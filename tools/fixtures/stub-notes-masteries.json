@@ -1,0 +1,16 @@
+{
+ "_comment": [
+  "STUB change notes (task C) for tools/build-registry.js until data/patches/notes/masteries.json exists.",
+  "Shape = data/patches/notes/<page>.json: {patches: {\"<patch>\": {summary (<= 90 chars), items: [player-facing bullet], kind: launch|rework|change|season-start|season-end|no-change}}}.",
+  "Only a few patches, written from the listing's change notes (data/patches/masteries.json); patches without an entry count 0 changes."
+ ],
+ "stub": true,
+ "page": "masteries",
+ "patches": {
+  "V1.0.0.32": { "summary": "Launch: the 30-point Offense, Defense and Utility trees.", "items": ["The game launches with the three Season 1 mastery trees (30 points)."], "kind": "launch" },
+  "V4.5": { "summary": "Feast and Scavenger buffed; Dangerous Game tooltip updated.", "items": ["Feast: on-kill heal 2 → 3 Health (Mana unchanged)", "Scavenger: range 900 → 1100", "Dangerous Game: tooltip now says kills and assists (the effect already counted assists)"], "kind": "change" },
+  "V4.19": { "summary": "Last patch of Season 4.", "items": ["No mastery changes since V4.5 — last patch of Season 4"], "kind": "no-change" },
+  "V5.22": { "summary": "Preseason 6: the Ferocity, Cunning and Resolve trees replace the old ones.", "items": ["Offense / Defense / Utility removed; Ferocity / Cunning / Resolve trees with 6 tiers", "One keystone across all trees: Warlord's Bloodlust, Fervor of Battle, Deathfire Touch, Stormraider's Surge, Thunderlord's Decree and more", "Each tree is capped at 18 points"], "kind": "rework" },
+  "V7.21": { "summary": "Last patch with masteries.", "items": ["No mastery changes since V7.6 — last patch before Runes Reforged"], "kind": "no-change" }
+ }
+}

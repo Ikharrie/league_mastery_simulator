@@ -21,6 +21,8 @@
 //              carry rules of §4.5) and the hash rewritten to the canonical
 //              link. Unlisted patches (m-V4.7 …) open the listed patch in
 //              effect, whose data is the same.
+//   id alone   "#m-V4.5", "#s4-final" (no "|"): that patch, empty. Only a
+//              hash without "|" that is no id is a plain code.
 // Patch / season switch: the build carries over by key (§4.5); a different
 // tree family (a rework) starts empty. A toast says what did not carry.
 
@@ -876,7 +878,9 @@ function importClassicLink(code, codec) {
 function parseHash(raw) {
     // Hash format: "<dataset-id>|<mastery-code>[|<page-name>]" (current) or
     // just "<mastery-code>" (legacy plain code). Neither code alphabet
-    // contains "|"; the name is URI-encoded.
+    // contains "|"; the name is URI-encoded. A hash without "|" can also be
+    // a dataset id alone (index.html#m-V4.5): LolPatches.fromHash tells
+    // (r.bare), and openMasteryLink then ignores the code read here.
     raw = String(raw || "");
     if (!raw) return { id: null, code: "", name: null, empty: true };
     var pipe = raw.indexOf('|');
@@ -1069,8 +1073,9 @@ function openMasteryLink(raw, isBoot) {
         // it before the import so the rewritten hash keeps it.
         if (window.AirMasterySidebar)
             AirMasterySidebar.pageName(parsed.name || AirMasterySidebar.DEFAULT_NAME);
-        // An unknown id opens the page default without its build.
-        var code = r.unknown ? "" : parsed.code;
+        // An unknown id opens the page default without its build; an id
+        // alone (no "|", r.bare) has none.
+        var code = (r.unknown || r.bare) ? "" : parsed.code;
         var info;
         if (isKeystoneDataSet(ds)) info = typeof importKeystones === "function" ? importKeystones(code, codec) : null;
         else info = importClassicLink(code, codec);

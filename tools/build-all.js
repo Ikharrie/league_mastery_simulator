@@ -9,10 +9,13 @@
 // Steps
 //   1. syntax       node --check on every .js of the site (root, tools/, data/)
 //   2. builders     tools/build-masteries.js, generate-runes-data.js,
-//                   tools/build-reforged.js (they write only what changed)
+//                   tools/build-reforged.js, tools/build-notes.js (the
+//                   patch-notes files; they write only what changed)
 //   3. registry     tools/build-registry.js --strict, then --strict --check
+//                   (it reads the notes files, so build-notes runs first)
 //   4. unit         tools/lib/patches.test.js, tools/fixtures/stub-shell-test.js unit
-//   5. checks       tools/check-patches.js, tools/test-links.js, tools/test-carry.js
+//   5. checks       tools/check-patches.js, tools/test-links.js, tools/test-carry.js,
+//                   tools/test-notes.js (the What changed flyout; browser only)
 //   6. audits       only with --raw: build-masteries --check --audit,
 //                   generate-runes-data --check --audit, build-reforged --check --audit
 //                   (C3 / F3 against every unlisted DDragon patch)
@@ -23,15 +26,17 @@
 //                 rune/, reforged/, cdragon*/). Adds step 6, check-patches
 //                 --audit, and the cached Runes Reforged catalogs for
 //                 test-links L0/L2 and test-carry X3
-//   --browser     also test-links L3 and test-carry X4 (headless Edge / Chrome
-//                 over file://; Node 22+). With --raw the Reforged page is
-//                 included (its catalogs are served from the cache)
+//   --browser     also test-links L3, test-carry X4 and test-notes W1-W2
+//                 (headless Edge / Chrome over file://; Node 22+). With --raw
+//                 the Reforged page is included (its catalogs are served from
+//                 the cache)
 //   --keep-going  run every step even after a failure
 //   --log <dir>   write the full output of every step to <dir>/<nn>-<step>.log
 //
 // Idempotent: the generated files (data/masteries/, data/runes/,
-// data/reforged/, patch-registry.js) are hashed before and after; a second
-// run reports "0 generated files changed" and leaves a clean git diff.
+// data/reforged/, data/notes/, patch-registry.js) are hashed before and
+// after; a second run reports "0 generated files changed" and leaves a clean
+// git diff.
 //
 // Skips. The checks report SKIP for input they were not given. The ones that
 // only need --raw or --browser are expected in a plain run and listed as
@@ -46,7 +51,7 @@ const cp = require("child_process");
 const crypto = require("crypto");
 
 const ROOT = path.resolve(__dirname, "..");
-const GENERATED = ["data/masteries", "data/runes", "data/reforged", "patch-registry.js"];
+const GENERATED = ["data/masteries", "data/runes", "data/reforged", "data/notes", "patch-registry.js"];
 const SYNTAX_DIRS = ["", "tools", "data"];
 const SYNTAX_SKIP = /^(vendor|pyro|node_modules|\.git|\.claude|data[\\/]legacy-client-ref)([\\/]|$)/;
 
@@ -194,6 +199,7 @@ function main() {
         ["build-masteries", "tools/build-masteries.js", chk],
         ["generate-runes-data", "generate-runes-data.js", chk],
         ["build-reforged", "tools/build-reforged.js", chk],
+        ["build-notes", "tools/build-notes.js", chk],
         ["build-registry", "tools/build-registry.js", ["--strict"].concat(chk)]
     ];
     if (!args.check) steps.push(["registry --check", "tools/build-registry.js", ["--strict", "--check"]]);
@@ -230,6 +236,7 @@ function main() {
     checker("check-patches", "tools/check-patches.js", audit);
     checker("test-links", "tools/test-links.js", cache.concat(browser));
     checker("test-carry", "tools/test-carry.js", cache.concat(browser));
+    checker("test-notes", "tools/test-notes.js", cache.concat(args.browser ? ["--browser"] : []));
 
     // 6. audits against the raw download cache
     if (args.raw) {

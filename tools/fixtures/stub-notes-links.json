@@ -1,0 +1,12 @@
+{
+ "_comment": [
+  "STUB patch-notes links (task C) for tools/build-registry.js until data/patches/notes-links.json exists.",
+  "Shape = data/patches/notes-links.json: {patches: {\"<patch>\": {official, officialArchived, wiki, checked}}}, one entry per distinct listed patch.",
+  "Nothing here was checked against the network: official / officialArchived are null and the wiki URL is the wiki's page name for the patch. In stub mode build-registry.js derives the same wiki URL for every listed patch this file does not name."
+ ],
+ "stub": true,
+ "patches": {
+  "V4.5": { "official": null, "officialArchived": null, "wiki": "https://wiki.leagueoflegends.com/en-us/V4.5", "checked": null },
+  "V26.19": { "official": null, "officialArchived": null, "wiki": "https://wiki.leagueoflegends.com/en-us/V26.19", "checked": null }
+ }
+}

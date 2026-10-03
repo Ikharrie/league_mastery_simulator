@@ -1,0 +1,14 @@
+{
+ "_comment": [
+  "STUB change notes (task C) for tools/build-registry.js until data/patches/notes/reforged.json exists.",
+  "Shape = data/patches/notes/<page>.json (see stub-notes-masteries.json). Only a few patches, from data/patches/reforged.json."
+ ],
+ "stub": true,
+ "page": "reforged",
+ "patches": {
+  "V7.22": { "summary": "Runes Reforged replaces runes and masteries.", "items": ["Five paths with keystones replace rune pages and mastery trees"], "kind": "launch" },
+  "V25.S1.1": { "summary": "Season 2025: Domination row 2 reworked; Nullifying Orb becomes Axiom Arcanist.", "items": ["New: Sixth Sense, Grisly Mementos, Deep Ward", "Removed: Ghost Poro, Zombie Ward, Eyeball Collection", "Nullifying Orb → Axiom Arcanist: Ultimate damage, healing and shielding"], "kind": "season-start" },
+  "V26.09": { "summary": "Deathfire Touch returns as a Sorcery keystone; Phase Rush becomes Stormraider's Surge.", "items": ["New Sorcery keystone: Deathfire Touch", "Phase Rush → Stormraider's Surge", "Arcane Comet: damage 30–130 → 15–100, scales with distance", "Hail of Blades: 160% → 120% Attack Speed, adds on-hit damage"], "kind": "change" },
+  "V26.19": { "summary": "Current live patch.", "items": ["No rune changes since V26.17"], "kind": "no-change" }
+ }
+}

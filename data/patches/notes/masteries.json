@@ -1,0 +1,395 @@
+{
+  "_comment": [
+    "Player-facing change notes for every listed patch of the masteries page (index.html), shown by the patch-notes control next to the Patch dropdown. Hand-curated from data/patches/masteries.json (changes, notes, sources) and the research behind it: every bullet is backed by that data, nothing is added.",
+    "patches: { <patch as in the listing>: { summary, items, kind } }. summary: one line, at most 90 characters, ending in \" (approx.)\" when the listing's confidence is low. items: short bullets, old → new values, at most about 8. kind: launch | rework | change | season-start | season-end | no-change; a season boundary without a mastery change is no-change, and its count in the registry is 0.",
+    "tools/build-notes.js checks this file against the listing and writes data/notes/masteries-<season>.js (one LolData.register(\"notes\", ...) per season)."
+  ],
+  "patches": {
+    "V1.0.0.32": {
+      "summary": "Launch: the 30-point Offense / Defense / Utility trees",
+      "items": [
+        "Release build of the classic Offense / Defense / Utility trees, as of the last beta patch V0.9.25.34",
+        "Launch values that change later in Season 1: Mender's Faith +75 Heal and 10s shorter Heal cooldown; Willpower 30s shorter Cleanse cooldown; Cripple: Exhaust also removes 25 Armor and Magic Resist",
+        "Demolisher (Promote upgrade) is still in the Offense tree; Improved Rally +20% base magic damage; Reinforce +9 damage to minions and monsters while Fortify is up",
+        "Haste +8% Ghost Movement Speed; Ardor half at level 1, full at 18; Havoc +5% base damage",
+        "Strength of Spirit 0.5/1/1.5% of max mana as health regen; Meditation 1.66/3.33/5 mana regen per 5s; Veteran's Scars +15/30/45/60 health"
+      ],
+      "kind": "launch"
+    },
+    "V1.0.0.52": {
+      "summary": "Mender's Faith: +75 Heal → +10 Heal per champion level",
+      "items": [
+        "Mender's Faith: +75 Heal and 10s shorter cooldown → +10 Heal per champion level (10–180)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.61": {
+      "summary": "Mender's Faith now cuts Heal's cooldown by 30s; Reinforce reworked",
+      "items": [
+        "Mender's Faith: Heal bonus → 30s shorter Heal cooldown",
+        "Reinforce: +9 damage to minions and monsters while Fortify is up → Fortify makes allied turrets deal 50% splash damage"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.63": {
+      "summary": "Demolisher removed with Promote; Willpower 30s → 20s",
+      "items": [
+        "Demolisher removed together with the Promote summoner spell; Offense tier 4 keeps only Brute Force",
+        "Willpower: Cleanse cooldown reduction 30s → 20s"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.72": {
+      "summary": "Cripple 25 → 10 resist reduction; Improved Rally grants Ability Power",
+      "items": [
+        "Cripple: Exhaust Armor and Magic Resist reduction 25 → 10",
+        "Improved Rally: +20% base magic damage → +20–70 Ability Power (by level)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.101": {
+      "summary": "Haste: Ghost Movement Speed bonus 8% → 6%",
+      "items": [
+        "Haste: Ghost Movement Speed bonus 8% → 6%"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.109": {
+      "summary": "Ardor: full bonus from level 1",
+      "items": [
+        "Ardor: full 1.33/2.66/4% Ability Power and Attack Speed from level 1 (was half at level 1, full at 18)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.110": {
+      "summary": "Strength of Spirit, Meditation and Veteran's Scars down",
+      "items": [
+        "Strength of Spirit: 0.5/1/1.5% → 0.33/0.66/1% of max mana as health regen per 5s",
+        "Meditation: 1.66/3.33/5 → 1/2/3 mana regen per 5s",
+        "Veteran's Scars: +15/30/45/60 → +12/24/36/48 health"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.118b": {
+      "summary": "Havoc: +5% base damage → +4% total damage",
+      "items": [
+        "Havoc: +5% base damage → +4% physical and magic damage"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.128": {
+      "summary": "No mastery changes since V1.0.0.118b; last patch of Season 1 (approx.)",
+      "items": [
+        "No mastery changes since V1.0.0.118b — last patch of Season 1",
+        "Tooltip only: Reinforce also names Garrison (Dominion)"
+      ],
+      "kind": "no-change"
+    },
+    "V1.0.0.129": {
+      "summary": "Season 2 rework: new 6-tier trees, 49 masteries",
+      "items": [
+        "Preseason 2 rework: new Offense / Defense / Utility trees with 6 tiers, 49 masteries (17 / 16 / 16)",
+        "31 new masteries and 25 removed; the single-spell upgrades (Cripple, Haste, Mender's Faith, Willpower …) go, and Summoner's Wrath, Summoner's Resolve and Summoner's Insight each improve several summoner spells",
+        "Launch values that change in V1.0.0.131: Alacrity 1.5/3/4.5/6% Attack Speed, Summoner's Resolve +15% Heal, Perseverance (3/6/9% health and mana regen) in the Utility tier 5 slot"
+      ],
+      "kind": "rework"
+    },
+    "V1.0.0.131": {
+      "summary": "Alacrity and Summoner's Resolve down; Strength of Spirit replaces Perseverance",
+      "items": [
+        "Alacrity: 1.5/3/4.5/6% → 1/2/3/4% Attack Speed",
+        "Summoner's Resolve: Heal bonus 15% → 10%",
+        "Perseverance removed; Strength of Spirit (0.4/0.7/1% of max mana as health regen per 5s) takes its slot"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.133": {
+      "summary": "Deadliness: Critical Strike chance → Attack Damage per level",
+      "items": [
+        "Deadliness: 1/2/3/4% Critical Strike chance → 0.125/0.25/0.375/0.5 Attack Damage per level (2.25/4.5/6.75/9 at level 18)"
+      ],
+      "kind": "change"
+    },
+    "V1.0.0.151": {
+      "summary": "No mastery changes since V1.0.0.133; last patch of Season 2",
+      "items": [
+        "No mastery changes since V1.0.0.133 — last patch of Season 2"
+      ],
+      "kind": "no-change"
+    },
+    "V1.0.0.152": {
+      "summary": "Season 3 rework: rebuilt trees, 56 masteries",
+      "items": [
+        "Preseason 3 rework: Offense / Defense / Utility trees rebuilt, 56 masteries (18 / 19 / 19)",
+        "19 new masteries, among them Fury, Spellsword, Frenzy, Block, Tenacious, Legendary Armor, Reinforced Armor, Wanderer, Biscuiteer and Pickpocket",
+        "12 removed, among them Alacrity, Evasion, Swiftness, Mercenary and Initiator",
+        "Also: Legendary Armor +2 / 3.5 / 5% bonus Armor and Magic Resist; Scout +25% ward vision for 5s; Bladed Armor deals 6 true damage to attacking minions and monsters"
+      ],
+      "kind": "rework"
+    },
+    "V3.13": {
+      "summary": "No mastery changes since V1.0.0.152; last patch of Season 3",
+      "items": [
+        "No mastery changes since V1.0.0.152 — last patch of Season 3",
+        "Tooltip wording: Summoner's Insight's Revive line now states its bonus Health, 200 + 20 per level (unchanged; shown since V3.12, no patch note mentions it)"
+      ],
+      "kind": "no-change"
+    },
+    "V3.14": {
+      "summary": "Preseason 4 rework: new 2014 trees, 57 masteries",
+      "items": [
+        "Season 3 trees replaced by the 2014 Offense / Defense / Utility trees: 57 masteries (20 / 19 / 18) on a 4-wide, 6-tier grid",
+        "15 prerequisite links, for example Butcher → Feast, Brute Force → Martial Mastery, Block → Unyielding",
+        "Launch values that change later: Martial Mastery +5 AD, Arcane Mastery +8 AP, Perseverance 1/2/3% missing health per 5s, Feast 2 health",
+        "More launch values: Bandit +15 gold on melee takedowns, Meditation 1/2/3 mana regen, Expanded Mind 2/3.5/5% mana, Inspiration 5/10 experience, Intelligence 4/7/10% item cooldowns, Wanderer 5% Movement Speed",
+        "Tooltip only: the Defense tier 5 aura is named Tenacious and the tier 6 capstone Legendary Guardian, the wrong way round (fixed in V3.15)"
+      ],
+      "kind": "rework"
+    },
+    "V3.15": {
+      "summary": "Martial Mastery +5 → +4 AD, Arcane Mastery +8 → +6 AP; name swap fixed",
+      "items": [
+        "Martial Mastery: +5 → +4 Attack Damage",
+        "Arcane Mastery: +8 → +6 Ability Power",
+        "Perseverance: 1/2/3% → 0.7/1.35/2% missing health every 5s",
+        "Tooltip fix: Tenacious / Legendary Guardian names the right way round: the tier 5 aura is Legendary Guardian, the tier 6 capstone (15% shorter crowd control) Tenacious",
+        "Legendary Guardian: aura range 900 → 700",
+        "Tooltip wording: Blade Weaving (the once-per-second line is gone), Meditation, Tough Skin"
+      ],
+      "kind": "change"
+    },
+    "V4.2": {
+      "summary": "Perseverance halved: 0.35/0.675/1% missing health",
+      "items": [
+        "Perseverance: 0.7/1.35/2% → 0.35/0.675/1% missing health every 5s",
+        "Tooltip wording: Reinforced Armor"
+      ],
+      "kind": "change"
+    },
+    "V4.5": {
+      "summary": "Feast 2 → 3 health; Scavenger range 900 → 1100",
+      "items": [
+        "Feast: on-kill heal 2 → 3 health (mana 1 unchanged)",
+        "Scavenger: range 900 → 1100",
+        "Tooltip fix: Dangerous Game says kills and assists (assists always counted)",
+        "Tooltip fix: Bladed Armor's bleed says it deals physical damage, as it has since V3.14",
+        "Tooltip wording: Brute Force and Mental Force (values unchanged)"
+      ],
+      "kind": "change"
+    },
+    "V4.19": {
+      "summary": "No mastery changes since V4.5; last patch of Season 4",
+      "items": [
+        "No mastery changes since V4.5 — last patch of Season 4",
+        "Tooltip wording: Reinforced Armor, Enchanted Armor, Resistance, Legendary Guardian (values unchanged)"
+      ],
+      "kind": "no-change"
+    },
+    "V4.20": {
+      "summary": "No mastery changes since V4.19; Preseason 5 opens Season 5",
+      "items": [
+        "No mastery changes since V4.19 — first patch of Season 5 (Preseason 5, new Summoner's Rift)"
+      ],
+      "kind": "no-change"
+    },
+    "V5.10": {
+      "summary": "Utility overhaul: Expanded Mind and Meditation swap places, 6 masteries changed",
+      "items": [
+        "Expanded Mind moves to tier 1 and Meditation to tier 4; Strength of Spirit now requires Expanded Mind",
+        "Expanded Mind: 2/3.5/5% max mana → flat 25/50/75 mana",
+        "Meditation: 1/2/3 mana regen per 5s → 0.5/1/1.5% missing mana every 5s",
+        "Bandit: melee +15 gold on takedown → +8 gold per champion hit (ranged 3), 5s per target",
+        "Inspiration: 5/10 → 10/20 experience every 10s",
+        "Intelligence: item cooldowns 4/7/10% → 8/14/20% (Cooldown Reduction 2/3.5/5% unchanged)",
+        "Wanderer: 5% → flat 20 out-of-combat Movement Speed"
+      ],
+      "kind": "change"
+    },
+    "V5.12": {
+      "summary": "Defense overhaul: 5 masteries move tiers; Adaptive Armor replaces Runic Blessing",
+      "items": [
+        "Swiftness: tier 4 → tier 1, 1 → 2 ranks, slow reduction 10% → 7.5/15%",
+        "Enchanted Armor: tier 1 → tier 5, 2 → 4 ranks, 2.5/5% → 2.5/5/7.5/10% bonus Armor and Magic Resist",
+        "Tenacious: tier 6 → tier 3, crowd control reduction 15% → 10%",
+        "Oppression: tier 3 → tier 5, damage reduction 3% → 2%",
+        "Legendary Guardian: tier 5 → tier 6, 4 ranks → 1, now +3 Armor and +3 Magic Resist per nearby enemy champion",
+        "Runic Blessing removed; new Adaptive Armor (tier 4): 4% of your higher bonus resist granted as the other"
+      ],
+      "kind": "rework"
+    },
+    "V5.21": {
+      "summary": "No mastery changes since V5.12; last patch of Season 5",
+      "items": [
+        "No mastery changes since V5.12 — last patch of Season 5"
+      ],
+      "kind": "no-change"
+    },
+    "V5.22": {
+      "summary": "Preseason 6: Ferocity / Cunning / Resolve trees with keystones",
+      "items": [
+        "The 2014 trees are replaced by Ferocity, Cunning and Resolve: 13 masteries per tree, 39 in total",
+        "6 tiers per tree: tiers 1, 3 and 5 share 5 points between two masteries, tiers 2 and 4 are a choice of two, tier 6 a choice of three keystones; up to 18 points per tree, one keystone",
+        "Ferocity keystones: Warlord's Bloodlust (crits heal 15%, +20% Attack Speed), Fervor of Battle (10 stacks of 1–8 on-hit damage), Deathfire Touch (6 + 50% bonus AD + 20% AP over 3s)",
+        "Cunning keystones: Stormraider's Surge (30% max health in 2s grants 35% Movement Speed), Thunderlord's Decree (10 per level + 20% bonus AD + 10% AP, 30s cooldown), Windspeaker's Blessing (+10% heals and shields, +15% resists)",
+        "Resolve keystones: Grasp of the Undying (3% max health), Strength of the Ages, Bond of Stone (4% damage reduction, doubled near an ally, 8% redirected)"
+      ],
+      "kind": "rework"
+    },
+    "V5.23": {
+      "summary": "Thunderlord's Decree cooldown 30s → 20s; Bond of Stone 4% → 2%",
+      "items": [
+        "Thunderlord's Decree: cooldown 30s → 20s",
+        "Bond of Stone: base damage reduction 4% → 2% (8% near an ally; redirect 8%)",
+        "Tooltip fix: Perseverance's health threshold reads 25% (was 20%; the real threshold was always 25%)",
+        "Tooltip wording: about 25 masteries rewritten with the same numbers"
+      ],
+      "kind": "change"
+    },
+    "V5.24": {
+      "summary": "New Assassin mastery; Thunderlord's, Deathfire, Fervor, Windspeaker's and 6 more",
+      "items": [
+        "New mastery: Assassin (Cunning tier 2, third option): 1.5% more damage while no allied champions are nearby",
+        "Thunderlord's Decree: bonus AD ratio 20% → 30%; Deathfire Touch: 6 → 8 + 50% bonus AD + 20% AP, over 3s → 4s",
+        "Fervor of Battle: stacks only from champions, melee attacks and ability hits give 2 stacks (2s cooldown on ability stacks), stacks last 5s → 6s",
+        "Windspeaker's Blessing: +15% resists → +5–22 Armor (by level) and half as much Magic Resist",
+        "Bond of Stone: 3% damage reduction (6% near an ally), redirect 6%, redirect stops below 5% health (was 15%)",
+        "Precision: armor penetration 0.6–3 → 1–5 (+0.06–0.3 → +0.1–0.5 per level)",
+        "Unyielding: 1.2–6% → 1–5% bonus Armor and Magic Resist; Explorer: 12 → 15 Movement Speed in brush and river",
+        "Veteran's Scars: 0.8–4% max health → +9/18/27/36/45 health; Feast: cooldown 20s → 25s"
+      ],
+      "kind": "change"
+    },
+    "V6.1": {
+      "summary": "Keystone retune: Bloodlust, Stormraider's, Fervor, Deathfire, Strength of the Ages",
+      "items": [
+        "Warlord's Bloodlust: crit heal 15% → 5–25% by level; Attack Speed 20% → 30%",
+        "Stormraider's Surge: window 2s → 2.5s, Movement Speed 35% → 40%, new 75% slow resistance",
+        "Fervor of Battle: 1–8 → 1–14 damage per stack, max stacks 10 → 8",
+        "Deathfire Touch: ratios 50% bonus AD / 20% AP → 60% / 25%",
+        "Strength of the Ages: at the 300 bonus health cap, siege minion kills heal 6% max health (was 100 health), now also large monster kills",
+        "Bond of Stone: 4% damage reduction; the near-ally increase is removed, redirect stays 6%",
+        "Precision: armor penetration back to 0.6–3 (+0.06–0.3 per level)",
+        "Bug fix: Battering Blows / Piercing Thoughts gave the wrong stats when points were split between them"
+      ],
+      "kind": "change"
+    },
+    "V6.2": {
+      "summary": "Assassin 1.5% → 2% vs champions; Thunderlord's Decree 25–15s",
+      "items": [
+        "Assassin: 1.5% → 2%, now only against champions",
+        "Thunderlord's Decree: cooldown 20s → 25–15s by level; mark window 5s → 3s",
+        "Windspeaker's Blessing: the patch notes clarify there is no resist bonus on yourself (tooltip unchanged)"
+      ],
+      "kind": "change"
+    },
+    "V6.4": {
+      "summary": "New Expose Weakness mastery; Warlord's Bloodlust reworked into life steal",
+      "items": [
+        "New mastery: Expose Weakness (Ferocity tier 2, third option): damaged enemy champions take 3% more damage from your allies",
+        "Warlord's Bloodlust reworked: life steal that grows with missing health, up to 20% against champions (half against minions); crit heal and Attack Speed removed",
+        "Tooltip wording: Bond of Stone (the 5% health redirect limit is back in the text), Thunderlord's Decree, Deathfire Touch, Precision"
+      ],
+      "kind": "change"
+    },
+    "V6.7": {
+      "summary": "Warlord's Bloodlust: ranged life steal vs minions 50% → 25%",
+      "items": [
+        "Warlord's Bloodlust: life steal against minions for ranged champions 50% → 25%"
+      ],
+      "kind": "change"
+    },
+    "V6.8": {
+      "summary": "Feast 30s cooldown; Grasp 3% → 2.5%; Secret Stash biscuit",
+      "items": [
+        "Feast: cooldown 25s → 30s",
+        "Grasp of the Undying: 3% → 2.5% max health (halved for ranged)",
+        "Secret Stash: biscuit 20 health + 10 mana → 15 health + 15 mana",
+        "Tooltip wording: Fervor of Battle"
+      ],
+      "kind": "change"
+    },
+    "V6.12": {
+      "summary": "Double Edged Sword split removed; Grasp, Fervor, Natural Talent, Veteran's Scars",
+      "items": [
+        "Double Edged Sword: melee / ranged split removed; everyone deals 3% more and takes 1.5% more damage",
+        "Fervor of Battle: ability hits 2 → 1 stack",
+        "Grasp of the Undying: damage 2.5% → 3% max health; heal 2.5% → 1.5%",
+        "Natural Talent: now base + per level (0.4–2 + 0.09–0.44 AD per level, 0.6–3 + 0.13–0.67 AP per level); level-18 totals unchanged",
+        "Veteran's Scars: +9–45 → +10/20/30/40/50 health"
+      ],
+      "kind": "change"
+    },
+    "V6.21": {
+      "summary": "No mastery changes since V6.12; last patch of Season 6",
+      "items": [
+        "No mastery changes since V6.12 — last patch of Season 6"
+      ],
+      "kind": "no-change"
+    },
+    "V6.22": {
+      "summary": "Preseason 7: 45 masteries, 3 choices per row; Courage of the Colossus",
+      "items": [
+        "Preseason 7: 45 masteries (15 per tree); every tier 2 and tier 4 row now offers 3 choices",
+        "Ferocity: Fresh Blood added (first attack on a champion deals 10 + 1 per level bonus damage, 6s cooldown); Double Edged Sword moves to tier 4, 3% / 1.5% → 5% / 2.5%",
+        "Ferocity tier 4: Oppressor removed, Battle Trance added (up to 5% more damage over 5s in champion combat); Bounty Hunter 1% → 1.5% per unique kill",
+        "Fervor of Battle: 1–6 bonus AD per stack (by level), 10 stacks, 4s, basic attacks only",
+        "Cunning: Greenfather's Gift added (after entering brush, next damaging attack or ability deals 3% current health magic damage, 9s cooldown); Precision: armor penetration → 1.7–8.5 Lethality",
+        "Resolve: Siegemaster added (+8 Armor and Magic Resist near an allied tower) and Fearless added (+10% + 2 per level bonus resists for 2s when hit by a champion, 9s cooldown)",
+        "Resolve keystone: Strength of the Ages replaced by Courage of the Colossus (shield 10 + 10 per level + 7% max health per nearby enemy champion after hard crowd control, 30s cooldown)"
+      ],
+      "kind": "rework"
+    },
+    "V6.24": {
+      "summary": "Fervor of Battle 1–8 AD per stack; Courage of the Colossus 7% → 5%",
+      "items": [
+        "Fervor of Battle: stacks last 4s → 6s, 1–6 → 1–8 AD per stack, max stacks 10 → 8",
+        "Courage of the Colossus: 7% → 5% max health per nearby enemy; cooldown 30s → 45–30s by level"
+      ],
+      "kind": "change"
+    },
+    "V7.2": {
+      "summary": "Courage of the Colossus: shield 3–54 per nearby enemy, 3s",
+      "items": [
+        "Courage of the Colossus: base shield 10 + 10 per level → 3–54 by level per nearby enemy champion; duration 4s → 3s"
+      ],
+      "kind": "change"
+    },
+    "V7.4": {
+      "summary": "9 masteries retuned: Battle Trance, Double Edged Sword, Precision, Bloodlust and more",
+      "items": [
+        "Battle Trance: 5% over 5s → 3% over 3s",
+        "Bounty Hunter: 1.5% → 1% per unique kill (max 5%)",
+        "Double Edged Sword: 5% / 2.5% → 3% / 1.5%",
+        "Fearless: flat resists 2 → 1.5 per level",
+        "Fervor of Battle: stacks last 6s → 8s",
+        "Meditation: 0.3–1.5% → 0.25–1.25% missing mana per 5s",
+        "Merciless: 1–5% → 0.6–3%; Warlord's Bloodlust: max life steal 20% → 15%",
+        "Precision: 1.7–8.5 → 1.2–6 Lethality; magic penetration 0.6–3 + 0.06–0.3 per level → 0.3–1.5 + 0.05–0.25 per level"
+      ],
+      "kind": "change"
+    },
+    "V7.5": {
+      "summary": "Bond of Stone becomes Stoneborn Pact; Warlord's Bloodlust reworked again",
+      "items": [
+        "Bond of Stone reworked as Stoneborn Pact: +5% max health; movement-impairing crowd control marks enemy champions for 4s, allies hitting them heal 5 + 2.5% of your max health over 2s (half if you are ranged)",
+        "Warlord's Bloodlust reworked: moving and attacking charge an Energized attack with 1–50% life steal (by level) and 30% Movement Speed for 0.75s",
+        "Deathfire Touch: bonus AD ratio 60% → 45%"
+      ],
+      "kind": "change"
+    },
+    "V7.6": {
+      "summary": "Warlord's Bloodlust: Energized heal 5–40% of total AD",
+      "items": [
+        "Warlord's Bloodlust: Energized heal 1–50% life steal → heal for 5–40% of total AD (by level), increased by critical strikes"
+      ],
+      "kind": "change"
+    },
+    "V7.21": {
+      "summary": "No mastery changes since V7.6; the last patch with masteries",
+      "items": [
+        "No mastery changes since V7.6 — last patch with masteries; V7.22 replaces them with Runes Reforged"
+      ],
+      "kind": "no-change"
+    }
+  }
+}

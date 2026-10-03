@@ -17,6 +17,7 @@
 //   LolToast.show(msg, opts)
 //   LolStage.fit() / LolStage.scale(el)
 //   LolDropdown.close()
+//   LolPatchNotes.open() / .close() / .isOpen() / .entry()   header "What changed"
 //
 // Seasons, patches, eras and labels come from the registry (patch-registry.js
 // via lol-data.js LolPatches); nothing here parses dataset ids any more.
@@ -441,6 +442,8 @@ function lolInitTipAttributes() {
     var skinOf = function(node){ return node.getAttribute("data-lol-tip-skin") || "lcu"; };
     // evt: the mouse event that brought the pointer here (null = keyboard).
     var showFor = function(node, evt){
+        // a control whose own flyout is open (What changed) shows no hint
+        if (node.getAttribute("aria-expanded") === "true") return;
         var skin = skinOf(node);
         current = node;
         currentAir = /^air/.test(skin);
@@ -799,6 +802,591 @@ function lolInitFlatButtons() {
 }
 
 // ---------------------------------------------------------------------------
+// 8. LolPatchNotes — the header's "What changed" / patch-notes control.
+// button.header-notes (each page's header markup, right after the Patch
+// dropdown, with a "Changes" label.header-notes-label beside it that
+// base.css shows only where the bar has room) carries a gold dot when the
+// patch on screen changed this page (registry entry.notes.count > 0) and
+// opens an LCU flyout (base.css §9): "<patch> · What changed", the page's
+// change notes for that patch (summary + bullets from
+// data/notes/<page>-<season>.js, LolData.loadNotes: loaded when the flyout
+// first opens, or prefetched on idle after the page load) and links to
+// Riot's patch notes (official, else the archived copy) and to the wiki
+// page, in a new tab. A dot, not a number: the bullets are a digest (a
+// rework of 39 runes is a few lines), so their count is not a change count.
+//
+// It follows the header's Patch dropdown: lol-data.js fillPatchSelect fires
+// "lol:patch-select" whenever a page (re)fills it, so an in-page switch
+// updates the button, pulses it when the new patch has changes (.is-pulse)
+// and re-renders an open flyout. The flyout stays open while the Season and
+// Patch dropdowns are used, so stepping through patches shows each one's
+// notes in place: a click on either dropdown (or on its LCU option list)
+// does not count as outside, and Shift+Tab from the flyout's first stop
+// goes to the button and on to the dropdowns with the flyout still open.
+//
+// Non-modal (no focus trap): opening moves focus into the flyout; Tab from
+// the open button enters it; Esc closes it (focus back on the button when
+// it was in the flyout or on the button); Tab past the last link closes it
+// and moves on to the next header control. Focus or a click anywhere but
+// the flyout, the button and its label and the two dropdowns closes it, as
+// does the button again. A click in the header (a tab, Link, Share) then
+// also does its own job; anywhere else the click only closes the flyout
+// (its press, release, click and context menu are swallowed), so the click
+// that dismisses the notes never also adds a mastery point or places a
+// rune. A body that overflows is a scroller and the flyout's first Tab stop
+// (tabindex 0, role region, also in browsers that would not make it
+// focusable on their own): opening focuses it, so the arrow / Page / Home /
+// End keys scroll the notes, not the page behind, and Shift+Tab from it
+// goes back to the button like from any first stop. Notes that fit leave
+// focus on the dialog, where those keys (and Space) do nothing: with focus
+// anywhere in the flyout they never scroll the page behind it.
+// Phones (≤559px viewport, or ≤480px tall with the two-row header: a phone
+// held sideways, where the flyout under the button would show a line or
+// two): a bottom sheet over a scrim that leaves the header uncovered
+// (html.lol-notes-sheet lifts it over the scrim; the sheet stops 8px under
+// it), so the Season and Patch dropdowns stay usable with the sheet open.
+//
+// No toast on a patch switch: LolToast is the one, non-interactive status
+// line, and a switch already uses it for what did not carry over ("3 points
+// could not carry over to V4.20", "page reset"); a second message would hide
+// those or be hidden by them. The dot + pulse next to the dropdown carry the
+// hint instead.
+// ---------------------------------------------------------------------------
+
+var LolPatchNotes = window.LolPatchNotes = (function(){
+    var SHEET_MAX = 559, SHEET_MAX_H = 480, TWO_ROW_MAX = 959, WIDTH = 360, MARGIN = 8, GAP = 14, CARET = 24;
+    var PAGE_NAMES = { masteries: "Masteries", runes: "Runes", reforged: "Runes Reforged" };
+    var KINDS = { launch: "Launch", rework: "Rework", "season-start": "Season start", "season-end": "Season end", "no-change": "No changes" };
+    var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    // Clicks / focus on these keep the flyout open (with the button and the flyout itself).
+    var KEEP_OPEN = ".legacy-header .header-notes-label, .legacy-header select.header-season, .legacy-header select.header-patch, .lcu-dropdown-list";
+    var TIP_TITLE = "What changed · Patch notes";
+    var SCROLL_KEYS = { ArrowDown: 1, ArrowUp: 1, PageDown: 1, PageUp: 1, Home: 1, End: 1, " ": 1, Spacebar: 1 };
+    var current = null, btn = null, pop = null, scrim = null, open = false, sheet = false;
+    var token = 0, pulseTimer = null, inited = false;
+
+    function button() {
+        if (!btn || !document.documentElement.contains(btn)) btn = document.querySelector(".legacy-header .header-notes");
+        return btn;
+    }
+    function countOf(e) { return e && e.notes ? (e.notes.count | 0) : 0; }
+    function pageOf(e) { return (e && LolPatches.pageOfId(e.id)) || LolPatches.page(); }
+
+    // The button's accessible name and hover hint (the dot is aria-hidden).
+    function labelOf(e, n) {
+        if (!e) return "What changed, with patch notes";
+        return "What changed in " + e.patch + (n ? "" : ": no changes on this page") + ", with patch notes";
+    }
+    function hintOf(e, n) {
+        return n ? "What " + e.patch + " changed on this page, with links to its patch notes"
+            : "No changes on this page in " + e.patch + "; links to its patch notes";
+    }
+
+    function syncButton() {
+        var b = button();
+        if (!b) return;
+        var e = current, n = countOf(e);
+        var dot = b.querySelector(".header-notes-badge");
+        if (dot) {
+            if (dot.textContent) dot.textContent = "";
+            if (n) dot.removeAttribute("hidden"); else dot.setAttribute("hidden", "hidden");
+        }
+        b.classList.toggle("has-changes", n > 0);
+        b.setAttribute("aria-label", labelOf(e, n));
+        b.setAttribute("data-lol-tip-title", TIP_TITLE);
+        if (e) b.setAttribute("data-lol-tip", hintOf(e, n));
+    }
+
+    function pulse() {
+        var b = button();
+        if (!b) return;
+        b.classList.remove("is-pulse");
+        void b.offsetWidth;                                   // restart the animation
+        b.classList.add("is-pulse");
+        clearTimeout(pulseTimer);
+        pulseTimer = setTimeout(function(){ b.classList.remove("is-pulse"); }, 1500);
+    }
+
+    function prefetch() {
+        if (current && window.LolData && LolData.prefetchNotes) LolData.prefetchNotes([current]);
+    }
+
+    function setEntry(e) {
+        var prev = current;
+        current = e || null;
+        syncButton();
+        if (prev && current && prev.id !== current.id) {
+            if (countOf(current)) pulse();
+            if (prev.season !== current.season && document.readyState === "complete") prefetch();
+        }
+        if (open) render();
+    }
+
+    // The header's Patch dropdown was (re)filled: follow the patch it shows.
+    function onPatchSelect(ev) {
+        var d = ev && ev.detail || {};
+        var sel = d.select;
+        if (!sel || sel.nodeType !== 1 || !sel.classList.contains("header-patch") || !lolClosest(sel, ".legacy-header")) return;
+        setEntry(d.entry || null);
+    }
+
+    // --- flyout --------------------------------------------------------------
+    // Built once, hidden, at init: aria-controls / aria-describedby point at a
+    // real element from the start.
+    function ensure() {
+        if (pop) return pop;
+        scrim = document.createElement("div");
+        scrim.className = "lol-notes-scrim";
+        scrim.setAttribute("hidden", "hidden");
+        pop = document.createElement("div");
+        pop.id = "lol-notes";
+        pop.className = "lol-notes";
+        pop.setAttribute("role", "dialog");
+        pop.setAttribute("aria-modal", "false");
+        pop.setAttribute("aria-labelledby", "lol-notes-title");
+        pop.setAttribute("aria-describedby", "lol-notes-body");
+        pop.setAttribute("tabindex", "-1");
+        pop.setAttribute("hidden", "hidden");
+        pop.innerHTML = '<div class="lol-notes-frame">'
+            + '<div class="lol-notes-head"><h2 class="lol-notes-title" id="lol-notes-title"></h2><p class="lol-notes-meta"></p></div>'
+            + '<div class="lol-notes-body" id="lol-notes-body"></div>'
+            + '<div class="lol-notes-foot"></div>'
+            + '<button type="button" class="lcu-circle-btn lol-notes-close" aria-label="Close"></button>'
+            + '</div><span class="lol-notes-sub" aria-hidden="true"></span><span class="lol-notes-caret" aria-hidden="true"></span>';
+        document.body.appendChild(scrim);
+        document.body.appendChild(pop);
+        pop.addEventListener("keydown", onKey);
+        // Focus goes back to the button for keyboard use only (click detail 0):
+        // after a tap it would only raise the button's hint over the page.
+        pop.querySelector(".lol-notes-close").addEventListener("click", function(e){ close(!e.detail); });
+        scrim.addEventListener("click", function(){ close(false); });
+        var body = pop.querySelector(".lol-notes-body");
+        body.addEventListener("scroll", function(){ syncMore(body); }, { passive: true });
+        var b = button();
+        if (b) b.setAttribute("aria-controls", pop.id);
+        return pop;
+    }
+
+    function formatDate(iso) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+        return m ? (+m[3]) + " " + MONTHS[+m[2] - 1] + " " + m[1] : "";
+    }
+
+    function linkHtml(href, text, label) {
+        return '<a class="lcu-link lol-notes-link" href="' + lolEscapeHtml(href) + '" target="_blank" rel="noopener noreferrer" aria-label="'
+            + lolEscapeHtml(label) + '"><span class="lcu-link-text">' + lolEscapeHtml(text) + "</span></a>";
+    }
+
+    function footHtml(e) {
+        var n = e.notes || {}, out = [];
+        if (n.official) out.push(linkHtml(n.official, "Patch notes", "Riot's " + e.patch + " patch notes (opens in a new tab)"));
+        else if (n.officialArchived) out.push(linkHtml(n.officialArchived, "Patch notes", "Riot's " + e.patch
+            + " patch notes, archived copy on the Wayback Machine (opens in a new tab)") + '<span class="lol-notes-via">archived</span>');
+        if (n.wiki) out.push(linkHtml(n.wiki, "Wiki", e.patch + " on the League of Legends Wiki (opens in a new tab)"));
+        return out.join("");
+    }
+
+    function metaText(e, rec) {
+        var parts = [PAGE_NAMES[pageOf(e)] || ""];
+        if (rec && KINDS[rec.kind] && rec.kind !== "no-change") parts.push(KINDS[rec.kind]);
+        var d = formatDate(e.date);
+        if (d) parts.push(d);
+        return parts.filter(Boolean).join(" · ");
+    }
+
+    // For the "said twice" test: case, spacing, punctuation (",", ";", ":",
+    // ".", brackets, quotes; a list "and" reads as a comma) and the approx.
+    // flag do not count. Kept: letters, digits and the signs that carry a
+    // value (% + / – — → ×); hyphen variants read as "-". The result is
+    // padded with spaces so containment is checked on whole words. points:
+    // a point inside a word stays (as "\u2024": "3.62", "v11.18"), so
+    // restates reads a value or a patch whole.
+    function sameText(s, points) {
+        var t = String(s || "").replace(/\s*\(approx\.\)\s*$/i, "").toLowerCase().replace(/[\u2010\u2011\u2012\u2212]/g, "-");
+        if (points) t = t.replace(/([0-9a-z])\.(?=[0-9a-z])/g, "$1\u2024");
+        return " " + t.replace(/[^0-9a-z\u00c0-\u024f%+\/\u2013\u2014\u2192\u00d7\u2024-]+/g, " ")
+            .replace(/ and /g, " ").replace(/\s+/g, " ").trim() + " ";
+    }
+    function wordsOf(s, points) { return sameText(s, points).split(" ").filter(Boolean); }
+
+    // Line a says what line b says: every word of b that holds a digit
+    // ("150", "2-17", "8%") is a word of a too, and so are at least 80% of
+    // b's words ("shield cap" covers "shield"; "based on level" covers all
+    // of "by level" but "by").
+    function covers(a, b) {
+        var have = {}, need = wordsOf(b), hit = 0;
+        wordsOf(a).forEach(function(w){ have[w] = 1; });
+        for (var i = 0; i < need.length; i++) {
+            if (have[need[i]]) hit++;
+            else if (/\d/.test(need[i])) return false;        // a value the other line does not hold
+        }
+        return need.length > 0 && hit >= 0.8 * need.length;
+    }
+
+    // The labels a line can lead with (README: "Tooltip fix: …"), and the
+    // season-end clause that the meta line already says ("Season end").
+    var LABEL = /^\s*(tooltip (?:fix|only|wording)|event runes? only)\s*:\s*/i;
+    var SEASON_END = /\s*[;,]?\s*\blast patch of Season \d+\b\s*(?=[;,]|$)/i;
+    var PATCH_REF = /^v\d+(?:\u2024[0-9a-z]+)+$/;             // "V11.18" names a patch, not a value
+
+    // Summary s says bullet b's change in other framing: with a leading
+    // label ("Tooltip fix:", "Event rune only:"; one on both lines must be
+    // the same) and the rune name b starts with set aside, every number of
+    // s is in b, and each part of s (between "," and ";") that holds a value
+    // reads in b word for word from that value on ("3.62 → 3.08 armor
+    // penetration", "60% Movement Speed over 1s"), with the words before it
+    // in b too. A part that only names a patch ("shows its V11.18 buff")
+    // needs that patch in b; one with no number, 80% of its words. At least
+    // one part holds a value.
+    function restates(b, s) {
+        var lb = LABEL.exec(b), ls = LABEL.exec(s);
+        if (lb && ls && lb[1].toLowerCase() !== ls[1].toLowerCase()) return false;
+        var bw = wordsOf(lb ? b.slice(lb[0].length) : b, true), bs = " " + bw.join(" ") + " ";
+        var have = {}, name = {}, i;
+        bw.forEach(function(w){ have[w] = 1; });
+        for (i = 0; i < bw.length && !/\d/.test(bw[i]); i++) name[bw[i]] = 1;
+        var parts = (ls ? s.slice(ls[0].length) : s).split(/[,;](?=\s|$)/).map(function(p){ return wordsOf(p, true); }).filter(function(p){ return p.length; });
+        if (parts.length) { for (i = 0; i < parts[0].length && name[parts[0][i]]; i++); parts[0] = parts[0].slice(i); }
+        var values = 0;
+        for (var k = 0; k < parts.length; k++) {
+            var p = parts[k], at = -1, num = false, hit = 0;
+            for (i = 0; i < p.length; i++) {
+                if (have[p[i]]) hit++;
+                if (!/\d/.test(p[i])) continue;
+                if (!have[p[i]]) return false;                // a number b does not hold
+                num = true;
+                if (at < 0 && !PATCH_REF.test(p[i])) at = i;
+            }
+            if (at >= 0) {
+                values++;
+                if (bs.indexOf(" " + p.slice(at).join(" ") + " ") < 0) return false;
+                for (i = 0; i < at; i++) if (!have[p[i]]) return false;
+            } else if (!num && hit < 0.8 * p.length) return false;
+        }
+        return values > 0;
+    }
+
+    // What the body shows: { summary, items }. A single bullet that says
+    // what the summary says (covers, or restates in other framing) is shown
+    // once: the bullet (it has the detail), or the summary when that is the
+    // line that says more, or when it carries the approx. flag (the flag
+    // stays on screen). On a season-end record the summary's "last patch of
+    // Season N" does not count: the meta line says "Season end".
+    function shownOf(rec) {
+        var summary = rec.summary || "", items = (rec.items || []).slice();
+        if (items.length === 1 && summary) {
+            var approx = /\(approx\.\)\s*$/i.test(summary);
+            var said = rec.kind === "season-end" ? summary.replace(SEASON_END, "") : summary;
+            if (!approx && (covers(items[0], said) || restates(items[0], said))) summary = "";   // the bullet says it, and maybe more
+            else if (covers(summary, items[0])) items = [];             // the summary says it all
+        }
+        return { summary: summary, items: items };
+    }
+
+    // One note line as HTML: escaped, with these kept on one line (span.lol-
+    // notes-nb): every token that holds an en dash ("30–90", "100–70s",
+    // "(2–17"), so a range never wraps after its dash; every "Season 14", so
+    // a season number never starts a line; and every arrow with the value
+    // after it ("→ 6%", "→ +50", "→ 6 min", "→ 15% AP"), so "5% →" may end a
+    // line but the new value never sits alone at the start of the next. A unit
+    // joins only a value that does not end a clause ("\u2192 45\u2013180; AP \u2026" keeps
+    // the "AP" of the next clause out of the span).
+    var NB = /\u2192\s+(?:[Ss]eason \d+[^\s<>]*|[^\s<>]*[^\s<>,;:](?:\s+(?:min|gold|AP|AD)(?=[\s,;:.)]|$)[,;:.)]*)?|[^\s<>]+)|[^\s<>]*[Ss]eason \d+[^\s<>]*|[^\s<>]*\u2013[^\s<>]*/g;
+    function lineHtml(t) {
+        return lolEscapeHtml(t).replace(NB, function(m){ return '<span class="lol-notes-nb">' + m + "</span>"; });
+    }
+
+    // rec: the notes record, null = none for this patch (or no file to load
+    // it from); state: "loading" | "error" | null
+    function bodyHtml(e, rec, state) {
+        if (state === "loading") return '<p class="lol-notes-status">Loading the change notes…</p>';
+        if (state === "error") return '<p class="lol-notes-status">Could not load the change notes.</p>';
+        if (!rec) return '<p class="lol-notes-status">No change notes for this patch yet.</p>';
+        // no-change: its first item already says it ("No mastery changes
+        // since V4.5 — last patch of Season 4"); the summary would repeat it.
+        // Any further item (a tooltip-only edit, a store change) is a bullet
+        // under it, as under a summary.
+        if (rec.kind === "no-change" && rec.items && rec.items.length) {
+            var rest = rec.items.slice(1);
+            return '<p class="lol-notes-none">' + lineHtml(rec.items[0]) + "</p>"
+                + (rest.length ? '<ul class="lol-notes-list">' + rest.map(function(t){ return "<li>" + lineHtml(t) + "</li>"; }).join("") + "</ul>" : "");
+        }
+        var shown = shownOf(rec);
+        var html = shown.summary ? '<p class="lol-notes-summary">' + lineHtml(shown.summary) + "</p>" : "";
+        if (shown.items.length) {
+            html += '<ul class="lol-notes-list">' + shown.items.map(function(t){ return "<li>" + lineHtml(t) + "</li>"; }).join("") + "</ul>";
+        }
+        return html;
+    }
+
+    // .has-more: the body scrolls and is not at its end (a fade at the
+    // bottom edge says there is more; overlay scrollbars show no thumb).
+    // A body that scrolls is a Tab stop (see the header comment); one that
+    // stops scrolling while focused hands focus to the dialog.
+    function syncMore(body) {
+        if (!body) return;
+        var scrolls = body.scrollHeight - body.clientHeight > 1;
+        body.classList.toggle("has-more", body.scrollHeight - body.clientHeight - body.scrollTop > 2);
+        if (scrolls === (body.getAttribute("tabindex") === "0")) return;
+        if (scrolls) {
+            body.setAttribute("tabindex", "0");
+            body.setAttribute("role", "region");
+            body.setAttribute("aria-label", "Change notes");
+        } else {
+            var had = document.activeElement === body;
+            body.removeAttribute("tabindex");
+            body.removeAttribute("role");
+            body.removeAttribute("aria-label");
+            if (had && open) focusDialog();
+        }
+    }
+    function scroller() {
+        var body = pop && pop.querySelector(".lol-notes-body");
+        return body && body.getAttribute("tabindex") === "0" ? body : null;
+    }
+    // Focus into the flyout: its scrolling body, else the dialog itself.
+    function focusDialog() {
+        var t = scroller() || pop;
+        try { t.focus({ preventScroll: true }); } catch (err) { t.focus(); }
+    }
+
+    function fill(e, rec, state) {
+        if (!pop) return;
+        pop.querySelector(".lol-notes-title").innerHTML = '<span class="lol-notes-patch">' + lolEscapeHtml(e.patch) + "</span> · What changed";
+        pop.querySelector(".lol-notes-meta").textContent = metaText(e, rec);
+        var body = pop.querySelector(".lol-notes-body");
+        body.innerHTML = bodyHtml(e, rec, state);
+        body.scrollTop = 0;
+        pop.querySelector(".lol-notes-foot").innerHTML = footHtml(e);
+        if (state === "loading") pop.setAttribute("aria-busy", "true"); else pop.removeAttribute("aria-busy");
+        position();
+        // the notes came in after the open and they scroll: into the body
+        if (open && document.activeElement === pop && scroller()) focusDialog();
+    }
+
+    function render() {
+        var e = current;
+        if (!pop || !e) return;
+        var t = ++token;
+        var rec = window.LolData && LolData.getNotes ? LolData.getNotes(e) : null;
+        if (rec !== undefined) { fill(e, rec, null); return; }
+        if (!e.notes || !e.notes.file) { fill(e, null, null); return; }
+        fill(e, null, "loading");
+        LolData.loadNotes(e).then(function(r){
+            if (t === token && open) fill(e, r, null);
+        }, function(){
+            if (t === token && open) fill(e, null, "error");
+        });
+    }
+
+    function position() {
+        var b = button();
+        if (!pop || !b || !open) return;
+        var vw = document.documentElement.clientWidth || window.innerWidth, vh = window.innerHeight;
+        var body = pop.querySelector(".lol-notes-body");
+        // a phone: portrait (narrow), or landscape (short, with the two-row header)
+        sheet = vw <= SHEET_MAX || (vh <= SHEET_MAX_H && vw <= TWO_ROW_MAX);
+        pop.classList.toggle("is-sheet", sheet);
+        document.documentElement.classList.toggle("lol-notes-sheet", sheet);
+        if (sheet) scrim.removeAttribute("hidden"); else scrim.setAttribute("hidden", "hidden");
+        if (sheet) {
+            pop.style.left = pop.style.top = pop.style.width = "";
+            pop.style.removeProperty("--notes-caret");
+            // at most 80% of the screen and 560px, and 8px of scrim under
+            // the header while it is on screen, so its dropdowns stay usable
+            var hdr = document.querySelector(".legacy-header");
+            var hb = hdr ? hdr.getBoundingClientRect().bottom : 0;
+            var room = Math.min(vh * 0.8, 560, hb > 0 ? vh - hb - MARGIN : vh);
+            pop.style.setProperty("--notes-max-h", Math.round(Math.max(160, room)) + "px");
+            syncMore(body);
+            return;
+        }
+        var r = b.getBoundingClientRect();
+        var w = Math.min(WIDTH, vw - 2 * MARGIN);
+        var cx = r.left + r.width / 2;
+        var x = Math.min(Math.max(MARGIN, cx - w / 2), vw - w - MARGIN);
+        var top = r.bottom + GAP;
+        pop.style.width = w + "px";
+        pop.style.left = Math.round(x + (window.pageXOffset || 0)) + "px";
+        pop.style.top = Math.round(top + (window.pageYOffset || 0)) + "px";
+        pop.style.setProperty("--notes-caret", Math.round(Math.min(Math.max(10, cx - x - CARET / 2), w - CARET - 10)) + "px");
+        pop.style.setProperty("--notes-max-h", Math.round(Math.max(200, vh - r.bottom - GAP - 16)) + "px");
+        syncMore(body);
+    }
+
+    function show() {
+        var b = button();
+        if (!b || !current) return;
+        ensure();
+        if (window.LolTooltip) LolTooltip.hide();
+        if (window.LolDropdown) LolDropdown.close();
+        open = true;
+        pop.removeAttribute("hidden");
+        b.setAttribute("aria-expanded", "true");
+        render();
+        pop.classList.remove("is-open");
+        void pop.offsetWidth;                                 // restart the intro
+        pop.classList.add("is-open");
+        focusDialog();
+    }
+
+    function close(returnFocus) {
+        if (!open) return;
+        open = false;
+        token++;
+        pop.setAttribute("hidden", "hidden");
+        pop.classList.remove("is-open");
+        scrim.setAttribute("hidden", "hidden");
+        document.documentElement.classList.remove("lol-notes-sheet");
+        var b = button();
+        if (b) {
+            b.setAttribute("aria-expanded", "false");
+            if (returnFocus) b.focus();
+        }
+    }
+
+    // Part of the control: a click or focus here leaves the flyout open.
+    function keepsOpen(t) {
+        if (!t || t.nodeType !== 1) return false;
+        var b = button();
+        return (pop && pop.contains(t)) || (b && b.contains(t)) || t === scrim || !!lolClosest(t, KEEP_OPEN);
+    }
+
+    function focusables(root) {
+        var sel = 'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        return Array.prototype.filter.call(root.querySelectorAll(sel), function(n){
+            return n.offsetWidth > 0 || n.offsetHeight > 0 || n.getClientRects().length > 0;
+        });
+    }
+
+    // Tab past the flyout: on to whatever follows the button in the page.
+    function focusAfterButton() {
+        var b = button();
+        if (!b) return;
+        var all = focusables(document).filter(function(n){ return !pop.contains(n); });
+        var next = all[all.indexOf(b) + 1];
+        (next || b).focus();
+    }
+
+    function onKey(e) {
+        if (e.key === "Escape" || e.key === "Esc") { e.preventDefault(); e.stopPropagation(); close(true); return; }
+        // A scroll key in the flyout never scrolls the page behind it (the
+        // flyout hangs from the header and would move with the page). On the
+        // dialog itself (notes that fit, or focused before the notes came
+        // in): it scrolls the notes when they scroll, and moves into them,
+        // else it does nothing. On a link or the close button it does nothing
+        // (Space still presses the button). The scrolling notes take the keys
+        // themselves (overscroll-behavior: contain).
+        if (SCROLL_KEYS[e.key] && !e.altKey && !e.ctrlKey && !e.metaKey) {
+            var sc = scroller(), k = e.key;
+            if (e.target === pop) {
+                e.preventDefault();
+                if (!sc) return;
+                var page = Math.max(40, sc.clientHeight - 40);
+                if (k === "Home") sc.scrollTop = 0;
+                else if (k === "End") sc.scrollTop = sc.scrollHeight;
+                else sc.scrollTop += k === "ArrowDown" ? 40 : k === "ArrowUp" ? -40 : k === "PageUp" || e.shiftKey ? -page : page;
+                focusDialog();
+                return;
+            }
+            if (e.target !== sc && !(e.target.tagName === "BUTTON" && (k === " " || k === "Spacebar"))) { e.preventDefault(); return; }
+        }
+        if (e.key !== "Tab") return;
+        var f = focusables(pop), at = document.activeElement;
+        if (e.shiftKey) {
+            // back onto the button, still open: one more Shift+Tab reaches the
+            // Patch dropdown, whose arrow keys then switch patches in place
+            if (at === pop || at === f[0]) { e.preventDefault(); var b = button(); if (b) b.focus(); }
+        } else if (!f.length || at === f[f.length - 1]) {
+            e.preventDefault();
+            close(false);
+            focusAfterButton();
+        }
+    }
+
+    function init() {
+        if (inited) return;
+        inited = true;
+        var b = button();
+        if (!b) return;
+        ensure();
+        if (!current) {                                       // no fill yet (boot header failed)
+            var sel = document.querySelector(".legacy-header select.header-patch");
+            if (sel && sel.value) setEntry(LolPatches.entry(LolPatches.page(), sel.value));
+        }
+        syncButton();
+        b.addEventListener("click", function(){ if (open) close(false); else show(); });
+        // Tab from the open button enters the flyout (it sits at the end of the document).
+        b.addEventListener("keydown", function(e){
+            if (!open || e.key !== "Tab" || e.shiftKey) return;
+            e.preventDefault();
+            var f = focusables(pop);
+            (f[0] || pop).focus();
+        });
+        // Light dismiss: a press outside the flyout closes it. In the header
+        // it also does its own job (a tab, Link, Share; the dropdowns and the
+        // button keep it open). Anywhere else it only closes it: the rest of
+        // that gesture (the press itself, release, click, middle click,
+        // context menu; a tap's mouse events) is swallowed, up to its click
+        // or the next pointerdown or key, so the click that dismisses the
+        // notes does not also add a mastery point. (A phone's sheet has the
+        // scrim for that.)
+        var swallow = false, swallowAt = 0;
+        function dismiss(e, mouse) {
+            if (!open || keepsOpen(e.target)) return;
+            close(false);
+            if (lolClosest(e.target, ".legacy-header")) return;
+            swallow = true;
+            swallowAt = Date.now();
+            if (window.LolDropdown) LolDropdown.close();      // its own outside press is swallowed too
+            if (mouse) { e.preventDefault(); e.stopPropagation(); }
+        }
+        function eat(e) {
+            if (!swallow) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.type === "click") swallow = false;          // the gesture's end
+        }
+        if (window.PointerEvent) document.addEventListener("pointerdown", function(){ swallow = false; }, true);
+        document.addEventListener("keydown", function(){ swallow = false; }, true);
+        document.addEventListener("mousedown", function(e){
+            // a tap's mouse events, after its touchstart closed the flyout
+            if (swallow && (window.PointerEvent || Date.now() - swallowAt < 1000)) { eat(e); return; }
+            swallow = false;
+            dismiss(e, true);
+        }, true);
+        document.addEventListener("touchstart", function(e){
+            if (!window.PointerEvent) swallow = false;
+            dismiss(e, false);
+        }, { capture: true, passive: true });
+        ["mouseup", "click", "auxclick", "contextmenu"].forEach(function(t){ document.addEventListener(t, eat, true); });
+        document.addEventListener("focusin", function(e){ if (open && !keepsOpen(e.target)) close(false); });
+        // Esc outside the flyout (on the button or a dropdown); an Esc that
+        // closed the LCU option list (defaultPrevented) leaves it open.
+        document.addEventListener("keydown", function(e){
+            if (!open || (e.key !== "Escape" && e.key !== "Esc") || e.defaultPrevented || pop.contains(e.target)) return;
+            close(document.activeElement === button());
+        });
+        window.addEventListener("resize", position);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(position);
+        if (document.readyState === "complete") prefetch();
+        else window.addEventListener("load", prefetch);
+    }
+
+    // Registered at load time (no DOM work): lolBootHeader's fill, inline
+    // after </header>, already updates the button before the first paint.
+    document.addEventListener("lol:patch-select", onPatchSelect);
+
+    return {
+        init: init, open: show, close: close,
+        isOpen: function(){ return open; },
+        entry: function(){ return current; },
+        shown: function(rec){ return rec ? shownOf(rec) : null; },     // tests: what the body shows for a record
+        line: lineHtml                                                  // tests: a note line as HTML
+    };
+})();
+
+// ---------------------------------------------------------------------------
 // Boot. DOMContentLoaded listeners registered here run before the jQuery
 // ready handlers of the calculators (nav.js loads first).
 // ---------------------------------------------------------------------------
@@ -809,4 +1397,5 @@ lolOnReady(function(){
     LolDropdown.init();
     lolInitTipAttributes();
     lolInitFlatButtons();
+    LolPatchNotes.init();
 });

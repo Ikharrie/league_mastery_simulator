@@ -1,0 +1,1043 @@
+{
+  "_comment": "Patch-notes links of every listed patch (one entry per distinct patch of data/patches/masteries.json, runes.json and reforged.json; a patch listed on two pages appears once). Written and verified by tools/check-patch-links.js --discover --write (a network tool, run on demand; not part of tools/build-all.js); re-check with node tools/check-patch-links.js. official: Riot's own patch notes page, still live (www.leagueoflegends.com/en-us/news/game-updates/...; it answered 200 itself, no redirect, with a title naming the patch). null when Riot no longer hosts it: the 2009-2012 notes were forum threads (forums.na.leagueoflegends.com no longer resolves) and the 2013-2019 notes lived on na.leagueoflegends.com/en/news, which now redirects to the game-updates index (Riot's current site starts at V9.1-V9.3, then V9.18). officialArchived: only when official is null, a web.archive.org capture of that original Riot page (the capture the wiki cites, else the earliest capture in the Wayback index that answers 200 and names the patch, else the capture nearest the patch date). null when no such capture exists. wiki: the patch's page on wiki.leagueoflegends.com (title exactly as the wiki writes it, confirmed through the wiki API; the page itself is fetched too, but the wiki gates non-browser clients behind a Cloudflare challenge, so most entries are API-verified only). checked: the date of the run that verified the entry. A URL is only written after it verified; never invented.",
+  "patches": {
+    "V1.0.0.32": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151024041847/http://forums.na.leagueoflegends.com/board/showthread.php?t=19503",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.32",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.52": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151018033046/http://forums.na.leagueoflegends.com/board/showthread.php?t=24433",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.52",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.61": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20140802170406/http://forums.na.leagueoflegends.com/board/showthread.php?t=30496",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.61",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.63": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053653/http://forums.na.leagueoflegends.com/board/showthread.php?t=36996",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.63",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.72": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053650/http://forums.na.leagueoflegends.com/board/showthread.php?t=54504",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.72",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.94(b)": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053638/http://forums.na.leagueoflegends.com/board/showthread.php?t=148864",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.94(b)",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.101": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053632/http://forums.na.leagueoflegends.com/board/showthread.php?t=256759",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.101",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.103": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053630/http://forums.na.leagueoflegends.com/board/showthread.php?t=298128",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.103",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.105": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20141124222515/http://forums.na.leagueoflegends.com/board/showthread.php?t=344451",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.105",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.107": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053625/http://forums.na.leagueoflegends.com/board/showthread.php?t=391819",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.107",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.109": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053622/http://forums.na.leagueoflegends.com/board/showthread.php?t=454375",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.109",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.110": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20141210062321/http://forums.na.leagueoflegends.com/board/showthread.php?t=485937",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.110",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.118b": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053611/http://forums.na.leagueoflegends.com/board/showthread.php?t=771177",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.118b",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.128": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053600/http://forums.na.leagueoflegends.com/board/showthread.php?t=1432099",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.128",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.129": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20150106081450/http://forums.na.leagueoflegends.com/board/showthread.php?t=1482086",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.129",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.131": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053557/http://forums.na.leagueoflegends.com/board/showthread.php?t=1589690",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.131",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.132": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20141116193306/http://forums.na.leagueoflegends.com/board/showthread.php?t=1715859",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.132",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.133": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151104053555/http://forums.na.leagueoflegends.com/board/showthread.php?t=1771960",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.133",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.138": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151013192555/http://forums.na.leagueoflegends.com/board/showthread.php?t=2029873",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.138",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.151": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20140812205831/http://forums.na.leagueoflegends.com/board/showthread.php?t=2789533",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.151",
+      "checked": "2026-10-02"
+    },
+    "V1.0.0.152": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20130810084925/http://forums.na.leagueoflegends.com/board/showthread.php?t=2860671",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V1.0.0.152",
+      "checked": "2026-10-02"
+    },
+    "V3.04": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20131015142706/http://na.leagueoflegends.com/en/news/game-updates/game-updates/patch-304-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V3.04",
+      "checked": "2026-10-02"
+    },
+    "V3.13": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20131030122746/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-313-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V3.13",
+      "checked": "2026-10-02"
+    },
+    "V3.14": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20131121221918/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-314-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V3.14",
+      "checked": "2026-10-02"
+    },
+    "V3.15": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20131213073432/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-315-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V3.15",
+      "checked": "2026-10-02"
+    },
+    "V4.2": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20140211200203/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-42-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V4.2",
+      "checked": "2026-10-02"
+    },
+    "V4.5": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20140402222950/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-45-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V4.5",
+      "checked": "2026-10-02"
+    },
+    "V4.19": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20141106143754/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-419-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V4.19",
+      "checked": "2026-10-02"
+    },
+    "V4.20": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20141120030513/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-420-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V4.20",
+      "checked": "2026-10-02"
+    },
+    "V5.10": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20150527203905/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-510-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.10",
+      "checked": "2026-10-02"
+    },
+    "V5.12": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20150623210910/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-512-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.12",
+      "checked": "2026-10-02"
+    },
+    "V5.21": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151028194954/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-521-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.21",
+      "checked": "2026-10-02"
+    },
+    "V5.22": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151111043538/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-522-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.22",
+      "checked": "2026-10-02"
+    },
+    "V5.23": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151124131834/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-523-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.23",
+      "checked": "2026-10-02"
+    },
+    "V5.24": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20151209184235/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-524-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V5.24",
+      "checked": "2026-10-02"
+    },
+    "V6.1": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160115131447/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-61-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.1",
+      "checked": "2026-10-02"
+    },
+    "V6.2": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160130035557/http://eune.leagueoflegends.com/en/news/game-updates/patch/patch-62-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.2",
+      "checked": "2026-10-02"
+    },
+    "V6.4": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160224211834/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-64-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.4",
+      "checked": "2026-10-02"
+    },
+    "V6.7": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160407023342/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-67-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.7",
+      "checked": "2026-10-02"
+    },
+    "V6.8": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160421141434/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-68-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.8",
+      "checked": "2026-10-02"
+    },
+    "V6.12": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20160617111600/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-612-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.12",
+      "checked": "2026-10-02"
+    },
+    "V6.21": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20161018191421/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-621-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.21",
+      "checked": "2026-10-02"
+    },
+    "V6.22": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20161108204228/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-622-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.22",
+      "checked": "2026-10-02"
+    },
+    "V6.24": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20161206233839/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-624-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V6.24",
+      "checked": "2026-10-02"
+    },
+    "V7.2": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20170127095133/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-72-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.2",
+      "checked": "2026-10-02"
+    },
+    "V7.4": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20170223083149/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-74-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.4",
+      "checked": "2026-10-02"
+    },
+    "V7.5": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20170311150255/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-75-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.5",
+      "checked": "2026-10-02"
+    },
+    "V7.6": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20170322201450/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-76-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.6",
+      "checked": "2026-10-02"
+    },
+    "V7.21": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20171214081901/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-721-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.21",
+      "checked": "2026-10-02"
+    },
+    "V7.22": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20171106205517/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-722-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.22",
+      "checked": "2026-10-02"
+    },
+    "V7.23": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20171121161554/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-723-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.23",
+      "checked": "2026-10-02"
+    },
+    "V7.24": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20171206053701/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-724-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V7.24",
+      "checked": "2026-10-02"
+    },
+    "V8.1": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180405110817/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-81-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.1",
+      "checked": "2026-10-02"
+    },
+    "V8.2": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180124185244/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-82-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.2",
+      "checked": "2026-10-02"
+    },
+    "V8.3": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180208080851/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-83-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.3",
+      "checked": "2026-10-02"
+    },
+    "V8.4": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180305184713/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-84-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.4",
+      "checked": "2026-10-02"
+    },
+    "V8.5": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180306225953/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-85-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.5",
+      "checked": "2026-10-02"
+    },
+    "V8.6": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180320224255/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-86-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.6",
+      "checked": "2026-10-02"
+    },
+    "V8.7": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180404200102/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-87-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.7",
+      "checked": "2026-10-02"
+    },
+    "V8.8": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180426042407/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-88-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.8",
+      "checked": "2026-10-02"
+    },
+    "V8.9": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180503084350/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-89-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.9",
+      "checked": "2026-10-02"
+    },
+    "V8.10": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190821061216/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-810-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.10",
+      "checked": "2026-10-02"
+    },
+    "V8.11": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180530222710/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-811-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.11",
+      "checked": "2026-10-02"
+    },
+    "V8.12": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180705080740/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-812-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.12",
+      "checked": "2026-10-02"
+    },
+    "V8.13": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180627055417/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-813-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.13",
+      "checked": "2026-10-02"
+    },
+    "V8.14": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180717183642/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-814-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.14",
+      "checked": "2026-10-02"
+    },
+    "V8.15": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180801011456/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-815-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.15",
+      "checked": "2026-10-02"
+    },
+    "V8.16": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20180814221533/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-816-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.16",
+      "checked": "2026-10-02"
+    },
+    "V8.20": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20181010080503/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-820-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.20",
+      "checked": "2026-10-02"
+    },
+    "V8.22": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20181114060509/https://na.leagueoflegends.com/en/news/game-updates/patch/patch-822-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.22",
+      "checked": "2026-10-02"
+    },
+    "V8.23": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20181120031543/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-823-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.23",
+      "checked": "2026-10-02"
+    },
+    "V8.24": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20181209124035/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-824-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V8.24",
+      "checked": "2026-10-02"
+    },
+    "V9.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-9-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.1",
+      "checked": "2026-10-02"
+    },
+    "V9.2": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-9-2-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.2",
+      "checked": "2026-10-02"
+    },
+    "V9.4": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190222152140/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-94-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.4",
+      "checked": "2026-10-02"
+    },
+    "V9.5": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190331134028/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-95-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.5",
+      "checked": "2026-10-02"
+    },
+    "V9.6": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190321003241/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-96-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.6",
+      "checked": "2026-10-02"
+    },
+    "V9.7": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190403082532/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-97-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.7",
+      "checked": "2026-10-02"
+    },
+    "V9.8": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190416190604/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-98-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.8",
+      "checked": "2026-10-02"
+    },
+    "V9.9": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190502091645/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-99-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.9",
+      "checked": "2026-10-02"
+    },
+    "V9.10": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190514075304/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-910-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.10",
+      "checked": "2026-10-02"
+    },
+    "V9.11": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190530054727/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-911-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.11",
+      "checked": "2026-10-02"
+    },
+    "V9.16": {
+      "official": null,
+      "officialArchived": "https://web.archive.org/web/20190814053157/http://na.leagueoflegends.com/en/news/game-updates/patch/patch-916-notes",
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.16",
+      "checked": "2026-10-02"
+    },
+    "V9.22": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-9-22-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.22",
+      "checked": "2026-10-02"
+    },
+    "V9.23": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-9-23-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.23",
+      "checked": "2026-10-02"
+    },
+    "V9.24": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-9-24-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V9.24",
+      "checked": "2026-10-02"
+    },
+    "V10.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.1",
+      "checked": "2026-10-02"
+    },
+    "V10.4": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-4-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.4",
+      "checked": "2026-10-02"
+    },
+    "V10.5": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-5-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.5",
+      "checked": "2026-10-02"
+    },
+    "V10.6": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-6-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.6",
+      "checked": "2026-10-02"
+    },
+    "V10.7": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-7-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.7",
+      "checked": "2026-10-02"
+    },
+    "V10.12": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-12-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.12",
+      "checked": "2026-10-02"
+    },
+    "V10.13": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-13-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.13",
+      "checked": "2026-10-02"
+    },
+    "V10.14": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-14-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.14",
+      "checked": "2026-10-02"
+    },
+    "V10.15": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-15-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.15",
+      "checked": "2026-10-02"
+    },
+    "V10.16": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-16-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.16",
+      "checked": "2026-10-02"
+    },
+    "V10.18": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-18-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.18",
+      "checked": "2026-10-02"
+    },
+    "V10.20": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-20-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.20",
+      "checked": "2026-10-02"
+    },
+    "V10.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.21",
+      "checked": "2026-10-02"
+    },
+    "V10.22": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-22-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.22",
+      "checked": "2026-10-02"
+    },
+    "V10.23": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-10-23-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V10.23",
+      "checked": "2026-10-02"
+    },
+    "V11.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.1",
+      "checked": "2026-10-02"
+    },
+    "V11.2": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-2-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.2",
+      "checked": "2026-10-02"
+    },
+    "V11.6": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-6-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.6",
+      "checked": "2026-10-02"
+    },
+    "V11.10": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-10-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.10",
+      "checked": "2026-10-02"
+    },
+    "V11.11": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-11-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.11",
+      "checked": "2026-10-02"
+    },
+    "V11.13": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-13-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.13",
+      "checked": "2026-10-02"
+    },
+    "V11.17": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-17-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.17",
+      "checked": "2026-10-02"
+    },
+    "V11.19": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-19-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.19",
+      "checked": "2026-10-02"
+    },
+    "V11.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.21",
+      "checked": "2026-10-02"
+    },
+    "V11.22": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-22-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.22",
+      "checked": "2026-10-02"
+    },
+    "V11.23": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-23-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.23",
+      "checked": "2026-10-02"
+    },
+    "V11.24": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-24-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V11.24",
+      "checked": "2026-10-02"
+    },
+    "V12.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.1",
+      "checked": "2026-10-02"
+    },
+    "V12.2": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-2-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.2",
+      "checked": "2026-10-02"
+    },
+    "V12.6": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-6-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.6",
+      "checked": "2026-10-02"
+    },
+    "V12.7": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-7-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.7",
+      "checked": "2026-10-02"
+    },
+    "V12.10": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-10-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.10",
+      "checked": "2026-10-02"
+    },
+    "V12.11": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-11-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.11",
+      "checked": "2026-10-02"
+    },
+    "V12.12": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-12-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.12",
+      "checked": "2026-10-02"
+    },
+    "V12.14": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-14-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.14",
+      "checked": "2026-10-02"
+    },
+    "V12.15": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-15-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.15",
+      "checked": "2026-10-02"
+    },
+    "V12.20": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-20-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.20",
+      "checked": "2026-10-02"
+    },
+    "V12.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.21",
+      "checked": "2026-10-02"
+    },
+    "V12.22": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-22-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V12.22",
+      "checked": "2026-10-02"
+    },
+    "V13.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.1",
+      "checked": "2026-10-02"
+    },
+    "V13.3": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-3-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.3",
+      "checked": "2026-10-02"
+    },
+    "V13.4": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-4-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.4",
+      "checked": "2026-10-02"
+    },
+    "V13.5": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-5-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.5",
+      "checked": "2026-10-02"
+    },
+    "V13.6": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-6-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.6",
+      "checked": "2026-10-02"
+    },
+    "V13.12": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-12-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.12",
+      "checked": "2026-10-02"
+    },
+    "V13.15": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-15-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.15",
+      "checked": "2026-10-02"
+    },
+    "V13.17": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-17-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.17",
+      "checked": "2026-10-02"
+    },
+    "V13.20": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-20-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.20",
+      "checked": "2026-10-02"
+    },
+    "V13.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.21",
+      "checked": "2026-10-02"
+    },
+    "V13.24": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-13-24-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V13.24",
+      "checked": "2026-10-02"
+    },
+    "V14.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.1",
+      "checked": "2026-10-02"
+    },
+    "V14.2": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-2-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.2",
+      "checked": "2026-10-02"
+    },
+    "V14.4": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-4-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.4",
+      "checked": "2026-10-02"
+    },
+    "V14.10": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-10-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.10",
+      "checked": "2026-10-02"
+    },
+    "V14.11": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-11-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.11",
+      "checked": "2026-10-02"
+    },
+    "V14.12": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-12-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.12",
+      "checked": "2026-10-02"
+    },
+    "V14.13": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/lol-patch-14-13-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.13",
+      "checked": "2026-10-02"
+    },
+    "V14.14": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-14-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.14",
+      "checked": "2026-10-02"
+    },
+    "V14.15": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-15-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.15",
+      "checked": "2026-10-02"
+    },
+    "V14.17": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-17-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.17",
+      "checked": "2026-10-02"
+    },
+    "V14.18": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-18-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.18",
+      "checked": "2026-10-02"
+    },
+    "V14.19": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-19-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.19",
+      "checked": "2026-10-02"
+    },
+    "V14.20": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-20-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.20",
+      "checked": "2026-10-02"
+    },
+    "V14.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.21",
+      "checked": "2026-10-02"
+    },
+    "V14.24": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-24-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V14.24",
+      "checked": "2026-10-02"
+    },
+    "V25.S1.1": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-s1-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.S1.1",
+      "checked": "2026-10-02"
+    },
+    "V25.S1.2": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-s1-2-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.S1.2",
+      "checked": "2026-10-02"
+    },
+    "V25.S1.3": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-2025-s1-3-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.S1.3",
+      "checked": "2026-10-02"
+    },
+    "V25.05": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-05-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.05",
+      "checked": "2026-10-02"
+    },
+    "V25.09": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-09-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.09",
+      "checked": "2026-10-02"
+    },
+    "V25.10": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-10-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.10",
+      "checked": "2026-10-02"
+    },
+    "V25.12": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-12-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.12",
+      "checked": "2026-10-02"
+    },
+    "V25.14": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-14-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.14",
+      "checked": "2026-10-02"
+    },
+    "V25.19": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-19-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.19",
+      "checked": "2026-10-02"
+    },
+    "V25.21": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-21-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.21",
+      "checked": "2026-10-02"
+    },
+    "V25.22": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-22-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.22",
+      "checked": "2026-10-02"
+    },
+    "V25.24": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-24-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V25.24",
+      "checked": "2026-10-02"
+    },
+    "V26.01": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-26-1-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.01",
+      "checked": "2026-10-02"
+    },
+    "V26.03": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-26-3-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.03",
+      "checked": "2026-10-02"
+    },
+    "V26.09": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-9-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.09",
+      "checked": "2026-10-02"
+    },
+    "V26.10": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-10-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.10",
+      "checked": "2026-10-02"
+    },
+    "V26.11": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-11-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.11",
+      "checked": "2026-10-02"
+    },
+    "V26.13": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-13-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.13",
+      "checked": "2026-10-02"
+    },
+    "V26.15": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-15-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.15",
+      "checked": "2026-10-02"
+    },
+    "V26.16": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-16-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.16",
+      "checked": "2026-10-02"
+    },
+    "V26.17": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-17-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.17",
+      "checked": "2026-10-02"
+    },
+    "V26.19": {
+      "official": "https://www.leagueoflegends.com/en-us/news/game-updates/league-of-legends-patch-26-19-notes/",
+      "officialArchived": null,
+      "wiki": "https://wiki.leagueoflegends.com/en-us/V26.19",
+      "checked": "2026-10-02"
+    }
+  }
+}
